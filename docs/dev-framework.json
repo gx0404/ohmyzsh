@@ -1,0 +1,109 @@
+{
+  "schema": 1,
+  "project": {
+    "name": "ohmyzsh",
+    "source_roots": [
+      "lib",
+      "plugins",
+      "templates",
+      "themes",
+      "tools"
+    ],
+    "test_roots": [
+      "tests",
+      "lib/tests"
+    ],
+    "reviewed": true,
+    "sharing": "shared"
+  },
+  "evidence_root": ".playwright-mcp",
+  "version_targets": [],
+  "ci": [
+    "lint",
+    "test",
+    "generated-check"
+  ],
+  "commands": {
+    "setup": {
+      "status": "configured",
+      "argv": ["bash", "scripts/setup_env.sh", "--print"],
+      "cwd": "."
+    },
+    "dev": {
+      "status": "configured",
+      "argv": ["bash", "scripts/dev_shell.sh"],
+      "cwd": "."
+    },
+    "build": {
+      "status": "not-applicable",
+      "reason": "解释型 shell 框架：.zwc 编译由运行时 zrecompile 自动处理，无独立构建产物"
+    },
+    "lint": {
+      "status": "configured",
+      "argv": ["bash", "scripts/check_syntax.sh"],
+      "cwd": "."
+    },
+    "typecheck": {
+      "status": "not-applicable",
+      "reason": "zsh 为动态语言且仓库无类型检查器；语法层由 lint（按 shebang 分派 zsh -n / sh -n / bash -n）覆盖"
+    },
+    "test": {
+      "status": "configured",
+      "argv": ["bash", "scripts/run_tests.sh"],
+      "cwd": "."
+    },
+    "test-integration": {
+      "status": "configured",
+      "argv": ["zsh", "tests/smoke_load.zsh", "--plugins", "git,docker"],
+      "cwd": "."
+    },
+    "test-heavy": {
+      "status": "not-applicable",
+      "reason": "无打包/真机/长时层；更多插件组合按需扩展 test-integration 的 --plugins 清单（环境相关插件如 kubectl 受命令守卫约束不纳入）"
+    },
+    "generated-check": {
+      "status": "configured",
+      "argv": ["python3", "scripts/build_agent_kb.py", "--check"],
+      "cwd": "."
+    },
+    "ui-smoke": {
+      "status": "configured",
+      "argv": ["bash", "scripts/ui_smoke.sh"],
+      "cwd": "."
+    },
+    "graph": {
+      "status": "configured",
+      "argv": ["bash", "scripts/graphify.sh", "build"],
+      "cwd": "."
+    },
+    "graph-check": {
+      "status": "configured",
+      "argv": ["bash", "scripts/graphify.sh", "check"],
+      "cwd": "."
+    },
+    "kb": {
+      "status": "configured",
+      "argv": ["python3", "scripts/build_agent_kb.py", "--confirm"],
+      "cwd": "."
+    },
+    "kb-check": {
+      "status": "configured",
+      "argv": ["python3", "scripts/build_agent_kb.py", "--check"],
+      "cwd": "."
+    },
+    "package": {
+      "status": "not-applicable",
+      "reason": "发布形态为 git 分支/tag；无制品打包步骤"
+    },
+    "gx-install": {
+      "status": "configured",
+      "argv": ["sh", "gx/install.sh"],
+      "cwd": "."
+    },
+    "gx-bundle": {
+      "status": "configured",
+      "argv": ["sh", "gx/bundle.sh"],
+      "cwd": "."
+    }
+  }
+}

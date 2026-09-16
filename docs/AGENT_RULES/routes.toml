@@ -1,0 +1,71 @@
+# ohmyzsh 规则路由：路径/任务 → 领域文档的唯一机器真源。
+# 修改后必须运行 `python3 scripts/resolve_agent_rules.py --check`（闭集校验）。
+version = 2
+root_max_bytes = 16384
+root_only = [
+  # AI 工具面：只提醒执行同一 resolver，不复制领域正文；个人状态由 .gitignore 挡在仓外。
+  # upstream 门面与运行时占位：不承载领域路由；改动遵循 CONTRIBUTING.md 与上游合并纪律。
+  # 注意：本数组必须整体按码点排序（resolver --check 守门），增删后重排。
+  ".agents/**",
+  ".claude/**",
+  ".codex/**",
+  ".devcontainer/**",
+  ".editorconfig",
+  ".prettierrc",
+  ".zcode/**",
+  "AGENTS.md",
+  "CLAUDE.md",
+  "CODE_OF_CONDUCT.md",
+  "LICENSE.txt",
+  "SECURITY.md",
+  "cache/**",
+  "log/**",
+]
+
+[[rules]]
+id = "code-review"
+doc = "docs/AGENT_RULES/code-review.md"
+paths = []
+tasks = ["review"]
+
+[[rules]]
+id = "core-loader"
+doc = "docs/AGENT_RULES/core-loader.md"
+paths = ["custom/**", "lib/*.zsh", "oh-my-zsh.sh"]
+tasks = []
+
+[[rules]]
+id = "development"
+doc = "docs/AGENT_RULES/development.md"
+paths = [".github/**", ".gitignore", "CHANGELOG.md", "CONTRIBUTING.md", "Makefile", "README.md", "docs/**", "scripts/**"]
+tasks = []
+
+[[rules]]
+id = "gx-profile"
+doc = "docs/AGENT_RULES/gx-profile.md"
+paths = ["gx/**"]
+tasks = []
+
+[[rules]]
+id = "plugins"
+doc = "docs/AGENT_RULES/plugins.md"
+paths = ["plugins/**"]
+tasks = []
+
+[[rules]]
+id = "testing"
+doc = "docs/AGENT_RULES/testing.md"
+paths = ["lib/tests/**", "tests/**"]
+tasks = []
+
+[[rules]]
+id = "themes"
+doc = "docs/AGENT_RULES/themes.md"
+paths = ["themes/**"]
+tasks = []
+
+[[rules]]
+id = "tools-installer"
+doc = "docs/AGENT_RULES/tools-installer.md"
+paths = ["templates/**", "tools/**"]
+tasks = []

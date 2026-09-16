@@ -1,0 +1,28 @@
+# 工控机/工作站专属环境，由 .zshrc 末尾加载；随 gx/config 入库，缺失路径自动失效。
+# 迁移自 ~/.bashrc：CUDA/TensorRT、相机 SDK、Atlassian CLI 等。
+
+# CUDA + TensorRT
+export LD_LIBRARY_PATH=/usr/local/cuda-12.8/TensorRT-10.9.0.34/lib:/opt/MVS/lib/64:/opt/MVS/lib/32:/usr/local/cuda/lib64${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+export CPLUS_INCLUDE_PATH=/usr/local/cuda-12.8/TensorRT-10.9.0.34/include${CPLUS_INCLUDE_PATH:+:$CPLUS_INCLUDE_PATH}
+path=(/usr/local/cuda-12.8/TensorRT-10.9.0.34/bin $path /usr/local/cuda/bin)
+
+# Photoneo PhoXi 3D 相机
+export PHOXI_CONTROL_PATH=/opt/Photoneo/PhoXiControl-1.9.1
+
+# 海康 MVS 相机 SDK
+export MVCAM_SDK_PATH=/opt/MVS
+export MVCAM_COMMON_RUNENV=/opt/MVS/lib
+export MVCAM_GENICAM_CLPROTOCOL=/opt/MVS/lib/CLProtocol
+export ALLUSERSPROFILE=/opt/MVS/MVFG
+
+# git 向上找仓库不越过 /home
+export GIT_CEILING_DIRECTORIES=/home
+
+# Claude Code MCP 启动超时（默认 30s，atlassian 首次慢）
+export MCP_TIMEOUT=60000
+
+# Atlassian CLI
+path=("$HOME/.local/acli/acli_1.3.21-stable_linux_amd64" $path)
+
+# 本机 python 指向 /usr/local 的 python3
+alias python='/usr/local/bin/python3'
