@@ -65,7 +65,16 @@ print -r -- "GX-SMOKE-OK zsh=${ZSH:t}"
 '
 grep -q "GX-SMOKE-OK" "$tmp/load.out" || fail "load marker absent in stdout"
 
-# ---------------------------------------------------------------- 场景 B：幂等重装 + 既有配置备份
+# ---------------------------------------------------------------- 场景 B：幂等重装 + 既有配置备份 + 忙二进制原子替换
+
+# 回归实测的 ETXTBSY：让已部署 gitstatusd 处于运行中且内容与仓库不同，
+# 重装必须走临时副本 + mv 原子替换，而不是直接 cp 覆盖（Text file busy）。
+pkill -f "$home_a/.cache/gitstatus/gitstatusd" 2>/dev/null
+sleep 1
+printf '\n' >> "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64"
+( sleep 30 | "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64" \
+    -G v1.5.4 -s 1 -u 1 -d 1 -c 1 -m -1 -v FATAL -t 32 >/dev/null 2>&1 ) &
+busy_daemon=$!
 
 echo "# legacy config" > "$home_a/.zshrc"
 sh "$installer" --home "$home_a" --skip-apt --skip-chsh --unattended \
@@ -75,6 +84,11 @@ backup=("$home_a"/.zshrc.pre-gx-*(N))
 [ $#backup -ge 1 ] || fail "legacy .zshrc not backed up"
 grep -q "legacy config" "$backup[1]" || fail "backup content mismatch"
 cmp -s "$repo_root/gx/config/zshrc" "$home_a/.zshrc" || fail ".zshrc not restored from repo copy"
+cmp -s "$repo_root/gx/bin/gitstatusd-linux-x86_64" "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64" \
+  || fail "busy gitstatusd not atomically replaced"
+grep -q "gitstatusd v1.5.4" "$tmp/inst-b.out" || fail "gitstatusd replace message absent"
+grep -q "zoxide 已一致" "$tmp/inst-b.out" || fail "zoxide identical-skip message absent"
+kill "$busy_daemon" 2>/dev/null || true
 
 # ---------------------------------------------------------------- 场景 C：--uninstall 恢复备份
 
@@ -100,6 +114,19 @@ load_check "$home_d" '
 print -r -- "GX-SMOKE-OK-CUSTOM"
 '
 grep -q "GX-SMOKE-OK-CUSTOM" "$tmp/load.out" || fail "custom-path load marker absent"
+
+# ---------------------------------------------------------------- 场景 E：wezterm 目标由 git 自管则跳过
+
+home_e="$tmp/home-e"
+mkdir -p "$home_e/.config/wezterm/.git"
+echo "# self-managed" > "$home_e/.config/wezterm/wezterm.lua"
+sh "$installer" --home "$home_e" --skip-apt --skip-chsh --unattended \
+  > "$tmp/inst-e.out" 2> "$tmp/inst-e.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-e.err" >&2; fail "scenario E install exited non-zero"; }
+grep -q "# self-managed" "$home_e/.config/wezterm/wezterm.lua" \
+  || fail "git-managed wezterm was replaced"
+[ ! -f "$home_e/.config/wezterm/.gx-managed" ] || fail "git-managed wezterm got gx marker"
+grep -q "git 自管" "$tmp/inst-e.out" || fail "wezterm git-skip message absent"
 
 print -r -- "GX-INSTALL-SMOKE-OK"
 exit 0

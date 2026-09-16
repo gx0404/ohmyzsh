@@ -246,37 +246,47 @@ deploy_gitstatusd() {
   _gs_arch=$(uname -m)
   _gs_cache="${GITSTATUS_CACHE_DIR:-$GX_HOME/.cache/gitstatus}"
   _gs_src="$REPO_DIR/gx/bin/gitstatusd-linux-x86_64"
+  _gs_dst="$_gs_cache/gitstatusd-linux-x86_64"
   if [ "$_gs_arch" != x86_64 ]; then
     # 非 x86_64 平台不携带二进制；有网络时 gitstatus 会自行下载守护进程。
     warn "架构 $_gs_arch 无 vendored gitstatusd；p10k 将在联网时自动下载"
     return 0
   fi
   mkdir -p "$_gs_cache"
-  cp "$_gs_src" "$_gs_cache/gitstatusd-linux-x86_64"
-  chmod +x "$_gs_cache/gitstatusd-linux-x86_64"
+  if [ -x "$_gs_dst" ] && cmp -s "$_gs_src" "$_gs_dst"; then
+    say "gitstatusd 已一致，跳过"
+    return 0
+  fi
+  # 守护进程可能正被运行中的会话执行（直接 cp 覆盖会 Text file busy）：
+  # 临时副本 + mv 原子替换；旧 inode 由存量进程继续使用，新会话拉起新文件。
+  cp "$_gs_src" "$_gs_dst.new"
+  chmod +x "$_gs_dst.new"
+  mv -f "$_gs_dst.new" "$_gs_dst"
   say "gitstatusd v1.5.4 -> $_gs_cache"
 }
 
 deploy_zoxide() {
+  _zx_dst="$GX_HOME/.local/bin/zoxide"
+  _zx_src="$REPO_DIR/gx/bin/zoxide-linux-x86_64"
   # 判定看部署目标而非当前进程 PATH：--home 重定向时目标目录必须自足。
-  if [ -x "$GX_HOME/.local/bin/zoxide" ]; then
-    say "zoxide 已存在于目标，跳过"
+  if [ -x "$_zx_dst" ] && cmp -s "$_zx_src" "$_zx_dst"; then
+    say "zoxide 已一致，跳过"
     return 0
   fi
-  if [ "$GX_HOME" = "$HOME" ] && command -v zoxide >/dev/null 2>&1; then
+  if [ ! -e "$_zx_dst" ] && [ "$GX_HOME" = "$HOME" ] && command -v zoxide >/dev/null 2>&1; then
     say "zoxide 已在系统 PATH，跳过"
     return 0
   fi
-  _zx_arch=$(uname -m)
-  _zx_dst_dir="$GX_HOME/.local/bin"
-  mkdir -p "$_zx_dst_dir"
-  if [ "$_zx_arch" = x86_64 ] && [ -x "$REPO_DIR/gx/bin/zoxide-linux-x86_64" ]; then
-    cp "$REPO_DIR/gx/bin/zoxide-linux-x86_64" "$_zx_dst_dir/zoxide"
-    chmod +x "$_zx_dst_dir/zoxide"
-    say "zoxide $ZOXIDE_VERSION -> $_zx_dst_dir/zoxide"
+  if [ "$(uname -m)" != x86_64 ] || [ ! -x "$_zx_src" ]; then
+    warn "架构 $(uname -m) 无 vendored zoxide；请手动安装或联网下载 $ZOXIDE_VERSION"
     return 0
   fi
-  warn "架构 $_zx_arch 无 vendored zoxide；请手动安装或联网下载 $ZOXIDE_VERSION"
+  mkdir -p "$GX_HOME/.local/bin"
+  # 与 gitstatusd 同理：运行中的二进制用临时副本 + mv 原子替换。
+  cp "$_zx_src" "$_zx_dst.new"
+  chmod +x "$_zx_dst.new"
+  mv -f "$_zx_dst.new" "$_zx_dst"
+  say "zoxide $ZOXIDE_VERSION -> $GX_HOME/.local/bin/zoxide"
 }
 
 deploy_fonts() {
@@ -295,6 +305,11 @@ deploy_fonts() {
 deploy_wezterm() {
   [ "$OPT_SKIP_WEZTERM" -eq 0 ] || { say "跳过 WezTerm 配置 (--skip-wezterm)"; return 0; }
   _wt_dst="$GX_HOME/.config/wezterm"
+  if [ -d "$_wt_dst/.git" ]; then
+    # 目标配置由用户自己的 git 仓库管理（本机即如此）：保留现场，不快照替换。
+    say "WezTerm 配置目录由 git 自管（含 .git），跳过部署"
+    return 0
+  fi
   replace_dir "$REPO_DIR/gx/wezterm" "$_wt_dst"
   say "WezTerm 配置 -> $_wt_dst"
   printf 'gx install.sh 部署的 wezterm 配置快照\n' > "$_wt_dst/.gx-managed"
