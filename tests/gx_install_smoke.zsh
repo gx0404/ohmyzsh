@@ -65,6 +65,22 @@ print -r -- "GX-SMOKE-OK zsh=${ZSH:t}"
 '
 grep -q "GX-SMOKE-OK" "$tmp/load.out" || fail "load marker absent in stdout"
 
+# PTY 真交互验证：zsh -i -c 无 tty 时 gitstatus 无法拉起（harness 伪影，非缺陷），
+# 必须用伪终端让提示符真实渲染，断言 VCS 状态由部署的 gitstatusd 填充。
+if command -v script >/dev/null 2>&1; then
+  git_dir="$tmp/probe-repo"
+  git init -q "$git_dir"
+  { sleep 5; printf 'cd %s\n' "$git_dir"; sleep 4
+    printf 'print -r -- PTY-VCS=${VCS_STATUS_LOCAL_BRANCH:-unset}\n'; sleep 2
+    printf 'exit\n'; } \
+    | env HOME="$home_a" ZDOTDIR="$home_a" timeout 45 script -qec "zsh -i" /dev/null \
+      > "$tmp/pty.out" 2>&1
+  tr -d '\r' < "$tmp/pty.out" | grep -aq 'PTY-VCS=' \
+    || fail "PTY probe produced no output (interactive session failed to start)"
+  tr -d '\r' < "$tmp/pty.out" | grep -aq 'PTY-VCS=unset' \
+    && fail "PTY interactive session: VCS status not populated by gitstatusd"
+fi
+
 # ---------------------------------------------------------------- 场景 B：幂等重装 + 既有配置备份 + 忙二进制原子替换
 
 # 回归实测的 ETXTBSY：让已部署 gitstatusd 处于运行中且内容与仓库不同，
