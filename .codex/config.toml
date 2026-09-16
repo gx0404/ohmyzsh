@@ -1,0 +1,37 @@
+# ohmyzsh 项目级 Codex 配置。
+# 用户级 model/provider/auth 仍归 ~/.codex/config.toml；本文件只声明项目边界。
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+# 根 AGENTS.md 是短入口；领域规则由 resolver 按路径显式读取。
+project_doc_max_bytes = 32768
+
+[sandbox_workspace_write]
+network_access = false
+
+[shell_environment_policy]
+inherit = "all"
+exclude = [
+  "*KEY*", "*SECRET*", "*TOKEN*", "*PASSWORD*",
+  "OPENAI_API_KEY", "ANTHROPIC_API_KEY",
+]
+
+[shell_environment_policy.set]
+PYTHONDONTWRITEBYTECODE = "1"
+
+# 注意：Codex hooks 必须是数组表（[[hooks.<Event>]]，命令嵌套在 .hooks 子表），
+# 写成单表会导致启动失败；timeout 单位是秒。
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = 'python3 "$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_policy.py"'
+timeout = 30
+
+[[hooks.Stop]]
+
+[[hooks.Stop.hooks]]
+type = "command"
+command = 'python3 "$(git rev-parse --show-toplevel)/.codex/hooks/stop_review_signal.py"'
+timeout = 10

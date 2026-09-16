@@ -19,3 +19,36 @@ log/
 # zcompile cached files
 *.zwc
 *.zwc.old
+
+# --- dev-framework (fork) ---
+# 证据、图谱与测试运行态
+.playwright/
+.playwright-mcp/
+.graphify-memory/
+graphify-out
+**/graphify-out
+test-results/
+__pycache__/
+*.pyc
+
+# 凭据只允许无秘密的示例文件
+.env
+.env.*
+!.env.example
+
+# 可共享的工具基线；其余文件默认本机
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/rules/
+!.claude/README.md
+.codex/*
+!.codex/config.toml
+!.codex/hooks/
+!.codex/README.md
+.zcode/*
+!.zcode/config.json
+!.zcode/README.md
+.agents/*
+!.agents/README.md
+# --- dev-framework (fork) end ---

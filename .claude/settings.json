@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git add:*)",
+      "Bash(zsh -n:*)",
+      "Bash(sh -n:*)",
+      "Bash(bash -n:*)",
+      "Bash(bash scripts/*)",
+      "Bash(zsh tests/*)",
+      "Bash(python3 scripts/*)",
+      "Bash(make help)",
+      "Bash(make framework-check)",
+      "Bash(make framework-ready)",
+      "Bash(make ai-doctor)",
+      "Bash(make ci-check)",
+      "Bash(make test)",
+      "Bash(make lint)",
+      "Bash(make version-check)",
+      "Bash(make kb-check)",
+      "Bash(make graph-check)",
+      "Bash(make evidence:*)"
+    ],
+    "ask": [
+      "Bash(make kb)",
+      "Bash(make graph)",
+      "Bash(make version-write)",
+      "Bash(git commit:*)",
+      "Bash(make test-integration)"
+    ],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git clean:*)",
+      "Edit(custom/**)",
+      "Write(custom/**)",
+      "Edit(cache/**)",
+      "Write(cache/**)",
+      "Edit(.git/**)",
+      "Write(.git/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/pretooluse-safety-gate.sh"],
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/notify_review.sh"],
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

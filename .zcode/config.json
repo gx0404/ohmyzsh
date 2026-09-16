@@ -1,0 +1,32 @@
+{
+  "hooks": {
+    "enabled": true,
+    "timeoutMs": 30000,
+    "maxOutputBytes": 32768,
+    "events": {
+      "PreToolUse": [
+        {
+          "matcher": "Bash|Edit|Write",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/pretooluse-safety-gate.sh\"",
+              "timeoutMs": 30000
+            }
+          ]
+        }
+      ],
+      "Stop": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/notify_review.sh\"",
+              "timeoutMs": 10000
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
