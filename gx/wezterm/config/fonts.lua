@@ -10,9 +10,9 @@ local font_size = platform.is_mac and 12 or 12
 
 return {
    font = wezterm.font_with_fallback({
-      { family = font_family, weight = 'DemiBold' },
-      -- CJK 字形放大到填满双宽单元格，消除汉字间的空隙（2×10px 单元格 / 17px 原始步进）。
-      { family = 'Noto Sans CJK SC', weight = 'Bold', scale = 1.18 },
+      { family = font_family, weight = 'Regular' },
+      -- 正文字重保持 Regular，选中和标题交给 TUI 自己强调；CJK 轻微校正高度。
+      { family = 'Noto Sans CJK SC', weight = 'Regular', scale = 1.05 },
    }),
    font_size = font_size,
 

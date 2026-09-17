@@ -26,6 +26,7 @@ run_step syntax bash scripts/check_syntax.sh
 run_step unit-cli zsh lib/tests/cli.test.zsh
 run_step config-shapes python3 tests/check_tool_configs.py
 run_step smoke zsh tests/smoke_load.zsh
+run_step gx-terminal python3 tests/gx_terminal.py
 run_step gx-install-smoke zsh tests/gx_install_smoke.zsh
 
 echo "=== summary ==="

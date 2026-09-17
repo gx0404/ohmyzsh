@@ -26,6 +26,10 @@ zstyle ':omz:plugins:nvm' lazy yes
 zstyle ':omz:plugins:nvm' lazy-cmd eslint prettier pnpm yarn codex
 plugins=(git sudo extract colored-man-pages nvm)
 
+# P10k 负责 OSC 133 提示符边界，避免再叠加一套 PS1 包装。
+if [[ $TERM_PROGRAM == WezTerm || ${HERDR_ENV:-} == 1 ]]; then
+  typeset -g POWERLEVEL9K_TERM_SHELL_INTEGRATION=true
+fi
 source "$ZSH/oh-my-zsh.sh"
 
 # 常用命令与 Ubuntu 默认 Bash 对齐；仅影响交互式 zsh。
@@ -172,3 +176,6 @@ export PATH="$HOME/.local/go/bin:$HOME/go/bin:$PATH"
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# OSC 7 仅在交互终端和目录变化时发送；独立模块保留用户主题与插件。
+[[ -r "$ZSH/gx/config/terminal.zsh" ]] && source "$ZSH/gx/config/terminal.zsh"

@@ -1,3 +1,4 @@
+local wezterm = require('wezterm')
 local platform = require('utils.platform')
 
 local options = {
@@ -6,18 +7,29 @@ local options = {
 }
 
 if platform.is_win then
-   options.default_prog = { 'pwsh', '-NoLogo' }
-   options.launch_menu = {
-      { label = 'PowerShell Core', args = { 'pwsh', '-NoLogo' } },
-      { label = 'PowerShell Desktop', args = { 'powershell' } },
-      { label = 'Command Prompt', args = { 'cmd' } },
-      { label = 'Nushell', args = { 'nu' } },
-      { label = 'Msys2', args = { 'ucrt64.cmd' } },
-      {
-         label = 'Git Bash',
-         args = { 'C:\\Users\\kevin\\scoop\\apps\\git\\current\\bin\\bash.exe' },
-      },
-   }
+   local function available(name)
+      local ok, success = pcall(wezterm.run_child_process, { 'where.exe', name })
+      return ok and success
+   end
+   options.default_prog = available('pwsh.exe') and { 'pwsh.exe', '-NoLogo' }
+      or { 'powershell.exe', '-NoLogo' }
+   options.launch_menu = { { label = 'PowerShell 5.1', args = { 'powershell.exe', '-NoLogo' } },
+      { label = 'Command Prompt', args = { 'cmd.exe' } } }
+   if available('pwsh.exe') then
+      table.insert(options.launch_menu, 1, { label = 'PowerShell 7', args = { 'pwsh.exe', '-NoLogo' } })
+   end
+   for _, entry in ipairs({ { 'Nushell', 'nu.exe' }, { 'MSYS2', 'ucrt64.cmd' } }) do
+      if available(entry[2]) then table.insert(options.launch_menu, { label = entry[1], args = { entry[2] } }) end
+   end
+   local git_bash = wezterm.home_dir .. '/scoop/apps/git/current/bin/bash.exe'
+   local file = io.open(git_bash, 'rb')
+   if file then
+      file:close()
+      table.insert(options.launch_menu, { label = 'Git Bash', args = { git_bash, '-l' } })
+   end
+   if available('wsl.exe') then
+      table.insert(options.launch_menu, { label = 'WSL (default)', args = { 'wsl.exe', '--cd', '~' } })
+   end
 elseif platform.is_mac then
    options.default_prog = { '/opt/homebrew/bin/fish', '-l' }
    options.launch_menu = {

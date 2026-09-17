@@ -1,3 +1,7 @@
+local wezterm = require('wezterm')
+-- --config-file 指向独立配置时，也从同目录加载模块，避免混入本机旧配置。
+package.path = wezterm.config_dir .. '/?.lua;' .. wezterm.config_dir .. '/?/init.lua;' .. package.path
+
 local Config = require('config')
 
 require('utils.backdrops')

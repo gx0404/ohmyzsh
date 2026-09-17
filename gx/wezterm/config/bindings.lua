@@ -94,7 +94,7 @@ local keys = {
    -- tabs --
    -- tabs: spawn+close
    { key = 't',          mods = 'SHIFT|CTRL',  action = act.SpawnTab('DefaultDomain') },
-   { key = 't',          mods = mod.SUPER_REV, action = platform.is_linux and act.SpawnTab('DefaultDomain') or act.SpawnTab({ DomainName = 'wsl:ubuntu-fish' }) },
+   { key = 't',          mods = mod.SUPER_REV, action = act.SpawnTab('DefaultDomain') },
    { key = 'w',          mods = mod.SUPER_REV, action = act.CloseCurrentTab({ confirm = false }) },
 
    -- tabs: navigation
@@ -341,17 +341,17 @@ local key_tables = {
 }
 
 local mouse_bindings = {
-   -- Ctrl-click will open the link under the mouse cursor
-   {
-      event = { Down = { streak = 1, button = 'Left' } },
-      mods = 'CTRL',
-      action = act.Nop,
-   },
-   {
-      event = { Up = { streak = 1, button = 'Left' } },
-      mods = 'CTRL',
-      action = act.OpenLinkAtMouseCursor,
-   },
+   -- 应用启用鼠标协议时保留完整事件给 Herdr；Shift 拖选由宿主负责。
+   { event = { Down = { streak = 1, button = 'Left' } }, mods = 'SHIFT',
+     action = act.SelectTextAtMouseCursor('Cell') },
+   { event = { Drag = { streak = 1, button = 'Left' } }, mods = 'SHIFT',
+     action = act.ExtendSelectionToMouseCursor('Cell') },
+   { event = { Up = { streak = 1, button = 'Left' } }, mods = 'SHIFT',
+     action = act.CompleteSelection('ClipboardAndPrimarySelection') },
+   { event = { Down = { streak = 1, button = 'Left' } }, mods = 'CTRL',
+     mouse_reporting = false, action = act.Nop },
+   { event = { Up = { streak = 1, button = 'Left' } }, mods = 'CTRL',
+     mouse_reporting = false, action = act.OpenLinkAtMouseCursor },
    -- Ctrl+滚轮 调整字体大小
    {
       event = { Down = { streak = 1, button = { WheelUp = 1 } } },
@@ -368,10 +368,8 @@ local mouse_bindings = {
 return {
    disable_default_key_bindings = true,
    -- disable_default_mouse_bindings = true,
-   -- 释放 Ctrl+B 的向左移动功能；Linux 用 Ctrl+Shift+Space 进入前缀模式。
-   leader = platform.is_linux
-      and { key = 'Space', mods = 'CTRL|SHIFT', timeout_milliseconds = 1000 }
-      or { key = 'b', mods = 'CTRL', timeout_milliseconds = 1000 },
+   -- 与 Herdr 的 Ctrl+B 分开；Linux、Windows、WSL 使用同一个终端前缀。
+   leader = { key = 'Space', mods = 'CTRL|SHIFT', timeout_milliseconds = 1000 },
    keys = keys,
    key_tables = key_tables,
    mouse_bindings = mouse_bindings,

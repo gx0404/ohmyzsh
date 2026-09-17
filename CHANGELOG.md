@@ -6,6 +6,9 @@
 
 ## 0.1.0(TBD)
 
+- Herdr 终端协作：统一 WezTerm 前缀与 Shift 选择，按已安装 shell 提供 Windows
+  启动项，使用 WSL 自动发现；补齐 zsh 幂等目录上报与隔离 PTY 回归。
+
 0. 初始化 AI 协作开发框架（update-ai-settings skill，参考 xyz-csm/xyz-hmi3 体系）：
    根 `AGENTS.md` 启动协议 + `CLAUDE.md` 薄入口；`docs/AGENT_RULES/` 七份领域规则
    与 `routes.toml` 路由闭集（全仓 Git 可见文件零遗漏、零重叠）；

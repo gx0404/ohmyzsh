@@ -1,11 +1,11 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-09-16T05:48:38Z",
+ "built_at": "2026-09-17T19:53:34Z",
  "corpus_files": 997,
- "corpus_hash": "39d236d803d6b078ec01f9f30d8af1360f75084baa35b9763ac4e1e72f3ca7e6",
- "content_hash": "251e3242ba982b36ef0cff6faabc89e83b55ed922b11fb905cf56b46e8baf3a4",
- "chunk_count": 1665,
+ "corpus_hash": "de2c63da6e793141249f910e1c9c7f4ac193ef75564fb44ad6bc1a3609114ec2",
+ "content_hash": "dc65470a6120a75a4da3c7bb1324866c7219d7c3a5707fe145f87dd9bf4faf31",
+ "chunk_count": 1666,
  "chunks": [
   {
    "id": "fe7fa0a72292",
@@ -80,11 +80,19 @@
    "layer": "doc"
   },
   {
-   "id": "24f2b4570603",
+   "id": "a9c1a02aca1e",
    "source": "CHANGELOG.md",
    "anchor": "CHANGELOG.md#0-1-0-tbd",
    "title": "0.1.0(TBD)",
-   "text": "0. 初始化 AI 协作开发框架（update-ai-settings skill，参考 xyz-csm/xyz-hmi3 体系）：\n   根 `AGENTS.md` 启动协议 + `CLAUDE.md` 薄入口；`docs/AGENT_RULES/` 七份领域规则\n   与 `routes.toml` 路由闭集（全仓 Git 可见文件零遗漏、零重叠）；\n   `scripts/resolve_agent_rules.py` 按路径/任务解析必读规则（`--check` 校验）。\n1. 命令面：`Makefile` + `scripts/dev_framework.py` + `docs/dev-framework.json`\n   （15 命令真源）；lint=全量 zsh -n 语法检查（与上游 CI 对等）、test=单元 +\n   隔离加载 smoke、generated-check=KB 一致性；graph/kb/evidence/version 门就位。\n2. 测试流程：`scripts/check_syntax.sh`（语法层）、`tests/smoke_load.zsh`\n   （隔离 ZDOTDIR/HOME 加载断言，支持 `--plugins` 多插件集成变体）、\n   `scripts/run_tests.sh` 编排；zunit 族登记为可选层（doctor 报 MISSING 不假绿）。\n3. 终端证据与截图流程：`make evidence <task>` 批次目录\n   （`.playwright-mcp/<分支>/<任务>/<批次>/`，gitignored）；\n   `scripts/ui_smoke.sh` 渲染默认/指定主题并断言关键段（临时 git 仓库分支名），\n   文本捕获读回后置 `images_reviewed`。\n4. 代码图谱：`scripts/graphify.sh` wrapper（graphify 0.9.20）索引 lib/plugins/\n   themes/tools/oh-my-zsh.sh/docs，产物 `graphify-out/`（gitignored）+\n   指纹 manifest，`graph-check` 校验新鲜度。\n5. 知识库：`scripts/build_agent_kb.py` 三层语料（框架文档 + 367 份插件 README +\n   shell 符号结构）生成受控 `docs/kb/chunks.json`；`scripts/agent_kb.py`\n   BM25-lite 检索 CLI（search/stats）；`kb-check` 接入 ci-check，漂移即红。\n6. 多工具执行面（shared 无凭据基线）：`.zcode/config.json`（hooks 桥接）、\n   `.claude/`（settings.json 权限三段 + rules 薄提醒 + hooks 安全门/复审提醒）、\n   `.codex/config.toml`（sandbox + 数组表 hooks）；`.agents/README.md`。\n7. 文档：`docs/` 手册（README 索引、ARCHITECTURE、DEVELOPMENT、MAKE_COMMANDS、\n   TESTING、AI_TOOLS、RELEASE）；upstream 只增不改纪律与 .gitignore 标记块。\n8. 随 update-ai-settings skill 2026-09 更新增补（增量维护，脚本与资产模板未变\n   无需重装）：新增 `tests/check_tool_configs.py` 形状回归锁（Codex 数组表\n   hooks/Stop 无 matcher/秒制 timeout、ZCode 毫秒 timeoutMs、Claude hook 引用与\n   custom/ deny 防线、.py 适配器真 Python 校验）并接入 `make test` 的\n   config-shapes 步与 check_syntax.sh 的 Python ast 层；安全门探针改为按各工具\n   配置原样 command 走注册入口、危险字面量拆分构造（防宿主会话同门拦截假象）；\n   领域规则 development.md 增补并行会话检测（ctime/清单快照、发现并行不双写）\n   与探针纪律；`check_syntax.sh` 扩展覆盖 tests/*.py 与 .codex/hooks/*.py。\n9. gx 个人配置层与一键迁移：`gx/` 固化本机 zsh 配置链（zshrc/zshenv/\n   zshrc.local/p10k.zsh + powerlevel10k 提交树快照 + gitstatusd v1.5.4 与\n   zoxide 0.9.9 二进制 + Nerd Fonts v3.4.0 四字重 + WezTerm 配置快照）；\n   `gx/install.sh` POSIX sh 双模式安装器（本地工作树离线部署 / 在线浅拉\n   fork 分支；幂等、时间戳备份、`.gx-managed` 标记管理、`--uninstall` 恢复、\n   `--home/--zsh` 重定向测试钩子）；`gx/bundle.sh` 离线分发打包；\n   `tests/gx_install_smoke.zsh` 隔离演练（部署/加载/幂等/备份恢复/自定义\n   路径）接入 `make test`；新增 gx-install/gx-bundle 命令与 gx-profile\n   领域规则路由。",
+   "text": "- Herdr 终端协作：统一 WezTerm 前缀与 Shift 选择，按已安装 shell 提供 Windows\n  启动项，使用 WSL 自动发现；补齐 zsh 幂等目录上报与隔离 PTY 回归。",
+   "layer": "doc"
+  },
+  {
+   "id": "dd3552864175",
+   "source": "CHANGELOG.md",
+   "anchor": "CHANGELOG.md#0-1-0-tbd",
+   "title": "0.1.0(TBD)",
+   "text": "0. 初始化 AI 协作开发框架（update-ai-settings skill，参考 xyz-csm/xyz-hmi3 体系）：\n   根 `AGENTS.md` 启动协议 + `CLAUDE.md` 薄入口；`docs/AGENT_RULES/` 七份领域规则\n   与 `routes.toml` 路由闭集（全仓 Git 可见文件零遗漏、零重叠）；\n   `scripts/resolve_agent_rules.py` 按路径/任务解析必读规则（`--check` 校验）。\n1. 命令面：`Makefile` + `scripts/dev_framework.py` + `docs/dev-framework.json`\n   （15 命令真源）；lint=全量 zsh -n 语法检查（与上游 CI 对等）、test=单元 +\n   隔离加载 smoke、generated-check=KB 一致性；graph/kb/evidence/version 门就位。\n2. 测试流程：`scripts/check_syntax.sh`（语法层）、`tests/smoke_load.zsh`\n   （隔离 ZDOTDIR/HOME 加载断言，支持 `--plugins` 多插件集成变体）、\n   `scripts/run_tests.sh` 编排；zunit 族登记为可选层（doctor 报 MISSING 不假绿）。\n3. 终端证据与截图流程：`make evidence <task>` 批次目录\n   （`.playwright-mcp/<分支>/<任务>/<批次>/`，gitignored）；\n   `scripts/ui_smoke.sh` 渲染默认/指定主题并断言关键段（临时 git 仓库分支名），\n   文本捕获读回后置 `images_reviewed`。\n4. 代码图谱：`scripts/graphify.sh` wrapper（graphify 0.9.20）索引 lib/plugins/\n   themes/tools/oh-my-zsh.sh/docs，产物 `graphify-out/`（gitignored）+\n   指纹 manifest，`graph-check` 校验新鲜度。\n5. 知识库：`scripts/build_agent_kb.py` 三层语料（框架文档 + 367 份插件 README +\n   shell 符号结构）生成受控 `docs/kb/chunks.json`；`scripts/agent_kb.py`\n   BM25-lite 检索 CLI（search/stats）；`kb-check` 接入 ci-check，漂移即红。\n6. 多工具执行面（shared 无凭据基线）：`.zcode/config.json`（hooks 桥接）、\n   `.claude/`（settings.json 权限三段 + rules 薄提醒 + hooks 安全门/复审提醒）、\n   `.codex/config.toml`（sandbox + 数组表 hooks）；`.agents/README.md`。\n7. 文档：`docs/` 手册（README 索引、ARCHITECTURE、DEVELOPMENT、MAKE_COMMANDS、\n   TESTING、AI_TOOLS、RELEASE）；upstream 只增不改纪律与 .gitignore 标记块。\n8. 随 update-ai-settings sk",
    "layer": "doc"
   },
   {
