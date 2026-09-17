@@ -54,6 +54,19 @@ chsh（交互确认）。已有官方 Oh My Zsh 或旧配置时自动备份为 `
 4. 目标机重跑安装器即获得新配置（本地模式 `sh ~/.oh-my-zsh/gx/install.sh`
    或在线模式）。
 
+## WezTerm 壁纸快捷键（Linux / Windows）
+
+| 快捷键 | 功能 |
+|---|---|
+| `Alt+.` / `Alt+,` | 下一张 / 上一张壁纸 |
+| `Alt+/` | 随机壁纸 |
+| `Ctrl+Alt+/` | 打开壁纸选择器 |
+| `Alt+b` | 切换纯色专注模式与壁纸 |
+
+macOS 对应使用 `Super` / `Ctrl+Super`。Linux 常用终端功能继续使用 `Ctrl+Shift`。
+本机调整壁纸键位后，同步 `gx/wezterm/config/bindings.lua` 与 WezTerm 仓库的
+`dotfiles/wezterm-config/config/bindings.lua`，再验证配置可加载。
+
 ## vendored 组件清单
 
 | 组件 | 来源 | 版本 | 复刻命令 |
@@ -62,7 +75,7 @@ chsh（交互确认）。已有官方 Oh My Zsh 或旧配置时自动备份为 `
 | gitstatusd | 本机 `~/.cache/gitstatus/` | v1.5.4 linux-x86_64 | 从 romkatv/gitstatus releases 同版本下载 |
 | zoxide | 本机 `~/.local/bin/zoxide` | 0.9.9 linux-x86_64 | github.com/ajeetdsouza/zoxide releases v0.9.9 |
 | Nerd Font | 本机 `~/.local/share/fonts/JetBrainsMonoNerd/` | v3.4.0 JetBrainsMono ×4 字重 | nerd-fonts release v3.4.0 |
-| wezterm 配置 | 本机 `~/.config/wezterm`（上游 gx0404/wezterm） | 工作树快照 9b60228 | 排除 `.git`/`backups`/`*.bak` 后拷贝 |
+| wezterm 配置 | 本机 `~/.config/wezterm`（上游 gx0404/wezterm） | 工作树快照 9b60228；2026-09-16 恢复壁纸 Alt 快捷键 | 排除 `.git`/`backups`/`*.bak` 后拷贝 |
 
 二进制仅携带 linux-x86_64：其他架构时 gitstatus 由 p10k 联网自下载，zoxide
 提示手动安装（见安装器警告）。

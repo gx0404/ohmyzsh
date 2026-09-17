@@ -6,6 +6,9 @@
 # 失败输出 FAIL 行并以非零退出；只写 mktemp 临时目录，不碰真实 $HOME。
 set -u
 
+# 安装器接受外部 ZSH 和 gitstatus 缓存路径；演练必须清除，避免写入当前 Shell 环境。
+unset ZSH ZSH_CUSTOM ZSH_CACHE_DIR ZSH_COMPDUMP GX_HOME GITSTATUS_CACHE_DIR
+
 repo_root=${0:A:h:h}
 installer="$repo_root/gx/install.sh"
 

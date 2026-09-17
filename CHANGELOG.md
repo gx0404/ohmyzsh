@@ -51,3 +51,9 @@
    `tests/gx_install_smoke.zsh` 隔离演练（部署/加载/幂等/备份恢复/自定义
    路径）接入 `make test`；新增 gx-install/gx-bundle 命令与 gx-profile
    领域规则路由。
+10. 恢复 WezTerm 配置快照的 Linux 壁纸快捷键：`Alt+.` / `Alt+,` 切换
+    下一张 / 上一张，`Alt+/` 随机、`Ctrl+Alt+/` 选择、`Alt+b` 切换纯色
+    专注模式；与本机及 WezTerm 仓库 `dotfiles/wezterm-config/` 同步，
+    常用终端功能继续使用 `Ctrl+Shift`。
+11. 安装演练清除继承的 `ZSH`、`ZSH_CUSTOM`、缓存及 `GX_HOME` 等环境变量，
+    避免 `--home` 指向临时目录时仍更新当前 Shell 的 Oh My Zsh 与 gitstatus 缓存。

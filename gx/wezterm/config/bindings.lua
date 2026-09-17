@@ -13,7 +13,7 @@ if platform.is_mac then
    mod.SUPER = 'SUPER'
    mod.SUPER_REV = 'SUPER|CTRL'
 elseif platform.is_linux then
-   -- Ubuntu 常用终端功能使用 Ctrl+Shift；分屏与关闭保留原有 Alt 组合。
+   -- Ubuntu 常用终端功能使用 Ctrl+Shift；壁纸、分屏与关闭保留原有 Alt 组合。
    mod.SUPER = 'CTRL|SHIFT'
    mod.SUPER_REV = 'CTRL|ALT|SHIFT'
 elseif platform.is_win then
@@ -149,31 +149,31 @@ local keys = {
       end)
    },
 
-   -- background controls --
+   -- 壁纸控制：Linux 保留 Alt 组合，不跟随通用终端快捷键的 Ctrl+Shift。
    {
       key = [[/]],
-      mods = mod.SUPER,
+      mods = platform.is_linux and 'ALT' or mod.SUPER,
       action = wezterm.action_callback(function(window, _pane)
          backdrops:random(window)
       end),
    },
    {
       key = [[,]],
-      mods = mod.SUPER,
+      mods = platform.is_linux and 'ALT' or mod.SUPER,
       action = wezterm.action_callback(function(window, _pane)
          backdrops:cycle_back(window)
       end),
    },
    {
       key = [[.]],
-      mods = mod.SUPER,
+      mods = platform.is_linux and 'ALT' or mod.SUPER,
       action = wezterm.action_callback(function(window, _pane)
          backdrops:cycle_forward(window)
       end),
    },
    {
       key = [[/]],
-      mods = mod.SUPER_REV,
+      mods = platform.is_linux and 'ALT|CTRL' or mod.SUPER_REV,
       action = act.InputSelector({
          title = 'InputSelector: Select Background',
          choices = backdrops:choices(),
@@ -190,7 +190,7 @@ local keys = {
    },
    {
       key = 'b',
-      mods = mod.SUPER,
+      mods = platform.is_linux and 'ALT' or mod.SUPER,
       action = wezterm.action_callback(function(window, _pane)
          backdrops:toggle_focus(window)
       end)
