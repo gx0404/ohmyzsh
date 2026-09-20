@@ -43,13 +43,29 @@ chsh（交互确认）。已有官方 Oh My Zsh 或旧配置时自动备份为 `
 完整就位并合并 `$ZSH/custom/` 用户层（同名文件以用户版本为准；`custom` 是符号链接
 时原样保留，不展开成拷贝），再原子替换目录——任何失败都发生在旧安装原样在位时，
 没有「暂存后回填」的中间态；上次中断留下的 `.gx-new-*`/`.gx-old-*`/旧版
-`.gx-custom.*` 只提示不清理。部署 HOME 内的 `.zcompdump*`（含无后缀的全局
-compinit 残留）一并清理，首次启动重建。
+`.gx-custom.*` 只提示不清理。补全缓存：无后缀的全局 compinit 残留 `.zcompdump` 与其他
+主机名/zsh 版本的 `.zcompdump-*`（含残留的 `.lock` 锁目录）总是清掉；当前
+`<host>-<ver>` 一族只在**源快照指纹与上次部署一致**时保留（指纹写在
+`$ZSH/.gx-managed` 的 `snapshot:` 行），指纹变了就一并清掉、下次启动重建。这条兜底
+不能交给 omz 自己：它的失效判据只有 `#omz fpath:`（fpath 目录集）与 compinit 的
+「补全文件总数 + zsh 版本」，已存在补全文件的内容/`#compdef` 标签改动检不出，而
+`#omz revision:` 在本安装器的无 `.git` 快照部署下恒为空。未改动的重装因此仍省下
+约 121 ms（20 轮中位实测重装后首启 369.5 ms → 248.3 ms）。
+
+`.pre-gx-*` 备份回收：**时间戳最小的「第一代」永久保留**（那是唯一一份 gx 之前
+用户自己的配置，删掉就再也回不去），其余只留最新 `GX_KEEP_BACKUPS` 份（默认 2；
+须 ≥1，`all` 关闭回收），中间世代回收；只认本安装器的 `.pre-gx-<14 位时间戳>`
+后缀，手工改名的备份不碰。两个例外：`$ZSH` 整树因体积固定只留「第一代 + 1 份」，
+不受 `GX_KEEP_BACKUPS` 影响；`$ZSH/custom/themes/powerlevel10k.pre-gx-*` 在用户
+运行时层里，一律不回收。
 
 常用选项：`--online`（强制拉取最新分支）、`--skip-apt/--skip-fonts/
---skip-wezterm/--skip-chsh`、`--unattended`（无交互）、`--uninstall`（恢复备份
-并移除带 `.gx-managed` 标记的产物）、`--home <dir>`/`--zsh <dir>`（重定向部署
-目标，测试用）。`--home` 显式给出时忽略继承的环境变量 `ZSH`（gx 会话里它指向真实
+--skip-wezterm/--skip-chsh`、`--unattended`（无交互）、`--uninstall`（恢复最新
+一份 `.pre-gx-*` 备份并移除带 `.gx-managed` 标记的产物，其余备份留「第一代 +
+`GX_KEEP_BACKUPS-1` 份」；注意它恢复的是**最新**一份，即最后一次重装前的状态，
+要回到 gx 之前的原版请手动取第一代那份）、`--home <dir>`/`--zsh <dir>`
+（重定向部署目标，测试用）。
+`--home` 显式给出时忽略继承的环境变量 `ZSH`（gx 会话里它指向真实
 `~/.oh-my-zsh`，否则隔离演练会重装真实目录）；环境 `ZSH` 不在部署 home 之下且未传
 `--zsh` 时，unattended 直接拒绝、交互模式要求确认。`--home` 重定向时 fc-cache 的
 缓存也落在部署 HOME。完整契约见 `gx/install.sh` 头部注释。

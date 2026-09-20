@@ -9,7 +9,7 @@ set -u
 # 安装器会读取宿主的 ZSH / gitstatus 缓存等环境变量；演练一律清除作为纵深防御
 # （安装器自身的 --home 与环境 ZSH 互锁由场景 G/H 用 $tmp 内的假目录专门验证，
 # 互锁回归时受损的只是临时目录）。
-unset ZSH ZSH_CUSTOM ZSH_CACHE_DIR ZSH_COMPDUMP GX_HOME GITSTATUS_CACHE_DIR
+unset ZSH ZSH_CUSTOM ZSH_CACHE_DIR ZSH_COMPDUMP GX_HOME GITSTATUS_CACHE_DIR GX_KEEP_BACKUPS
 
 repo_root=${0:A:h:h}
 installer="$repo_root/gx/install.sh"
@@ -21,10 +21,14 @@ tmp=$(mktemp -d "${TMPDIR:-/tmp}/gx-smoke.XXXXXX")
 # 场景 I 会把某个 HOME 置为只读，清理前先恢复写权限。
 trap 'chmod -R u+w "$tmp" 2>/dev/null; rm -rf "$tmp"' EXIT
 
-# 所有安装器调用把 TMPDIR 指进沙箱：安装器的 tar 中转文件（gx-omz.*）不落共享 /tmp，
-# 残留断言也只需扫描 $tmp。
+# 所有安装器调用（含需要传环境变量的场景，写成前缀 VAR=value）都经这里：TMPDIR 指进
+# 沙箱，安装器的 tar 中转文件（gx-omz.*）不落共享 /tmp、残留断言只需扫描 $tmp；宿主
+# 可能导出的 ZSH/GX_* 在这里再剥一次（纵深防御，不依赖脚本顶部的 unset）。
 run_installer() {
-  env TMPDIR="$tmp" sh "$installer" "$@"
+  local -a pre
+  while (( $# )) && [[ $1 == [A-Za-z_]*=* ]]; do pre+=("$1"); shift; done
+  env -u ZSH -u ZSH_CUSTOM -u ZSH_COMPDUMP -u GX_HOME -u GX_KEEP_BACKUPS \
+    TMPDIR="$tmp" "${pre[@]}" sh "$installer" "$@"
 }
 
 # 在隔离 HOME+ZDOTDIR 中起交互 zsh，执行 inner 断言并回读标记。
@@ -106,6 +110,9 @@ dumps=("$home_a"/.zcompdump*(N))
 for dump in "${dumps[@]}"; do
   [[ "${dump:t}" == .zcompdump-* ]] || fail "unexpected compdump ${dump:t} (global compinit not skipped)"
 done
+# 当前主机/版本的 dump（omz 的 ZSH_COMPDUMP 口径），场景 B 断言重装后它被保留且仍有效。
+dump_cur="$home_a/.zcompdump-${HOST/.*/}-$ZSH_VERSION"
+[ -f "$dump_cur" ] || fail "current-host compdump ${dump_cur:t} missing after interactive load"
 
 # ---------------------------------------------------------------- 场景 B：幂等重装 + 既有配置备份 + 忙二进制原子替换
 
@@ -125,10 +132,14 @@ mkdir -p "$zsh_a/custom/plugins/mine"
 echo "# mine plugin" > "$zsh_a/custom/plugins/mine/mine.plugin.zsh"
 echo "# user snippet" > "$zsh_a/custom/user.zsh"
 echo "# user example overrides repo" > "$zsh_a/custom/example.zsh"
-# 安装器清理部署 HOME 内全部 compdump：omz 的 .zcompdump-<host>-<ver> 与
-# Ubuntu 全局 compinit 留下的无后缀 .zcompdump 都要清。
+# 安装器只清 Ubuntu 全局 compinit 留下的无后缀 .zcompdump 与其他主机/版本的
+# .zcompdump-*；当前 <host>-<ver> 一族在源快照指纹未变时保留。
 echo stale > "$home_a/.zcompdump"
 echo stale > "$home_a/.zcompdump-stale-0.0"
+# omz 的 zrecompile 互斥锁是**目录**（oh-my-zsh.sh 用 command mkdir 创建，异常退出即
+# 残留；真实 HOME 就有一份）。它落在同一个 .zcompdump-* glob 上，清理必须容错：
+# 回归形态是安装器在 set -eu 下被 rm 的「Is a directory」打断，且摘要不再打印。
+mkdir -p "$home_a/.zcompdump-stale-0.0.lock" "$dump_cur.lock"
 run_installer --home "$home_a" --skip-apt --skip-chsh --unattended \
   > "$tmp/inst-b.out" 2> "$tmp/inst-b.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-b.err" >&2; fail "scenario B reinstall exited non-zero"; }
@@ -143,8 +154,37 @@ grep -q "已回填 custom 层" "$tmp/inst-b.out" || fail "custom restore message
 leftover=("$zsh_a".gx-new-*(N) "$zsh_a".gx-old-*(N) "$home_a"/.gx-custom.*(N) "$tmp"/gx-omz.*(N))
 [ $#leftover -eq 0 ] || fail "installer left intermediate dirs behind: $leftover"
 grep -q "残留" "$tmp/inst-b.err" && fail "reinstall reported leftovers on a clean tree"
+grep -q "部署完成:" "$tmp/inst-b.out" || fail "installer printed no summary (aborted before print_summary?)"
 [ ! -e "$home_a/.zcompdump" ] || fail "bare .zcompdump not cleaned by installer"
 [ ! -e "$home_a/.zcompdump-stale-0.0" ] || fail "stale .zcompdump-* not cleaned by installer"
+[ ! -e "$home_a/.zcompdump-stale-0.0.lock" ] || fail "stale zrecompile lock dir not cleaned by installer"
+[ -d "$dump_cur.lock" ] || fail "current-family lock dir must be left alone (may be held by a live shell)"
+rmdir "$dump_cur.lock"   # 留着会让下一次交互加载跳过 zrecompile
+# 无差别清除让每次重装的首启多付 119 ms（冷缓存 332 ms）：当前 dump 必须留下，且下次
+# 启动 compinit 仍接受它（mtime 不变 = 没有被重建）。
+[ -f "$dump_cur" ] || fail "current-host compdump ${dump_cur:t} cleared by reinstall (first start pays compinit again)"
+dump_stamp=$(stat -c %y "$dump_cur")
+load_check "$home_a" 'print -r -- GX-DUMP-REUSE'
+[ "$(stat -c %y "$dump_cur")" = "$dump_stamp" ] || fail "kept compdump was regenerated on next start (omz metadata mismatch?)"
+# 「保留当前 dump」整条策略靠 omz 自己的元数据自检兜底（oh-my-zsh.sh::_omz_compdump_has_metadata）：
+# fpath 变了就重建。篡改该行验证这条依赖仍成立——否则安装器会把失效缓存留给下次启动。
+grep -q '^#omz fpath: ' "$dump_cur" || fail "kept compdump carries no omz fpath metadata to self-invalidate on"
+sed -i 's|^#omz fpath: .*|#omz fpath: /gx-smoke-nonexistent-fpath|' "$dump_cur"
+dump_stamp=$(stat -c %y "$dump_cur")
+load_check "$home_a" 'print -r -- GX-DUMP-INVALIDATE'
+[ "$(stat -c %y "$dump_cur")" != "$dump_stamp" ] || fail "compdump with stale fpath metadata was not rebuilt by omz"
+grep -q '/gx-smoke-nonexistent-fpath' "$dump_cur" && fail "rebuilt compdump kept the tampered fpath metadata"
+# omz 的自检只覆盖 fpath 目录集与 compinit 的「补全文件总数 + zsh 版本」（#omz revision:
+# 在无 .git 的快照部署下恒为空），已存在补全文件的内容/#compdef 标签变化它检不出。所以
+# 「保留当前 dump」只在源快照指纹与上次部署一致时成立：指纹变了必须连当前一族一起清。
+grep -q '^snapshot: cksum-' "$zsh_a/.gx-managed" || fail "deployed \$ZSH carries no snapshot fingerprint"
+sed -i 's|^snapshot: .*|snapshot: cksum-0-0|' "$zsh_a/.gx-managed"
+run_installer --home "$home_a" --skip-apt --skip-chsh --unattended \
+  > "$tmp/inst-b2.out" 2> "$tmp/inst-b2.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-b2.err" >&2; fail "scenario B fingerprint reinstall exited non-zero"; }
+grep -q "源快照指纹与上次部署不同" "$tmp/inst-b2.out" \
+  || fail "installer did not report the changed snapshot fingerprint"
+[ ! -e "$dump_cur" ] || fail "compdump kept although the deployed snapshot fingerprint changed"
 backup=("$home_a"/.zshrc.pre-gx-*(N))
 [ $#backup -ge 1 ] || fail "legacy .zshrc not backed up"
 grep -q "legacy config" "$backup[1]" || fail "backup content mismatch"
@@ -278,6 +318,86 @@ else
   leftover=("$zsh_i".gx-new-*(N) "$zsh_i".gx-old-*(N) "$tmp"/gx-omz.*(N))
   [ $#leftover -eq 0 ] || fail "aborted reinstall left intermediates: $leftover"
 fi
+
+# ---------------------------------------------------------------- 场景 J：.pre-gx-* 备份回收
+
+# 真实升级路径 = 用户改过配置后重装：每次都产生一份 .zshrc.pre-gx-<ts>，此前永不回收
+# （真实 HOME 已累积 6 份）。回收策略是「时间戳最小的第一代永久保留 + 最新
+# GX_KEEP_BACKUPS 份」——第一代是唯一一份 gx 之前用户自己的配置，删掉就再也回不去；
+# --uninstall 恢复最新一份后其余同样按该策略回收；wezterm 目录备份走同一函数。
+home_j="$tmp/home-j"
+run_installer --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
+  > "$tmp/inst-j0.out" 2> "$tmp/inst-j0.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-j0.err" >&2; fail "scenario J install exited non-zero"; }
+for i in 1 2 3 4; do
+  echo "# mod $i" > "$home_j/.zshrc"
+  rm -f "$home_j/.config/wezterm/.gx-managed"   # 去掉标记 = 视为外来目录，须备份
+  sleep 1                                        # 备份后缀是秒级时间戳
+  run_installer GX_KEEP_BACKUPS=4 --home "$home_j" \
+    --skip-apt --skip-fonts --skip-chsh --unattended \
+    > "$tmp/inst-j$i.out" 2> "$tmp/inst-j$i.err"
+  [ $? -eq 0 ] || { cat "$tmp/inst-j$i.err" >&2; fail "scenario J reinstall $i exited non-zero"; }
+done
+zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
+[ $#zshrc_bk -eq 4 ] || fail "GX_KEEP_BACKUPS=4 should keep 4 .zshrc backups, got $#zshrc_bk"
+grep -q "mod 1" "$zshrc_bk[1]" || fail "oldest .zshrc backup should be mod 1"
+wez_bk=("$home_j"/.config/wezterm.pre-gx-*(N))
+[ $#wez_bk -eq 4 ] || fail "GX_KEEP_BACKUPS=4 should keep 4 wezterm backups, got $#wez_bk"
+# 默认份数下重装：第一代（mod 1）+ 最新 2 份（mod 4 与本次的 mod 5），中间世代被回收。
+echo "# mod 5" > "$home_j/.zshrc"
+sleep 1
+run_installer --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
+  > "$tmp/inst-j5.out" 2> "$tmp/inst-j5.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-j5.err" >&2; fail "scenario J reinstall 5 exited non-zero"; }
+zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
+[ $#zshrc_bk -eq 3 ] || fail "default retention should keep first gen + 2, got $#zshrc_bk: $zshrc_bk"
+grep -q "mod 1" "$zshrc_bk[1]" || fail "first-generation .zshrc backup must never be recycled"
+grep -q "mod 4" "$zshrc_bk[2]" || fail "second newest .zshrc backup should be mod 4"
+grep -q "mod 5" "$zshrc_bk[-1]" || fail "newest .zshrc backup is not the latest user edit"
+grep -q "回收旧备份" "$tmp/inst-j5.out" || fail "installer did not report pruned backups"
+wez_bk=("$home_j"/.config/wezterm.pre-gx-*(N))
+[ $#wez_bk -eq 3 ] || fail "default retention should keep first gen + 2 wezterm backups, got $#wez_bk"
+# GX_KEEP_BACKUPS=all 关闭回收：一轮改配置重装只加不减。
+echo "# mod all" > "$home_j/.zshrc"
+sleep 1
+run_installer GX_KEEP_BACKUPS=all --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
+  > "$tmp/inst-ja.out" 2> "$tmp/inst-ja.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-ja.err" >&2; fail "scenario J keep-all reinstall exited non-zero"; }
+zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
+[ $#zshrc_bk -eq 4 ] || fail "GX_KEEP_BACKUPS=all should recycle nothing, got $#zshrc_bk"
+grep -q "回收旧备份" "$tmp/inst-ja.out" && fail "GX_KEEP_BACKUPS=all still recycled backups"
+# 回到默认额度：mod all 之后第一代 + 最新 2 份。
+echo "# mod 5b" > "$home_j/.zshrc"; sleep 1
+run_installer --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
+  > "$tmp/inst-j5b.out" 2> "$tmp/inst-j5b.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-j5b.err" >&2; fail "scenario J reinstall 5b exited non-zero"; }
+zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
+[ $#zshrc_bk -eq 3 ] || fail "default retention after keep-all should be first gen + 2, got $#zshrc_bk"
+# --uninstall 恢复最新备份（mod 5b）算作最新一代，其余留第一代 + N-1=1 份（mod all）。
+run_installer --home "$home_j" --skip-apt --uninstall --unattended \
+  > "$tmp/inst-j6.out" 2> "$tmp/inst-j6.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-j6.err" >&2; fail "scenario J uninstall exited non-zero"; }
+grep -q "mod 5b" "$home_j/.zshrc" || fail "uninstall did not restore the newest .zshrc backup"
+zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
+[ $#zshrc_bk -eq 2 ] || fail "after uninstall expected first gen + 1 backup, got $#zshrc_bk"
+grep -q "mod 1" "$zshrc_bk[1]" || fail "first-generation backup must survive --uninstall"
+grep -q "mod all" "$zshrc_bk[-1]" || fail "remaining backup after uninstall should be mod all"
+# 保留份数为 1 的卸载：恢复最新后其余（N-1=0 份）全部回收，但第一代仍在。
+echo "# mod 6" > "$home_j/.zshrc"; sleep 1
+run_installer --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
+  > "$tmp/inst-j7.out" 2> "$tmp/inst-j7.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-j7.err" >&2; fail "scenario J reinstall 7 exited non-zero"; }
+run_installer GX_KEEP_BACKUPS=1 --home "$home_j" --skip-apt --uninstall --unattended \
+  > "$tmp/inst-j8.out" 2> "$tmp/inst-j8.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-j8.err" >&2; fail "scenario J uninstall (keep 1) exited non-zero"; }
+grep -q "mod 6" "$home_j/.zshrc" || fail "uninstall (keep 1) did not restore the newest .zshrc backup"
+zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
+[ $#zshrc_bk -eq 1 ] || fail "uninstall with GX_KEEP_BACKUPS=1 should leave only the first gen, got $#zshrc_bk"
+grep -q "mod 1" "$zshrc_bk[1]" || fail "the single remaining backup must be the pre-gx original (mod 1)"
+# 非法保留份数拒绝执行（0 会把本次刚打的备份也删掉）。
+run_installer GX_KEEP_BACKUPS=0 --home "$home_j" \
+  --skip-apt --skip-fonts --skip-chsh --unattended > "$tmp/inst-j9.out" 2> "$tmp/inst-j9.err"
+[ $? -eq 1 ] || fail "GX_KEEP_BACKUPS=0 should be refused with exit 1"
 
 print -r -- "GX-INSTALL-SMOKE-OK"
 exit 0

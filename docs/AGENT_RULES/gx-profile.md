@@ -28,7 +28,16 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   `[[ -r ... ]]` / `$+commands[...]` 存在性守卫风格，保证新机缺组件时静默降级。
 - install.sh / bundle.sh 是 POSIX sh（dash 可执行），会被 `curl | sh` 执行：
   禁 bashism；绝不 rm 用户既有文件——一律 mv 为 `*.pre-gx-<时间戳>` 备份；
-  仅允许删除带 `.gx-managed` 标记的本安装器前次产物。重装采用「新树同级就位
+  仅允许删除带 `.gx-managed` 标记的本安装器前次产物，以及本安装器自己打的
+  `.pre-gx-<14 位时间戳>` 备份中超出 `GX_KEEP_BACKUPS`（默认 2，`all` 关闭回收）的
+  **中间世代**（`install.sh::prune_backups`，只认该后缀形态）。时间戳最小的「第一代」
+  是唯一不可再生的 gx 前原件，永久保留、任何路径任何份数设置都不回收；`$ZSH` 整树
+  固定「第一代 + 1 份」，`$ZSH/custom/` 下的目标（p10k）不回收。补全缓存：无后缀
+  `.zcompdump` 与其他主机/版本的 dump（含残留 `.lock` 锁**目录**）总清；当前一族只在
+  源快照指纹（`$ZSH/.gx-managed` 的 `snapshot:` 行，`install.sh::deploy_omz_repo` 写入）
+  与上次部署一致时保留——omz 自己的判据只有 `#omz fpath:` 与 compinit 的「文件数 +
+  版本」，`#omz revision:` 在无 `.git` 的快照部署下恒为空，不能用它论证安全性。
+  清理补全缓存的循环必须容错（锁是目录、`rm` 会失败），失败只告警不中止。重装采用「新树同级就位
   → 合并 custom（符号链接原样保留）→ 两次 rename 替换」，不得引入任何把用户
   数据搬离原位再回填的中间态。
 - `--home` 显式给出时必须忽略继承的环境 `ZSH`（gx 会话里它指向真实
@@ -45,8 +54,11 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   `zsh tests/gx_install_smoke.zsh`（已接入 `make test`）：隔离 HOME 部署断言、
   交互加载断言（p10k + 插件别名 + omz version）、幂等重装（custom 层保全、
   符号链接 custom 保留、上级不可写时中止不改旧树）、既有配置备份、`--uninstall`
-  恢复、自定义 ZSH 路径改写、`--home` 与环境 `ZSH` 互锁。所有安装器调用经
-  `run_installer`（TMPDIR 指进沙箱），fc-cache 缓存断言落在隔离 HOME。
+  恢复、自定义 ZSH 路径改写、`--home` 与环境 `ZSH` 互锁、重装保留当前
+  zcompdump 且下次启动不重建（含残留 `.lock` 目录不打断安装器、快照指纹变化时清 dump）、
+  `.pre-gx-*` 按 `GX_KEEP_BACKUPS` 回收且第一代永存（含 `--uninstall` 之后）。所有安装器
+  调用经 `run_installer`（TMPDIR 指进沙箱、剥离宿主 `ZSH`/`GX_*`，需要传环境变量时写成
+  `run_installer VAR=值 …` 前缀），fc-cache 缓存断言落在隔离 HOME。
 - config 改动同时运行 `python3 tests/gx_terminal.py`（已接入 `make test`）：
   模块单元用例之外，DeployedZshrc / DeployedInteractive 用 install.sh 落地
   mktemp HOME 后走真实 `.zshenv/.zshrc` 链与真 PTY `zsh -i`（不加 `-f`），

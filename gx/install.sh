@@ -22,12 +22,23 @@
 #   --unattended    全程无交互（stdin 非 tty 时自动生效）
 #   --uninstall     恢复 .pre-gx-<ts> 备份并移除安装器管理的产物
 #   -h, --help
+# 环境变量: GX_KEEP_BACKUPS=<N|all>  每个路径除「第一代」外再保留最新 N 份
+#                   .pre-gx-<ts> 备份（默认 2，须 ≥1；all = 永不回收）。时间戳
+#                   最小的那份是 gx 之前用户自己的配置，永久保留、从不回收；
+#                   --uninstall 恢复最新一份后其余只留 N-1 份（第一代照旧保留）。
+#                   例外：$ZSH 整树因体积固定只留「第一代 + 1 份」，不受本变量影响；
+#                   $ZSH/custom/ 下的 p10k 备份属用户运行时层，一律不回收。
 # 退出码: 0 成功；1 前置检查失败；2 部署失败。
 #
 # 安全约定: 绝不 rm 用户既有文件——一律 mv 为 *.pre-gx-<时间戳> 备份；
-# 仅允许删除带 .gx-managed 标记（本安装器前次部署）的目录；重装时新快照先在
-# $ZSH 同级完整就位并合并 $ZSH/custom（用户运行时层，同名以用户为准、符号链接
-# 原样保留），再两次 rename 原子替换——任何失败都发生在旧安装原样在位时。
+# 仅允许删除带 .gx-managed 标记（本安装器前次部署）的目录，以及本安装器自己打的
+# .pre-gx-<14 位时间戳> 备份中超出 GX_KEEP_BACKUPS 的中间世代（时间戳最小的第一代
+# 永久保留，它是唯一不可再生的 gx 前原件）；重装时新快照先在 $ZSH 同级完整就位并
+# 合并 $ZSH/custom（用户运行时层，同名以用户为准、符号链接原样保留），再两次
+# rename 原子替换——任何失败都发生在旧安装原样在位时。
+# 补全缓存：本次部署的快照指纹与上次记录（$ZSH/.gx-managed 的 snapshot: 行）一致时
+# 保留当前主机/版本的 dump 一族，否则连同其他主机/版本的 dump 一并清掉、下次启动重建；
+# 无后缀 .zcompdump（Ubuntu 全局 compinit 产物）始终清除。
 # 不落任何凭据。
 
 set -eu
@@ -50,6 +61,7 @@ REPO_EXCLUDES="--exclude=./.git
 GX_REMOTE="${GX_REMOTE:-$GX_REMOTE_DEFAULT}"
 GX_BRANCH="${GX_BRANCH_DEFAULT}"
 GX_HOME="${GX_HOME:-$HOME}"
+GX_KEEP_BACKUPS="${GX_KEEP_BACKUPS:-2}"
 ZSH_TARGET=""
 ZSH_IGNORED=""
 OPT_HOME_GIVEN=0
@@ -64,12 +76,18 @@ OPT_UNINSTALL=0
 TS="$(date +%Y%m%d%H%M%S)"
 REPO_DIR=""
 BACKED_UP=" "
+# 本次部署的源快照指纹，与上次部署记在 $ZSH/.gx-managed 的 snapshot: 行比对。
+# 不一致（或无记录）即认为补全集合可能变了，cleanup_zcompdump 连当前 dump 一起清。
+SNAPSHOT_FP=""
+SNAPSHOT_CHANGED=1
 
 say()  { printf '==> %s\n' "$*"; }
 warn() { printf '警告: %s\n' "$*" >&2; }
 die()  { printf '错误: %s\n' "$1" >&2; exit "${2:-1}"; }
 
-usage() { sed -n '2,34p' "$0" 2>/dev/null || cat <<'EOF'
+# 打印头部注释块作为帮助。范围末行必须跟随头部注释的最后一行（当前「不落任何凭据。」）：
+# 多打一行就会把空行与 `set -eu` 也输出到 --help 里。
+usage() { sed -n '2,42p' "$0" 2>/dev/null || cat <<'EOF'
 用法: sh gx/install.sh [--home <dir>] [--zsh <dir>] [--online]
       [--skip-apt] [--skip-fonts] [--skip-wezterm] [--skip-chsh]
       [--unattended] [--uninstall]
@@ -109,11 +127,21 @@ if [ -z "$ZSH_TARGET" ]; then
 fi
 ZSH="$ZSH_TARGET"
 [ -t 0 ] || OPT_UNATTENDED=1
+# 安装路径的保留份数必须是 ≥1 的整数：0 会把本次刚打的备份一并删掉，回不去本次重装前
+# 的状态。all 关闭回收。（卸载路径传 N-1，0 在那里是安全的：最新一份已被恢复回原位，
+# 且时间戳最小的第一代由 prune_backups 永久保留。）
+case "$GX_KEEP_BACKUPS" in
+  all) ;;
+  ''|*[!0-9]*|0) die "GX_KEEP_BACKUPS 须为 ≥1 的整数或 all，当前: '$GX_KEEP_BACKUPS'" 1 ;;
+esac
 
 # ---------------------------------------------------------------- 通用助手
 
 # 目录由本安装器管理当且仅当含 .gx-managed 标记。
 is_ours() { [ -f "$1/.gx-managed" ]; }
+
+# 读 <dir>/.gx-managed 里的快照指纹；旧版部署没有该行，输出空串（= 视为快照已变）。
+read_snapshot_fp() { sed -n 's/^snapshot: //p' "$1/.gx-managed" 2>/dev/null | head -n 1; }
 
 # $ZSH 来自环境变量而不在部署 home 之下时守门：这是「继承了 gx 会话的 ZSH 却想
 # 部署到别处」的典型形态，unattended 直接拒绝（要真的这么做请显式传 --zsh），
@@ -147,10 +175,46 @@ did_backup() {
   mv "$1" "$1.pre-gx-$TS"
 }
 
+# 列出 <path>.pre-gx-<14 位时间戳> 备份，按时间戳升序（最后一行最新）。只认本安装器
+# 的后缀形态，用户手工改名的 *.pre-gx-old 之类一律不在其列。用法: list_backups <path>
+list_backups() {
+  for _lb_p in "$1".pre-gx-*; do
+    [ -e "$_lb_p" ] || [ -L "$_lb_p" ] || continue
+    case "${_lb_p##*.pre-gx-}" in
+      [0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]) printf '%s\n' "$_lb_p" ;;
+    esac
+  done | sort
+}
+
+# 回收 <path> 的旧备份：时间戳最小的「第一代」永久保留，其余只留最新 <keep> 份
+# （此前每次「改过配置再重装」都 +1 且永不回收；真实 HOME 曾累积 6 份）。
+# 第一代是唯一一份「gx 之前用户自己的配置」——后面每一份都是 gx 部署出去的文件被用户
+# 改过之后的派生物，可以再生；把它删掉等于永久销毁「回到 gx 之前」的能力（--uninstall
+# 只恢复最新一份），所以它不在回收对象里。<keep> 为 all 时整条回收关闭。
+# 删除对象仅限 list_backups 认定的本安装器产物。用法: prune_backups <path> <keep>
+prune_backups() {
+  [ "$2" != all ] || return 0
+  _pb_list=$(list_backups "$1")
+  [ -n "$_pb_list" ] || return 0
+  # 去掉首行（第一代）后再算超额份数：实际留存 = 第一代 + 最新 <keep> 份。
+  _pb_rest=$(printf '%s\n' "$_pb_list" | tail -n +2)
+  [ -n "$_pb_rest" ] || return 0
+  _pb_drop=$(( $(printf '%s\n' "$_pb_rest" | wc -l) - $2 ))
+  [ "$_pb_drop" -gt 0 ] || return 0
+  printf '%s\n' "$_pb_rest" | head -n "$_pb_drop" | while IFS= read -r _pb_old; do
+    say "回收旧备份（第一代 + 最近 $2 份之外）: $_pb_old"
+    rm -rf "$_pb_old" || warn "回收失败（保留原样）: $_pb_old"
+  done
+  # 回收是尽力而为的清理：失败不该让已完成的部署以 set -e 中止。
+  return 0
+}
+
 # 替换部署目标目录：外来内容先备份，本安装器旧部署直接覆盖。
-# 用法: replace_dir <src> <dst>（src 为快照源，dst 不含末尾斜杠）
+# 用法: replace_dir <src> <dst> <keep>（src 为快照源，dst 不含末尾斜杠；
+# keep 为 prune_backups 的保留份数，keep=all 表示该路径不回收——$ZSH/custom/ 下的目标
+# 属用户运行时层，备份一律不动）
 replace_dir() {
-  _rd_src="$1"; _rd_dst="$2"
+  _rd_src="$1"; _rd_dst="$2"; _rd_keep="$3"
   if [ -e "$_rd_dst" ]; then
     if is_ours "$_rd_dst"; then
       rm -rf "$_rd_dst"
@@ -161,6 +225,7 @@ replace_dir() {
   fi
   mkdir -p "$_rd_dst"
   cp -a "$_rd_src/." "$_rd_dst/"
+  prune_backups "$_rd_dst" "$_rd_keep"
 }
 
 # ---------------------------------------------------------------- 仓库获取
@@ -262,17 +327,29 @@ deploy_omz_repo() {
   _oz_tar=$(mktemp "${TMPDIR:-/tmp}/gx-omz.XXXXXX.tar")
   if tar -cf "$_oz_tar" -C "$REPO_DIR" $REPO_EXCLUDES . 2>/dev/null \
       && tar -xf "$_oz_tar" -C "$_oz_new"; then
+    # 指纹取中转 tar 的 CRC+字节数：同一份未改动的工作树逐字节相同 → 指纹相同；
+    # 任何被部署文件的内容/元数据变化都会改指纹（保守方向：宁可多重建一次 dump）。
+    SNAPSHOT_FP="cksum-$(cksum < "$_oz_tar" | awk '{print $1 "-" $2}')"
     rm -f "$_oz_tar"
   else
     rm -f "$_oz_tar"
     rm -rf "$_oz_new"
     die "打包/解包仓库快照失败，既有安装未改动" 2
   fi
-  printf 'gx install.sh 管理的 Oh My Zsh 工作树（%s）\n' "$TS" > "$_oz_new/.gx-managed"
+  printf 'gx install.sh 管理的 Oh My Zsh 工作树（%s）\nsnapshot: %s\n' "$TS" "$SNAPSHOT_FP" \
+    > "$_oz_new/.gx-managed"
 
   if [ -e "$ZSH" ] || [ -L "$ZSH" ]; then
     if is_ours "$ZSH"; then
       say "更新既有 gx 安装: $ZSH"
+      # 与上次部署同一快照才敢保留补全缓存：omz 自己的自检只覆盖 fpath 目录集
+      # （#omz fpath:）与 compinit 的「补全文件总数 + zsh 版本」，已存在补全文件的
+      # 内容/#compdef 标签变化它看不见（#omz revision: 在无 .git 的快照部署下恒为空）。
+      if [ "$(read_snapshot_fp "$ZSH")" = "$SNAPSHOT_FP" ]; then
+        SNAPSHOT_CHANGED=0
+      else
+        say "源快照指纹与上次部署不同：补全缓存将清除并在下次启动重建"
+      fi
       merge_custom_layer "$ZSH" "$_oz_new"
       # 两次 rename 之间屏蔽中断：旧树让位到 .gx-old-<ts>，新树随即就位；第二步
       # 失败则把旧树放回原位。
@@ -284,13 +361,13 @@ deploy_omz_repo() {
     else
       say "检测到既有 Oh My Zsh（官方或其他来源），备份迁移"
       did_backup "$ZSH" || die "备份失败: $ZSH，新快照保留在 $_oz_new" 2
-      # 只保留最近一次 $ZSH 备份，避免重复安装无限膨胀。
-      for _oz_prev in "$ZSH".pre-gx-*; do
-        [ -e "$_oz_prev" ] || continue
-        [ "$_oz_prev" = "$ZSH.pre-gx-$TS" ] && continue
-        say "清理旧备份: $_oz_prev"
-        rm -rf "$_oz_prev"
-      done
+      # 整棵 omz 树体积大：除第一代（用户原装的那棵）外只保留最近 1 份，份数固定、
+      # 不受 GX_KEEP_BACKUPS 影响（all 例外——那是用户明确要求不回收）。
+      if [ "$GX_KEEP_BACKUPS" = all ]; then
+        prune_backups "$ZSH" all
+      else
+        prune_backups "$ZSH" 1
+      fi
       mv "$_oz_new" "$ZSH" || die "新快照就位失败，备份在 $ZSH.pre-gx-$TS" 2
     fi
   else
@@ -306,25 +383,29 @@ deploy_configs() {
     _dc_dst="$GX_HOME/${_dc_pair##*:}"
     if [ -e "$_dc_dst" ] && cmp -s "$_dc_src" "$_dc_dst"; then
       say "已一致，跳过: $_dc_dst"
-      continue
-    fi
-    if [ -e "$_dc_dst" ]; then
-      say "备份: $_dc_dst -> $_dc_dst.pre-gx-$TS"
-      did_backup "$_dc_dst" || die "备份失败: $_dc_dst" 2
-    fi
-    if [ "${_dc_pair%%:*}" = zshrc ] && [ "$ZSH" != "$GX_HOME/.oh-my-zsh" ]; then
-      # 自定义 ZSH 路径时改写 zshrc 的 export ZSH= 行（手法同上游安装器）。
-      sed "s|^export ZSH=.*$|export ZSH=\"$ZSH\"|" "$_dc_src" > "$_dc_dst"
     else
-      cp "$_dc_src" "$_dc_dst"
+      if [ -e "$_dc_dst" ]; then
+        say "备份: $_dc_dst -> $_dc_dst.pre-gx-$TS"
+        did_backup "$_dc_dst" || die "备份失败: $_dc_dst" 2
+      fi
+      if [ "${_dc_pair%%:*}" = zshrc ] && [ "$ZSH" != "$GX_HOME/.oh-my-zsh" ]; then
+        # 自定义 ZSH 路径时改写 zshrc 的 export ZSH= 行（手法同上游安装器）。
+        sed "s|^export ZSH=.*$|export ZSH=\"$ZSH\"|" "$_dc_src" > "$_dc_dst"
+      else
+        cp "$_dc_src" "$_dc_dst"
+      fi
     fi
+    # 无论本次是否新打备份都回收：早期版本留下的多份也借此收敛到保留额度。
+    prune_backups "$_dc_dst" "$GX_KEEP_BACKUPS"
   done
 }
 
 deploy_p10k() {
   _p1_src="$REPO_DIR/gx/omz-custom/themes/powerlevel10k"
   _p1_dst="$ZSH/custom/themes/powerlevel10k"
-  replace_dir "$_p1_src" "$_p1_dst"
+  # 目标在 $ZSH/custom/（用户运行时层）下：用户自装过 p10k 时首次部署会备份成
+  # powerlevel10k.pre-gx-<ts>，这份属于用户数据，不进回收范围（keep=all）。
+  replace_dir "$_p1_src" "$_p1_dst" all
   say "p10k 主题 -> $_p1_dst"
   printf 'gx install.sh 部署的 powerlevel10k 快照\n' > "$_p1_dst/.gx-managed"
   # 快照不含 gitstatusd 守护进程（上游 gitignore 挡在仓库外），单独补齐。
@@ -403,7 +484,7 @@ deploy_wezterm() {
     say "WezTerm 配置目录由 git 自管（含 .git），跳过部署"
     return 0
   fi
-  replace_dir "$REPO_DIR/gx/wezterm" "$_wt_dst"
+  replace_dir "$REPO_DIR/gx/wezterm" "$_wt_dst" "$GX_KEEP_BACKUPS"
   say "WezTerm 配置 -> $_wt_dst"
   printf 'gx install.sh 部署的 wezterm 配置快照\n' > "$_wt_dst/.gx-managed"
 }
@@ -428,11 +509,41 @@ set_login_shell() {
   esac
 }
 
-# 只清部署目标 HOME 内的补全缓存：omz 的 .zcompdump-<host>-<ver>{,.zwc} 与
-# Ubuntu /etc/zsh/zshrc 全局 compinit 留下的无后缀 .zcompdump（glob 同时命中
-# 两族），新配置首次启动时重建。
+# 补全缓存清理。始终清掉 Ubuntu /etc/zsh/zshrc 全局 compinit 留下的无后缀 .zcompdump 与
+# 其他主机名/zsh 版本的 .zcompdump-<host>-<ver>{,.zwc,.lock}。当前主机/版本的一族只在
+# 「本次源快照指纹与上次部署相同」时保留：无差别清除让每次重装的首启多付 119 ms
+# （冷缓存 332 ms），而未改动的重装前 dump 实测仍完全有效。指纹不同就照旧全清——omz
+# 自己的失效判据只有 #omz fpath:（fpath 目录集）与 compinit 的「补全文件总数 + zsh
+# 版本」，已存在补全文件的内容/#compdef 标签变化它检不出（#omz revision: 在本安装器
+# 的无 .git 快照部署下恒为空，不参与判定）。
+# 当前一族的名字按 oh-my-zsh.sh 的口径由 zsh 自己算；算不出（无 zsh）时退回全清。
 cleanup_zcompdump() {
-  rm -f "$GX_HOME"/.zcompdump* 2>/dev/null || true
+  rm -f "$GX_HOME/.zcompdump" 2>/dev/null || true
+  _cz_keep=""
+  if [ "$SNAPSHOT_CHANGED" -eq 0 ] && command -v zsh >/dev/null 2>&1; then
+    _cz_keep=$(zsh -fc 'h=${HOST/.*/}; [[ $OSTYPE == darwin* ]] && h=$(scutil --get LocalHostName 2>/dev/null || print -r -- "$h"); print -r -- ".zcompdump-$h-$ZSH_VERSION"' 2>/dev/null) || _cz_keep=""
+  fi
+  for _cz_f in "$GX_HOME"/.zcompdump-*; do
+    [ -e "$_cz_f" ] || [ -L "$_cz_f" ] || continue
+    if [ -n "$_cz_keep" ]; then
+      # 当前一族（dump、其 .zwc 与可能正被活动会话持有的 .lock）跳过；名字算不出或
+      # 快照变了时 _cz_keep 为空，全部落到下面清掉。
+      case "${_cz_f##*/}" in
+        "$_cz_keep"|"$_cz_keep.zwc"|"$_cz_keep.lock") continue ;;
+      esac
+    fi
+    say "清理失效补全缓存: ${_cz_f##*/}"
+    # 这个 glob 会命中 omz 的 zrecompile 互斥锁**目录**（oh-my-zsh.sh 用
+    # command mkdir "${ZSH_COMPDUMP}.lock" 创建，异常退出即残留，并让 omz 再也不重编
+    # dump）：rm -rf 兼容文件与目录，且失败只告警——一次清理不该把已完成的部署以
+    # set -e 中止（旧实现是 rm -f … || true，本函数必须同样容错）。
+    rm -rf "$_cz_f" || warn "清理失效补全缓存失败（保留原样）: $_cz_f"
+  done
+  if [ -n "$_cz_keep" ]; then
+    say "保留补全缓存: $_cz_keep{,.zwc,.lock}（如存在；源快照未变）"
+  else
+    say "已清全部 .zcompdump-*（源快照变化或无法判定当前 dump 名），下次启动重建"
+  fi
 }
 
 print_summary() {
@@ -455,11 +566,21 @@ uninstall() {
     case "$_un_ans" in y|Y) ;; *) die "已取消" 1 ;; esac
   fi
   for _un_f in .zshrc .zshenv .zshrc.local .p10k.zsh; do
-    _un_new=$(ls -t "$GX_HOME/$_un_f".pre-gx-* 2>/dev/null | head -n 1)
+    # 最新 = 时间戳后缀最大（与 prune_backups 同一口径，不依赖被 mv 保留的旧 mtime）。
+    _un_new=$(list_backups "$GX_HOME/$_un_f" | tail -n 1)
     if [ -n "$_un_new" ]; then
       [ -e "$GX_HOME/$_un_f" ] && mv "$GX_HOME/$_un_f" "$GX_HOME/$_un_f.gx-removed-$TS"
       mv "$_un_new" "$GX_HOME/$_un_f"
       say "已恢复: $_un_f <- $(basename "$_un_new")"
+      # 恢复的那份算作最新一代，其余（第一代之外）只留 N-1 份，卸载完不留一堆。
+      # N=1 时实参为 0，在这里是安全的：最新一份已经回到原位，第一代由 prune_backups
+      # 永久保留——安装路径拒绝 0 的理由（会把本次刚打的备份也删掉）在卸载路径不成立。
+      if [ "$GX_KEEP_BACKUPS" = all ]; then
+        _un_keep=all
+      else
+        _un_keep=$((GX_KEEP_BACKUPS - 1))
+      fi
+      prune_backups "$GX_HOME/$_un_f" "$_un_keep"
     else
       say "无备份，保留现状: $_un_f"
     fi

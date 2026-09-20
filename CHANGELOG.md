@@ -107,3 +107,31 @@
     撞 20 s 上限 → 1.5 s；两个上限必须同设（只设建议上限无效）。
     DeployedInteractive 用括号粘贴投入 4401 字符行再 20 次单键，断言两个变量在
     部署形态非空、输出 10 s 内静默、每击键中位 <5 ms。
+20. 安装器按源快照指纹决定是否保留 zcompdump：`gx/install.sh::cleanup_zcompdump`
+    始终清无后缀 `.zcompdump` 与其他主机名/zsh 版本的 `.zcompdump-*`（含 omz
+    zrecompile 残留的 `.lock` 锁**目录**，清理循环对目录与失败都容错，不再可能以
+    `set -eu` 打断安装器）；当前 `<host>-<ver>{,.zwc,.lock}` 一族只在本次源快照指纹
+    与上次部署相同时保留。指纹是部署用中转 tar 的 CRC + 字节数，由
+    `deploy_omz_repo` 写进 `$ZSH/.gx-managed` 的 `snapshot:` 行 —— 不能靠 omz 自己
+    兜底：它的判据只有 `#omz fpath:`（fpath 目录集）与 compinit 的「补全文件总数 +
+    zsh 版本」，已存在补全文件的内容/`#compdef` 标签改动检不出，而 `#omz revision:`
+    在本安装器排除了 `./.git` 的快照部署下恒为空（真实 HOME 的 dump 首行即
+    `#omz revision: ` 空值）。未改动的重装仍省下约 121 ms：隔离部署 HOME 内 20 轮
+    「重装 → 首启 → 二启」中位 369.5 ms → 248.3 ms，二启 33.9 → 34.0 ms 不变，稳定
+    启动 33.3 ms；剩余 215 ms 是 p10k 重编自身 `.zwc`，与 dump 无关。指纹变化时首启
+    回到全新安装的 372.8 ms（该重建是有意的正确性代价）。
+21. 安装器备份回收：新增 `gx/install.sh::list_backups`/`prune_backups`，
+    `deploy_configs`、`replace_dir`（wezterm）与 `$ZSH` 备份按 `GX_KEEP_BACKUPS`
+    （默认 2，须 ≥1，`all` 关闭回收）保留最新几份，只认 `.pre-gx-<14 位时间戳>`
+    后缀（用户手工改名的备份不碰），回收失败只告警不中止。**时间戳最小的「第一代」
+    永久保留**：它是唯一一份 gx 之前用户自己的配置，后面每份都是 gx 部署物被改过的
+    派生物，而 `--uninstall` 只恢复最新一份，删掉第一代就永久失去「回到 gx 之前」的
+    能力（真实 HOME 的 `.zshrc.pre-gx-20260916135406` 即那一份）。两个例外：`$ZSH`
+    整树因体积固定「第一代 + 1 份」，`$ZSH/custom/themes/powerlevel10k` 在用户运行
+    时层里不回收（`replace_dir` 新增 keep 参数，`deploy_p10k` 传 `all`）。
+    `--uninstall` 按时间戳后缀（不再靠 mv 保留的旧 mtime）恢复最新一份，其余留
+    「第一代 + N-1 份」。此前「改过配置再重装」每次 +1 且永不回收（真实 HOME 已累积
+    6 份）。smoke 场景 B 断言当前 dump 与其 `.lock` 保留、下次启动 mtime 不变、篡改
+    `#omz fpath:` 后 omz 仍会重建、异版本 `.lock` 目录被清掉且安装器仍打印摘要、
+    篡改 `snapshot:` 指纹后当前 dump 被清；场景 J 覆盖回收上界、第一代在多轮重装与
+    两种 `--uninstall` 之后仍在、`all` 不回收、`GX_KEEP_BACKUPS=0` 拒绝。
