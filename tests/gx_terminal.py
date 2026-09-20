@@ -17,10 +17,14 @@ import unittest
 REPO = pathlib.Path(__file__).resolve().parents[1]
 MODULE = REPO / "gx/config/terminal.zsh"
 INSTALLER = REPO / "gx/install.sh"
+# 远端会话标记：模块在这些变量存在时不接管（与上游 termsupport 一致）；宿主若经 ssh
+# 跑本测试会继承它们，所以隔离环境一律剥离，专门的用例再显式注入。
+REMOTE_ENV = ("SSH_CONNECTION", "SSH_CLIENT", "SSH_TTY", "INSIDE_EMACS")
 # 安装器与 zsh 配置链会读取的宿主环境变量：隔离部署前一律剥离。
 STRIP_ENV = ("ZSH", "ZSH_CUSTOM", "ZSH_CACHE_DIR", "ZSH_COMPDUMP", "GX_HOME", "GITSTATUS_CACHE_DIR",
              "GIT_DIR", "GIT_CEILING_DIRECTORIES", "FZF_DEFAULT_OPTS", "FZF_DEFAULT_COMMAND",
-             "GX_TERMINAL_CWD_INSTALLED", "TERM_PROGRAM", "HERDR_ENV", "XDG_CACHE_HOME", "XDG_CONFIG_HOME")
+             "GX_TERMINAL_CWD_INSTALLED", "TERM_PROGRAM", "HERDR_ENV", "XDG_CACHE_HOME", "XDG_CONFIG_HOME",
+             "TMPDIR") + REMOTE_ENV
 # 模拟上游 lib/termsupport.zsh 在 xterm* 下无条件挂上的 OSC 7 钩子。
 UPSTREAM_HOOK = "omz_termsupport_cwd() { :; }; autoload -Uz add-zsh-hook; add-zsh-hook precmd omz_termsupport_cwd; "
 
@@ -38,14 +42,20 @@ def isolated_env(home, **overrides):
     return env
 
 
-def deploy_gx_home(home):
-    """用 gx/install.sh 把工作树真实部署到 mktemp HOME（不碰真实 $HOME）。"""
+def run_installer(home, *args, **overrides):
+    """在隔离环境里跑 gx/install.sh：TMPDIR 指进沙箱，安装器的 tar 中转文件不落共享 /tmp。"""
     if shutil.which("zsh") is None or shutil.which("sh") is None:
         raise AssertionError("真实链路测试需要 zsh 与 sh，缺失即失败（不 skip）")
-    result = subprocess.run(
-        ["sh", str(INSTALLER), "--home", str(home), "--zsh", str(home / ".oh-my-zsh"), "--skip-apt",
-         "--skip-fonts", "--skip-wezterm", "--skip-chsh", "--unattended"],
-        env=isolated_env(home), capture_output=True, text=True, timeout=120)
+    overrides.setdefault("TMPDIR", str(pathlib.Path(home).parent))
+    return subprocess.run(
+        ["sh", str(INSTALLER), "--home", str(home), *args, "--skip-apt", "--skip-fonts", "--skip-wezterm",
+         "--skip-chsh", "--unattended"],
+        env=isolated_env(home, **overrides), capture_output=True, text=True, timeout=120)
+
+
+def deploy_gx_home(home):
+    """用 gx/install.sh 把工作树真实部署到 mktemp HOME（不碰真实 $HOME）。"""
+    result = run_installer(home, "--zsh", str(home / ".oh-my-zsh"))
     if result.returncode != 0:
         raise AssertionError(f"gx/install.sh 部署失败 rc={result.returncode}\n{result.stdout}\n{result.stderr}")
     return home
@@ -134,6 +144,16 @@ class DeployedZshrc(unittest.TestCase):
         for flag in ("--border=rounded", "--pointer=", "--marker="):
             self.assertIn(flag, opts)
 
+    def test_fzf_unparseable_version_falls_back_to_legacy_flags(self):
+        # 包装脚本/补丁构建会打印 "fzf 0.20.0" 或 "v0.44.1"：首字段不是 <数字>.<数字>
+        # 时 is-at-least 会把它当成新版；解析不出必须退化到老选项（安全一侧）。
+        for version_line in ("fzf 0.20.0", "v0.44.1", "unknown"):
+            opts, _cmd, _err = self.fzf_state(version_line)
+            self.assertNotIn("--pointer", opts, version_line)
+            self.assertNotIn("--marker", opts, version_line)
+            self.assertNotIn("--border=rounded", opts, version_line)
+            self.assertIn("--border", opts, version_line)
+
     def test_missing_fzf_exports_nothing_and_stays_silent(self):
         opts, cmd, err = self.fzf_state(None, hide={"fd", "fdfind", "rg"})
         self.assertEqual(opts, "unset")
@@ -148,6 +168,45 @@ class DeployedZshrc(unittest.TestCase):
         neither = self.fzf_state("0.20.0", hide={"fd", "fdfind", "rg"})[1]
         self.assertEqual(neither, "unset")
 
+
+
+class InstallerZshInterlock(unittest.TestCase):
+    """--home 与继承的环境 ZSH 互锁：gx 会话里 export 的 ZSH=~/.oh-my-zsh 不得让隔离
+    演练把重装路径打到真实目录上。用 mktemp 里的假树代替真实 ~/.oh-my-zsh。"""
+
+    def setUp(self):
+        self.root = pathlib.Path(tempfile.mkdtemp(prefix="gx-interlock-"))
+        self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
+        self.foreign = self.root / "foreign-zsh"
+        (self.foreign / "custom" / "plugins").mkdir(parents=True)
+        (self.foreign / ".gx-managed").write_text("foreign marker\n")
+        (self.foreign / "custom" / "plugins" / "keep.zsh").write_text("# keep\n")
+        self.snapshot = sorted(str(p.relative_to(self.foreign)) for p in self.foreign.rglob("*"))
+
+    def foreign_unchanged(self):
+        self.assertEqual(sorted(str(p.relative_to(self.foreign)) for p in self.foreign.rglob("*")), self.snapshot)
+        self.assertEqual((self.foreign / "custom" / "plugins" / "keep.zsh").read_text(), "# keep\n")
+
+    def test_home_flag_ignores_inherited_zsh_env(self):
+        home = self.root / "home"
+        result = run_installer(home, ZSH=str(self.foreign))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue((home / ".oh-my-zsh" / ".gx-managed").exists(), result.stdout)
+        self.assertIn(f"忽略环境 ZSH={self.foreign}", result.stdout)
+        self.foreign_unchanged()
+
+    def test_env_zsh_outside_home_is_refused_unattended(self):
+        home = self.root / "home"
+        home.mkdir()
+        result = subprocess.run(
+            ["sh", str(INSTALLER), "--skip-apt", "--skip-fonts", "--skip-wezterm", "--skip-chsh", "--unattended"],
+            env=isolated_env(home, GX_HOME=str(home), ZSH=str(self.foreign), TMPDIR=str(self.root)),
+            capture_output=True, text=True, timeout=120)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("--zsh", result.stderr)
+        self.assertFalse((home / ".oh-my-zsh").exists())
+        self.assertFalse((home / ".zshrc").exists())
+        self.foreign_unchanged()
 
 
 def fzf_version():
@@ -335,8 +394,8 @@ class TerminalIntegration(unittest.TestCase):
             cwd = pathlib.Path(root) / "中文 space"
             cwd.mkdir()
             env = dict(os.environ, TERM_PROGRAM="WezTerm", TERM="xterm-256color", HOME=root, ZDOTDIR=root)
-            env.pop("GX_TERMINAL_CWD_INSTALLED", None)
-            env.pop("HERDR_ENV", None)
+            for key in ("GX_TERMINAL_CWD_INSTALLED", "HERDR_ENV") + REMOTE_ENV:
+                env.pop(key, None)
             for key, value in (env_overrides or {}).items():
                 if value is None:
                     env.pop(key, None)
@@ -368,6 +427,14 @@ class TerminalIntegration(unittest.TestCase):
         self.assertIn(b"%E4%B8%AD%E6%96%87%20space", data)
         self.assertEqual(data.count(b"_gx_terminal_report_cwd"), 1)
 
+    def test_resourcing_zshrc_after_upstream_rehooks_keeps_single_reporter(self):
+        # `source ~/.zshrc` 会让 lib/termsupport.zsh 重新挂 omz_termsupport_cwd，而模块
+        # 已安装；摘钩子必须在 INSTALLED 早退之前执行，否则双发当场回归。
+        data = self.run_shell("source MODULE; " + UPSTREAM_HOOK + "source MODULE; print -r -- PF:${(j:,:)precmd_functions}:END")
+        hooks = data.split(b"PF:", 1)[1].split(b":END", 1)[0].split(b",")
+        self.assertEqual(hooks.count(b"_gx_terminal_report_cwd"), 1, hooks)
+        self.assertNotIn(b"omz_termsupport_cwd", hooks)
+
     def test_osc7_host_field_is_empty(self):
         # herdr 的 parse_file_uri_cwd 只接受空或 localhost 主机；wezterm 同样接受空主机。
         data = self.run_shell("source MODULE; cd DIRECTORY; _gx_terminal_report_cwd")
@@ -397,6 +464,19 @@ class TerminalIntegration(unittest.TestCase):
     def test_herdr_env_without_term_program_installs_hook(self):
         data = self.run_shell("source MODULE; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no}", env_overrides={"TERM_PROGRAM": None, "HERDR_ENV": "1"})
         self.assertIn(b"INSTALLED:1", data)
+
+    def test_remote_sessions_keep_upstream_behaviour(self):
+        # ssh / emacs 里的 cwd 对本地终端没有意义：即使 TERM_PROGRAM/HERDR_ENV 被
+        # SendEnv 带过去，模块也不接管、不摘上游钩子、不发 file:///。
+        for marker in ({"SSH_TTY": "/dev/pts/9"}, {"SSH_CLIENT": "10.0.0.2 51000 22"},
+                       {"SSH_CONNECTION": "10.0.0.2 51000 10.0.0.1 22"}, {"INSIDE_EMACS": "1"}):
+            data = self.run_shell(UPSTREAM_HOOK + "source MODULE; cd DIRECTORY; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no} PF:${(j:,:)precmd_functions}:END",
+                                  env_overrides=dict(marker, HERDR_ENV="1"))
+            self.assertIn(b"INSTALLED:no", data, marker)
+            hooks = data.split(b"PF:", 1)[1].split(b":END", 1)[0].split(b",")
+            self.assertIn(b"omz_termsupport_cwd", hooks, marker)
+            self.assertNotIn(b"_gx_terminal_report_cwd", hooks, marker)
+            self.assertNotIn(b"\x1b]7;file:///", data, marker)
 
     def test_existing_wezterm_integration_remains_owner(self):
         data = self.run_shell("__wezterm_osc7() { :; }; source MODULE; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no}")

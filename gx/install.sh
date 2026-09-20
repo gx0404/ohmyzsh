@@ -10,8 +10,10 @@
 #   在线:   sh -c "$(curl -fsSL $GX_REMOTE_URL/gx/install.sh)"
 #   仓库内: make gx-install
 # 选项:
-#   --home <dir>    用户侧部署根目录（默认 $HOME；隔离测试用）
-#   --zsh <dir>     Oh My Zsh 目录（默认 <home>/.oh-my-zsh；等价环境变量 ZSH）
+#   --home <dir>    用户侧部署根目录（默认 $HOME；隔离测试用）。显式给出时忽略
+#                   继承的环境变量 ZSH（改用 <home>/.oh-my-zsh）
+#   --zsh <dir>     Oh My Zsh 目录（默认 <home>/.oh-my-zsh；等价环境变量 ZSH，
+#                   但环境 ZSH 不在 <home> 之下时 unattended 拒绝、交互须确认）
 #   --online        忽略本地仓库，强制从 GX_REMOTE 拉取
 #   --skip-apt      跳过 apt 包安装（zsh/fzf/autosuggestions/syntax-highlighting）
 #   --skip-fonts    跳过 Nerd Font 部署
@@ -23,8 +25,10 @@
 # 退出码: 0 成功；1 前置检查失败；2 部署失败。
 #
 # 安全约定: 绝不 rm 用户既有文件——一律 mv 为 *.pre-gx-<时间戳> 备份；
-# 仅允许删除带 .gx-managed 标记（本安装器前次部署）的目录；重装时 $ZSH/custom
-# （用户运行时层）先暂存再回填，同名文件以用户为准。不落任何凭据。
+# 仅允许删除带 .gx-managed 标记（本安装器前次部署）的目录；重装时新快照先在
+# $ZSH 同级完整就位并合并 $ZSH/custom（用户运行时层，同名以用户为准、符号链接
+# 原样保留），再两次 rename 原子替换——任何失败都发生在旧安装原样在位时。
+# 不落任何凭据。
 
 set -eu
 
@@ -47,6 +51,9 @@ GX_REMOTE="${GX_REMOTE:-$GX_REMOTE_DEFAULT}"
 GX_BRANCH="${GX_BRANCH_DEFAULT}"
 GX_HOME="${GX_HOME:-$HOME}"
 ZSH_TARGET=""
+ZSH_IGNORED=""
+OPT_HOME_GIVEN=0
+OPT_ZSH_GIVEN=0
 OPT_ONLINE=0
 OPT_SKIP_APT=0
 OPT_SKIP_FONTS=0
@@ -60,9 +67,9 @@ BACKED_UP=" "
 
 say()  { printf '==> %s\n' "$*"; }
 warn() { printf '警告: %s\n' "$*" >&2; }
-die()  { printf '错误: %s\n' "$*" >&2; exit "${2:-1}"; }
+die()  { printf '错误: %s\n' "$1" >&2; exit "${2:-1}"; }
 
-usage() { sed -n '2,30p' "$0" 2>/dev/null || cat <<'EOF'
+usage() { sed -n '2,34p' "$0" 2>/dev/null || cat <<'EOF'
 用法: sh gx/install.sh [--home <dir>] [--zsh <dir>] [--online]
       [--skip-apt] [--skip-fonts] [--skip-wezterm] [--skip-chsh]
       [--unattended] [--uninstall]
@@ -73,8 +80,8 @@ EOF
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --home)        GX_HOME="${2:?--home 需要参数}"; shift 2 ;;
-    --zsh)         ZSH_TARGET="${2:?--zsh 需要参数}"; shift 2 ;;
+    --home)        GX_HOME="${2:?--home 需要参数}"; OPT_HOME_GIVEN=1; shift 2 ;;
+    --zsh)         ZSH_TARGET="${2:?--zsh 需要参数}"; OPT_ZSH_GIVEN=1; shift 2 ;;
     --online)      OPT_ONLINE=1; shift ;;
     --skip-apt)    OPT_SKIP_APT=1; shift ;;
     --skip-fonts)  OPT_SKIP_FONTS=1; shift ;;
@@ -87,7 +94,19 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-[ -n "$ZSH_TARGET" ] || ZSH_TARGET="${ZSH:-$GX_HOME/.oh-my-zsh}"
+# 去掉 home 末尾斜杠，保证下方「ZSH 是否在 home 之下」的前缀判定稳定。
+case "$GX_HOME" in ?*/) GX_HOME="${GX_HOME%/}" ;; esac
+if [ -z "$ZSH_TARGET" ]; then
+  if [ "$OPT_HOME_GIVEN" -eq 1 ]; then
+    # --home 显式给出时忽略继承的环境 ZSH：gx 层部署后的交互 zsh 会 export
+    # ZSH=~/.oh-my-zsh，若让它优先，任何从 gx 会话里跑的隔离演练都会把重装的
+    # 破坏性路径打到真实 ~/.oh-my-zsh 上。要指向其他目录必须显式传 --zsh。
+    ZSH_TARGET="$GX_HOME/.oh-my-zsh"
+    [ -z "${ZSH:-}" ] || [ "$ZSH" = "$ZSH_TARGET" ] || ZSH_IGNORED="$ZSH"
+  else
+    ZSH_TARGET="${ZSH:-$GX_HOME/.oh-my-zsh}"
+  fi
+fi
 ZSH="$ZSH_TARGET"
 [ -t 0 ] || OPT_UNATTENDED=1
 
@@ -95,6 +114,31 @@ ZSH="$ZSH_TARGET"
 
 # 目录由本安装器管理当且仅当含 .gx-managed 标记。
 is_ours() { [ -f "$1/.gx-managed" ]; }
+
+# $ZSH 来自环境变量而不在部署 home 之下时守门：这是「继承了 gx 会话的 ZSH 却想
+# 部署到别处」的典型形态，unattended 直接拒绝（要真的这么做请显式传 --zsh），
+# 交互模式要求确认。显式 --zsh 视为用户已确认，不再询问。
+guard_zsh_location() {
+  [ -z "$ZSH_IGNORED" ] \
+    || say "忽略环境 ZSH=$ZSH_IGNORED（已指定 --home，改用 $ZSH；其他路径请显式传 --zsh）"
+  [ "$OPT_ZSH_GIVEN" -eq 0 ] || return 0
+  case "$ZSH" in "$GX_HOME"/*) return 0 ;; esac
+  warn "环境变量 ZSH=$ZSH 不在 home=$GX_HOME 之下"
+  [ "$OPT_UNATTENDED" -eq 0 ] \
+    || die "unattended 模式拒绝在 home 之外的 ZSH 上操作；确认无误请显式传 --zsh \"$ZSH\"" 1
+  printf '确认在 %s 上继续（会重装/卸载该目录）? [y/N] ' "$ZSH"
+  read _gz_ans
+  case "$_gz_ans" in y|Y) ;; *) die "已取消" 1 ;; esac
+}
+
+# 前次安装中断可能留下的同级残留（新树/旧树中转目录、旧版安装器的 custom 暂存）：
+# 只提示不清理，内容是否还需要由用户判断。
+report_leftovers() {
+  for _rl_p in "$ZSH".gx-new-* "$ZSH".gx-old-* "$(dirname "$ZSH")"/.gx-custom.*; do
+    [ -e "$_rl_p" ] || continue
+    warn "发现前次安装中断的残留: $_rl_p（.gx-old-*/.gx-custom.* 内含当时的 custom 层，确认后可手动删除）"
+  done
+}
 
 # 备份既有路径（文件或目录）；同批次内已备份过则跳过。
 did_backup() {
@@ -181,68 +225,78 @@ install_apt_packages() {
     || { warn "apt 安装失败，配置中的存在性守卫会静默跳过对应功能"; return 0; }
 }
 
-# 重装时暂存 $ZSH/custom（用户自装插件/主题/片段，不属于快照）。暂存目录建在
-# $ZSH 的同级（同一文件系统，mv 为原子 rename），失败退回 TMPDIR。
-CUSTOM_STASH=""
+# 把旧安装的 $ZSH/custom（用户自装插件/主题/片段，不属于快照）合并进尚未就位的
+# 新快照树。只读旧树：任何失败都在旧安装原样在位时 die，不存在「暂存后回填」的
+# 中间态。用法: merge_custom_layer <旧 $ZSH> <新树>
+CUSTOM_MERGED=0
 
-stash_custom_layer() {
-  [ -d "$ZSH/custom" ] || return 0
-  CUSTOM_STASH=$(mktemp -d "$(dirname "$ZSH")/.gx-custom.XXXXXX" 2>/dev/null) \
-    || CUSTOM_STASH=$(mktemp -d "${TMPDIR:-/tmp}/gx-custom.XXXXXX") \
-    || die "无法创建 custom 暂存目录，已中止以免丢失 $ZSH/custom" 2
-  mv "$ZSH/custom" "$CUSTOM_STASH/custom" \
-    || die "暂存 $ZSH/custom 到 $CUSTOM_STASH 失败，已中止以免丢失用户数据" 2
-  # p10k 快照由 deploy_p10k 重新部署，本安装器的旧产物不必来回复制。
-  if is_ours "$CUSTOM_STASH/custom/themes/powerlevel10k"; then
-    rm -rf "$CUSTOM_STASH/custom/themes/powerlevel10k"
+merge_custom_layer() {
+  _mc_old="$1/custom"; _mc_new="$2/custom"
+  if [ -L "$_mc_old" ]; then
+    # 符号链接（指向 dotfiles 仓库的常见做法）整体复刻，不展开成拷贝——展开会让
+    # 之后对 $ZSH/custom 的改动不再流回用户仓库。
+    rm -rf "$_mc_new"
+    cp -a "$_mc_old" "$_mc_new" || die "复刻 custom 符号链接失败，旧安装未改动: $_mc_old" 2
+    say "custom 层是符号链接 -> $(readlink "$_mc_old")，原样保留"
+    CUSTOM_MERGED=1
+    return 0
   fi
-}
-
-# 把暂存的 custom 回填到新快照：cp -a 覆盖同名文件，用户版本胜出（含仓库自带的
-# example.*）；失败时保留暂存目录并给出路径，不中断其余部署。
-restore_custom_layer() {
-  [ -n "$CUSTOM_STASH" ] || return 0
-  mkdir -p "$ZSH/custom"
-  if cp -a "$CUSTOM_STASH/custom/." "$ZSH/custom/"; then
-    rm -rf "$CUSTOM_STASH"
-    say "已回填 custom 层: $ZSH/custom"
-  else
-    warn "custom 层回填失败，暂存保留在 $CUSTOM_STASH/custom，请手动复制到 $ZSH/custom"
+  [ -d "$_mc_old" ] || return 0
+  mkdir -p "$_mc_new"
+  # cp -a 覆盖同名文件，用户版本胜出（含仓库自带的 example.*）。
+  cp -a "$_mc_old/." "$_mc_new/" || die "合并 custom 层失败，旧安装未改动: $_mc_old" 2
+  # p10k 快照由 deploy_p10k 重新部署，本安装器的旧产物不必带入新树。
+  if is_ours "$_mc_new/themes/powerlevel10k"; then
+    rm -rf "$_mc_new/themes/powerlevel10k"
   fi
-  CUSTOM_STASH=""
+  CUSTOM_MERGED=1
 }
 
 deploy_omz_repo() {
-  if [ -e "$ZSH" ]; then
-    if [ -f "$ZSH/.gx-managed" ]; then
-      say "更新既有 gx 安装: $ZSH"
-      stash_custom_layer
-      rm -rf "$ZSH"
-    else
-      say "检测到既有 Oh My Zsh（官方或其他来源），备份迁移"
-      did_backup "$ZSH" || die "备份失败: $ZSH" 2
-      # 只保留最近一次 $ZSH 备份，避免重复安装无限膨胀。
-      for _oz_old in "$ZSH".pre-gx-*; do
-        [ -e "$_oz_old" ] || continue
-        [ "$_oz_old" = "$ZSH.pre-gx-$TS" ] && continue
-        say "清理旧备份: $_oz_old"
-        rm -rf "$_oz_old"
-      done
-    fi
-  fi
-  mkdir -p "$ZSH"
-  # tar 中转（而非 cp -a 直接覆盖）保证失败可见且目标恒为干净快照。
+  _oz_new="$ZSH.gx-new-$TS"; _oz_old="$ZSH.gx-old-$TS"
+  # 新快照先在 $ZSH 同级（同一文件系统，mv 为原子 rename）完整就位；在此之前既有
+  # 安装不被改动。同级不可写时（rename 本身也做不了）在这里就中止。
+  rm -rf "$_oz_new"
+  mkdir -p "$_oz_new" || die "无法创建中转目录 $_oz_new（检查上级目录可写）" 2
+  # tar 中转（而非 cp -a）以应用 REPO_EXCLUDES，且失败可见、目标恒为干净快照。
   _oz_tar=$(mktemp "${TMPDIR:-/tmp}/gx-omz.XXXXXX.tar")
-  if tar -cf "$_oz_tar" -C "$REPO_DIR" $REPO_EXCLUDES . 2>/dev/null; then
-    tar -xf "$_oz_tar" -C "$ZSH"
+  if tar -cf "$_oz_tar" -C "$REPO_DIR" $REPO_EXCLUDES . 2>/dev/null \
+      && tar -xf "$_oz_tar" -C "$_oz_new"; then
     rm -f "$_oz_tar"
   else
     rm -f "$_oz_tar"
-    [ -z "$CUSTOM_STASH" ] || warn "custom 层暂存保留在 $CUSTOM_STASH/custom"
-    die "打包仓库快照失败" 2
+    rm -rf "$_oz_new"
+    die "打包/解包仓库快照失败，既有安装未改动" 2
   fi
-  printf 'gx install.sh 管理的 Oh My Zsh 工作树（%s）\n' "$TS" > "$ZSH/.gx-managed"
-  restore_custom_layer
+  printf 'gx install.sh 管理的 Oh My Zsh 工作树（%s）\n' "$TS" > "$_oz_new/.gx-managed"
+
+  if [ -e "$ZSH" ] || [ -L "$ZSH" ]; then
+    if is_ours "$ZSH"; then
+      say "更新既有 gx 安装: $ZSH"
+      merge_custom_layer "$ZSH" "$_oz_new"
+      # 两次 rename 之间屏蔽中断：旧树让位到 .gx-old-<ts>，新树随即就位；第二步
+      # 失败则把旧树放回原位。
+      trap '' INT TERM HUP
+      mv "$ZSH" "$_oz_old" || die "旧安装让位失败: $ZSH，新快照保留在 $_oz_new" 2
+      mv "$_oz_new" "$ZSH" || { mv "$_oz_old" "$ZSH"; die "新快照就位失败，已放回旧安装" 2; }
+      trap - INT TERM HUP
+      rm -rf "$_oz_old"
+    else
+      say "检测到既有 Oh My Zsh（官方或其他来源），备份迁移"
+      did_backup "$ZSH" || die "备份失败: $ZSH，新快照保留在 $_oz_new" 2
+      # 只保留最近一次 $ZSH 备份，避免重复安装无限膨胀。
+      for _oz_prev in "$ZSH".pre-gx-*; do
+        [ -e "$_oz_prev" ] || continue
+        [ "$_oz_prev" = "$ZSH.pre-gx-$TS" ] && continue
+        say "清理旧备份: $_oz_prev"
+        rm -rf "$_oz_prev"
+      done
+      mv "$_oz_new" "$ZSH" || die "新快照就位失败，备份在 $ZSH.pre-gx-$TS" 2
+    fi
+  else
+    mv "$_oz_new" "$ZSH" || die "新快照就位失败: $ZSH" 2
+  fi
+  [ "$CUSTOM_MERGED" -eq 0 ] || say "已回填 custom 层: $ZSH/custom"
 }
 
 deploy_configs() {
@@ -330,10 +384,14 @@ deploy_fonts() {
   mkdir -p "$_ft_dst"
   cp "$REPO_DIR"/gx/fonts/JetBrainsMonoNerd/*.ttf "$_ft_dst/"
   say "Nerd Font v3.4.0 (JetBrainsMono 4 字重) -> $_ft_dst"
-  if command -v fc-cache >/dev/null 2>&1; then
+  if ! command -v fc-cache >/dev/null 2>&1; then
+    warn "无 fc-cache，字体已复制但缓存未刷新（安装 fontconfig 后手动执行 fc-cache -f）"
+  elif [ "$GX_HOME" = "$HOME" ]; then
     fc-cache -f "$GX_HOME/.local/share/fonts" >/dev/null 2>&1 || warn "fc-cache 失败（不影响安装）"
   else
-    warn "无 fc-cache，字体已复制但缓存未刷新（安装 fontconfig 后手动执行 fc-cache -f）"
+    # --home 重定向时 fontconfig 的 per-user 缓存也落在部署 HOME，不写真实 ~/.cache。
+    XDG_CACHE_HOME="$GX_HOME/.cache" fc-cache -f "$GX_HOME/.local/share/fonts" >/dev/null 2>&1 \
+      || warn "fc-cache 失败（不影响安装）"
   fi
 }
 
@@ -422,6 +480,8 @@ uninstall() {
 
 main() {
   say "gx 安装器 (home=$GX_HOME, zsh=$ZSH, remote=$GX_REMOTE, branch=$GX_BRANCH)"
+  guard_zsh_location
+  report_leftovers
   if [ "$OPT_UNINSTALL" -eq 1 ]; then
     uninstall
     return 0

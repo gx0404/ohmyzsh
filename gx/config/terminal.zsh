@@ -2,9 +2,21 @@
 # 守卫对 p10k instant prompt 免疫：instant prompt 在 zshrc 早期把 fd 1 重定向到临时
 # 文件，此时 `-t 1` 恒假，故改以 $TTY（zsh 为有控制终端的 shell 记录的 tty 路径）
 # 判定；无 pty（agent 以 zsh -ic 调用）时 $TTY 为空，模块与旧行为一致不安装。
+# 副作用：fd 1 非终端但 $TTY 非空（如 `zsh -i > log`）时 OSC 7 仍写到 stdout——与
+# instant prompt 的捕获回放顺序一致，捕获类测试需自行过滤 `\e]7;`。
 [[ -o interactive && ( -t 1 || -n ${TTY:-} ) && $TERM != dumb ]] || return 0
+# 远端会话（ssh / emacs）里的路径对本地终端没有意义：上游 lib/termsupport.zsh 在这些
+# 环境下连函数都不定义（omz #11696），本模块同样不接管，避免 TERM_PROGRAM/HERDR_ENV
+# 被 SendEnv/AcceptEnv 带进 ssh 后把远端 cwd 以 file:///... 报成本地目录。
+[[ -z ${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}${INSIDE_EMACS:-} ]] || return 0
 [[ $TERM_PROGRAM == WezTerm || ${HERDR_ENV:-} == 1 ]] || return 0
 (( $+functions[__wezterm_osc7] )) && return 0
+autoload -Uz add-zsh-hook
+# 上游 lib/termsupport.zsh 在 xterm* 终端下无条件挂 omz_termsupport_cwd（每提示符
+# 2 次 fork、无缓存、带主机名）；本模块接管 OSC 7 后把它摘掉，避免同一提示符双发。
+# 必须放在 INSTALLED 早退之前：`source ~/.zshrc` 会让上游重新挂钩，而本模块此时
+# 已安装，不再往下走。
+add-zsh-hook -d precmd omz_termsupport_cwd
 [[ -z ${GX_TERMINAL_CWD_INSTALLED:-} ]] || return 0
 typeset -g GX_TERMINAL_CWD_INSTALLED=1
 
@@ -26,8 +38,4 @@ _gx_terminal_report_cwd() {
   typeset -g _GX_TERMINAL_LAST_CWD=$PWD
   return $exit_code
 }
-autoload -Uz add-zsh-hook
-# 上游 lib/termsupport.zsh 在 xterm* 终端下无条件挂 omz_termsupport_cwd（每提示符
-# 2 次 fork、无缓存、带主机名）；本模块接管 OSC 7 后把它摘掉，避免同一提示符双发。
-add-zsh-hook -d precmd omz_termsupport_cwd
 add-zsh-hook precmd _gx_terminal_report_cwd

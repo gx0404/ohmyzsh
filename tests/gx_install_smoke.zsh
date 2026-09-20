@@ -6,7 +6,9 @@
 # 失败输出 FAIL 行并以非零退出；只写 mktemp 临时目录，不碰真实 $HOME。
 set -u
 
-# 安装器接受外部 ZSH 和 gitstatus 缓存路径；演练必须清除，避免写入当前 Shell 环境。
+# 安装器会读取宿主的 ZSH / gitstatus 缓存等环境变量；演练一律清除作为纵深防御
+# （安装器自身的 --home 与环境 ZSH 互锁由场景 G/H 用 $tmp 内的假目录专门验证，
+# 互锁回归时受损的只是临时目录）。
 unset ZSH ZSH_CUSTOM ZSH_CACHE_DIR ZSH_COMPDUMP GX_HOME GITSTATUS_CACHE_DIR
 
 repo_root=${0:A:h:h}
@@ -16,7 +18,14 @@ fail() { print -u2 "FAIL $*"; exit 1; }
 [ -f "$installer" ] || fail "installer missing: $installer"
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/gx-smoke.XXXXXX")
-trap 'rm -rf "$tmp"' EXIT
+# 场景 I 会把某个 HOME 置为只读，清理前先恢复写权限。
+trap 'chmod -R u+w "$tmp" 2>/dev/null; rm -rf "$tmp"' EXIT
+
+# 所有安装器调用把 TMPDIR 指进沙箱：安装器的 tar 中转文件（gx-omz.*）不落共享 /tmp，
+# 残留断言也只需扫描 $tmp。
+run_installer() {
+  env TMPDIR="$tmp" sh "$installer" "$@"
+}
 
 # 在隔离 HOME+ZDOTDIR 中起交互 zsh，执行 inner 断言并回读标记。
 load_check() {
@@ -35,7 +44,7 @@ load_check() {
 # ---------------------------------------------------------------- 场景 A：全新安装
 
 home_a="$tmp/home-a"
-sh "$installer" --home "$home_a" --skip-apt --skip-chsh --unattended \
+run_installer --home "$home_a" --skip-apt --skip-chsh --unattended \
   > "$tmp/inst-a.out" 2> "$tmp/inst-a.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-a.err" >&2; fail "scenario A install exited non-zero"; }
 
@@ -54,6 +63,12 @@ cmp -s "$repo_root/gx/config/zshrc" "$home_a/.zshrc" || fail ".zshrc differs fro
 [ -f "$home_a/.config/wezterm/.gx-managed" ] || fail "wezterm marker missing"
 fonts=("$home_a"/.local/share/fonts/JetBrainsMonoNerd/*.ttf(N))
 [ $#fonts -eq 4 ] || fail "expected 4 font files, got $#fonts"
+# --home 重定向时 fc-cache 的 per-user 缓存必须落在部署 HOME（XDG_CACHE_HOME 改写），
+# 否则演练会往真实 ~/.cache/fontconfig 写缓存。
+if command -v fc-cache >/dev/null 2>&1; then
+  fccache=("$home_a"/.cache/fontconfig/*(N))
+  [ $#fccache -ge 1 ] || fail "fontconfig cache not written under isolated HOME (leaked to real ~/.cache?)"
+fi
 
 # 隔离加载：omz+p10k+插件+别名 全链路就位（p10k 会真实拉起 vendored gitstatusd）。
 load_check "$home_a" '
@@ -114,7 +129,7 @@ echo "# user example overrides repo" > "$zsh_a/custom/example.zsh"
 # Ubuntu 全局 compinit 留下的无后缀 .zcompdump 都要清。
 echo stale > "$home_a/.zcompdump"
 echo stale > "$home_a/.zcompdump-stale-0.0"
-sh "$installer" --home "$home_a" --skip-apt --skip-chsh --unattended \
+run_installer --home "$home_a" --skip-apt --skip-chsh --unattended \
   > "$tmp/inst-b.out" 2> "$tmp/inst-b.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-b.err" >&2; fail "scenario B reinstall exited non-zero"; }
 [ -f "$zsh_a/custom/plugins/mine/mine.plugin.zsh" ] || fail "custom plugin lost on reinstall"
@@ -124,8 +139,10 @@ grep -q "user example overrides repo" "$zsh_a/custom/example.zsh" 2>/dev/null \
 [ -f "$zsh_a/custom/themes/example.zsh-theme" ] || fail "repo custom skeleton missing after reinstall"
 [ -f "$zsh_a/custom/themes/powerlevel10k/.gx-managed" ] || fail "p10k not redeployed after reinstall"
 grep -q "已回填 custom 层" "$tmp/inst-b.out" || fail "custom restore message absent"
-stash=("$home_a"/.gx-custom.*(N) "${TMPDIR:-/tmp}"/gx-custom.*(N))
-[ $#stash -eq 0 ] || fail "custom stash dir left behind: $stash"
+# 新树/旧树中转目录与 tar 中转文件不得残留；只扫沙箱内路径（TMPDIR 已指进 $tmp）。
+leftover=("$zsh_a".gx-new-*(N) "$zsh_a".gx-old-*(N) "$home_a"/.gx-custom.*(N) "$tmp"/gx-omz.*(N))
+[ $#leftover -eq 0 ] || fail "installer left intermediate dirs behind: $leftover"
+grep -q "残留" "$tmp/inst-b.err" && fail "reinstall reported leftovers on a clean tree"
 [ ! -e "$home_a/.zcompdump" ] || fail "bare .zcompdump not cleaned by installer"
 [ ! -e "$home_a/.zcompdump-stale-0.0" ] || fail "stale .zcompdump-* not cleaned by installer"
 backup=("$home_a"/.zshrc.pre-gx-*(N))
@@ -140,7 +157,7 @@ kill "$busy_daemon" 2>/dev/null || true
 
 # ---------------------------------------------------------------- 场景 C：--uninstall 恢复备份
 
-sh "$installer" --home "$home_a" --skip-apt --uninstall --unattended \
+run_installer --home "$home_a" --skip-apt --uninstall --unattended \
   > "$tmp/inst-c.out" 2> "$tmp/inst-c.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-c.err" >&2; fail "scenario C uninstall exited non-zero"; }
 grep -q "legacy config" "$home_a/.zshrc" || fail "uninstall did not restore legacy .zshrc"
@@ -152,7 +169,7 @@ grep -q "legacy config" "$home_a/.zshrc" || fail "uninstall did not restore lega
 
 home_d="$tmp/home-d"
 zsh_d="$home_d/omz-custom-location"
-sh "$installer" --home "$home_d" --zsh "$zsh_d" --skip-apt --skip-chsh --unattended \
+run_installer --home "$home_d" --zsh "$zsh_d" --skip-apt --skip-chsh --unattended \
   > "$tmp/inst-d.out" 2> "$tmp/inst-d.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-d.err" >&2; fail "scenario D install exited non-zero"; }
 grep -q "^export ZSH=\"$zsh_d\"$" "$home_d/.zshrc" || fail "export ZSH line not rewritten"
@@ -168,13 +185,99 @@ grep -q "GX-SMOKE-OK-CUSTOM" "$tmp/load.out" || fail "custom-path load marker ab
 home_e="$tmp/home-e"
 mkdir -p "$home_e/.config/wezterm/.git"
 echo "# self-managed" > "$home_e/.config/wezterm/wezterm.lua"
-sh "$installer" --home "$home_e" --skip-apt --skip-chsh --unattended \
+run_installer --home "$home_e" --skip-apt --skip-chsh --unattended \
   > "$tmp/inst-e.out" 2> "$tmp/inst-e.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-e.err" >&2; fail "scenario E install exited non-zero"; }
 grep -q "# self-managed" "$home_e/.config/wezterm/wezterm.lua" \
   || fail "git-managed wezterm was replaced"
 [ ! -f "$home_e/.config/wezterm/.gx-managed" ] || fail "git-managed wezterm got gx marker"
 grep -q "git 自管" "$tmp/inst-e.out" || fail "wezterm git-skip message absent"
+
+# ---------------------------------------------------------------- 场景 F：custom 为符号链接（dotfiles 仓库）时重装原样保留
+
+home_f="$tmp/home-f"
+zsh_f="$home_f/.oh-my-zsh"
+run_installer --home "$home_f" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  > "$tmp/inst-f.out" 2> "$tmp/inst-f.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-f.err" >&2; fail "scenario F install exited non-zero"; }
+dotfiles="$tmp/dotfiles-omz-custom"
+mv "$zsh_f/custom" "$dotfiles"
+ln -s "$dotfiles" "$zsh_f/custom"
+echo "# v1 in dotfiles" > "$dotfiles/from-dotfiles.zsh"
+run_installer --home "$home_f" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  > "$tmp/inst-f2.out" 2> "$tmp/inst-f2.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-f2.err" >&2; fail "scenario F reinstall exited non-zero"; }
+[ -L "$zsh_f/custom" ] || fail "symlinked custom was expanded into a real directory on reinstall"
+[ "$(readlink "$zsh_f/custom")" = "$dotfiles" ] || fail "custom symlink target changed: $(readlink "$zsh_f/custom")"
+grep -q "v1 in dotfiles" "$dotfiles/from-dotfiles.zsh" || fail "dotfiles custom content lost"
+[ -f "$zsh_f/custom/themes/powerlevel10k/.gx-managed" ] || fail "p10k not redeployed through custom symlink"
+grep -q "符号链接" "$tmp/inst-f2.out" || fail "symlink-preserved message absent"
+# 通过链接改文件仍流回 dotfiles 仓库（没有被拷贝断开）。
+echo "# v2" > "$zsh_f/custom/from-dotfiles.zsh"
+grep -q "v2" "$dotfiles/from-dotfiles.zsh" || fail "edits via \$ZSH/custom no longer reach dotfiles"
+
+# ---------------------------------------------------------------- 场景 G：--home 显式给出时忽略继承的环境 ZSH
+
+# 模拟「从 gx 会话里跑隔离演练」：环境 ZSH 指向另一棵带 .gx-managed 标记的树
+# （真实情况就是 ~/.oh-my-zsh）。安装器必须改写到 <home>/.oh-my-zsh，且不碰该树。
+foreign="$tmp/foreign-zsh"
+mkdir -p "$foreign/custom/plugins/keep"
+echo "gx-managed marker (foreign)" > "$foreign/.gx-managed"
+echo "# keep me" > "$foreign/custom/plugins/keep/keep.plugin.zsh"
+foreign_before=$(cd "$foreign" && find . | sort)
+home_g="$tmp/home-g"
+env ZSH="$foreign" TMPDIR="$tmp" sh "$installer" --home "$home_g" \
+  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  > "$tmp/inst-g.out" 2> "$tmp/inst-g.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-g.err" >&2; fail "scenario G install exited non-zero"; }
+[ -f "$home_g/.oh-my-zsh/.gx-managed" ] || fail "--home did not deploy to <home>/.oh-my-zsh when env ZSH set"
+grep -q "忽略环境 ZSH=$foreign" "$tmp/inst-g.out" || fail "installer did not announce ignoring env ZSH"
+[ "$(cd "$foreign" && find . | sort)" = "$foreign_before" ] || fail "env ZSH tree touched despite --home: $foreign"
+grep -q "# keep me" "$foreign/custom/plugins/keep/keep.plugin.zsh" || fail "foreign custom content changed"
+leftover=("$tmp"/.gx-custom.*(N) "$foreign".gx-new-*(N) "$foreign".gx-old-*(N))
+[ $#leftover -eq 0 ] || fail "scenario G left intermediates next to env ZSH: $leftover"
+
+# ---------------------------------------------------------------- 场景 H：环境 ZSH 不在部署 home 之下且未传 --zsh → unattended 拒绝
+
+home_h="$tmp/home-h"
+mkdir -p "$home_h"
+env ZSH="$foreign" GX_HOME="$home_h" TMPDIR="$tmp" sh "$installer" \
+  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  > "$tmp/inst-h.out" 2> "$tmp/inst-h.err"
+rc_h=$?
+[ $rc_h -eq 1 ] || { cat "$tmp/inst-h.err" >&2; fail "scenario H expected exit 1 (refused), got $rc_h"; }
+grep -q -- "--zsh" "$tmp/inst-h.err" || fail "refusal did not tell the user to pass --zsh explicitly"
+[ "$(cd "$foreign" && find . | sort)" = "$foreign_before" ] || fail "refused run still touched env ZSH tree"
+[ ! -e "$home_h/.oh-my-zsh" ] && [ ! -e "$home_h/.zshrc" ] || fail "refused run deployed something into home"
+# --uninstall 走同一道门。
+env ZSH="$foreign" GX_HOME="$home_h" TMPDIR="$tmp" sh "$installer" --uninstall --unattended \
+  > "$tmp/inst-h2.out" 2> "$tmp/inst-h2.err"
+[ $? -eq 1 ] || fail "scenario H: --uninstall bypassed the env ZSH guard"
+[ -f "$foreign/custom/plugins/keep/keep.plugin.zsh" ] || fail "refused uninstall touched env ZSH tree"
+
+# ---------------------------------------------------------------- 场景 I：$ZSH 上级不可写 → 中止且旧安装（含 custom）原样在位
+
+if [ "$(id -u)" = 0 ]; then
+  print -r -- "scenario I: N/A (root ignores directory permissions)"
+else
+  home_i="$tmp/home-i"
+  zsh_i="$home_i/.oh-my-zsh"
+  run_installer --home "$home_i" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+    > "$tmp/inst-i.out" 2> "$tmp/inst-i.err"
+  [ $? -eq 0 ] || { cat "$tmp/inst-i.err" >&2; fail "scenario I install exited non-zero"; }
+  echo "# precious" > "$zsh_i/custom/precious.zsh"
+  tree_before=$(cd "$zsh_i" && find . | sort)
+  chmod a-w "$home_i"
+  run_installer --home "$home_i" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+    > "$tmp/inst-i2.out" 2> "$tmp/inst-i2.err"
+  rc_i=$?
+  chmod u+w "$home_i"
+  [ $rc_i -eq 2 ] || { cat "$tmp/inst-i2.err" >&2; fail "scenario I expected exit 2 on unwritable parent, got $rc_i"; }
+  [ "$(cd "$zsh_i" && find . | sort)" = "$tree_before" ] || fail "aborted reinstall modified the existing tree"
+  grep -q "# precious" "$zsh_i/custom/precious.zsh" || fail "custom content lost on aborted reinstall"
+  leftover=("$zsh_i".gx-new-*(N) "$zsh_i".gx-old-*(N) "$tmp"/gx-omz.*(N))
+  [ $#leftover -eq 0 ] || fail "aborted reinstall left intermediates: $leftover"
+fi
 
 print -r -- "GX-INSTALL-SMOKE-OK"
 exit 0

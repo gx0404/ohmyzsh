@@ -37,7 +37,8 @@
 ## 提交与版本
 
 - Conventional Commmits：`type(scope)!: subject`，scope = 插件/主题名或
-  `framework`/`ci`/`docs`；breaking change 用 `!` + `BREAKING CHANGE:` 正文。
+  `framework`/`ci`/`docs`/`gx`（与根 AGENTS.md 一致）；breaking change 用 `!` +
+  `BREAKING CHANGE:` 正文。
   tools/changelog.sh 依赖该格式。
 - `CHANGELOG.md` 是 **fork 侧**版本真源（`## X.Y.Z(日期|TBD)`，version.py 取最大
   数值 SemVer）；不替代上游 `omz changelog` 的动态生成体系。上游同步类改动记

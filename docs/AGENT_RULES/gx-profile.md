@@ -28,7 +28,13 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   `[[ -r ... ]]` / `$+commands[...]` 存在性守卫风格，保证新机缺组件时静默降级。
 - install.sh / bundle.sh 是 POSIX sh（dash 可执行），会被 `curl | sh` 执行：
   禁 bashism；绝不 rm 用户既有文件——一律 mv 为 `*.pre-gx-<时间戳>` 备份；
-  仅允许删除带 `.gx-managed` 标记的本安装器前次产物。
+  仅允许删除带 `.gx-managed` 标记的本安装器前次产物。重装采用「新树同级就位
+  → 合并 custom（符号链接原样保留）→ 两次 rename 替换」，不得引入任何把用户
+  数据搬离原位再回填的中间态。
+- `--home` 显式给出时必须忽略继承的环境 `ZSH`（gx 会话里它指向真实
+  `~/.oh-my-zsh`）；环境 `ZSH` 不在部署 home 之下且未传 `--zsh` 时 unattended
+  拒绝、交互须确认。测试不得靠 `unset ZSH` 掩盖这条互锁：smoke 场景 G/H 与
+  `gx_terminal.py::InstallerZshInterlock` 用 mktemp 内假树验证。
 - 不修改上游 tools/install.sh 与 templates/；gx 安装器独立实现（工作树快照
   部署，omz 自动更新在 gx/config/zshrc 中已 `zstyle ':omz:update' mode
   disabled`，升级 = 重跑安装器）。
@@ -37,8 +43,10 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
 
 - 任何 install.sh / config / vendored 组件改动后运行
   `zsh tests/gx_install_smoke.zsh`（已接入 `make test`）：隔离 HOME 部署断言、
-  交互加载断言（p10k + 插件别名 + omz version）、幂等重装（custom 层保全）、
-  既有配置备份、`--uninstall` 恢复、自定义 ZSH 路径改写。
+  交互加载断言（p10k + 插件别名 + omz version）、幂等重装（custom 层保全、
+  符号链接 custom 保留、上级不可写时中止不改旧树）、既有配置备份、`--uninstall`
+  恢复、自定义 ZSH 路径改写、`--home` 与环境 `ZSH` 互锁。所有安装器调用经
+  `run_installer`（TMPDIR 指进沙箱），fc-cache 缓存断言落在隔离 HOME。
 - config 改动同时运行 `python3 tests/gx_terminal.py`（已接入 `make test`）：
   模块单元用例之外，DeployedZshrc / DeployedInteractive 用 install.sh 落地
   mktemp HOME 后走真实 `.zshenv/.zshrc` 链与真 PTY `zsh -i`（不加 `-f`），

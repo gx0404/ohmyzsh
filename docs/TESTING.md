@@ -12,7 +12,7 @@
 | 终端证据 | `make ui-smoke` | 主题渲染（robbyrussell/agnoster 的分支段）、omz 子命令输出的真实捕获与断言 |
 | gx 模块单元 | `python3 tests/gx_terminal.py`（TerminalIntegration，make test 的 gx-terminal 步） | `zsh -f -i` + PTY 只加载 terminal.zsh：守卫（含 fd 重定向）、编码/缓存、上游钩子替换 |
 | gx 真实链路 | 同上（DeployedZshrc / DeployedInteractive） | install.sh 落地 mktemp HOME 后走真实 .zshenv/.zshrc（不加 -f）：fzf 版本分支、skip_global_compinit；真 PTY 起 `zsh -i` 覆盖 p10k instant prompt 形态下的 precmd 链、一次 cd 一条 `file:///` OSC 7、HERDR_ENV/TERM_PROGRAM 守卫。缺 zsh/sh/PTY 或 instant prompt 缓存未生成即失败，不 skip |
-| gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、compdump 清理）/备份恢复/自定义 ZSH 路径 |
+| gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、符号链接 custom 原样保留、compdump 清理、无中转残留）/备份恢复/自定义 ZSH 路径/`--home` 忽略环境 ZSH、环境 ZSH 越界 unattended 拒绝/上级不可写时中止且旧树不变。TMPDIR 与 fontconfig 缓存都落在沙箱 |
 | 生成物 | `make generated-check`（kb-check） | docs/kb/chunks.json 与语料一致 |
 
 上游 CI（.github/workflows/main.yml）只有 zsh -n 且被
@@ -42,6 +42,12 @@
   - p10k instant prompt 缓存要到第二个提示符之后才由 `zle -F` 回调写出：PTY
     驱动必须等每条命令输出空闲后再发下一条，纯 typeahead 会让会话在写出前退出。
   - PTY 会话里的标记用算术展开生成（`M$((1000+n))`），避免等待时被输入回显命中。
+  - `gx/config/terminal.zsh` 的守卫是「fd 1 是 TTY 或 `$TTY` 非空」：有 pty 但 stdout
+    被重定向的交互 shell（`zsh -i > out.txt`）仍会把 `\e]7;file:///…` 写进捕获文件，
+    文本捕获类断言要先过滤 OSC 7；`SSH_*`/`INSIDE_EMACS` 存在时模块不接管，经 ssh
+    跑测试须像 `gx_terminal.py::REMOTE_ENV` 那样剥离。
+  - 任何调用 `gx/install.sh` 的测试都传 `--home <mktemp>`（安装器据此忽略继承的
+    `ZSH`）并把 `TMPDIR` 指进沙箱；模拟「环境 ZSH 指向别处」只能用沙箱内假树。
 
 ## 证据与截图流程
 

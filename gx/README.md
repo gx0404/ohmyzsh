@@ -11,7 +11,7 @@ zoxide + Nerd 字体 + WezTerm 终端配置）固化进仓库，一条命令在�
 gx/
 ├── config/            配置真源（改动在本机验证后回填到这里）
 │   ├── zshrc          主配置（p10k、plugins、按键/历史/补全定制、第三方集成）
-│   ├── zshenv         cargo 环境
+│   ├── zshenv         skip_global_compinit + cargo 环境
 │   ├── zshrc.local    机器差异层（CUDA/TensorRT、Photoneo、海康 MVS 等，缺路径不报错）
 │   └── p10k.zsh       Powerlevel10k Lean 精简配置
 ├── omz-custom/themes/powerlevel10k/   主题提交树快照（无 .git）
@@ -39,14 +39,20 @@ make gx-install
 需 root 或 sudo）→ Oh My Zsh 工作树到 `~/.oh-my-zsh` → 四个配置文件 → p10k
 主题 + gitstatusd → `~/.local/bin/zoxide` → 字体 + fc-cache → WezTerm 配置 →
 chsh（交互确认）。已有官方 Oh My Zsh 或旧配置时自动备份为 `*.pre-gx-<时间戳>`
-后迁移，可随时回退。重装（目标带 `.gx-managed` 标记）时 `$ZSH/custom/` 用户层
-先暂存再回填，同名文件以用户版本为准；部署 HOME 内的 `.zcompdump*`（含无后缀的
-全局 compinit 残留）一并清理，首次启动重建。
+后迁移，可随时回退。重装（目标带 `.gx-managed` 标记）时新快照先在 `$ZSH` 同级
+完整就位并合并 `$ZSH/custom/` 用户层（同名文件以用户版本为准；`custom` 是符号链接
+时原样保留，不展开成拷贝），再原子替换目录——任何失败都发生在旧安装原样在位时，
+没有「暂存后回填」的中间态；上次中断留下的 `.gx-new-*`/`.gx-old-*`/旧版
+`.gx-custom.*` 只提示不清理。部署 HOME 内的 `.zcompdump*`（含无后缀的全局
+compinit 残留）一并清理，首次启动重建。
 
 常用选项：`--online`（强制拉取最新分支）、`--skip-apt/--skip-fonts/
 --skip-wezterm/--skip-chsh`、`--unattended`（无交互）、`--uninstall`（恢复备份
 并移除带 `.gx-managed` 标记的产物）、`--home <dir>`/`--zsh <dir>`（重定向部署
-目标，测试用）。完整契约见 `gx/install.sh` 头部注释。
+目标，测试用）。`--home` 显式给出时忽略继承的环境变量 `ZSH`（gx 会话里它指向真实
+`~/.oh-my-zsh`，否则隔离演练会重装真实目录）；环境 `ZSH` 不在部署 home 之下且未传
+`--zsh` 时，unattended 直接拒绝、交互模式要求确认。`--home` 重定向时 fc-cache 的
+缓存也落在部署 HOME。完整契约见 `gx/install.sh` 头部注释。
 
 ## 更新流程
 
@@ -95,10 +101,14 @@ macOS 对应使用 `Super` / `Ctrl+Super`。Linux 常用终端功能继续使用
 正文使用 Regular 字重，标题和选择由 TUI 自行强调。Windows 优先 PowerShell 7，
 未安装时回退 5.1；WSL 使用实际发行版默认用户与登录 shell。
 
-`gx/config/terminal.zsh` 只在有控制终端的交互 shell（`$TTY` 非空，对 p10k
-instant prompt 的 fd 重定向免疫）中上报 OSC 7 工作目录：主机名字段留空
+`gx/config/terminal.zsh` 只在交互 shell 且 fd 1 是 TTY 或 `$TTY` 非空（对 p10k
+instant prompt 的 fd 重定向免疫）时上报 OSC 7 工作目录：主机名字段留空
 （`file:///...`，herdr 与 WezTerm 都接受），编码中文、空格和控制字符，只在目录
-变化时发送，并摘掉上游 `omz_termsupport_cwd` 避免同一提示符双发。已有 WezTerm
-CWD 集成时跳过，重复 source 不增加 hook。P10k 使用自身的 OSC 133 支持，不叠加
-PS1 包装。缺少 Cargo 环境文件时 `.zshenv` 静默继续。验证：
+变化时发送，并摘掉上游 `omz_termsupport_cwd` 避免同一提示符双发（摘钩子在重复
+source 守卫之前执行，`source ~/.zshrc` 后仍只有一个上报函数）。ssh / emacs 会话
+（`SSH_CONNECTION`/`SSH_CLIENT`/`SSH_TTY`/`INSIDE_EMACS`）不接管，与上游一致；
+已有 WezTerm CWD 集成时跳过。已知副作用：fd 1 被重定向但 `$TTY` 非空（如
+`zsh -i > log`）时 OSC 7 仍写到 stdout，捕获类测试需过滤 `\e]7;`。P10k 使用自身
+的 OSC 133 支持，不叠加 PS1 包装。`.zshenv` 首行 `skip_global_compinit=1` 跳过
+Ubuntu 全局 compinit，缺少 Cargo 环境文件时静默继续。验证：
 `python3 tests/gx_terminal.py` 和隔离安装 smoke。

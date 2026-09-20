@@ -60,16 +60,23 @@
 12. 终端 OSC 7 上报兼容 p10k instant prompt：`gx/config/terminal.zsh` 守卫改以
     `$TTY` 判定（instant prompt 重定向 fd 1 后 `-t 1` 恒假，模块此前在部署形态
     下从未安装）；主机名字段留空输出 `file:///<cwd>`（herdr 只接受空或
-    localhost）；接管后摘掉上游 `omz_termsupport_cwd`，同一提示符不再双发。
+    localhost）；接管后摘掉上游 `omz_termsupport_cwd`，同一提示符不再双发
+    （摘钩子在重复 source 守卫之前，`source ~/.zshrc` 后不回归）；ssh / emacs
+    会话（`SSH_CONNECTION`/`SSH_CLIENT`/`SSH_TTY`/`INSIDE_EMACS`）不接管，与上游
+    一致，避免远端 cwd 被当成本地目录。
 13. fzf 选项按版本探测拼装：`gx/config/zshrc` 用 `is-at-least 0.24` 判定
     `fzf --version` 首字段后才追加 `--border=rounded/--pointer/--marker`
     （Ubuntu 20.04 的 0.20.0 退化为 `--border`，此前所有 fzf 入口启动即退出）；
-    fzf 缺失时不导出；`FZF_DEFAULT_COMMAND` 依次优先 fd/fdfind/rg --files。
-14. 重装保留 custom 层：`gx/install.sh::deploy_omz_repo` 在 `.gx-managed` 分支
-    先把 `$ZSH/custom` 暂存到同级 `mktemp -d`（同文件系统原子 mv），解包后
-    `cp -a` 回填（同名以用户为准），失败保留暂存目录并给出路径；此前重装会
-    静默抹掉用户自装插件。`cleanup_zcompdump` 明确覆盖无后缀 `.zcompdump`；
-    smoke 幂等场景补 custom 保全、同名以用户为准与 compdump 清理断言。
+    fzf 缺失时不导出；首字段不是 `<数字>.<数字>` 形态（包装脚本打印
+    `fzf 0.20.0`、`v0.44.1`）时退化为老选项，不把未知当新版；
+    `FZF_DEFAULT_COMMAND` 依次优先 fd/fdfind/rg --files。
+14. 重装保留 custom 层：`gx/install.sh::deploy_omz_repo` 先把新快照解包到
+    `$ZSH.gx-new-<ts>`，用 `merge_custom_layer` 把旧 `$ZSH/custom` 合并进新树
+    （同名以用户为准；`custom` 是符号链接时整体复刻、不展开成拷贝），再两次
+    rename 原子替换，旧树随后删除——任何失败都在旧安装原样在位时中止，没有
+    暂存回填的中间态；此前重装会静默抹掉用户自装插件。`cleanup_zcompdump`
+    明确覆盖无后缀 `.zcompdump`；smoke 幂等场景补 custom 保全、同名以用户为准、
+    符号链接保留、上级不可写中止与 compdump 清理断言。
 15. `gx/config/zshenv` 首行 `skip_global_compinit=1`：跳过 Ubuntu `/etc/zsh/zshrc`
     在 `~/.zshrc` 之前额外执行的全局 compinit（双 compinit/compaudit 与多一份无
     后缀 `.zcompdump`）；smoke 与部署链路测试断言交互加载后只存在
@@ -80,3 +87,10 @@
     `omz_termsupport_cwd`、一次 cd 只发一条 `file:///` OSC 7、`HERDR_ENV=1`
     与无宿主身份两种守卫形态、FZF_DEFAULT_OPTS 与宿主 fzf 版本匹配且
     `fzf --filter` 可用；缺 zsh/sh/PTY 或缓存未生成即失败不 skip。
+17. 安装器 `--home` 与环境 `ZSH` 互锁：`--home` 显式给出时忽略继承的 `ZSH`
+    （gx 会话 `export ZSH=~/.oh-my-zsh`，此前隔离演练会把重装打到真实目录）；
+    环境 `ZSH` 不在部署 home 之下且未传 `--zsh` 时 unattended 以退出码 1 拒绝、
+    交互须确认；启动时提示上次中断残留（`.gx-new-*`/`.gx-old-*`/`.gx-custom.*`）；
+    `--home` 重定向时 fc-cache 缓存落在部署 HOME。smoke 场景 G/H 与
+    `gx_terminal.py::InstallerZshInterlock` 用沙箱内假树验证，测试不再依赖
+    `unset ZSH` 掩盖。

@@ -124,8 +124,11 @@ if (( $+commands[fzf] )); then
   _gx_fzf_version="$(FZF_DEFAULT_OPTS= command fzf --version 2>/dev/null)"
   _gx_fzf_version=${_gx_fzf_version%%$'\n'*}
   _gx_fzf_version=${_gx_fzf_version%% *}
+  # 首字段必须是 <数字>.<数字> 形态；包装脚本打印 "fzf 0.20.0" 或 "v0.44.1" 时
+  # is-at-least 会把非数字当成新版，故解析不出一律退化为 0（走老选项，安全一侧）。
+  [[ $_gx_fzf_version == <->.<->* ]] || _gx_fzf_version=0
   _gx_fzf_opts="--height=55% --layout=reverse --info=inline --prompt='❯ ' --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8,border:#6c7086"
-  if is-at-least 0.24 "${_gx_fzf_version:-0}"; then
+  if is-at-least 0.24 "$_gx_fzf_version"; then
     _gx_fzf_opts+=" --border=rounded --pointer='▶' --marker='✓'"
   else
     _gx_fzf_opts+=" --border"
