@@ -4,13 +4,136 @@ import pathlib
 import pty
 import select
 import shlex
+import shutil
 import subprocess
 import tempfile
 import unittest
 
-MODULE = pathlib.Path(__file__).resolve().parents[1] / "gx/config/terminal.zsh"
+REPO = pathlib.Path(__file__).resolve().parents[1]
+MODULE = REPO / "gx/config/terminal.zsh"
+INSTALLER = REPO / "gx/install.sh"
+# 安装器与 zsh 配置链会读取的宿主环境变量：隔离部署前一律剥离。
+STRIP_ENV = ("ZSH", "ZSH_CUSTOM", "ZSH_CACHE_DIR", "ZSH_COMPDUMP", "GX_HOME", "GITSTATUS_CACHE_DIR",
+             "GIT_DIR", "GIT_CEILING_DIRECTORIES", "FZF_DEFAULT_OPTS", "FZF_DEFAULT_COMMAND",
+             "GX_TERMINAL_CWD_INSTALLED", "TERM_PROGRAM", "HERDR_ENV", "XDG_CACHE_HOME", "XDG_CONFIG_HOME")
 # 模拟上游 lib/termsupport.zsh 在 xterm* 下无条件挂上的 OSC 7 钩子。
 UPSTREAM_HOOK = "omz_termsupport_cwd() { :; }; autoload -Uz add-zsh-hook; add-zsh-hook precmd omz_termsupport_cwd; "
+
+
+
+def isolated_env(home, **overrides):
+    """以部署 HOME 为根的环境；值为 None 的键表示删除。"""
+    env = {key: value for key, value in os.environ.items() if key not in STRIP_ENV}
+    env.update(HOME=str(home), ZDOTDIR=str(home), TERM="xterm-256color")
+    for key, value in overrides.items():
+        if value is None:
+            env.pop(key, None)
+        else:
+            env[key] = value
+    return env
+
+
+def deploy_gx_home(home):
+    """用 gx/install.sh 把工作树真实部署到 mktemp HOME（不碰真实 $HOME）。"""
+    if shutil.which("zsh") is None or shutil.which("sh") is None:
+        raise AssertionError("真实链路测试需要 zsh 与 sh，缺失即失败（不 skip）")
+    result = subprocess.run(
+        ["sh", str(INSTALLER), "--home", str(home), "--zsh", str(home / ".oh-my-zsh"), "--skip-apt",
+         "--skip-fonts", "--skip-wezterm", "--skip-chsh", "--unattended"],
+        env=isolated_env(home), capture_output=True, text=True, timeout=120)
+    if result.returncode != 0:
+        raise AssertionError(f"gx/install.sh 部署失败 rc={result.returncode}\n{result.stdout}\n{result.stderr}")
+    return home
+
+
+def shadow_path(root, hide=(), shims=None):
+    """构造 PATH：hide 中的命令从所有目录消失（目录整体以符号链接影子替代），
+    shims 为 {命令名: 脚本正文} 的伪命令，放在 PATH 最前。"""
+    parts = []
+    shim_dir = root / "shim-bin"
+    shim_dir.mkdir(exist_ok=True)
+    for name, body in (shims or {}).items():
+        shim = shim_dir / name
+        shim.write_text("#!/bin/sh\n" + body + "\n", encoding="utf-8")
+        shim.chmod(0o755)
+    parts.append(str(shim_dir))
+    for index, entry in enumerate(os.environ.get("PATH", "").split(os.pathsep)):
+        directory = pathlib.Path(entry)
+        if not entry or not directory.is_dir():
+            continue
+        if not any((directory / name).exists() for name in hide):
+            parts.append(entry)
+            continue
+        shadow = root / f"shadow-{index}"
+        shadow.mkdir(exist_ok=True)
+        for child in directory.iterdir():
+            if child.name not in hide and not (shadow / child.name).exists():
+                os.symlink(child, shadow / child.name)
+        parts.append(str(shadow))
+    return os.pathsep.join(parts)
+
+
+class DeployedZshrc(unittest.TestCase):
+    """部署形态（install.sh 落地的 .zshrc/.zshenv/omz/p10k）下的配置链断言。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.root = pathlib.Path(tempfile.mkdtemp(prefix="gx-deployed-"))
+        cls.home = deploy_gx_home(cls.root / "home")
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.root, ignore_errors=True)
+
+    def run_login(self, script, **overrides):
+        """在部署 HOME 中起 zsh -i -c（不加 -f，走真实 .zshenv/.zshrc 链）。"""
+        result = subprocess.run(["zsh", "-i", "-c", script], env=isolated_env(self.home, **overrides),
+                                capture_output=True, timeout=90, cwd=str(self.home))
+        self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
+        return result.stdout, result.stderr
+
+    def fzf_state(self, version_line=None, hide=(), extra_shims=None):
+        shims = dict(extra_shims or {})
+        if version_line is not None:
+            shims["fzf"] = f'[ "$1" = --version ] && {{ printf \'%s\\n\' "{version_line}"; exit 0; }}; exit 2'
+        # 每次调用独立的影子 PATH 根，避免上一用例的伪命令/影子目录残留。
+        path_root = pathlib.Path(tempfile.mkdtemp(prefix="path-", dir=self.root))
+        path = shadow_path(path_root, hide=set(hide) | ({"fzf"} if version_line is None else set()), shims=shims)
+        out, err = self.run_login("print -r -- OPTS:${FZF_DEFAULT_OPTS-unset}:END; print -r -- CMD:${FZF_DEFAULT_COMMAND-unset}:END",
+                                  PATH=path)
+        text = out.decode(errors="replace")
+        opts = text.split("OPTS:", 1)[1].split(":END", 1)[0]
+        cmd = text.split("CMD:", 1)[1].split(":END", 1)[0]
+        return opts, cmd, err.decode(errors="replace")
+
+    def test_fzf_020_gets_legacy_border_without_new_flags(self):
+        # Ubuntu 20.04 的 fzf 0.20.0 不认识 --border=rounded/--pointer/--marker，
+        # 任何 fzf 入口启动即退出。
+        opts, _cmd, _err = self.fzf_state("0.20.0")
+        self.assertNotIn("--pointer", opts)
+        self.assertNotIn("--marker", opts)
+        self.assertNotIn("--border=rounded", opts)
+        self.assertIn("--border", opts)
+        self.assertIn("--height=55%", opts)
+
+    def test_fzf_024_plus_gets_rounded_border_pointer_marker(self):
+        opts, _cmd, _err = self.fzf_state("0.44.1 (d0466fa)")
+        for flag in ("--border=rounded", "--pointer=", "--marker="):
+            self.assertIn(flag, opts)
+
+    def test_missing_fzf_exports_nothing_and_stays_silent(self):
+        opts, cmd, err = self.fzf_state(None, hide={"fd", "fdfind", "rg"})
+        self.assertEqual(opts, "unset")
+        self.assertEqual(cmd, "unset")
+        self.assertNotIn("fzf", err)
+
+    def test_default_command_prefers_fd_then_rg(self):
+        with_fd = self.fzf_state("0.20.0", hide={"fd", "fdfind", "rg"}, extra_shims={"fd": "exit 0", "rg": "exit 0"})[1]
+        self.assertTrue(with_fd.startswith("fd "), with_fd)
+        only_rg = self.fzf_state("0.20.0", hide={"fd", "fdfind", "rg"}, extra_shims={"rg": "exit 0"})[1]
+        self.assertTrue(only_rg.startswith("rg --files"), only_rg)
+        neither = self.fzf_state("0.20.0", hide={"fd", "fdfind", "rg"})[1]
+        self.assertEqual(neither, "unset")
 
 
 class TerminalIntegration(unittest.TestCase):

@@ -114,7 +114,33 @@ unset keymap keyseq
 # fzf 负责文件和目录选择；Ctrl+R 稍后由 Atuin 覆盖。
 [[ -r /usr/share/doc/fzf/examples/completion.zsh ]] && source /usr/share/doc/fzf/examples/completion.zsh
 [[ -r /usr/share/doc/fzf/examples/key-bindings.zsh ]] && source /usr/share/doc/fzf/examples/key-bindings.zsh
-export FZF_DEFAULT_OPTS="--height=55% --layout=reverse --border=rounded --info=inline --prompt='❯ ' --pointer='▶' --marker='✓' --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8,border:#6c7086"
+# 选项按 fzf 版本探测拼装：--border=rounded/--pointer/--marker 自 0.24 起才存在，
+# Ubuntu 20.04 的 0.20.0 退化为 --border；fzf 缺失时不导出。探测时清空
+# FZF_DEFAULT_OPTS，否则继承的旧选项会让 --version 自身报错。
+if (( $+commands[fzf] )); then
+  autoload -Uz is-at-least
+  # 取首行首字段（"0.44.1 (d0466fa)" → 0.44.1）；单行输出下 ${(f)..}[1] 会退化为
+  # 标量取首字符，故分两步截断。
+  _gx_fzf_version="$(FZF_DEFAULT_OPTS= command fzf --version 2>/dev/null)"
+  _gx_fzf_version=${_gx_fzf_version%%$'\n'*}
+  _gx_fzf_version=${_gx_fzf_version%% *}
+  _gx_fzf_opts="--height=55% --layout=reverse --info=inline --prompt='❯ ' --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8,fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc,marker:#b4befe,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8,border:#6c7086"
+  if is-at-least 0.24 "${_gx_fzf_version:-0}"; then
+    _gx_fzf_opts+=" --border=rounded --pointer='▶' --marker='✓'"
+  else
+    _gx_fzf_opts+=" --border"
+  fi
+  export FZF_DEFAULT_OPTS=$_gx_fzf_opts
+  # 文件枚举优先 fd（Ubuntu 包名为 fdfind），其次 rg --files；都没有就用 fzf 默认 find。
+  if (( $+commands[fd] )); then
+    export FZF_DEFAULT_COMMAND='fd --type f'
+  elif (( $+commands[fdfind] )); then
+    export FZF_DEFAULT_COMMAND='fdfind --type f'
+  elif (( $+commands[rg] )); then
+    export FZF_DEFAULT_COMMAND='rg --files'
+  fi
+  unset _gx_fzf_version _gx_fzf_opts
+fi
 
 if (( $+commands[zoxide] )); then
   eval "$(zoxide init zsh)"

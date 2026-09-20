@@ -61,3 +61,7 @@
     `$TTY` 判定（instant prompt 重定向 fd 1 后 `-t 1` 恒假，模块此前在部署形态
     下从未安装）；主机名字段留空输出 `file:///<cwd>`（herdr 只接受空或
     localhost）；接管后摘掉上游 `omz_termsupport_cwd`，同一提示符不再双发。
+13. fzf 选项按版本探测拼装：`gx/config/zshrc` 用 `is-at-least 0.24` 判定
+    `fzf --version` 首字段后才追加 `--border=rounded/--pointer/--marker`
+    （Ubuntu 20.04 的 0.20.0 退化为 `--border`，此前所有 fzf 入口启动即退出）；
+    fzf 缺失时不导出；`FZF_DEFAULT_COMMAND` 依次优先 fd/fdfind/rg --files。
