@@ -30,6 +30,12 @@ plugins=(git sudo extract colored-man-pages nvm)
 if [[ $TERM_PROGRAM == WezTerm || ${HERDR_ENV:-} == 1 ]]; then
   typeset -g POWERLEVEL9K_TERM_SHELL_INTEGRATION=true
 fi
+# 无控制终端的交互调用（agent 工具跑 zsh -i -c）永远画不出提示符：关掉 gitstatus，
+# 既不白拉起守护进程，启动失败时也不会把「gitstatus failed to initialize」横幅
+# 打进工具输出（$TTY 为空 = 无控制终端，与 gx/config/terminal.zsh 的守卫同源）。
+if [[ -z ${TTY:-} ]]; then
+  typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+fi
 source "$ZSH/oh-my-zsh.sh"
 
 # 常用命令与 Ubuntu 默认 Bash 对齐；仅影响交互式 zsh。

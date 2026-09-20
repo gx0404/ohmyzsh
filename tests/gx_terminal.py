@@ -199,6 +199,14 @@ class DeployedZshrc(unittest.TestCase):
         # widget 经 z-sy-h/autosuggestions 包裹改名后仍以原名为尾缀。
         self.assertRegex(out, rb"W:user:\S*up-line-or-beginning-search")
 
+    def test_non_tty_disables_gitstatus_and_stays_silent(self):
+        # GX-15：非 tty 的 zsh -i -c（agent 工具调用形态）画不出提示符——不拉起
+        # gitstatusd，stderr 不含初始化横幅；真 PTY 形态不受影响（对面用例覆盖）。
+        out, err = self.run_login(
+            "print -r -- GS:${POWERLEVEL9K_DISABLE_GITSTATUS-unset} PID:${GITSTATUS_DAEMON_PID_POWERLEVEL9K:-none}")
+        self.assertIn(b"GS:true PID:none", out)
+        self.assertEqual(err, b"", err)
+
 
 
 class InstallerZshInterlock(unittest.TestCase):
@@ -562,6 +570,15 @@ class DeployedInteractive(unittest.TestCase):
         else:
             for flag in ("--border=rounded", "--pointer=", "--marker="):
                 self.assertIn(flag, opts)
+
+    def test_real_tty_keeps_gitstatusd(self):
+        # GX-15 的对照面：真 PTY 里 gitstatus 照常拉起（非 tty 关闭不影响交互体验）。
+        data = self.session([
+            marked("print -r -- GS:${POWERLEVEL9K_DISABLE_GITSTATUS:-unset} PID:${GITSTATUS_DAEMON_PID_POWERLEVEL9K:-none}", 60),
+        ], TERM_PROGRAM="WezTerm")
+        value = captured(data, "GS", 60)
+        self.assertTrue(value.startswith(b"unset PID:"), value)
+        self.assertNotIn(b"none", value, "真 PTY 里 gitstatusd 未拉起")
 
 
 class WeztermLegacyBlock(unittest.TestCase):

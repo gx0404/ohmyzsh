@@ -161,3 +161,11 @@
     备份忠实、真 PTY 三键位输出正确）与 DeployedZshrc 三条（zshrc.local 缺席、
     source 顺序、zstyle/widget 生效）；smoke 场景 A 翻转缺席断言、场景 B 预置
     标记块与机器差异文件断言剥离与保留。
+24. 非 tty 交互调用关闭 gitstatus（GX-15）：`gx/config/zshrc` 在加载 omz 前对
+    `$TTY` 为空的 shell（agent 工具的 `zsh -i -c` 形态）设
+    `POWERLEVEL9K_DISABLE_GITSTATUS=true`——这种形态永远画不出提示符，不再白拉起
+    gitstatusd 守护进程，启动失败时也不会把 `gitstatus failed to initialize` 横幅
+    打进工具输出（横幅触发点：`gitstatus.plugin.zsh` `gitstatus_start` 失败的
+    无守卫兜底打印；真 PTY 形态不变）。DeployedZshrc 断言非 tty 下开关置位、
+    无守护进程 PID、stderr 全静默；DeployedInteractive 断言真 PTY 里守护进程
+    照常拉起。
