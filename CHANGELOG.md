@@ -176,3 +176,10 @@
     机器把 PATH 与 init 放 `~/.zshrc.local` 机器差异层。DeployedZshrc 断言 path
     列表无该条目（洗 PATH 重跑排除宿主继承干扰）、`^R` 实绑 fzf-history-widget、
     守卫健在。
+26. 每提示符光标形状复位（GX-17）：`gx/config/terminal.zsh` 新增
+    `_gx_terminal_reset_cursor` precmd 钩子，每提示符发 `\e[0 q`（DECSCUSR 0 =
+    终端默认形状）——TUI（vim、herdr 等）改光标后异常退出不再把 bar/beam 遗留给
+    shell。与 OSC 7 同守卫（仅交互终端、WezTerm/herdr、非远端）；cwd 缓存早退
+    不影响复位（独立钩子）；成本一次 builtin printf、无 fork。测试：模块级断言
+    发射恰好一次、重复 source 不重复挂钩、守卫拒绝时不注册；真 PTY 断言遗留
+    beam 后连续两个提示符各复位一次。

@@ -593,6 +593,22 @@ class DeployedInteractive(unittest.TestCase):
         self.assertTrue(value.startswith(b"unset PID:"), value)
         self.assertNotIn(b"none", value, "真 PTY 里 gitstatusd 未拉起")
 
+    def test_prompt_resets_cursor_shape_every_prompt(self):
+        # GX-17：TUI 用 DECSCUSR 改光标形状后异常退出会把形状遗留给 shell；
+        # gx 每个提示符发 \e[0 q 复位。与 OSC 7 的 cwd 缓存不同：目录没变的
+        # 提示符也必须复位（对照 test_instant_prompt_session_reports_cwd_once_without_host）。
+        shell = PtySession(self.home, TERM_PROGRAM="WezTerm")
+        try:
+            shell.settle()
+            shell.command(*marked("printf '\\e[5 q'; print -r -- STUCK", 50))  # 模拟遗留 beam 光标
+            shell.command(*marked("print -r -- NEXT1", 51))
+            shell.command(*marked("print -r -- NEXT2", 52))
+        finally:
+            data = shell.close()
+        for lo, hi in ((1050, 1051), (1051, 1052)):
+            body = segment(data, f":M{lo}".encode(), f":M{hi}".encode())
+            self.assertEqual(body.count(b"\x1b[0 q"), 1, f"提示符间光标复位次数不对: {body!r}")
+
 
 class WeztermLegacyBlock(unittest.TestCase):
     """~/.zshrc 归属 gx 层：wezterm 安装器历史追加的「# >>> wezterm-gx >>>」cursor-mode
@@ -765,6 +781,22 @@ class TerminalIntegration(unittest.TestCase):
     def test_noninteractive_shell_does_not_emit_control_sequences(self):
         data = self.run_shell("source MODULE; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no}", interactive=False)
         self.assertEqual(data, b"INSTALLED:no\n")
+
+    def test_cursor_reset_emitted_once_and_hooked_once(self):
+        # GX-17：每提示符 DECSCUSR 复位（\e[0 q）；重复 source 不得重复挂钩。
+        data = self.run_shell("source MODULE; source MODULE; _gx_terminal_reset_cursor; "
+                              "print -r -- PF:${(j:,:)precmd_functions}:END")
+        self.assertEqual(data.count(b"\x1b[0 q"), 1, data)
+        hooks = data.split(b"PF:", 1)[1].split(b":END", 1)[0].split(b",")
+        self.assertEqual(hooks.count(b"_gx_terminal_reset_cursor"), 1, hooks)
+
+    def test_cursor_reset_not_installed_when_guard_declines(self):
+        data = self.run_shell(UPSTREAM_HOOK + "source MODULE; "
+                              "print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no} FN:${+functions[_gx_terminal_reset_cursor]}",
+                              env_overrides={"TERM_PROGRAM": None})
+        self.assertIn(b"INSTALLED:no", data)
+        self.assertIn(b"FN:0", data)
+        self.assertNotIn(b"\x1b[0 q", data)
 
 if __name__ == "__main__":
     unittest.main()

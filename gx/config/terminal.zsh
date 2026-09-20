@@ -39,3 +39,9 @@ _gx_terminal_report_cwd() {
   return $exit_code
 }
 add-zsh-hook precmd _gx_terminal_report_cwd
+
+# TUI（vim、herdr 等）用 DECSCUSR 改光标形状后若异常退出，形状会遗留给 shell；
+# 每个提示符复位成终端默认（\e[0 q = DECSCUSR 0）。cwd 未变时 OSC 7 有缓存早退，
+# 光标复位必须每提示符都发，所以是独立钩子；成本 = 一次 builtin printf，无 fork。
+_gx_terminal_reset_cursor() { builtin printf '\e[0 q'; }
+add-zsh-hook precmd _gx_terminal_reset_cursor
