@@ -23,7 +23,8 @@
 # 退出码: 0 成功；1 前置检查失败；2 部署失败。
 #
 # 安全约定: 绝不 rm 用户既有文件——一律 mv 为 *.pre-gx-<时间戳> 备份；
-# 仅允许删除带 .gx-managed 标记（本安装器前次部署）的目录。不落任何凭据。
+# 仅允许删除带 .gx-managed 标记（本安装器前次部署）的目录；重装时 $ZSH/custom
+# （用户运行时层）先暂存再回填，同名文件以用户为准。不落任何凭据。
 
 set -eu
 
@@ -180,10 +181,42 @@ install_apt_packages() {
     || { warn "apt 安装失败，配置中的存在性守卫会静默跳过对应功能"; return 0; }
 }
 
+# 重装时暂存 $ZSH/custom（用户自装插件/主题/片段，不属于快照）。暂存目录建在
+# $ZSH 的同级（同一文件系统，mv 为原子 rename），失败退回 TMPDIR。
+CUSTOM_STASH=""
+
+stash_custom_layer() {
+  [ -d "$ZSH/custom" ] || return 0
+  CUSTOM_STASH=$(mktemp -d "$(dirname "$ZSH")/.gx-custom.XXXXXX" 2>/dev/null) \
+    || CUSTOM_STASH=$(mktemp -d "${TMPDIR:-/tmp}/gx-custom.XXXXXX") \
+    || die "无法创建 custom 暂存目录，已中止以免丢失 $ZSH/custom" 2
+  mv "$ZSH/custom" "$CUSTOM_STASH/custom" \
+    || die "暂存 $ZSH/custom 到 $CUSTOM_STASH 失败，已中止以免丢失用户数据" 2
+  # p10k 快照由 deploy_p10k 重新部署，本安装器的旧产物不必来回复制。
+  if is_ours "$CUSTOM_STASH/custom/themes/powerlevel10k"; then
+    rm -rf "$CUSTOM_STASH/custom/themes/powerlevel10k"
+  fi
+}
+
+# 把暂存的 custom 回填到新快照：cp -a 覆盖同名文件，用户版本胜出（含仓库自带的
+# example.*）；失败时保留暂存目录并给出路径，不中断其余部署。
+restore_custom_layer() {
+  [ -n "$CUSTOM_STASH" ] || return 0
+  mkdir -p "$ZSH/custom"
+  if cp -a "$CUSTOM_STASH/custom/." "$ZSH/custom/"; then
+    rm -rf "$CUSTOM_STASH"
+    say "已回填 custom 层: $ZSH/custom"
+  else
+    warn "custom 层回填失败，暂存保留在 $CUSTOM_STASH/custom，请手动复制到 $ZSH/custom"
+  fi
+  CUSTOM_STASH=""
+}
+
 deploy_omz_repo() {
   if [ -e "$ZSH" ]; then
     if [ -f "$ZSH/.gx-managed" ]; then
       say "更新既有 gx 安装: $ZSH"
+      stash_custom_layer
       rm -rf "$ZSH"
     else
       say "检测到既有 Oh My Zsh（官方或其他来源），备份迁移"
@@ -205,9 +238,11 @@ deploy_omz_repo() {
     rm -f "$_oz_tar"
   else
     rm -f "$_oz_tar"
+    [ -z "$CUSTOM_STASH" ] || warn "custom 层暂存保留在 $CUSTOM_STASH/custom"
     die "打包仓库快照失败" 2
   fi
   printf 'gx install.sh 管理的 Oh My Zsh 工作树（%s）\n' "$TS" > "$ZSH/.gx-managed"
+  restore_custom_layer
 }
 
 deploy_configs() {
@@ -335,6 +370,9 @@ set_login_shell() {
   esac
 }
 
+# 只清部署目标 HOME 内的补全缓存：omz 的 .zcompdump-<host>-<ver>{,.zwc} 与
+# Ubuntu /etc/zsh/zshrc 全局 compinit 留下的无后缀 .zcompdump（glob 同时命中
+# 两族），新配置首次启动时重建。
 cleanup_zcompdump() {
   rm -f "$GX_HOME"/.zcompdump* 2>/dev/null || true
 }

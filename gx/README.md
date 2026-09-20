@@ -39,7 +39,9 @@ make gx-install
 需 root 或 sudo）→ Oh My Zsh 工作树到 `~/.oh-my-zsh` → 四个配置文件 → p10k
 主题 + gitstatusd → `~/.local/bin/zoxide` → 字体 + fc-cache → WezTerm 配置 →
 chsh（交互确认）。已有官方 Oh My Zsh 或旧配置时自动备份为 `*.pre-gx-<时间戳>`
-后迁移，可随时回退。
+后迁移，可随时回退。重装（目标带 `.gx-managed` 标记）时 `$ZSH/custom/` 用户层
+先暂存再回填，同名文件以用户版本为准；部署 HOME 内的 `.zcompdump*`（含无后缀的
+全局 compinit 残留）一并清理，首次启动重建。
 
 常用选项：`--online`（强制拉取最新分支）、`--skip-apt/--skip-fonts/
 --skip-wezterm/--skip-chsh`、`--unattended`（无交互）、`--uninstall`（恢复备份

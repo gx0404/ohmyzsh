@@ -96,9 +96,30 @@ printf '\n' >> "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64"
 busy_daemon=$!
 
 echo "# legacy config" > "$home_a/.zshrc"
+# custom/ 是用户运行时层（自装插件/片段），.gx-managed 重装必须原样保留；
+# 与仓库同名的文件（custom/example.zsh）以用户版本为准。
+mkdir -p "$zsh_a/custom/plugins/mine"
+echo "# mine plugin" > "$zsh_a/custom/plugins/mine/mine.plugin.zsh"
+echo "# user snippet" > "$zsh_a/custom/user.zsh"
+echo "# user example overrides repo" > "$zsh_a/custom/example.zsh"
+# 安装器清理部署 HOME 内全部 compdump：omz 的 .zcompdump-<host>-<ver> 与
+# Ubuntu 全局 compinit 留下的无后缀 .zcompdump 都要清。
+echo stale > "$home_a/.zcompdump"
+echo stale > "$home_a/.zcompdump-stale-0.0"
 sh "$installer" --home "$home_a" --skip-apt --skip-chsh --unattended \
   > "$tmp/inst-b.out" 2> "$tmp/inst-b.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-b.err" >&2; fail "scenario B reinstall exited non-zero"; }
+[ -f "$zsh_a/custom/plugins/mine/mine.plugin.zsh" ] || fail "custom plugin lost on reinstall"
+grep -q "user snippet" "$zsh_a/custom/user.zsh" 2>/dev/null || fail "custom snippet lost on reinstall"
+grep -q "user example overrides repo" "$zsh_a/custom/example.zsh" 2>/dev/null \
+  || fail "user custom/example.zsh overwritten by repo copy"
+[ -f "$zsh_a/custom/themes/example.zsh-theme" ] || fail "repo custom skeleton missing after reinstall"
+[ -f "$zsh_a/custom/themes/powerlevel10k/.gx-managed" ] || fail "p10k not redeployed after reinstall"
+grep -q "已回填 custom 层" "$tmp/inst-b.out" || fail "custom restore message absent"
+stash=("$home_a"/.gx-custom.*(N) "${TMPDIR:-/tmp}"/gx-custom.*(N))
+[ $#stash -eq 0 ] || fail "custom stash dir left behind: $stash"
+[ ! -e "$home_a/.zcompdump" ] || fail "bare .zcompdump not cleaned by installer"
+[ ! -e "$home_a/.zcompdump-stale-0.0" ] || fail "stale .zcompdump-* not cleaned by installer"
 backup=("$home_a"/.zshrc.pre-gx-*(N))
 [ $#backup -ge 1 ] || fail "legacy .zshrc not backed up"
 grep -q "legacy config" "$backup[1]" || fail "backup content mismatch"

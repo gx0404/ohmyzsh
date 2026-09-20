@@ -65,3 +65,8 @@
     `fzf --version` 首字段后才追加 `--border=rounded/--pointer/--marker`
     （Ubuntu 20.04 的 0.20.0 退化为 `--border`，此前所有 fzf 入口启动即退出）；
     fzf 缺失时不导出；`FZF_DEFAULT_COMMAND` 依次优先 fd/fdfind/rg --files。
+14. 重装保留 custom 层：`gx/install.sh::deploy_omz_repo` 在 `.gx-managed` 分支
+    先把 `$ZSH/custom` 暂存到同级 `mktemp -d`（同文件系统原子 mv），解包后
+    `cp -a` 回填（同名以用户为准），失败保留暂存目录并给出路径；此前重装会
+    静默抹掉用户自装插件。`cleanup_zcompdump` 明确覆盖无后缀 `.zcompdump`；
+    smoke 幂等场景补 custom 保全、同名以用户为准与 compdump 清理断言。
