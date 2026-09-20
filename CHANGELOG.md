@@ -74,3 +74,9 @@
     在 `~/.zshrc` 之前额外执行的全局 compinit（双 compinit/compaudit 与多一份无
     后缀 `.zcompdump`）；smoke 与部署链路测试断言交互加载后只存在
     `.zcompdump-<host>-<ver>` 一族。
+16. 真实链路测试类：`tests/gx_terminal.py` 新增 DeployedInteractive——install.sh
+    落地 mktemp HOME 后用真 PTY 起 `zsh -i`（不加 `-f`），预热一次让 p10k 写出
+    instant prompt 缓存，再断言 precmd 链含 `_gx_terminal_report_cwd`、不含
+    `omz_termsupport_cwd`、一次 cd 只发一条 `file:///` OSC 7、`HERDR_ENV=1`
+    与无宿主身份两种守卫形态、FZF_DEFAULT_OPTS 与宿主 fzf 版本匹配且
+    `fzf --filter` 可用；缺 zsh/sh/PTY 或缓存未生成即失败不 skip。

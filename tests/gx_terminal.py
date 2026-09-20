@@ -1,12 +1,17 @@
 """gx 终端集成的真实 PTY 回归；不读取或修改用户配置。"""
+import fcntl
 import os
 import pathlib
 import pty
+import re
 import select
 import shlex
 import shutil
+import struct
 import subprocess
 import tempfile
+import termios
+import time
 import unittest
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
@@ -142,6 +147,186 @@ class DeployedZshrc(unittest.TestCase):
         self.assertTrue(only_rg.startswith("rg --files"), only_rg)
         neither = self.fzf_state("0.20.0", hide={"fd", "fdfind", "rg"})[1]
         self.assertEqual(neither, "unset")
+
+
+
+def fzf_version():
+    """宿主真实 fzf 的 (major, minor) 版本；未安装返回 None。探测时清空 FZF_DEFAULT_OPTS。"""
+    if shutil.which("fzf") is None:
+        return None
+    out = subprocess.run(["fzf", "--version"], env=dict(os.environ, FZF_DEFAULT_OPTS=""),
+                         capture_output=True, text=True, timeout=10).stdout
+    match = re.match(r"(\d+)\.(\d+)", out)
+    if not match:
+        raise AssertionError(f"无法解析 fzf --version 输出: {out!r}")
+    return int(match.group(1)), int(match.group(2))
+
+
+def osc7_payloads(data):
+    """按出现顺序返回每条 OSC 7 的 URI（到 ST 为止）。"""
+    return [m.group(1) for m in re.finditer(rb"\x1b\]7;([^\x07\x1b]*)(?:\x07|\x1b\\)", data)]
+
+
+def segment(data, start, end=None):
+    begin = data.index(start) + len(start)
+    return data[begin:] if end is None else data[begin:data.index(end, begin)]
+
+
+def marked(text, index):
+    """打标记的命令：标记用算术展开生成，输入回显里不出现字面值，等待时不会被回显骚扰。"""
+    return f"{text}:M$(({index}+1000))", f":M{index + 1000}".encode()
+
+
+class DeployedInteractive(unittest.TestCase):
+    """真实链路：install.sh 部署 + 真 PTY 起 zsh -i（不加 -f），覆盖 p10k instant prompt
+    生效的第二次及之后启动形态；缺 zsh/sh/pty 直接失败而非 skip。"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.root = pathlib.Path(tempfile.mkdtemp(prefix="gx-pty-"))
+        cls.home = deploy_gx_home(cls.root / "home")
+        cls.workdir = cls.home / "中文 dir"
+        cls.workdir.mkdir()
+        # 首个会话让 p10k 写出 instant prompt 缓存；之后的会话才处于"fd 1 被重定向"形态。
+        cls.session([marked("print -r -- warmup", 0)], TERM_PROGRAM="WezTerm")
+        if not list((cls.home / ".cache").glob("p10k-instant-prompt-*.zsh")):
+            raise AssertionError("预热会话未生成 p10k instant prompt 缓存，无法覆盖部署形态")
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.root, ignore_errors=True)
+
+    @classmethod
+    def session(cls, commands, timeout=60, **overrides):
+        """逐条发送命令，等到其标记出现且输出空闲后再发下一条，最后 exit；返回全部字节。"""
+        try:
+            master, slave = pty.openpty()
+        except OSError as error:
+            raise AssertionError(f"无法分配 PTY: {error}")
+        fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 120, 0, 0))
+        child = subprocess.Popen(
+            ["zsh", "-i"], env=isolated_env(cls.home, **overrides), cwd=str(cls.home),
+            stdin=slave, stdout=slave, stderr=slave, start_new_session=True,
+            preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0))
+        os.close(slave)
+        out = bytearray()
+        deadline = time.monotonic() + timeout
+
+        def pump(wait):
+            if select.select([master], [], [], wait)[0]:
+                try:
+                    chunk = os.read(master, 65536)
+                except OSError:
+                    return False
+                if not chunk:
+                    return False
+                out.extend(chunk)
+            return True
+
+        def settle(quiet=0.3):
+            last = time.monotonic()
+            while time.monotonic() - last < quiet:
+                if time.monotonic() > deadline:
+                    raise AssertionError(f"PTY 会话超时；尾部输出: {bytes(out[-600:])!r}")
+                before = len(out)
+                if not pump(0.05):
+                    return
+                if len(out) != before:
+                    last = time.monotonic()
+
+        try:
+            settle()
+            for command, marker in commands:
+                os.write(master, (command + "\n").encode())
+                while marker not in out:
+                    if time.monotonic() > deadline:
+                        raise AssertionError(f"等待标记 {marker!r} 超时；尾部输出: {bytes(out[-600:])!r}")
+                    if not pump(0.5):
+                        raise AssertionError(f"shell 在标记 {marker!r} 之前退出；输出: {bytes(out[-600:])!r}")
+                settle()
+            os.write(master, b"exit\n")
+            while child.poll() is None:
+                if time.monotonic() > deadline:
+                    child.kill()
+                    raise AssertionError("shell 未在 exit 后退出")
+                pump(0.2)
+            while pump(0.05):
+                pass
+        finally:
+            os.close(master)
+            if child.poll() is None:
+                child.kill()
+            child.wait(timeout=10)
+        return bytes(out)
+
+    def probe(self, **overrides):
+        commands = [
+            marked("print -r -- ready", 1),
+            marked(f"cd {shlex.quote(str(self.workdir))}; print -r -- moved", 2),
+            marked("print -r -- idle", 3),
+            marked("print -r -- PF:${(j:,:)precmd_functions}", 4),
+            marked("print -r -- INST:${GX_TERMINAL_CWD_INSTALLED:-no}", 5),
+        ]
+        data = self.session(commands, **overrides)
+        hooks = re.search(rb"PF:([^$\r\n]*):M1004", data)
+        installed = re.search(rb"INST:([^$\r\n]*):M1005", data)
+        self.assertIsNotNone(hooks, data[-800:])
+        self.assertIsNotNone(installed, data[-800:])
+        return data, hooks.group(1).split(b","), installed.group(1)
+
+    def test_instant_prompt_session_reports_cwd_once_without_host(self):
+        data, hooks, installed = self.probe(TERM_PROGRAM="WezTerm")
+        self.assertEqual(installed, b"1")
+        self.assertIn(b"_gx_terminal_report_cwd", hooks)
+        self.assertNotIn(b"omz_termsupport_cwd", hooks)
+        payloads = osc7_payloads(data)
+        self.assertTrue(payloads, "整个会话没有任何 OSC 7")
+        for uri in payloads:
+            self.assertTrue(uri.startswith(b"file:///"), uri)
+        # 首个提示符一条（当前目录）、cd 后一条（编码后的新目录）；未变目录的提示符不发。
+        self.assertEqual(len(osc7_payloads(data[:data.index(b":M1001")])), 1)
+        self.assertEqual(osc7_payloads(segment(data, b":M1001", b":M1002")), [])
+        after_cd = osc7_payloads(segment(data, b":M1002", b":M1003"))
+        self.assertEqual(len(after_cd), 1, after_cd)
+        self.assertTrue(after_cd[0].endswith(b"/%E4%B8%AD%E6%96%87%20dir"), after_cd[0])
+        self.assertEqual(osc7_payloads(segment(data, b":M1003")), [])
+
+    def test_herdr_env_without_term_program_installs_hook(self):
+        data, hooks, installed = self.probe(TERM_PROGRAM=None, HERDR_ENV="1")
+        self.assertEqual(installed, b"1")
+        self.assertIn(b"_gx_terminal_report_cwd", hooks)
+        self.assertNotIn(b"omz_termsupport_cwd", hooks)
+        self.assertTrue(all(uri.startswith(b"file:///") for uri in osc7_payloads(data)))
+
+    def test_unknown_terminal_keeps_upstream_cwd_hook(self):
+        _data, hooks, installed = self.probe(TERM_PROGRAM=None, HERDR_ENV=None)
+        self.assertEqual(installed, b"no")
+        self.assertNotIn(b"_gx_terminal_report_cwd", hooks)
+        self.assertIn(b"omz_termsupport_cwd", hooks)
+
+    def test_fzf_default_opts_match_installed_fzf(self):
+        data = self.session([
+            marked("print -r -- FZF:${FZF_DEFAULT_OPTS-unset}", 6),
+            marked("print a | fzf --filter=a >/dev/null 2>&1; print -r -- FZFRC:$?", 7),
+        ], TERM_PROGRAM="WezTerm")
+        opts = re.search(rb"FZF:([^$\r\n]*):M1006", data)
+        self.assertIsNotNone(opts, data[-800:])
+        opts = opts.group(1).decode()
+        version = fzf_version()
+        if version is None:
+            self.assertEqual(opts, "unset")
+            return
+        rc = re.search(rb"FZFRC:(\d+):M1007", data)
+        self.assertIsNotNone(rc, data[-800:])
+        self.assertEqual(rc.group(1), b"0", f"fzf {version} 拒绝了导出的选项: {opts}")
+        if version < (0, 24):
+            self.assertNotIn("--pointer", opts)
+            self.assertNotIn("--marker", opts)
+            self.assertNotIn("--border=rounded", opts)
+            self.assertIn("--border", opts)
+        else:
+            for flag in ("--border=rounded", "--pointer=", "--marker="):
+                self.assertIn(flag, opts)
 
 
 class TerminalIntegration(unittest.TestCase):

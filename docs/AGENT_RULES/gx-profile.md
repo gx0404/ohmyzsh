@@ -37,8 +37,12 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
 
 - 任何 install.sh / config / vendored 组件改动后运行
   `zsh tests/gx_install_smoke.zsh`（已接入 `make test`）：隔离 HOME 部署断言、
-  交互加载断言（p10k + 插件别名 + omz version）、幂等重装、既有配置备份、
-  `--uninstall` 恢复、自定义 ZSH 路径改写。
+  交互加载断言（p10k + 插件别名 + omz version）、幂等重装（custom 层保全）、
+  既有配置备份、`--uninstall` 恢复、自定义 ZSH 路径改写。
+- config 改动同时运行 `python3 tests/gx_terminal.py`（已接入 `make test`）：
+  模块单元用例之外，DeployedZshrc / DeployedInteractive 用 install.sh 落地
+  mktemp HOME 后走真实 `.zshenv/.zshrc` 链与真 PTY `zsh -i`（不加 `-f`），
+  覆盖 p10k instant prompt 生效形态；只在 `zsh -f` 下验证的守卫不算通过。
 - 真实安装/卸载/迁移循环演练留 `make evidence` 批次证据并读回；测试与演练
   只写 mktemp 隔离目录，在真实 `$HOME` 执行安装器属于用户主动行为，
   须用户明确确认后方可进行。

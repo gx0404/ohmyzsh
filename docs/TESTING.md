@@ -10,6 +10,9 @@
 | 加载 smoke | `zsh tests/smoke_load.zsh [--plugins a,b]` | 隔离 ZDOTDIR/HOME 下主入口可加载、核心函数/别名就位、omz version 可用、退出码 0 |
 | 集成 | `--plugins git,docker` 变体 | 多插件组合不互相破坏（环境相关插件如 kubectl 受命令守卫约束，不纳入固定集） |
 | 终端证据 | `make ui-smoke` | 主题渲染（robbyrussell/agnoster 的分支段）、omz 子命令输出的真实捕获与断言 |
+| gx 模块单元 | `python3 tests/gx_terminal.py`（TerminalIntegration，make test 的 gx-terminal 步） | `zsh -f -i` + PTY 只加载 terminal.zsh：守卫（含 fd 重定向）、编码/缓存、上游钩子替换 |
+| gx 真实链路 | 同上（DeployedZshrc / DeployedInteractive） | install.sh 落地 mktemp HOME 后走真实 .zshenv/.zshrc（不加 -f）：fzf 版本分支、skip_global_compinit；真 PTY 起 `zsh -i` 覆盖 p10k instant prompt 形态下的 precmd 链、一次 cd 一条 `file:///` OSC 7、HERDR_ENV/TERM_PROGRAM 守卫。缺 zsh/sh/PTY 或 instant prompt 缓存未生成即失败，不 skip |
+| gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、compdump 清理）/备份恢复/自定义 ZSH 路径 |
 | 生成物 | `make generated-check`（kb-check） | docs/kb/chunks.json 与语料一致 |
 
 上游 CI（.github/workflows/main.yml）只有 zsh -n 且被
@@ -34,6 +37,11 @@
     非真实终端中断言渲染需 `zstyle ':omz:alpha:lib:git' async-prompt no`。
   - 环境相关插件（kubectl 等以 `$+commands[...]` 守卫）的别名在二进制缺失时
     不存在，断言要选无条件定义的符号（git:gco、docker:dbl）。
+  - 单行输出下 `${${(f)"$(cmd)"}[1]}` 退化为标量取首字符（多行才是数组），
+    取首行/首字段用两步 `${var%%$'\n'*}`、`${var%% *}` 截断。
+  - p10k instant prompt 缓存要到第二个提示符之后才由 `zle -F` 回调写出：PTY
+    驱动必须等每条命令输出空闲后再发下一条，纯 typeahead 会让会话在写出前退出。
+  - PTY 会话里的标记用算术展开生成（`M$((1000+n))`），避免等待时被输入回显命中。
 
 ## 证据与截图流程
 
