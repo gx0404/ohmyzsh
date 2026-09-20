@@ -152,6 +152,11 @@ fi
 # 灰色历史建议先加载，Atuin 随后注册其历史策略。
 if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6c7086,italic'
+  # 插件在首个 precmd 才统一包裹全部 widget（届时本文件含后面的 zle -N/bindkey 已
+  # 执行完），本开关只去掉此后每个提示符的整体重绑（真 PTY 实测 5.5 ms → 0.05 ms）。
+  # 代价：首个提示符之后再 zle -N 的新 widget 不会被包裹——~/.zshrc.local 里的
+  # zle -N 仍在本文件 source 阶段内执行，不受影响。
+  ZSH_AUTOSUGGEST_MANUAL_REBIND=1
   source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 

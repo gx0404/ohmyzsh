@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-09-20T01:12:38Z",
+ "built_at": "2026-09-20T02:24:07Z",
  "corpus_files": 997,
- "corpus_hash": "8f68009d0ee2da223d7ff2647ac685c822314e628a4d37773647cc5a05f6ff3b",
- "content_hash": "3ed8a2a0e009a741a087141f0caf3a4818e430657297d1ed4a81562963a94d39",
+ "corpus_hash": "513bca29b588546a9ca8fd22ea3a91211b42c4e5ef0aef5d5e01d53cdba9e814",
+ "content_hash": "a41eef1421f0e78d4302ca68b2e7cde848b442b51512e94e10055327a91e510e",
  "chunk_count": 1667,
  "chunks": [
   {
@@ -816,11 +816,11 @@
    "layer": "doc"
   },
   {
-   "id": "751a5498e16b",
+   "id": "c04988b81233",
    "source": "docs/AGENT_RULES/gx-profile.md",
    "anchor": "docs/AGENT_RULES/gx-profile.md#验证",
    "title": "验证",
-   "text": "- 任何 install.sh / config / vendored 组件改动后运行\n  `zsh tests/gx_install_smoke.zsh`（已接入 `make test`）：隔离 HOME 部署断言、\n  交互加载断言（p10k + 插件别名 + omz version）、幂等重装（custom 层保全、\n  符号链接 custom 保留、上级不可写时中止不改旧树）、既有配置备份、`--uninstall`\n  恢复、自定义 ZSH 路径改写、`--home` 与环境 `ZSH` 互锁。所有安装器调用经\n  `run_installer`（TMPDIR 指进沙箱），fc-cache 缓存断言落在隔离 HOME。\n- config 改动同时运行 `python3 tests/gx_terminal.py`（已接入 `make test`）：\n  模块单元用例之外，DeployedZshrc / DeployedInteractive 用 install.sh 落地\n  mktemp HOME 后走真实 `.zshenv/.zshrc` 链与真 PTY `zsh -i`（不加 `-f`），\n  覆盖 p10k instant prompt 生效形态；只在 `zsh -f` 下验证的守卫不算通过。\n- 真实安装/卸载/迁移循环演练留 `make evidence` 批次证据并读回；测试与演练\n  只写 mktemp 隔离目录，在真实 `$HOME` 执行安装器属于用户主动行为，\n  须用户明确确认后方可进行。",
+   "text": "- 任何 install.sh / config / vendored 组件改动后运行\n  `zsh tests/gx_install_smoke.zsh`（已接入 `make test`）：隔离 HOME 部署断言、\n  交互加载断言（p10k + 插件别名 + omz version）、幂等重装（custom 层保全、\n  符号链接 custom 保留、上级不可写时中止不改旧树）、既有配置备份、`--uninstall`\n  恢复、自定义 ZSH 路径改写、`--home` 与环境 `ZSH` 互锁。所有安装器调用经\n  `run_installer`（TMPDIR 指进沙箱），fc-cache 缓存断言落在隔离 HOME。\n- config 改动同时运行 `python3 tests/gx_terminal.py`（已接入 `make test`）：\n  模块单元用例之外，DeployedZshrc / DeployedInteractive 用 install.sh 落地\n  mktemp HOME 后走真实 `.zshenv/.zshrc` 链与真 PTY `zsh -i`（不加 `-f`），\n  覆盖 p10k instant prompt 生效形态；只在 `zsh -f` 下验证的守卫不算通过。\n- 性能项改前/改后都在部署 HOME 的真 PTY 里测 precmd 链（20 次取中位）：\n  `zmodload zsh/datetime; for i in {1..20}; do t0=$EPOCHREALTIME; for f in\n  $precmd_functions; do $f; done; print $(( (EPOCHREALTIME - t0) * 1000 )); done`；\n  启动用 `hyperfine -w 3 -r 20 'zsh -i -c exit'`（无 hyperfine 时 python 计时\n  20 次取中位），有/无 `.zcompdump-*` 两态各测一次，数字写进交付说明。\n- 真实安装/卸载/迁移循环演练留 `make evidence` 批次证据并读回；测试与演练\n  只写 mktemp 隔离目录，在真实 `$HOME` 执行安装器属于用户主动行为，\n  须用户明确确认后方可进行。",
    "layer": "doc"
   },
   {
@@ -1176,11 +1176,11 @@
    "layer": "doc"
   },
   {
-   "id": "25824010bac9",
+   "id": "45f125906d92",
    "source": "docs/TESTING.md",
    "anchor": "docs/TESTING.md#分层",
    "title": "分层",
-   "text": "| 层 | 入口 | 能证明 / 不能证明 |\n|---|---|---|\n| 语法 | `make lint`（check_syntax.sh） | 全部 shell 文件可解析（zsh -n / sh -n / bash -n 按 shebang 分派）+ 框架 Python 过 ast；与上游 CI 目标集一致并扩展到 tools/scripts/tests/hooks。不能证明行为正确 |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit 族（alias-finder、dotenv，本机 zunit 未装 → 可选层） | 独立单元逻辑。zunit 缺失时 ai-doctor 报 MISSING，不假绿 |\n| 配置形状 | `tests/check_tool_configs.py`（make test 的 config-shapes 步） | 三工具配置结构未漂移（Codex 数组表 hooks、ZCode 毫秒字段、适配器语言一致）+ 安全门经注册入口的允许/拒绝双向探针 |\n| 加载 smoke | `zsh tests/smoke_load.zsh [--plugins a,b]` | 隔离 ZDOTDIR/HOME 下主入口可加载、核心函数/别名就位、omz version 可用、退出码 0 |\n| 集成 | `--plugins git,docker` 变体 | 多插件组合不互相破坏（环境相关插件如 kubectl 受命令守卫约束，不纳入固定集） |\n| 终端证据 | `make ui-smoke` | 主题渲染（robbyrussell/agnoster 的分支段）、omz 子命令输出的真实捕获与断言 |\n| gx 模块单元 | `python3 tests/gx_terminal.py`（TerminalIntegration，make test 的 gx-terminal 步） | `zsh -f -i` + PTY 只加载 terminal.zsh：守卫（含 fd 重定向）、编码/缓存、上游钩子替换 |\n| gx 真实链路 | 同上（DeployedZshrc / DeployedInteractive） | install.sh 落地 mktemp HOME 后走真实 .zshenv/.zshrc（不加 -f）：fzf 版本分支、skip_global_compinit；真 PTY 起 `zsh -i` 覆盖 p10k instant prompt 形态下的 precmd 链、一次 cd 一条 `file:///` OSC 7、HERDR_ENV/TERM_PROGRAM 守卫。缺 zsh/sh/PTY 或 instant prompt 缓存未生成即失败，不 skip |\n| gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、符号链接 custom 原样保留、compdump 清理、无中转残留）/备份恢复/自定义 ZSH 路径/`--home` 忽略环境 ZSH、环境 ZSH 越界 unattended 拒绝/上级不可写时中止且旧树不变。TMPDIR 与 fontconfig 缓存都落在沙箱 |\n| 生成物 | `make generated-check`（kb-check） | docs/kb/chunks.json 与语料一致 |",
+   "text": "| 层 | 入口 | 能证明 / 不能证明 |\n|---|---|---|\n| 语法 | `make lint`（check_syntax.sh） | 全部 shell 文件可解析（zsh -n / sh -n / bash -n 按 shebang 分派）+ 框架 Python 过 ast；与上游 CI 目标集一致并扩展到 tools/scripts/tests/hooks。不能证明行为正确 |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit 族（alias-finder、dotenv，本机 zunit 未装 → 可选层） | 独立单元逻辑。zunit 缺失时 ai-doctor 报 MISSING，不假绿 |\n| 配置形状 | `tests/check_tool_configs.py`（make test 的 config-shapes 步） | 三工具配置结构未漂移（Codex 数组表 hooks、ZCode 毫秒字段、适配器语言一致）+ 安全门经注册入口的允许/拒绝双向探针 |\n| 加载 smoke | `zsh tests/smoke_load.zsh [--plugins a,b]` | 隔离 ZDOTDIR/HOME 下主入口可加载、核心函数/别名就位、omz version 可用、退出码 0 |\n| 集成 | `--plugins git,docker` 变体 | 多插件组合不互相破坏（环境相关插件如 kubectl 受命令守卫约束，不纳入固定集） |\n| 终端证据 | `make ui-smoke` | 主题渲染（robbyrussell/agnoster 的分支段）、omz 子命令输出的真实捕获与断言 |\n| gx 模块单元 | `python3 tests/gx_terminal.py`（TerminalIntegration，make test 的 gx-terminal 步） | `zsh -f -i` + PTY 只加载 terminal.zsh：守卫（含 fd 重定向）、编码/缓存、上游钩子替换 |\n| gx 真实链路 | 同上（DeployedZshrc / DeployedInteractive） | install.sh 落地 mktemp HOME 后走真实 .zshenv/.zshrc（不加 -f）：fzf 版本分支、skip_global_compinit；真 PTY 起 `zsh -i` 覆盖 p10k instant prompt 形态下的 precmd 链、一次 cd 一条 `file:///` OSC 7、HERDR_ENV/TERM_PROGRAM 守卫、autosuggestions 首个提示符后不再重绑且后定义 widget 已包裹、灰色建议可见。缺 zsh/sh/PTY 或 instant prompt 缓存未生成即失败，不 skip |\n| gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、符号链接 custom 原样保留、compdump 清理、无中转残留）/备份恢复/自定义 ZSH 路径/`--home` 忽略环境 ZSH、环境 ZSH 越界 unattended 拒绝/上级不可写时中止且旧树不变。TMPDIR 与 fontconfig 缓存都落在沙箱 |\n| 生成物 | `make generated-check`（kb-check） | docs/kb/chunks.json 与语料一致 |",
    "layer": "doc"
   },
   {

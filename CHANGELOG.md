@@ -94,3 +94,10 @@
     `--home` 重定向时 fc-cache 缓存落在部署 HOME。smoke 场景 G/H 与
     `gx_terminal.py::InstallerZshInterlock` 用沙箱内假树验证，测试不再依赖
     `unset ZSH` 掩盖。
+18. autosuggestions 一次绑定：`gx/config/zshrc` 设 `ZSH_AUTOSUGGEST_MANUAL_REBIND=1`，
+    插件仍在首个 precmd 统一包裹全部 widget（含 zshrc 后半段的 `zle -N` 与
+    `.zshrc.local`），只去掉此后每个提示符的整体重绑；部署 HOME 真 PTY 原位实测
+    precmd 链 5.57 ms → 0.06 ms/提示符（§3 循环法 6.69 → 0.94 ms）。加载块位置
+    不变（实测下移对包裹无增益）。DeployedInteractive 断言首个提示符后
+    `_zsh_autosuggest_start` 已离开 `precmd_functions`、三个自定义 widget 均以
+    `_zsh_autosuggest_bound_` 包裹、输入历史前缀仍弹出灰色建议。

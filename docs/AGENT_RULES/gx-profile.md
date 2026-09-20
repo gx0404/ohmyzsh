@@ -51,6 +51,11 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   模块单元用例之外，DeployedZshrc / DeployedInteractive 用 install.sh 落地
   mktemp HOME 后走真实 `.zshenv/.zshrc` 链与真 PTY `zsh -i`（不加 `-f`），
   覆盖 p10k instant prompt 生效形态；只在 `zsh -f` 下验证的守卫不算通过。
+- 性能项改前/改后都在部署 HOME 的真 PTY 里测 precmd 链（20 次取中位）：
+  `zmodload zsh/datetime; for i in {1..20}; do t0=$EPOCHREALTIME; for f in
+  $precmd_functions; do $f; done; print $(( (EPOCHREALTIME - t0) * 1000 )); done`；
+  启动用 `hyperfine -w 3 -r 20 'zsh -i -c exit'`（无 hyperfine 时 python 计时
+  20 次取中位），有/无 `.zcompdump-*` 两态各测一次，数字写进交付说明。
 - 真实安装/卸载/迁移循环演练留 `make evidence` 批次证据并读回；测试与演练
   只写 mktemp 隔离目录，在真实 `$HOME` 执行安装器属于用户主动行为，
   须用户明确确认后方可进行。

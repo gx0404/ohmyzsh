@@ -94,6 +94,14 @@ macOS 对应使用 `Super` / `Ctrl+Super`。Linux 常用终端功能继续使用
 静默跳过）、`.gitconfig`、任何 token/密钥文件。atuin 在 zshrc 中留有守卫集成，
 未安装则自动跳过。
 
+## 交互性能开关（有意的取舍）
+
+- `ZSH_AUTOSUGGEST_MANUAL_REBIND=1`：zsh-autosuggestions 在首个提示符统一包裹全部
+  widget（此时整份 `.zshrc` 含 `~/.zshrc.local` 已执行完），默认之后每个提示符都
+  再整体重绑一次；关掉后真 PTY 原位实测 precmd 链 5.5 ms → 0.05 ms/提示符。代价：
+  首个提示符之后才 `zle -N` 的新 widget 不会被包裹——需要包裹的 widget 一律放在
+  `.zshrc`/`.zshrc.local` 的 source 阶段内定义，交互期临时定义的不在此列。
+
 ## Herdr 与 WezTerm 联动
 
 `gx/wezterm` 与 WezTerm fork 的 `dotfiles/wezterm-config` 对应。宿主 leader 为

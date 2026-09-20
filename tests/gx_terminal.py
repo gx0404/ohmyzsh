@@ -236,6 +236,94 @@ def marked(text, index):
     return f"{text}:M$(({index}+1000))", f":M{index + 1000}".encode()
 
 
+class PtySession:
+    """真 PTY 里的交互 zsh（不加 -f，走部署 HOME 的 .zshenv/.zshrc 链）：按步发送字节、
+    等标记或输出静默，close 时发 exit 并回收；全部输出字节留在 out。"""
+
+    def __init__(self, home, timeout=60, rows=40, cols=120, **overrides):
+        try:
+            self.master, slave = pty.openpty()
+        except OSError as error:
+            raise AssertionError(f"无法分配 PTY: {error}")
+        fcntl.ioctl(self.master, termios.TIOCSWINSZ, struct.pack("HHHH", rows, cols, 0, 0))
+        self.child = subprocess.Popen(
+            ["zsh", "-i"], env=isolated_env(home, **overrides), cwd=str(home),
+            stdin=slave, stdout=slave, stderr=slave, start_new_session=True,
+            preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0))
+        os.close(slave)
+        self.out = bytearray()
+        self.deadline = time.monotonic() + timeout
+
+    def pump(self, wait):
+        if select.select([self.master], [], [], wait)[0]:
+            try:
+                chunk = os.read(self.master, 65536)
+            except OSError:
+                return False
+            if not chunk:
+                return False
+            self.out.extend(chunk)
+        return True
+
+    def settle(self, quiet=0.3, cap=None):
+        """等输出静默 quiet 秒。返回 (最后一个字节的到达时刻或 None, 是否在 cap 秒内未静默)。"""
+        start = time.monotonic()
+        last = start
+        arrival = None
+        while time.monotonic() - last < quiet:
+            if time.monotonic() > self.deadline:
+                raise AssertionError(f"PTY 会话超时；尾部输出: {bytes(self.out[-600:])!r}")
+            if cap is not None and time.monotonic() - start > cap:
+                return arrival, True
+            before = len(self.out)
+            if not self.pump(0.02):
+                break
+            if len(self.out) != before:
+                last = time.monotonic()
+                arrival = last
+        return arrival, False
+
+    def send(self, data):
+        os.write(self.master, data)
+
+    def wait_for(self, marker):
+        while marker not in self.out:
+            if time.monotonic() > self.deadline:
+                raise AssertionError(f"等待标记 {marker!r} 超时；尾部输出: {bytes(self.out[-600:])!r}")
+            if not self.pump(0.5):
+                raise AssertionError(f"shell 在标记 {marker!r} 之前退出；输出: {bytes(self.out[-600:])!r}")
+
+    def command(self, text, marker):
+        """发送一行命令，等其标记出现且输出静默。"""
+        self.send((text + "\n").encode())
+        self.wait_for(marker)
+        self.settle()
+
+    def close(self):
+        try:
+            self.send(b"exit\n")
+            while self.child.poll() is None:
+                if time.monotonic() > self.deadline:
+                    self.child.kill()
+                    raise AssertionError("shell 未在 exit 后退出")
+                self.pump(0.2)
+            while self.pump(0.05):
+                pass
+        finally:
+            os.close(self.master)
+            if self.child.poll() is None:
+                self.child.kill()
+            self.child.wait(timeout=10)
+        return bytes(self.out)
+
+
+def captured(data, tag, index):
+    """取 `print -r -- TAG:<值>` 打标记命令的输出值；`[^$]` 排除含 `${` 的输入回显。"""
+    match = re.search(rb"%s:([^$\r\n]*):M%d" % (tag.encode(), index + 1000), data)
+    if match is None:
+        raise AssertionError(f"没有捕获到 {tag} 的输出；尾部: {data[-800:]!r}")
+    return match.group(1)
+
 class DeployedInteractive(unittest.TestCase):
     """真实链路：install.sh 部署 + 真 PTY 起 zsh -i（不加 -f），覆盖 p10k instant prompt
     生效的第二次及之后启动形态；缺 zsh/sh/pty 直接失败而非 skip。"""
@@ -258,65 +346,14 @@ class DeployedInteractive(unittest.TestCase):
     @classmethod
     def session(cls, commands, timeout=60, **overrides):
         """逐条发送命令，等到其标记出现且输出空闲后再发下一条，最后 exit；返回全部字节。"""
+        shell = PtySession(cls.home, timeout=timeout, **overrides)
         try:
-            master, slave = pty.openpty()
-        except OSError as error:
-            raise AssertionError(f"无法分配 PTY: {error}")
-        fcntl.ioctl(master, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 120, 0, 0))
-        child = subprocess.Popen(
-            ["zsh", "-i"], env=isolated_env(cls.home, **overrides), cwd=str(cls.home),
-            stdin=slave, stdout=slave, stderr=slave, start_new_session=True,
-            preexec_fn=lambda: fcntl.ioctl(0, termios.TIOCSCTTY, 0))
-        os.close(slave)
-        out = bytearray()
-        deadline = time.monotonic() + timeout
-
-        def pump(wait):
-            if select.select([master], [], [], wait)[0]:
-                try:
-                    chunk = os.read(master, 65536)
-                except OSError:
-                    return False
-                if not chunk:
-                    return False
-                out.extend(chunk)
-            return True
-
-        def settle(quiet=0.3):
-            last = time.monotonic()
-            while time.monotonic() - last < quiet:
-                if time.monotonic() > deadline:
-                    raise AssertionError(f"PTY 会话超时；尾部输出: {bytes(out[-600:])!r}")
-                before = len(out)
-                if not pump(0.05):
-                    return
-                if len(out) != before:
-                    last = time.monotonic()
-
-        try:
-            settle()
+            shell.settle()
             for command, marker in commands:
-                os.write(master, (command + "\n").encode())
-                while marker not in out:
-                    if time.monotonic() > deadline:
-                        raise AssertionError(f"等待标记 {marker!r} 超时；尾部输出: {bytes(out[-600:])!r}")
-                    if not pump(0.5):
-                        raise AssertionError(f"shell 在标记 {marker!r} 之前退出；输出: {bytes(out[-600:])!r}")
-                settle()
-            os.write(master, b"exit\n")
-            while child.poll() is None:
-                if time.monotonic() > deadline:
-                    child.kill()
-                    raise AssertionError("shell 未在 exit 后退出")
-                pump(0.2)
-            while pump(0.05):
-                pass
+                shell.command(command, marker)
         finally:
-            os.close(master)
-            if child.poll() is None:
-                child.kill()
-            child.wait(timeout=10)
-        return bytes(out)
+            data = shell.close()
+        return data
 
     def probe(self, **overrides):
         commands = [
@@ -362,6 +399,35 @@ class DeployedInteractive(unittest.TestCase):
         self.assertEqual(installed, b"no")
         self.assertNotIn(b"_gx_terminal_report_cwd", hooks)
         self.assertIn(b"omz_termsupport_cwd", hooks)
+
+    def test_autosuggest_binds_once_and_wraps_late_widgets(self):
+        # GX-07：插件在首个 precmd 统一包裹 widget，此时整份 .zshrc（含后半段的 zle -N）
+        # 已执行完；ZSH_AUTOSUGGEST_MANUAL_REBIND 只让它绑完一次后自删，去掉此后每提示符
+        # 的重绑（真 PTY 原位实测 5.5 ms → 0.05 ms）。两条一起断言才同时覆盖「省了重绑」
+        # 与「后定义的 widget 没绑漏」；灰色建议仍要出现。
+        shell = PtySession(self.home, TERM_PROGRAM="WezTerm")
+        try:
+            shell.settle()
+            shell.command(*marked("print -r -- PF:${(j:,:)precmd_functions}", 8))
+            shell.command(*marked("print -r -- WUP:${widgets[up-line-or-beginning-search]}", 9))
+            shell.command(*marked("print -r -- WDEL:${widgets[ubuntu_delete_char_or_eof]}", 10))
+            shell.command(*marked("print -r -- WKILL:${widgets[backward-kill-space-word]}", 11))
+            shell.command(*marked("print -r -- READY", 12))
+            # 预热会话执行过 `print -r -- warmup…`，只敲前缀应弹出灰色历史建议（不回车）。
+            shell.send(b"print -r -- w")
+            shell.settle()
+            typed = len(shell.out)
+            shell.send(b"\x03")
+            shell.settle()
+        finally:
+            data = shell.close()
+        hooks = captured(data, "PF", 8).split(b",")
+        self.assertNotIn(b"_zsh_autosuggest_start", hooks, hooks)
+        for tag, index in (("WUP", 9), ("WDEL", 10), ("WKILL", 11)):
+            self.assertTrue(captured(data, tag, index).startswith(b"user:_zsh_autosuggest_bound_"),
+                            f"{tag} 未被 autosuggestions 包裹: {captured(data, tag, index)!r}")
+        ready = data.index(b":M1012")
+        self.assertIn(b"armup", data[ready:typed], "输入前缀后没有出现历史建议")
 
     def test_fzf_default_opts_match_installed_fzf(self):
         data = self.session([
