@@ -207,6 +207,19 @@ class DeployedZshrc(unittest.TestCase):
         self.assertIn(b"GS:true PID:none", out)
         self.assertEqual(err, b"", err)
 
+    def test_atuin_alignment_with_reality(self):
+        # GX-16：本机未装 atuin——配置不再往 path 加不存在的 ~/.atuin/bin，Ctrl+R 现实
+        # 归属 fzf-history-widget；atuin 段保留存在性守卫，装了的机器仍由 atuin 接管。
+        text = (self.home / ".zshrc").read_text(encoding="utf-8")
+        self.assertNotIn('"$HOME/.atuin/bin"', text, "path 列表仍含不存在的 .atuin/bin 条目")
+        self.assertIn("$+commands[atuin]", text)
+        out, _err = self.run_login("bindkey -M emacs '^R'")
+        self.assertIn(b"fzf-history-widget", out)
+        # 宿主 PATH 里可能带着旧世代配置留下的 .atuin/bin（继承不证明 gx 添加），
+        # 用洗干净的 PATH 重跑才能钉住「gx 自己不加」。
+        clean, _err = self.run_login("print -r -- ${(j:|:)path}", PATH="/usr/local/bin:/usr/bin:/bin")
+        self.assertNotIn(b".atuin", clean)
+
 
 
 class InstallerZshInterlock(unittest.TestCase):

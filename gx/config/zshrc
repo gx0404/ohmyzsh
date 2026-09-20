@@ -12,9 +12,10 @@ if [[ -z "$UV_PYTHON" && -x /usr/local/bin/python3.13 ]]; then
 fi
 
 typeset -U path PATH
+# 只放确实存在的目录；atuin 若经官方脚本装在 ~/.atuin/bin，PATH 与 init 归属
+# ~/.zshrc.local 机器差异层（本机未装 atuin，Ctrl+R 现实形态是 fzf，见下文守卫）。
 path=(
   "$HOME/.local/bin"
-  "$HOME/.atuin/bin"
   "$HOME/.opencode/bin"
   $path
 )
@@ -53,7 +54,8 @@ alias grep='grep --color=auto'
 alias egrep='grep -E --color=auto'
 alias fgrep='grep -F --color=auto'
 
-# 历史文件仍作为可移植回退；主要检索由 Atuin 提供。
+# 历史文件仍作为可移植回退；交互检索默认由 fzf（Ctrl+R）与前缀搜索提供，
+# 装了 atuin 的机器上 Ctrl+R 由 atuin 接管（见后文守卫段）。
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=100000
 SAVEHIST=100000
@@ -117,7 +119,8 @@ for keymap in emacs viins; do
 done
 unset keymap keyseq
 
-# fzf 负责文件和目录选择；Ctrl+R 稍后由 Atuin 覆盖。
+# fzf 负责文件和目录选择；其 key-bindings 把 Ctrl+R 绑到 fzf 历史检索，
+# 装了 atuin 的机器上稍后由 atuin 覆盖。
 [[ -r /usr/share/doc/fzf/examples/completion.zsh ]] && source /usr/share/doc/fzf/examples/completion.zsh
 [[ -r /usr/share/doc/fzf/examples/key-bindings.zsh ]] && source /usr/share/doc/fzf/examples/key-bindings.zsh
 # 选项按 fzf 版本探测拼装：--border=rounded/--pointer/--marker 自 0.24 起才存在，
@@ -192,8 +195,9 @@ if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
 
+# atuin 未装则整段跳过（本机即如此，Ctrl+R 留在 fzf）；装了只接管 Ctrl+R，
+# 普通上下键保留给 Zsh 的前缀历史搜索（上方 cursor-mode 块）。
 if (( $+commands[atuin] )); then
-  # Atuin 只接管 Ctrl+R；普通上下键保留给 Zsh 的前缀时间历史。
   eval "$(atuin init zsh --disable-up-arrow --disable-ai)"
 fi
 

@@ -169,3 +169,10 @@
     无守卫兜底打印；真 PTY 形态不变）。DeployedZshrc 断言非 tty 下开关置位、
     无守护进程 PID、stderr 全静默；DeployedInteractive 断言真 PTY 里守护进程
     照常拉起。
+25. atuin 段与现实对齐（GX-16）：本机未装 atuin，`path` 列表不再加不存在的
+    `$HOME/.atuin/bin`；注释改述真实归属——Ctrl+R 由 fzf key-bindings 的
+    fzf-history-widget 提供，atuin 段保留 `$+commands` 存在性守卫（装了的机器仍由
+    atuin 接管、`--disable-up-arrow` 不动上下键），经官方脚本装到 ~/.atuin/bin 的
+    机器把 PATH 与 init 放 `~/.zshrc.local` 机器差异层。DeployedZshrc 断言 path
+    列表无该条目（洗 PATH 重跑排除宿主继承干扰）、`^R` 实绑 fzf-history-widget、
+    守卫健在。
