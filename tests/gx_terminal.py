@@ -615,6 +615,23 @@ class DeployedInteractive(unittest.TestCase):
             body = segment(data, f":M{lo}".encode(), f":M{hi}".encode())
             self.assertEqual(body.count(b"\x1b[0 q"), 1, f"提示符间光标复位次数不对: {body!r}")
 
+    def test_osc133_semantic_marks_emitted_under_gx_guard(self):
+        # WEZ-UX-02 zsh 侧核验结论：gx 守卫（TERM_PROGRAM=WezTerm 或 HERDR_ENV=1）下
+        # p10k 的 TERM_SHELL_INTEGRATION 已发全 133 A/B/C/D——zsh 侧不叠加第二套
+        # （双发会让终端看到重复标记）。这里钉住既有行为防回归；上送宿主由 herdr 轨道负责。
+        for overrides in (dict(TERM_PROGRAM="WezTerm"), dict(TERM_PROGRAM=None, HERDR_ENV="1")):
+            data = self.session([
+                marked("print -r -- TSI:${POWERLEVEL9K_TERM_SHELL_INTEGRATION:-unset}", 70),
+                marked("true; print -r -- RAN", 71),
+            ], **overrides)
+            self.assertEqual(captured(data, "TSI", 70), b"true", overrides)
+            for mark in (b"\x1b]133;A", b"\x1b]133;B", b"\x1b]133;C;", b"\x1b]133;D;"):
+                self.assertIn(mark, data, (overrides, mark))
+        # 守卫外（未知终端）：C/D 不得发出（A/B 可能由 p10k 缓存带入，不作断言）。
+        data = self.session([marked("true; print -r -- RAN", 72)], TERM_PROGRAM=None, HERDR_ENV=None)
+        self.assertNotIn(b"\x1b]133;C", data)
+        self.assertNotIn(b"\x1b]133;D", data)
+
 
 class WeztermLegacyBlock(unittest.TestCase):
     """~/.zshrc 归属 gx 层：wezterm 安装器历史追加的「# >>> wezterm-gx >>>」cursor-mode

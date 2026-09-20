@@ -182,6 +182,12 @@
     WezTerm GX-10 迁移后无 Alt+Ctrl+B、herdr 默认键无 ctrl+alt+b，三侧零冲突），
     并在注释说明来龙去脉（逐字符左移也可用左方向键）。DeployedZshrc 断言两 keymap
     的 `^[^B` 与 emacs `^B` 均绑到 backward-char。
+28. OSC 133 语义标记核验收口（WEZ-UX-02 zsh 侧）：核验证实 gx 守卫
+    （`TERM_PROGRAM=WezTerm` 或 `HERDR_ENV=1`）下 p10k 的
+    `POWERLEVEL9K_TERM_SHELL_INTEGRATION` 已发全 133 A/B/C/D——zsh 侧无需叠加
+    第二套 PS1 包装（双发会让终端看到重复标记），配置改动驳回；herdr 上送宿主由
+    herdr 轨道负责。DeployedInteractive 钉回归：两种守卫环境四标记齐全且开关
+    置位，守卫外（未知终端）不发 C/D。
 26. 每提示符光标形状复位（GX-17）：`gx/config/terminal.zsh` 新增
     `_gx_terminal_reset_cursor` precmd 钩子，每提示符发 `\e[0 q`（DECSCUSR 0 =
     终端默认形状）——TUI（vim、herdr 等）改光标后异常退出不再把 bar/beam 遗留给
