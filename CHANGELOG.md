@@ -57,3 +57,7 @@
     常用终端功能继续使用 `Ctrl+Shift`。
 11. 安装演练清除继承的 `ZSH`、`ZSH_CUSTOM`、缓存及 `GX_HOME` 等环境变量，
     避免 `--home` 指向临时目录时仍更新当前 Shell 的 Oh My Zsh 与 gitstatus 缓存。
+12. 终端 OSC 7 上报兼容 p10k instant prompt：`gx/config/terminal.zsh` 守卫改以
+    `$TTY` 判定（instant prompt 重定向 fd 1 后 `-t 1` 恒假，模块此前在部署形态
+    下从未安装）；主机名字段留空输出 `file:///<cwd>`（herdr 只接受空或
+    localhost）；接管后摘掉上游 `omz_termsupport_cwd`，同一提示符不再双发。

@@ -1,5 +1,8 @@
 # Herdr / WezTerm 工作目录上报；不改 PS1、鼠标模式或已有 ZLE widget。
-[[ -o interactive && -t 1 && $TERM != dumb ]] || return 0
+# 守卫对 p10k instant prompt 免疫：instant prompt 在 zshrc 早期把 fd 1 重定向到临时
+# 文件，此时 `-t 1` 恒假，故改以 $TTY（zsh 为有控制终端的 shell 记录的 tty 路径）
+# 判定；无 pty（agent 以 zsh -ic 调用）时 $TTY 为空，模块与旧行为一致不安装。
+[[ -o interactive && ( -t 1 || -n ${TTY:-} ) && $TERM != dumb ]] || return 0
 [[ $TERM_PROGRAM == WezTerm || ${HERDR_ENV:-} == 1 ]] || return 0
 (( $+functions[__wezterm_osc7] )) && return 0
 [[ -z ${GX_TERMINAL_CWD_INSTALLED:-} ]] || return 0
@@ -17,9 +20,14 @@ _gx_terminal_report_cwd() {
       *) printf -v hex '%%%02X' "'$ch"; encoded+=$hex ;;
     esac
   done
-  builtin printf '\e]7;file://%s%s\e\\' "${HOST//[^a-zA-Z0-9.-]/}" "$encoded"
+  # 主机名字段留空（file:///path）：herdr 的 parse_file_uri_cwd 只接受空或
+  # localhost，WezTerm 同样接受空主机；带主机名会让 herdr 直接丢弃该上报。
+  builtin printf '\e]7;file://%s\e\\' "$encoded"
   typeset -g _GX_TERMINAL_LAST_CWD=$PWD
   return $exit_code
 }
 autoload -Uz add-zsh-hook
+# 上游 lib/termsupport.zsh 在 xterm* 终端下无条件挂 omz_termsupport_cwd（每提示符
+# 2 次 fork、无缓存、带主机名）；本模块接管 OSC 7 后把它摘掉，避免同一提示符双发。
+add-zsh-hook -d precmd omz_termsupport_cwd
 add-zsh-hook precmd _gx_terminal_report_cwd

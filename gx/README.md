@@ -93,7 +93,10 @@ macOS 对应使用 `Super` / `Ctrl+Super`。Linux 常用终端功能继续使用
 正文使用 Regular 字重，标题和选择由 TUI 自行强调。Windows 优先 PowerShell 7，
 未安装时回退 5.1；WSL 使用实际发行版默认用户与登录 shell。
 
-`gx/config/terminal.zsh` 只在交互 TTY 中上报 OSC 7 工作目录，编码中文、空格和
-控制字符，只在目录变化时发送。已有 WezTerm CWD 集成时跳过，重复 source 不增加
-hook。P10k 使用自身的 OSC 133 支持，不叠加 PS1 包装。缺少 Cargo 环境文件时
-`.zshenv` 静默继续。验证：`python3 tests/gx_terminal.py` 和隔离安装 smoke。
+`gx/config/terminal.zsh` 只在有控制终端的交互 shell（`$TTY` 非空，对 p10k
+instant prompt 的 fd 重定向免疫）中上报 OSC 7 工作目录：主机名字段留空
+（`file:///...`，herdr 与 WezTerm 都接受），编码中文、空格和控制字符，只在目录
+变化时发送，并摘掉上游 `omz_termsupport_cwd` 避免同一提示符双发。已有 WezTerm
+CWD 集成时跳过，重复 source 不增加 hook。P10k 使用自身的 OSC 133 支持，不叠加
+PS1 包装。缺少 Cargo 环境文件时 `.zshenv` 静默继续。验证：
+`python3 tests/gx_terminal.py` 和隔离安装 smoke。
