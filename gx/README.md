@@ -89,8 +89,9 @@ GUI 截获后 shell 不可用（GX-10）。
 |---|---|
 | `Leader .` / `Leader ,` | 下一张 / 上一张壁纸 |
 | `Leader /` | 随机壁纸 |
-| `Leader Shift+/`（即 `Leader ?`） | 打开壁纸选择器 |
+| `Leader i` | 打开壁纸选择器（不用 `Leader Shift+/`：X11 把 Shift+/ 解成 `?`，物理不可达） |
 | `Leader b` | 切换纯色专注模式与壁纸 |
+| `Leader k` / `m` / `s` | 快捷键速查 / 主菜单 / 设置浮层 |
 
 标签直达 `Leader 1..9`（Linux）；分屏为 `Ctrl+Shift+\`（垂直）与
 `Ctrl+Alt+Shift+\`（水平）；`Alt+w` 仍关闭当前 pane 但改为先弹确认（防误毁

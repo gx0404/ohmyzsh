@@ -141,14 +141,17 @@
     篡改 `snapshot:` 指纹后当前 dump 被清；场景 J 覆盖回收上界、第一代在多轮重装与
     两种 `--uninstall` 之后仍在、`all` 不回收、`GX_KEEP_BACKUPS=0` 拒绝。
 22. WezTerm 键位迁入 leader 层（GX-10）：`gx/wezterm/config/bindings.lua` 的壁纸
-    五键（随机 `/`、上一张 `,`、下一张 `.`、选择器 `Shift+/`、专注模式 `b`）从裸
+    五键（随机 `/`、上一张 `,`、下一张 `.`、选择器 `i`、专注模式 `b`）从裸
     `Alt` 挂到 leader（`Ctrl+Shift+Space`），Linux 标签直达 `Alt+1..9` 改
     `Leader 1..9`，分屏 `Alt+\` 系改 `Ctrl+Shift(+Alt)+\`；裸 `Alt+.`/`Alt+b`/
     `Alt+1..9` 归还给 readline（末参数插入、退词、digit-argument）。`Alt+w` 关闭
-    pane 改 `confirm=true`，误按不再不可逆销毁运行中 agent 的 pane。与 WezTerm
-    仓库 `dotfiles/wezterm-config/config/bindings.lua` 逐字节一致（该侧为同一
-    迁移的并行改动）；已用已装 wezterm `--config-file ... show-keys` 验证可加载，
-    `LEADER` 组与 `Alt+w confirm:true` 生效。
+    pane 改 `confirm=true`，误按不再不可逆销毁运行中 agent 的 pane。选择器不用
+    `Leader Shift+/`：X11 会把 Shift+/ 解成 `?`、用户绑定没有 shifted 变体合成
+    （上游 #1906），物理不可达。同文件回灌 wezterm 批 8 新增的浮层入口
+    `Leader k/m/s`（键位速查/主菜单/设置，herdr 抓鼠标时键盘仍可达）。与 WezTerm
+    仓库 `dotfiles/wezterm-config/config/bindings.lua` 逐字节一致（含其未提交的
+    Leader i 改动）；已用已装 wezterm `--config-file ... show-keys` 验证可加载
+    （rc=0），新键位在册、无重复绑定。
 23. `~/.zshrc` 归 gx 层真源 + zshrc.local 不再强制部署（GX-14）：wezterm 安装器
     历史追加的 `# >>> wezterm-gx >>>` cursor-mode 键位块（up/down-line-or-beginning-
     search 双光标模式绑定）在 `gx/config/zshrc` 中前移到规范位置——全部

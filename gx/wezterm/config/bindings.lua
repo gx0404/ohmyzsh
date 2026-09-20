@@ -173,8 +173,10 @@ local keys = {
       end),
    },
    {
-      key = [[/]],
-      mods = 'LEADER|SHIFT',
+      -- 壁纸选择器；不用 LEADER|SHIFT+/：X11 会把 Shift+/ 解成 '?'，
+      -- 用户绑定没有 shifted 变体合成（上游 #1906），物理不可达。
+      key = 'i',
+      mods = 'LEADER',
       action = act.InputSelector({
          title = 'InputSelector: Select Background',
          choices = backdrops:choices(),
@@ -253,6 +255,11 @@ local keys = {
          timeout_milliseconds = 1000,
       }),
    },
+
+   -- 浮层入口（WZ-16/WEZ-UX-01）：herdr 抓鼠标时键盘仍可达。
+   { key = 'k', mods = 'LEADER', action = act.ShowKeybinds },
+   { key = 'm', mods = 'LEADER', action = act.ShowMainMenu },
+   { key = 's', mods = 'LEADER', action = act.OpenSettings },
 
    -- plugins: workspace switcher (智能项目切换)
    {
