@@ -1,1 +1,4 @@
+# Ubuntu 的 /etc/zsh/zshrc 先于 ~/.zshrc 执行并额外跑一次 compinit（与 omz 的重复，
+# 多一份无后缀 .zcompdump，实测约 +13 ms/启动）；该开关只有放在 ~/.zshenv 才来得及。
+skip_global_compinit=1
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"

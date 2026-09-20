@@ -84,6 +84,14 @@ if command -v script >/dev/null 2>&1; then
     && fail "PTY interactive session: VCS status not populated by gitstatusd"
 fi
 
+# 交互加载后只允许 omz 的 .zcompdump-<host>-<ver> 一族：出现无后缀 .zcompdump 说明
+# ~/.zshenv 的 skip_global_compinit 没有拦住 Ubuntu /etc/zsh/zshrc 的全局 compinit。
+dumps=("$home_a"/.zcompdump*(N))
+[ $#dumps -ge 1 ] || fail "no .zcompdump-* produced by omz compinit"
+for dump in "${dumps[@]}"; do
+  [[ "${dump:t}" == .zcompdump-* ]] || fail "unexpected compdump ${dump:t} (global compinit not skipped)"
+done
+
 # ---------------------------------------------------------------- 场景 B：幂等重装 + 既有配置备份 + 忙二进制原子替换
 
 # 回归实测的 ETXTBSY：让已部署 gitstatusd 处于运行中且内容与仓库不同，

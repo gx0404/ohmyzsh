@@ -106,6 +106,14 @@ class DeployedZshrc(unittest.TestCase):
         cmd = text.split("CMD:", 1)[1].split(":END", 1)[0]
         return opts, cmd, err.decode(errors="replace")
 
+    def test_zshenv_skips_ubuntu_global_compinit(self):
+        # Ubuntu 的 /etc/zsh/zshrc 先于 ~/.zshrc 执行并额外跑一次 compinit（多一份无
+        # 后缀 .zcompdump）；开关只有放在 ~/.zshenv 里才来得及生效。
+        out, _err = self.run_login("print -r -- SGC:${skip_global_compinit-unset}:END")
+        self.assertIn(b"SGC:1:END", out)
+        self.assertFalse((self.home / ".zcompdump").exists(), "全局 compinit 仍生成了无后缀 .zcompdump")
+        self.assertTrue(list(self.home.glob(".zcompdump-*")), "omz 自身的 .zcompdump-<host>-<ver> 应存在")
+
     def test_fzf_020_gets_legacy_border_without_new_flags(self):
         # Ubuntu 20.04 的 fzf 0.20.0 不认识 --border=rounded/--pointer/--marker，
         # 任何 fzf 入口启动即退出。

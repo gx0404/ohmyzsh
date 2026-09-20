@@ -70,3 +70,7 @@
     `cp -a` 回填（同名以用户为准），失败保留暂存目录并给出路径；此前重装会
     静默抹掉用户自装插件。`cleanup_zcompdump` 明确覆盖无后缀 `.zcompdump`；
     smoke 幂等场景补 custom 保全、同名以用户为准与 compdump 清理断言。
+15. `gx/config/zshenv` 首行 `skip_global_compinit=1`：跳过 Ubuntu `/etc/zsh/zshrc`
+    在 `~/.zshrc` 之前额外执行的全局 compinit（双 compinit/compaudit 与多一份无
+    后缀 `.zcompdump`）；smoke 与部署链路测试断言交互加载后只存在
+    `.zcompdump-<host>-<ver>` 一族。
