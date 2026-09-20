@@ -13,7 +13,8 @@ if platform.is_mac then
    mod.SUPER = 'SUPER'
    mod.SUPER_REV = 'SUPER|CTRL'
 elseif platform.is_linux then
-   -- Ubuntu 常用终端功能使用 Ctrl+Shift；壁纸、分屏与关闭保留原有 Alt 组合。
+   -- Ubuntu 常用终端功能使用 Ctrl+Shift；壁纸控制挂 leader 层（裸 Alt 会抢走
+   -- readline 的 Alt+. / Alt+b 等标准键，GX-10）。
    mod.SUPER = 'CTRL|SHIFT'
    mod.SUPER_REV = 'CTRL|ALT|SHIFT'
 elseif platform.is_win then
@@ -149,31 +150,31 @@ local keys = {
       end)
    },
 
-   -- 壁纸控制：Linux 保留 Alt 组合，不跟随通用终端快捷键的 Ctrl+Shift。
+   -- 壁纸控制：统一挂 leader（Ctrl+Shift+Space 前缀），不再占用裸 Alt（GX-10）。
    {
       key = [[/]],
-      mods = platform.is_linux and 'ALT' or mod.SUPER,
+      mods = 'LEADER',
       action = wezterm.action_callback(function(window, _pane)
          backdrops:random(window)
       end),
    },
    {
       key = [[,]],
-      mods = platform.is_linux and 'ALT' or mod.SUPER,
+      mods = 'LEADER',
       action = wezterm.action_callback(function(window, _pane)
          backdrops:cycle_back(window)
       end),
    },
    {
       key = [[.]],
-      mods = platform.is_linux and 'ALT' or mod.SUPER,
+      mods = 'LEADER',
       action = wezterm.action_callback(function(window, _pane)
          backdrops:cycle_forward(window)
       end),
    },
    {
       key = [[/]],
-      mods = platform.is_linux and 'ALT|CTRL' or mod.SUPER_REV,
+      mods = 'LEADER|SHIFT',
       action = act.InputSelector({
          title = 'InputSelector: Select Background',
          choices = backdrops:choices(),
@@ -190,7 +191,7 @@ local keys = {
    },
    {
       key = 'b',
-      mods = platform.is_linux and 'ALT' or mod.SUPER,
+      mods = 'LEADER',
       action = wezterm.action_callback(function(window, _pane)
          backdrops:toggle_focus(window)
       end)
@@ -200,18 +201,19 @@ local keys = {
    -- panes: split panes
    {
       key = [[\]],
-      mods = platform.is_linux and 'ALT' or mod.SUPER,
+      mods = mod.SUPER,
       action = act.SplitVertical({ domain = 'CurrentPaneDomain' }),
    },
    {
       key = [[\]],
-      mods = platform.is_linux and 'ALT|CTRL' or mod.SUPER_REV,
+      mods = mod.SUPER_REV,
       action = act.SplitHorizontal({ domain = 'CurrentPaneDomain' }),
    },
 
    -- panes: zoom+close pane
    { key = 'Enter', mods = mod.SUPER,     action = act.TogglePaneZoomState },
-   { key = 'w',     mods = platform.is_linux and 'ALT' or mod.SUPER, action = act.CloseCurrentPane({ confirm = false }) },
+   -- 裸 Alt+w 曾无确认销毁 pane（GX-10）；保留 Alt 组合但必须先确认。
+   { key = 'w',     mods = platform.is_linux and 'ALT' or mod.SUPER, action = act.CloseCurrentPane({ confirm = true }) },
 
    -- panes: navigation
    { key = 'k',     mods = mod.SUPER_REV, action = act.ActivatePaneDirection('Up') },
@@ -312,7 +314,8 @@ if platform.is_linux then
       table.insert(keys, binding)
    end
    for index = 1, 9 do
-      table.insert(keys, { key = tostring(index), mods = 'ALT', action = act.ActivateTab(index - 1) })
+      -- 标签直达走 leader 层，裸 Alt+数字留给 readline/应用（GX-10）。
+      table.insert(keys, { key = tostring(index), mods = 'LEADER', action = act.ActivateTab(index - 1) })
    end
 else
    -- 保留其他平台的原有光标映射。

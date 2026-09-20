@@ -140,3 +140,12 @@
     `#omz fpath:` 后 omz 仍会重建、异版本 `.lock` 目录被清掉且安装器仍打印摘要、
     篡改 `snapshot:` 指纹后当前 dump 被清；场景 J 覆盖回收上界、第一代在多轮重装与
     两种 `--uninstall` 之后仍在、`all` 不回收、`GX_KEEP_BACKUPS=0` 拒绝。
+22. WezTerm 键位迁入 leader 层（GX-10）：`gx/wezterm/config/bindings.lua` 的壁纸
+    五键（随机 `/`、上一张 `,`、下一张 `.`、选择器 `Shift+/`、专注模式 `b`）从裸
+    `Alt` 挂到 leader（`Ctrl+Shift+Space`），Linux 标签直达 `Alt+1..9` 改
+    `Leader 1..9`，分屏 `Alt+\` 系改 `Ctrl+Shift(+Alt)+\`；裸 `Alt+.`/`Alt+b`/
+    `Alt+1..9` 归还给 readline（末参数插入、退词、digit-argument）。`Alt+w` 关闭
+    pane 改 `confirm=true`，误按不再不可逆销毁运行中 agent 的 pane。与 WezTerm
+    仓库 `dotfiles/wezterm-config/config/bindings.lua` 逐字节一致（该侧为同一
+    迁移的并行改动）；已用已装 wezterm `--config-file ... show-keys` 验证可加载，
+    `LEADER` 组与 `Alt+w confirm:true` 生效。
