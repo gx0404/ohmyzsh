@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-09-20T21:29:11Z",
+ "built_at": "2026-09-20T21:47:00Z",
  "corpus_files": 997,
- "corpus_hash": "ecbfe414baa50886a1ad489d3b3e8b8a42bf9db354fa027d87a35c249deec972",
- "content_hash": "df02529606ca13d6acb1bad5c4d75d2b0be2314453493744cb257b71220d7201",
+ "corpus_hash": "8301d3f5b759ac57a512cee1c2158c2fa11a21ee12956839e8bb5e69f796bbd7",
+ "content_hash": "f7971689d2bd3fe3834712bb9b8cf52b6ea3252ee9ec7c7c5f9723215f31e69f",
  "chunk_count": 1667,
  "chunks": [
   {
@@ -808,11 +808,11 @@
    "layer": "doc"
   },
   {
-   "id": "f0ca040c31c1",
+   "id": "87ef94981d96",
    "source": "docs/AGENT_RULES/gx-profile.md",
    "anchor": "docs/AGENT_RULES/gx-profile.md#结构与真源",
    "title": "结构与真源",
-   "text": "- `gx/config/` 是唯一配置真源：zshrc、zshenv、zshrc.local（机器差异层：\n  CUDA/TensorRT、相机 SDK 等）、p10k.zsh。在本机改了 `~/.zshrc` 等文件后必须\n  回填 gx/config/ 并提交，否则下次安装会把本机配置回退到仓库旧版。\n- vendored 组件：`gx/omz-custom/themes/powerlevel10k/` 是 romkatv/powerlevel10k\n  的提交树快照（无 .git，版本钉在 gx/README.md 清单）；\n  `gx/bin/gitstatusd-linux-x86_64`（v1.5.4，运行期部署到\n  `${GITSTATUS_CACHE_DIR:-~/.cache}/gitstatus/`）与\n  `gx/bin/zoxide-linux-x86_64`（0.9.9）；`gx/fonts/` 是 Nerd Fonts v3.4.0\n  JetBrainsMono 四字重；`gx/wezterm/` 是 `~/.config/wezterm` 工作树快照\n  （含背景图，缺目录会破坏 backdrops.lua）。升级任一组件须同步更新\n  gx/README.md 的来源/版本/复刻命令清单。\n- 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`\n  模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。",
+   "text": "- `gx/config/` 是唯一配置真源：zshrc、zshenv、zshrc.local（机器差异层：\n  CUDA/TensorRT、相机 SDK 等——**不入安装器部署对**，换机不带走；目标机已有\n  同名文件原样保留，缺失时 zshrc 的 `[[ -r ... ]]` 守卫静默跳过）、p10k.zsh。\n  在本机改了 `~/.zshrc` 等文件后必须回填 gx/config/ 并提交，否则下次安装会把\n  本机配置回退到仓库旧版。\n- `~/.zshrc` 归 gx 层真源（2026-09-21 拍板）：wezterm 安装器历史追加的\n  `# >>> wezterm-gx >>>` cursor-mode 键位块已并入 `gx/config/zshrc`（位置在全部\n  `zle -N`/bindkey 之后、autosuggestions 与 syntax-highlighting source 之前）；\n  `install.sh::deploy_configs` 备份+整体替换 .zshrc 时检测并告知剥离该块。\n- vendored 组件：`gx/omz-custom/themes/powerlevel10k/` 是 romkatv/powerlevel10k\n  的提交树快照（无 .git，版本钉在 gx/README.md 清单）；\n  `gx/bin/gitstatusd-linux-x86_64`（v1.5.4，运行期部署到\n  `${GITSTATUS_CACHE_DIR:-~/.cache}/gitstatus/`）与\n  `gx/bin/zoxide-linux-x86_64`（0.9.9）；`gx/fonts/` 是 Nerd Fonts v3.4.0\n  JetBrainsMono 四字重；`gx/wezterm/` 是 `~/.config/wezterm` 工作树快照\n  （含背景图，缺目录会破坏 backdrops.lua）。升级任一组件须同步更新\n  gx/README.md 的来源/版本/复刻命令清单。\n- 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`\n  模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。",
    "layer": "doc"
   },
   {

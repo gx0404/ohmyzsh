@@ -56,7 +56,9 @@ zsh_a="$home_a/.oh-my-zsh"
 [ -f "$home_a/.zshrc" ] || fail ".zshrc not deployed"
 cmp -s "$repo_root/gx/config/zshrc" "$home_a/.zshrc" || fail ".zshrc differs from gx/config/zshrc"
 [ -f "$home_a/.zshenv" ] || fail ".zshenv not deployed"
-[ -f "$home_a/.zshrc.local" ] || fail ".zshrc.local not deployed"
+# GX-14：.zshrc.local 是机器差异层，不在部署对——全新安装不得出现；机器上已有
+# 的同名文件由重装原样保留（场景 B 预置断言）。
+[ ! -e "$home_a/.zshrc.local" ] || fail ".zshrc.local must not be deployed (machine-difference layer)"
 [ -f "$home_a/.p10k.zsh" ] || fail ".p10k.zsh not deployed"
 [ -f "$zsh_a/oh-my-zsh.sh" ] || fail "omz entry not deployed"
 [ -f "$zsh_a/.gx-managed" ] || fail ".gx-managed marker missing in \$ZSH"
@@ -125,7 +127,27 @@ printf '\n' >> "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64"
     -G v1.5.4 -s 1 -u 1 -d 1 -c 1 -m -1 -v FATAL -t 32 >/dev/null 2>&1 ) &
 busy_daemon=$!
 
+# 历史形态：wezterm 安装器曾向 ~/.zshrc 追加 cursor-mode 键位标记块（其内容已并入
+# gx/config/zshrc）；重装走「备份 + 整体替换」，部署后的 .zshrc 不得残留该块。
 echo "# legacy config" > "$home_a/.zshrc"
+cat >> "$home_a/.zshrc" <<'EOF'
+# >>> wezterm-gx >>>
+# WezTerm 在普通/应用光标模式下会发送两组不同序列，两组都显式覆盖。
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zstyle ':zle:up-line-or-beginning-search' leave-cursor yes
+zstyle ':zle:down-line-or-beginning-search' leave-cursor yes
+for keymap in emacs viins; do
+  bindkey -M "$keymap" '^[[A' up-line-or-beginning-search
+  bindkey -M "$keymap" '^[OA' up-line-or-beginning-search
+  bindkey -M "$keymap" '^[[B' down-line-or-beginning-search
+  bindkey -M "$keymap" '^[OB' down-line-or-beginning-search
+done
+# <<< wezterm-gx <<<
+EOF
+# GX-14：机器差异层由用户自管，重装不得备份/覆盖。
+echo "# machine-local CUDA paths" > "$home_a/.zshrc.local"
 # custom/ 是用户运行时层（自装插件/片段），.gx-managed 重装必须原样保留；
 # 与仓库同名的文件（custom/example.zsh）以用户版本为准。
 mkdir -p "$zsh_a/custom/plugins/mine"
@@ -150,6 +172,18 @@ grep -q "user example overrides repo" "$zsh_a/custom/example.zsh" 2>/dev/null \
 [ -f "$zsh_a/custom/themes/example.zsh-theme" ] || fail "repo custom skeleton missing after reinstall"
 [ -f "$zsh_a/custom/themes/powerlevel10k/.gx-managed" ] || fail "p10k not redeployed after reinstall"
 grep -q "已回填 custom 层" "$tmp/inst-b.out" || fail "custom restore message absent"
+# wezterm-gx 历史块：部署后 .zshrc 无标记行（行首锚定，承接注释里的字面量提及不算）、
+# 安装器打印剥离提示、备份里原样可回查。
+grep -q '^# >>> wezterm-gx >>>$' "$home_a/.zshrc" && fail "wezterm-gx marker block survived redeploy"
+grep -q '^# <<< wezterm-gx <<<$' "$home_a/.zshrc" && fail "wezterm-gx closing marker survived redeploy"
+grep -q "wezterm-gx 键位块" "$tmp/inst-b.out" || fail "wezterm-gx strip notice absent"
+zshrc_bk=("$home_a"/.zshrc.pre-gx-*(N))
+[ $#zshrc_bk -ge 1 ] || fail "no .zshrc backup produced for legacy file"
+grep -q ">>> wezterm-gx >>>" "${zshrc_bk[-1]}" \
+  || fail "latest .zshrc backup lost the historical wezterm-gx block"
+# GX-14：机器差异层原样保留（不备份、不覆盖）。
+[ "$(cat "$home_a/.zshrc.local")" = "# machine-local CUDA paths" ] \
+  || fail ".zshrc.local was touched by reinstall"
 # 新树/旧树中转目录与 tar 中转文件不得残留；只扫沙箱内路径（TMPDIR 已指进 $tmp）。
 leftover=("$zsh_a".gx-new-*(N) "$zsh_a".gx-old-*(N) "$home_a"/.gx-custom.*(N) "$tmp"/gx-omz.*(N))
 [ $#leftover -eq 0 ] || fail "installer left intermediate dirs behind: $leftover"

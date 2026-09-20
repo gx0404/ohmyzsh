@@ -12,7 +12,8 @@ gx/
 ├── config/            配置真源（改动在本机验证后回填到这里）
 │   ├── zshrc          主配置（p10k、plugins、按键/历史/补全定制、第三方集成）
 │   ├── zshenv         skip_global_compinit + cargo 环境
-│   ├── zshrc.local    机器差异层（CUDA/TensorRT、Photoneo、海康 MVS 等，缺路径不报错）
+│   ├── zshrc.local    机器差异层参照（CUDA/TensorRT、Photoneo、海康 MVS 等；
+│   │                  不入安装器部署对，换机不带走，目标机已有文件原样保留）
 │   └── p10k.zsh       Powerlevel10k Lean 精简配置
 ├── omz-custom/themes/powerlevel10k/   主题提交树快照（无 .git）
 ├── bin/               linux-x86_64 二进制：gitstatusd v1.5.4、zoxide 0.9.9

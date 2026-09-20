@@ -170,6 +170,35 @@ class DeployedZshrc(unittest.TestCase):
         neither = self.fzf_state("0.20.0", hide={"fd", "fdfind", "rg"})[1]
         self.assertEqual(neither, "unset")
 
+    def test_zshrc_local_not_deployed_fresh(self):
+        # GX-14：机器差异层（CUDA/SDK 路径等）不随安装器部署，换机不带本机路径；
+        # zshrc 用 [[ -r ... ]] 守卫，缺失静默跳过（上面全部用例在该形态下通过）。
+        self.assertFalse((self.home / ".zshrc.local").exists(),
+                         ".zshrc.local 属机器差异层，不应被安装器部署")
+
+    def test_cursor_block_sits_after_bindkeys_before_plugin_sources(self):
+        # cursor-mode 块（承接历史 wezterm-gx 标记块）的位置约束：全部 zle -N/bindkey
+        # （含 fzf 源内绑定）之后、autosuggestions 与 syntax-highlighting 的 source 之前。
+        text = (self.home / ".zshrc").read_text(encoding="utf-8")
+        i_fzf = text.index("fzf/examples/key-bindings.zsh")
+        i_block = text.index("autoload -Uz up-line-or-beginning-search")
+        i_suggest = text.index("zsh-autosuggestions/zsh-autosuggestions.zsh")
+        i_highlight = text.index("zsh-syntax-highlighting/zsh-syntax-highlighting.zsh")
+        self.assertLess(i_fzf, i_block, "cursor-mode 块须在 fzf 键位源之后")
+        self.assertLess(i_block, i_suggest, "cursor-mode 块须在 autosuggestions source 之前")
+        self.assertLess(i_suggest, i_highlight, "autosuggestions 须在 syntax-highlighting 之前")
+
+    def test_cursor_mode_zstyles_and_widgets(self):
+        out, _err = self.run_login(
+            "zstyle -L ':zle:up-line-or-beginning-search' leave-cursor; "
+            "zstyle -L ':zle:down-line-or-beginning-search' leave-cursor; "
+            "print -r -- W:${widgets[up-line-or-beginning-search]}")
+        # zstyle -L 的引号形态随 zsh 版本不同（5.8 不加引号），只钉语义部分。
+        self.assertRegex(out, rb":zle:up-line-or-beginning-search'? leave-cursor yes")
+        self.assertRegex(out, rb":zle:down-line-or-beginning-search'? leave-cursor yes")
+        # widget 经 z-sy-h/autosuggestions 包裹改名后仍以原名为尾缀。
+        self.assertRegex(out, rb"W:user:\S*up-line-or-beginning-search")
+
 
 
 class InstallerZshInterlock(unittest.TestCase):
@@ -533,6 +562,79 @@ class DeployedInteractive(unittest.TestCase):
         else:
             for flag in ("--border=rounded", "--pointer=", "--marker="):
                 self.assertIn(flag, opts)
+
+
+class WeztermLegacyBlock(unittest.TestCase):
+    """~/.zshrc 归属 gx 层：wezterm 安装器历史追加的「# >>> wezterm-gx >>>」cursor-mode
+    键位块已由 gx/config/zshrc 承接；部署（备份 + 整体替换）后标记块被剥离、备份原样
+    保留，双光标模式键位在真 PTY 里生效。"""
+
+    MARKER_BLOCK = """\
+# >>> wezterm-gx >>>
+# WezTerm 在普通/应用光标模式下会发送两组不同序列，两组都显式覆盖。
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zstyle ':zle:up-line-or-beginning-search' leave-cursor yes
+zstyle ':zle:down-line-or-beginning-search' leave-cursor yes
+for keymap in emacs viins; do
+  bindkey -M "$keymap" '^[[A' up-line-or-beginning-search
+  bindkey -M "$keymap" '^[OA' up-line-or-beginning-search
+  bindkey -M "$keymap" '^[[B' down-line-or-beginning-search
+  bindkey -M "$keymap" '^[OB' down-line-or-beginning-search
+done
+# <<< wezterm-gx <<<
+"""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.root = pathlib.Path(tempfile.mkdtemp(prefix="gx-wezblock-"))
+        cls.home = cls.root / "home"
+        cls.home.mkdir()
+        (cls.home / ".zshrc").write_text("# legacy user zshrc\n" + cls.MARKER_BLOCK, encoding="utf-8")
+        result = run_installer(cls.home, "--zsh", str(cls.home / ".oh-my-zsh"))
+        if result.returncode != 0:
+            raise AssertionError(f"gx/install.sh 部署失败 rc={result.returncode}\n{result.stdout}\n{result.stderr}")
+        cls.install_out = result.stdout
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.root, ignore_errors=True)
+
+    def test_marker_block_stripped_and_backup_faithful(self):
+        text = (self.home / ".zshrc").read_text(encoding="utf-8")
+        # 钉行首锚定：gx/config/zshrc 的承接注释会提及标记字面量，但真实标记块
+        # 的边界行必须整行就是标记本身。
+        self.assertNotRegex(text, r"(?m)^# >>> wezterm-gx >>>$", "部署后的 .zshrc 仍含 wezterm-gx 起始标记行")
+        self.assertNotRegex(text, r"(?m)^# <<< wezterm-gx <<<$", "部署后的 .zshrc 仍含 wezterm-gx 结束标记行")
+        self.assertIn("up-line-or-beginning-search", text, "承接后的 cursor-mode 键位不在 .zshrc")
+        self.assertIn("wezterm-gx", self.install_out, "安装器未打印剥离提示")
+        backups = sorted(self.home.glob(".zshrc.pre-gx-*"))
+        self.assertTrue(backups, "历史 .zshrc 没有产生备份")
+        self.assertRegex(backups[-1].read_text(encoding="utf-8"), r"(?m)^# >>> wezterm-gx >>>$",
+                         "备份未原样保留历史标记块")
+
+    def test_cursor_keys_live_in_real_pty(self):
+        shell = PtySession(self.home, TERM_PROGRAM="WezTerm")
+        try:
+            shell.settle()
+            shell.command(*marked("print -r -- S40", 40))
+            shell.send(b"bindkey -M emacs '^[[A'\n")   # 普通光标模式 Up
+            shell.settle()
+            shell.command(*marked("print -r -- S41", 41))
+            shell.send(b"bindkey -M viins '^[OB'\n")   # 应用光标模式 Down
+            shell.settle()
+            shell.command(*marked("print -r -- S42", 42))
+            shell.send(b"bindkey -M emacs '^P'\n")     # emacs 前缀历史
+            shell.settle()
+            shell.command(*marked("print -r -- S43", 43))
+        finally:
+            data = shell.close()
+        for lo, hi, want in ((1040, 1041, b"up-line-or-beginning-search"),
+                             (1041, 1042, b"down-line-or-beginning-search"),
+                             (1042, 1043, b"up-line-or-beginning-search")):
+            body = segment(data, f":M{lo}".encode(), f":M{hi}".encode())
+            self.assertEqual(body.count(want), 1, f"bindkey 输出 {want!r} 出现次数不对: {body!r}")
 
 
 class TerminalIntegration(unittest.TestCase):

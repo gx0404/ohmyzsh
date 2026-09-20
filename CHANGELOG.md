@@ -149,3 +149,15 @@
     仓库 `dotfiles/wezterm-config/config/bindings.lua` 逐字节一致（该侧为同一
     迁移的并行改动）；已用已装 wezterm `--config-file ... show-keys` 验证可加载，
     `LEADER` 组与 `Alt+w confirm:true` 生效。
+23. `~/.zshrc` 归 gx 层真源 + zshrc.local 不再强制部署（GX-14）：wezterm 安装器
+    历史追加的 `# >>> wezterm-gx >>>` cursor-mode 键位块（up/down-line-or-beginning-
+    search 双光标模式绑定）在 `gx/config/zshrc` 中前移到规范位置——全部
+    `zle -N`/bindkey（含 fzf 源内绑定）之后、autosuggestions 与 syntax-highlighting
+    source 之前；`install.sh::deploy_configs` 检测到历史标记块时打印剥离提示
+    （.zshrc 本就备份+整体替换，原块留在 .pre-gx 备份可回查）。`zshrc.local`
+    移出部署对：CUDA/SDK 等机器差异路径属单机所有，换机不再带走；目标机已有同名
+    文件原样保留、不再备份覆盖，缺失由 zshrc 的 `[[ -r ... ]]` 守卫静默跳过。
+    `tests/gx_terminal.py` 新增 WeztermLegacyBlock 类（预置标记块部署后断言剥离、
+    备份忠实、真 PTY 三键位输出正确）与 DeployedZshrc 三条（zshrc.local 缺席、
+    source 顺序、zstyle/widget 生效）；smoke 场景 A 翻转缺席断言、场景 B 预置
+    标记块与机器差异文件断言剥离与保留。

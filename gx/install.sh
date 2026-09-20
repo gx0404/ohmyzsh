@@ -377,7 +377,16 @@ deploy_omz_repo() {
 }
 
 deploy_configs() {
-  _dc_pairs="zshrc:.zshrc zshenv:.zshenv zshrc.local:.zshrc.local p10k.zsh:.p10k.zsh"
+  # 机器差异层 .zshrc.local 不在部署对里（CUDA/SDK 等路径属单机所有，换机不带走）；
+  # 目标机已存在的同名文件原样保留、不再备份覆盖，缺失时 zshrc 的存在性守卫静默跳过。
+  _dc_pairs="zshrc:.zshrc zshenv:.zshenv p10k.zsh:.p10k.zsh"
+  # 历史遗留：wezterm 安装器曾向 ~/.zshrc 追加「# >>> wezterm-gx >>>」cursor-mode
+  # 键位块，其内容已并入 gx/config/zshrc（~/.zshrc 归 gx 层真源）。下面对 .zshrc 的
+  # 「备份 + 整体替换」会把该块一并剥离，原样留在 .pre-gx-<ts> 备份里可回查；
+  # 这里负责检测与告知。已一致而跳过时 .zshrc 必无该块（仓库版不含标记）。
+  if [ -f "$GX_HOME/.zshrc" ] && grep -q '^# >>> wezterm-gx >>>' "$GX_HOME/.zshrc" 2>/dev/null; then
+    say "检测到历史 wezterm-gx 键位块：随 .zshrc 整体替换剥离（内容已并入 gx zshrc，原块留在备份）"
+  fi
   for _dc_pair in $_dc_pairs; do
     _dc_src="$REPO_DIR/gx/config/${_dc_pair%%:*}"
     _dc_dst="$GX_HOME/${_dc_pair##*:}"
@@ -549,7 +558,8 @@ cleanup_zcompdump() {
 print_summary() {
   printf '\n部署完成:\n'
   printf '  Oh My Zsh (fork %s): %s\n' "$GX_BRANCH" "$ZSH"
-  printf '  zsh 配置链: %s/.zshrc (+ .zshenv/.zshrc.local/.p10k.zsh)\n' "$GX_HOME"
+  printf '  zsh 配置链: %s/.zshrc (+ .zshenv/.p10k.zsh)\n' "$GX_HOME"
+  printf '  机器差异层 .zshrc.local 不在部署对：已存在的保留原样，缺失由 zshrc 守卫跳过\n'
   printf '  p10k 主题: %s/custom/themes/powerlevel10k\n' "$ZSH"
   [ "$OPT_SKIP_WEZTERM" -eq 0 ] && printf '  WezTerm 配置: %s/.config/wezterm\n' "$GX_HOME"
   printf '\n启动新会话生效: exec zsh\n'

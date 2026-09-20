@@ -7,8 +7,14 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
 ## 结构与真源
 
 - `gx/config/` 是唯一配置真源：zshrc、zshenv、zshrc.local（机器差异层：
-  CUDA/TensorRT、相机 SDK 等）、p10k.zsh。在本机改了 `~/.zshrc` 等文件后必须
-  回填 gx/config/ 并提交，否则下次安装会把本机配置回退到仓库旧版。
+  CUDA/TensorRT、相机 SDK 等——**不入安装器部署对**，换机不带走；目标机已有
+  同名文件原样保留，缺失时 zshrc 的 `[[ -r ... ]]` 守卫静默跳过）、p10k.zsh。
+  在本机改了 `~/.zshrc` 等文件后必须回填 gx/config/ 并提交，否则下次安装会把
+  本机配置回退到仓库旧版。
+- `~/.zshrc` 归 gx 层真源（2026-09-21 拍板）：wezterm 安装器历史追加的
+  `# >>> wezterm-gx >>>` cursor-mode 键位块已并入 `gx/config/zshrc`（位置在全部
+  `zle -N`/bindkey 之后、autosuggestions 与 syntax-highlighting source 之前）；
+  `install.sh::deploy_configs` 备份+整体替换 .zshrc 时检测并告知剥离该块。
 - vendored 组件：`gx/omz-custom/themes/powerlevel10k/` 是 romkatv/powerlevel10k
   的提交树快照（无 .git，版本钉在 gx/README.md 清单）；
   `gx/bin/gitstatusd-linux-x86_64`（v1.5.4，运行期部署到

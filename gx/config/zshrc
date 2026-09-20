@@ -149,6 +149,27 @@ if (( $+commands[zoxide] )); then
   eval "$(zoxide init zsh)"
 fi
 
+# 输入前缀后按上下键，只遍历以该前缀开头的历史；连续按键保持原始前缀。
+# 本块承接 wezterm 安装器曾追加到 ~/.zshrc 的「# >>> wezterm-gx >>>」cursor-mode
+# 键位块（~/.zshrc 归 gx 层真源；gx 部署时历史标记块随 .zshrc 整体替换剥离）。
+# 位置约束：必须在全部 zle -N/bindkey（含上方 fzf 源内绑定）之后、autosuggestions
+# 与 syntax-highlighting 的 source 之前。
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+zstyle ':zle:up-line-or-beginning-search' leave-cursor yes
+zstyle ':zle:down-line-or-beginning-search' leave-cursor yes
+
+# WezTerm 在普通/应用光标模式下会发送两组不同序列，两组都显式覆盖。
+for keymap in emacs viins; do
+  bindkey -M "$keymap" '^[[A' up-line-or-beginning-search
+  bindkey -M "$keymap" '^[OA' up-line-or-beginning-search
+  bindkey -M "$keymap" '^[[B' down-line-or-beginning-search
+  bindkey -M "$keymap" '^[OB' down-line-or-beginning-search
+done
+bindkey -M emacs '^P' up-line-or-beginning-search
+bindkey -M emacs '^N' down-line-or-beginning-search
+
 # 灰色历史建议先加载，Atuin 随后注册其历史策略。
 if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6c7086,italic'
@@ -169,23 +190,6 @@ if (( $+commands[atuin] )); then
   # Atuin 只接管 Ctrl+R；普通上下键保留给 Zsh 的前缀时间历史。
   eval "$(atuin init zsh --disable-up-arrow --disable-ai)"
 fi
-
-# 输入前缀后按上下键，只遍历以该前缀开头的历史；连续按键保持原始前缀。
-autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-zstyle ':zle:up-line-or-beginning-search' leave-cursor yes
-zstyle ':zle:down-line-or-beginning-search' leave-cursor yes
-
-# WezTerm 在普通/应用光标模式下会发送两组不同序列，两组都显式覆盖。
-for keymap in emacs viins; do
-  bindkey -M "$keymap" '^[[A' up-line-or-beginning-search
-  bindkey -M "$keymap" '^[OA' up-line-or-beginning-search
-  bindkey -M "$keymap" '^[[B' down-line-or-beginning-search
-  bindkey -M "$keymap" '^[OB' down-line-or-beginning-search
-done
-bindkey -M emacs '^P' up-line-or-beginning-search
-bindkey -M emacs '^N' down-line-or-beginning-search
 
 # 高亮插件必须最后加载，才能观察前面定义的全部 widget。
 if [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
