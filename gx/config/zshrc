@@ -157,9 +157,10 @@ if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   # 代价：首个提示符之后再 zle -N 的新 widget 不会被包裹——~/.zshrc.local 里的
   # zle -N 仍在本文件 source 阶段内执行，不受影响。
   ZSH_AUTOSUGGEST_MANUAL_REBIND=1
-  # 超过该长度的命令行放弃取建议（每击键按整个 buffer 查历史）；须与下方
-  # ZSH_HIGHLIGHT_MAXLENGTH 同时设置：4401 字符的粘贴行实测只设本项无效，只设
-  # 高亮上限粘贴仍停顿 1.2 s，两者同设后每击键 <1 ms。
+  # 超过该长度的命令行放弃取建议（每击键按整个 buffer 查历史），越界时灰色建议直接
+  # 消失（插件在取建议前就 unset POSTDISPLAY）。它是补足项、不是主因：4401 字符的
+  # 粘贴行 20 键中位实测 —— 两项都不设 25.5 ms，只设本项 24.5 ms（≈无效），
+  # 只设下方 ZSH_HIGHLIGHT_MAXLENGTH 1.0 ms，两者同设 0.65 ms。
   ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=512
   source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi
@@ -187,12 +188,17 @@ bindkey -M emacs '^P' up-line-or-beginning-search
 bindkey -M emacs '^N' down-line-or-beginning-search
 
 # 高亮插件必须最后加载，才能观察前面定义的全部 widget。
-# 超过该长度的命令行不再高亮（每击键重新高亮整个 buffer，4401 字符行实测 24 ms/
-# 击键、粘贴后首次渲染 >20 s）：长行失去颜色是有意的降级，不是插件坏了。512 字符
-# 以内实测 <3 ms/击键，保住绝大多数真实长命令的高亮。
-ZSH_HIGHLIGHT_MAXLENGTH=512
-[[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] \
-  && source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+if [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+  # 每击键重新解析整个 buffer 是长行卡顿的主因：4401 字符行 20 键中位实测
+  # 25.5 ms → 1.0 ms、粘贴首帧从「40 s 内仍未静默」降到 1.5 s。
+  # 注意越界后的真实形态不是「没有颜色」：z-sy-h 在 `region_highlight=()` **之前**
+  # 就 return，于是越界前那一帧的高亮区间原样留在 region_highlight 里，并随后续编辑
+  # 被 ZLE 平移/拉伸——颜色停在旧的解析结果上，可能与当前文本不符（例如行首插入一个
+  # 不存在的命令，它仍显示成「有效命令」的绿色）。这是有意接受的降级：超长行只保证
+  # 可编辑，不保证配色正确。512 以内实测 <3 ms/击键，绝大多数真实长命令仍正常高亮。
+  ZSH_HIGHLIGHT_MAXLENGTH=512
+  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
 
 [[ -r "$HOME/.p10k.zsh" ]] && source "$HOME/.p10k.zsh"
 

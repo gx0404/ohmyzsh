@@ -432,10 +432,11 @@ class DeployedInteractive(unittest.TestCase):
         self.assertIn(b"armup", data[ready:typed], "输入前缀后没有出现历史建议")
 
     def test_long_command_line_stays_editable(self):
-        # GX-09：syntax-highlighting 每击键重新高亮整个 buffer、autosuggestions 每击键按整个
-        # buffer 查历史；4401 字符的粘贴行改前实测 24 ms/击键（报告 82 ms）、粘贴后首次渲染
-        # >20 s。两个上限必须同时设：只设 BUFFER_MAX_SIZE 无效，只设 MAXLENGTH 粘贴仍停顿
-        # 1.2 s。改后实测 0.7 ms/击键；阈值取其数倍以上，避免机器差异 flaky。
+        # GX-09：syntax-highlighting 每击键重新解析整个 buffer、autosuggestions 每击键按整个
+        # buffer 查历史。4401 字符粘贴行 20 键中位的四种组合实测（部署 HOME 真 PTY）：
+        # 都不设 25.5 ms、只设 BUFFER_MAX_SIZE 24.5 ms（≈无效）、只设 MAXLENGTH 1.0 ms、
+        # 两者同设 0.65 ms —— MAXLENGTH 是主因，BUFFER_MAX_SIZE 是补足项。
+        # 改后实测 0.65 ms/击键；阈值取其数倍以上，避免机器差异 flaky。
         tokens = []
         while sum(len(token) + 1 for token in tokens) < 4401:
             tokens.append(f"--flag{len(tokens)}=value_{len(tokens)}")
@@ -465,10 +466,49 @@ class DeployedInteractive(unittest.TestCase):
             self.assertRegex(value, rb"^\d+$", f"{tag} 未在部署形态下设置: {value!r}")
         median = statistics.median(latencies)
         self.assertFalse(hung, f"粘贴/击键后 10 s 内输出仍未静默；粘贴 {paste_ms:.0f} ms，击键 {latencies}")
-        # 粘贴渲染本身在 zsh 5.8 PTY 里约 0.35 ms/字符（bracketed-paste 逐字节回显，与两个上限
-        # 无关，改后实测 1.5 s）；这里只守住「不再撞 20 s 上限」。
+        # 粘贴首帧在 zsh 5.8 PTY 里约 0.35 ms/字符（bracketed-paste 逐字节回显；只设
+        # MAXLENGTH 与两者同设实测同为 1.5 s，与 BUFFER_MAX_SIZE 无关）；这里只守住
+        # 「不再撞 20 s 上限」。
         self.assertLess(paste_ms, 5000, f"粘贴后首次渲染 {paste_ms:.0f} ms")
         self.assertLess(median, 5.0, f"每击键中位 {median:.1f} ms: {latencies}")
+
+    def test_highlight_freezes_beyond_maxlength_instead_of_clearing(self):
+        # GX-09 的真实降级形态：z-sy-h 的 `_zsh_highlight` 在 `region_highlight=()` **之前**
+        # 就因 ZSH_HIGHLIGHT_MAXLENGTH 返回，于是越界前那一帧的高亮区间原样留下并随编辑被
+        # ZLE 平移——不是「失去颜色」，而是颜色可能与实际语法不符。三段对照（widget 把
+        # region_highlight 落盘，避免干扰 ZLE 重绘）：
+        #   1) 未越界的 `echo hello` → `0 4 fg=green`（有效命令）
+        #   2) 补到 >512 后在行首插入 x（echo → 不存在的 xecho）→ 仍是平移后的 fg=green，
+        #      既没被清空也没重新解析
+        #   3) 同一形态下 unset ZSH_HIGHLIGHT_MAXLENGTH → 重新解析，首词变 fg=red,bold
+        # 若将来改成「越界真正清空 region_highlight」，本用例会红；那时 gx/config/zshrc、
+        # gx/README.md 与 CHANGELOG 条目 19 的措辞必须一起改。
+        pad = b"a" * 600            # 与 "echo hello" 相加后 > MAXLENGTH=512
+        log = self.home / "rh.log"
+        if log.exists():
+            log.unlink()
+        shell = PtySession(self.home, rows=50, cols=200, timeout=180, TERM_PROGRAM="WezTerm")
+        try:
+            shell.settle()
+            shell.command(*marked(
+                "_gxrh() { print -r -- \"RH:${(j:|:)region_highlight}:END\" >> ~/rh.log }; "
+                "zle -N _gxrh; bindkey '^G' _gxrh; print -r -- RHREADY", 20))
+            for keys in (b"echo hello", b"\x07", pad, b"\x01x", b"\x07", b"\x03"):
+                shell.send(keys)
+                shell.settle()
+            shell.command(*marked("unset ZSH_HIGHLIGHT_MAXLENGTH; print -r -- NOLIMIT", 21))
+            for keys in (b"xecho hello" + pad, b"\x07", b"\x03"):
+                shell.send(keys)
+                shell.settle()
+        finally:
+            shell.close()
+        dumps = [line for line in log.read_text(errors="replace").splitlines() if line.startswith("RH:")]
+        self.assertEqual(len(dumps), 3, f"region_highlight 落盘条数不对: {dumps}")
+        short, over_limit, no_limit = dumps
+        self.assertIn("fg=green", short, f"未越界时有效命令应是 fg=green: {short}")
+        self.assertNotEqual(over_limit, "RH::END", f"越界后 region_highlight 被清空（与文档措辞不符）: {over_limit}")
+        self.assertNotIn("fg=red", over_limit, f"越界后仍重新解析了整个 buffer: {over_limit}")
+        self.assertIn("fg=red", no_limit, f"去掉 MAXLENGTH 后应重新解析并标出不存在的命令: {no_limit}")
 
     def test_fzf_default_opts_match_installed_fzf(self):
         data = self.session([

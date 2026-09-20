@@ -102,11 +102,16 @@
     `_zsh_autosuggest_start` 已离开 `precmd_functions`、三个自定义 widget 均以
     `_zsh_autosuggest_bound_` 包裹、输入历史前缀仍弹出灰色建议。
 19. 长命令行可编辑：`gx/config/zshrc` 设 `ZSH_HIGHLIGHT_MAXLENGTH=512` 与
-    `ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=512`，超过该长度放弃高亮/建议（有意的降级）。
-    4401 字符的粘贴行部署 HOME 真 PTY 实测 24 ms/击键 → 0.7 ms、粘贴后首次渲染
-    撞 20 s 上限 → 1.5 s；两个上限必须同设（只设建议上限无效）。
+    `ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=512`，超过该长度不再重新解析语法、不再取历史
+    建议（有意的降级）。4401 字符粘贴行在部署 HOME 真 PTY 里 20 键取中位，四种组合
+    实测：都不设 25.5 ms、只设建议上限 24.5 ms（≈无效）、只设高亮上限 1.0 ms、两者
+    同设 0.65 ms —— `ZSH_HIGHLIGHT_MAXLENGTH` 是主因（粘贴首帧从「40 s 内仍未静默」
+    降到 1.5 s），建议上限是补足项；1.5 s 首帧由逐字节回显主导，与建议上限无关。
+    越界后的形态是「高亮停在越界前那一帧」而非失去颜色：z-sy-h 在 `region_highlight=()`
+    之前就 return，旧区间随编辑平移，颜色可能与实际语法不符（灰色建议则确实消失）。
     DeployedInteractive 用括号粘贴投入 4401 字符行再 20 次单键，断言两个变量在
-    部署形态非空、输出 10 s 内静默、每击键中位 <5 ms。
+    部署形态非空、输出 10 s 内静默、每击键中位 <5 ms；另加一条断言钉住「越界不再
+    重新解析」与去掉高亮上限后的对照。
 20. 安装器按源快照指纹决定是否保留 zcompdump：`gx/install.sh::cleanup_zcompdump`
     始终清无后缀 `.zcompdump` 与其他主机名/zsh 版本的 `.zcompdump-*`（含 omz
     zrecompile 残留的 `.lock` 锁**目录**，清理循环对目录与失败都容错，不再可能以
