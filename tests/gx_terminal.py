@@ -7,6 +7,7 @@ import re
 import select
 import shlex
 import shutil
+import statistics
 import struct
 import subprocess
 import tempfile
@@ -428,6 +429,45 @@ class DeployedInteractive(unittest.TestCase):
                             f"{tag} 未被 autosuggestions 包裹: {captured(data, tag, index)!r}")
         ready = data.index(b":M1012")
         self.assertIn(b"armup", data[ready:typed], "输入前缀后没有出现历史建议")
+
+    def test_long_command_line_stays_editable(self):
+        # GX-09：syntax-highlighting 每击键重新高亮整个 buffer、autosuggestions 每击键按整个
+        # buffer 查历史；4401 字符的粘贴行改前实测 24 ms/击键（报告 82 ms）、粘贴后首次渲染
+        # >20 s。两个上限必须同时设：只设 BUFFER_MAX_SIZE 无效，只设 MAXLENGTH 粘贴仍停顿
+        # 1.2 s。改后实测 0.7 ms/击键；阈值取其数倍以上，避免机器差异 flaky。
+        tokens = []
+        while sum(len(token) + 1 for token in tokens) < 4401:
+            tokens.append(f"--flag{len(tokens)}=value_{len(tokens)}")
+        line = ("echo " + " ".join(tokens))[:4401]
+        shell = PtySession(self.home, rows=50, cols=200, timeout=90, TERM_PROGRAM="WezTerm")
+        try:
+            shell.settle()
+            shell.command(*marked("print -r -- HL:${ZSH_HIGHLIGHT_MAXLENGTH-unset}", 13))
+            shell.command(*marked("print -r -- AS:${ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE-unset}", 14))
+            started = time.monotonic()
+            shell.send(b"\x1b[200~" + line.encode() + b"\x1b[201~")
+            arrival, hung = shell.settle(cap=10)
+            paste_ms = ((arrival or time.monotonic()) - started) * 1000
+            latencies = []
+            for _ in range(20):
+                started = time.monotonic()
+                shell.send(b"x")
+                arrival, key_hung = shell.settle(cap=10)
+                hung = hung or key_hung
+                latencies.append(((arrival or time.monotonic()) - started) * 1000)
+            shell.send(b"\x03")
+            shell.settle()
+        finally:
+            data = shell.close()
+        for tag, index in (("HL", 13), ("AS", 14)):
+            value = captured(data, tag, index)
+            self.assertRegex(value, rb"^\d+$", f"{tag} 未在部署形态下设置: {value!r}")
+        median = statistics.median(latencies)
+        self.assertFalse(hung, f"粘贴/击键后 10 s 内输出仍未静默；粘贴 {paste_ms:.0f} ms，击键 {latencies}")
+        # 粘贴渲染本身在 zsh 5.8 PTY 里约 0.35 ms/字符（bracketed-paste 逐字节回显，与两个上限
+        # 无关，改后实测 1.5 s）；这里只守住「不再撞 20 s 上限」。
+        self.assertLess(paste_ms, 5000, f"粘贴后首次渲染 {paste_ms:.0f} ms")
+        self.assertLess(median, 5.0, f"每击键中位 {median:.1f} ms: {latencies}")
 
     def test_fzf_default_opts_match_installed_fzf(self):
         data = self.session([

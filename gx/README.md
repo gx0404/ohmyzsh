@@ -101,6 +101,12 @@ macOS 对应使用 `Super` / `Ctrl+Super`。Linux 常用终端功能继续使用
   再整体重绑一次；关掉后真 PTY 原位实测 precmd 链 5.5 ms → 0.05 ms/提示符。代价：
   首个提示符之后才 `zle -N` 的新 widget 不会被包裹——需要包裹的 widget 一律放在
   `.zshrc`/`.zshrc.local` 的 source 阶段内定义，交互期临时定义的不在此列。
+- `ZSH_HIGHLIGHT_MAXLENGTH=512` / `ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=512`：超过 512
+  字符的命令行不再高亮、不再取历史建议——**长行失去颜色是有意的降级，不是插件
+  坏了**。两者每击键都按整个 buffer 重算，4401 字符的粘贴行改前实测 24 ms/击键
+  （报告 82 ms）、粘贴后首次渲染 >20 s，改后 0.7 ms/击键；两个上限必须同时设
+  （只设建议上限无效，只设高亮上限粘贴仍停顿 1.2 s）。512 以内实测 <3 ms/击键，
+  保住带长路径的 rsync/ffmpeg 这类真实长命令的高亮。
 
 ## Herdr 与 WezTerm 联动
 

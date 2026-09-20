@@ -101,3 +101,9 @@
     不变（实测下移对包裹无增益）。DeployedInteractive 断言首个提示符后
     `_zsh_autosuggest_start` 已离开 `precmd_functions`、三个自定义 widget 均以
     `_zsh_autosuggest_bound_` 包裹、输入历史前缀仍弹出灰色建议。
+19. 长命令行可编辑：`gx/config/zshrc` 设 `ZSH_HIGHLIGHT_MAXLENGTH=512` 与
+    `ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=512`，超过该长度放弃高亮/建议（有意的降级）。
+    4401 字符的粘贴行部署 HOME 真 PTY 实测 24 ms/击键 → 0.7 ms、粘贴后首次渲染
+    撞 20 s 上限 → 1.5 s；两个上限必须同设（只设建议上限无效）。
+    DeployedInteractive 用括号粘贴投入 4401 字符行再 20 次单键，断言两个变量在
+    部署形态非空、输出 10 s 内静默、每击键中位 <5 ms。
