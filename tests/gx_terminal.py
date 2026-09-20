@@ -220,6 +220,12 @@ class DeployedZshrc(unittest.TestCase):
         clean, _err = self.run_login("print -r -- ${(j:|:)path}", PATH="/usr/local/bin:/usr/bin:/bin")
         self.assertNotIn(b".atuin", clean)
 
+    def test_alt_ctrl_b_is_backward_char_alternative(self):
+        # GX-20：herdr prefix ctrl+b 吞掉 ^B（无 send-prefix 透传，prefix+ctrl+b=help）；
+        # Alt+Ctrl+B 是 zsh/WezTerm/herdr 三侧均无占用的 backward-char 替代。
+        out, _err = self.run_login("bindkey -M emacs '^[^B'; bindkey -M viins '^[^B'; bindkey -M emacs '^B'")
+        self.assertEqual(out.count(b"backward-char"), 3, out)
+
 
 
 class InstallerZshInterlock(unittest.TestCase):

@@ -119,6 +119,15 @@ for keymap in emacs viins; do
 done
 unset keymap keyseq
 
+# herdr 的 prefix 是 ctrl+b 且没有 send-prefix 透传（prefix+ctrl+b 是 help）：
+# pane 内的 zsh 永远收不到 ^B（backward-char）。补 Alt+Ctrl+B 作替代——该组合在
+# zsh emacs/viins、WezTerm（GX-10 迁移后）与 herdr 默认键位三侧均无占用；
+# 逐字符左移也可以直接用左方向键。
+for keymap in emacs viins; do
+  bindkey -M "$keymap" '^[^B' backward-char
+done
+unset keymap
+
 # fzf 负责文件和目录选择；其 key-bindings 把 Ctrl+R 绑到 fzf 历史检索，
 # 装了 atuin 的机器上稍后由 atuin 覆盖。
 [[ -r /usr/share/doc/fzf/examples/completion.zsh ]] && source /usr/share/doc/fzf/examples/completion.zsh

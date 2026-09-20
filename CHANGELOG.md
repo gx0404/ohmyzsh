@@ -176,6 +176,12 @@
     机器把 PATH 与 init 放 `~/.zshrc.local` 机器差异层。DeployedZshrc 断言 path
     列表无该条目（洗 PATH 重跑排除宿主继承干扰）、`^R` 实绑 fzf-history-widget、
     守卫健在。
+27. `^B` 替代绑定（GX-20）：herdr 默认 prefix 是 ctrl+b 且没有 send-prefix 透传
+    （prefix+ctrl+b 是 help），pane 内 zsh 收不到 `^B`（backward-char）。
+    `gx/config/zshrc` 补绑 `Alt+Ctrl+B` → backward-char（zsh emacs/viins 默认空闲、
+    WezTerm GX-10 迁移后无 Alt+Ctrl+B、herdr 默认键无 ctrl+alt+b，三侧零冲突），
+    并在注释说明来龙去脉（逐字符左移也可用左方向键）。DeployedZshrc 断言两 keymap
+    的 `^[^B` 与 emacs `^B` 均绑到 backward-char。
 26. 每提示符光标形状复位（GX-17）：`gx/config/terminal.zsh` 新增
     `_gx_terminal_reset_cursor` precmd 钩子，每提示符发 `\e[0 q`（DECSCUSR 0 =
     终端默认形状）——TUI（vim、herdr 等）改光标后异常退出不再把 bar/beam 遗留给
