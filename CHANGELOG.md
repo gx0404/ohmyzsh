@@ -198,3 +198,18 @@
     第二套 PS1 包装（双发会让终端看到重复标记），配置改动驳回；herdr 上送宿主由
     herdr 轨道负责。DeployedInteractive 钉回归：两种守卫环境四标记齐全且开关
     置位，守卫外（未知终端）不发 C/D。
+29. 同步点 1 回灌 wezterm 轨 C 全部 Lua 变更：`gx/wezterm/` 与 wezterm 仓
+    `dotfiles/wezterm-config/` 恢复逐字节一致（`diff -rq` 为空）。内容：
+    `config/bindings.lua`——WEZ-CFG-04 Shift+PageUp/Down 在 alt-screen 应用
+    （herdr/vim/Claude Code）里透传 `\x1b[5;2~`/`\x1b[6;2~` 而非宿主静默空滚；
+    `Leader w` 壁纸管理浮层入口（批 13）；WEZ-CFG-03 插件缺失时
+    workspace_switcher/resurrect 键位降级 Nop。`config/general.lua` 补
+    `language='zh-CN'`（GX-11 闭环，WEZTERM_LANG 优先）。`config/plugins.lua`
+    pcall 兜底并删死 stub。`utils/backdrops.lua` glob 加 pcall、空目录纯色回退、
+    新增 `set_default_from_sidecar()`（`wezterm.lua` 链上随调）。`events/
+    right-status.lua` 无电池早退与窗口表回收。删除死模块 `events/left-status.lua`
+    与 `utils/gpu-adapter.lua`（与轨 C 同步；WEZ-HYG-01 快照卫生）。验证：wezterm
+    仓 `target/debug/wezterm`（20260921 构建，含 ShowWallpaperOverlay）
+    `--config-file gx/wezterm/wezterm.lua show-keys` rc=0，20 个 LEADER 键在册
+    含 `Leader w`；注意已装二进制（20260920）尚无该 action，用它验证会静默回退
+    默认键表——本仓镜像的加载验证以 wezterm 仓构建为准。

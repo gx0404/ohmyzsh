@@ -9,6 +9,8 @@ require('utils.backdrops')
    -- :set_images_dir(require('wezterm').home_dir .. '/Pictures/Wallpapers/')
    :set_images()
    :set_default('nord-space.png')
+   -- fork（批 13）：壁纸管理浮层的持久化选择优先于硬编码默认
+   :set_default_from_sidecar()
 
 require('events.status').setup({ date_format = '%a %H:%M' })
 require('events.tab-title').setup({ hide_active_tab_unseen = true, unseen_icon = 'numbered_box' })

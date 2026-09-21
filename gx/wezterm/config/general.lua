@@ -1,6 +1,8 @@
 return {
    -- behaviours
    automatically_reload_config = true,
+   -- 界面文案语言（命令面板/菜单/浮层/CLI 帮助）；WEZTERM_LANG 环境变量优先级更高
+   language = 'zh-CN',
    exit_behavior = 'CloseOnCleanExit', -- if the shell program exited with a successful status
    exit_behavior_messaging = 'Verbose',
    -- 状态内容按变化缓存；2 秒轮询可兼顾模式提示及时性和低重绘。

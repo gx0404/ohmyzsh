@@ -91,11 +91,14 @@ GUI 截获后 shell 不可用（GX-10）。
 | `Leader /` | 随机壁纸 |
 | `Leader i` | 打开壁纸选择器（不用 `Leader Shift+/`：X11 把 Shift+/ 解成 `?`，物理不可达） |
 | `Leader b` | 切换纯色专注模式与壁纸 |
+| `Leader w` | 壁纸管理浮层（可视化列表/实时预览/添加/删除） |
 | `Leader k` / `m` / `s` | 快捷键速查 / 主菜单 / 设置浮层 |
 
 标签直达 `Leader 1..9`（Linux）；分屏为 `Ctrl+Shift+\`（垂直）与
 `Ctrl+Alt+Shift+\`（水平）；`Alt+w` 仍关闭当前 pane 但改为先弹确认（防误毁
-运行中 agent 的 pane）。本机调整键位后，同步 `gx/wezterm/config/bindings.lua`
+运行中 agent 的 pane）。`Shift+PageUp/Down` 在前台是 alt-screen 应用（herdr/
+vim/Claude Code）时透传为应用内翻页，否则宿主滚动。插件缺失时相关键位静默
+降级为 Nop（pcall 兜底）。本机调整键位后，同步 `gx/wezterm/config/bindings.lua`
 与 WezTerm 仓库的 `dotfiles/wezterm-config/config/bindings.lua`，再验证配置
 可加载。
 
@@ -107,7 +110,7 @@ GUI 截获后 shell 不可用（GX-10）。
 | gitstatusd | 本机 `~/.cache/gitstatus/` | v1.5.4 linux-x86_64 | 从 romkatv/gitstatus releases 同版本下载 |
 | zoxide | 本机 `~/.local/bin/zoxide` | 0.9.9 linux-x86_64 | github.com/ajeetdsouza/zoxide releases v0.9.9 |
 | Nerd Font | 本机 `~/.local/share/fonts/JetBrainsMonoNerd/` | v3.4.0 JetBrainsMono ×4 字重 | nerd-fonts release v3.4.0 |
-| wezterm 配置 | 本机 `~/.config/wezterm`（上游 gx0404/wezterm） | 工作树快照 9b60228；2026-09-21 壁纸/标签直达键迁入 leader（GX-10） | 排除 `.git`/`backups`/`*.bak` 后拷贝 |
+| wezterm 配置 | 本机 `~/.config/wezterm`（上游 gx0404/wezterm） | 工作树快照 9b60228；2026-09-21 壁纸/标签直达键迁入 leader（GX-10）；同日回灌轨 C 全部 Lua 变更（批 8/12/13 + 复审） | 排除 `.git`/`backups`/`*.bak` 后拷贝 |
 
 二进制仅携带 linux-x86_64：其他架构时 gitstatus 由 p10k 联网自下载，zoxide
 提示手动安装（见安装器警告）。

@@ -71,14 +71,23 @@ cells
    :add_segment('battery_icon', '', colors.battery)
    :add_segment('battery_text', '', colors.battery, attr(attr.intensity('Bold')))
 
+-- fork（WEZ-PERF-04）：无电池机器首次枚举为空即记住，后续早退
+local no_battery = false
+
 ---@return string, string
 local function battery_info()
-   -- ref: https://wezfurlong.org/wezterm/config/lua/wezterm/battery_info.html
+   -- fork（WEZ-PERF-04）：无电池机器（台式机）每 2 秒枚举一次 D-Bus
+   -- 是白跑；首次枚举为空即记住，之后早退。
+   if no_battery then
+      return '', ''
+   end
 
    local charge = ''
    local icon = ''
 
+   local found = false
    for _, b in ipairs(wezterm.battery_info()) do
+      found = true
       local idx = umath.clamp(umath.round(b.state_of_charge * 10), 1, 10)
       charge = string.format('%.0f%%', b.state_of_charge * 100)
 
@@ -87,6 +96,9 @@ local function battery_info()
       else
          icon = discharging_icons[idx]
       end
+   end
+   if not found then
+      no_battery = true
    end
 
    return charge, icon .. ' '
@@ -112,6 +124,17 @@ M.setup = function(opts)
          cells:render({ 'date_icon', 'date_text', 'separator', 'battery_icon', 'battery_text' })
       )
       local window_id = window:window_id()
+
+      -- fork（WEZ-PERF-04）：窗口关闭后表项回收，不随窗口数无限增长
+      local alive = {}
+      for _, w in ipairs(wezterm.gui.gui_windows()) do
+         alive[w:window_id()] = true
+      end
+      for id in pairs(last_status_by_window) do
+         if not alive[id] then
+            last_status_by_window[id] = nil
+         end
+      end
 
       -- update-right-status 每秒触发；内容未变化时跳过 GUI 更新，避免顶部栏重绘。
       if last_status_by_window[window_id] ~= status then

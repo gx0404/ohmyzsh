@@ -231,8 +231,30 @@ local keys = {
    -- panes: scroll pane
    { key = 'u',        mods = mod.SUPER, action = act.ScrollByLine(-5) },
    { key = 'd',        mods = mod.SUPER, action = act.ScrollByLine(5) },
-   { key = 'PageUp',   mods = platform.is_linux and 'SHIFT' or 'NONE', action = act.ScrollByPage(-0.75) },
-   { key = 'PageDown', mods = platform.is_linux and 'SHIFT' or 'NONE', action = act.ScrollByPage(0.75) },
+   -- WEZ-CFG-04：alt-screen 应用（herdr/Claude Code/vim）里 Shift+PageUp/Down
+   -- 透传给应用；宿主 ScrollByPage 在 alt screen 下是静默空操作。
+   {
+      key = 'PageUp',
+      mods = platform.is_linux and 'SHIFT' or 'NONE',
+      action = wezterm.action_callback(function(window, pane)
+         if pane:is_alt_screen_active() then
+            window:perform_action(act.SendString('\x1b[5;2~'), pane)
+         else
+            window:perform_action(act.ScrollByPage(-0.75), pane)
+         end
+      end),
+   },
+   {
+      key = 'PageDown',
+      mods = platform.is_linux and 'SHIFT' or 'NONE',
+      action = wezterm.action_callback(function(window, pane)
+         if pane:is_alt_screen_active() then
+            window:perform_action(act.SendString('\x1b[6;2~'), pane)
+         else
+            window:perform_action(act.ScrollByPage(0.75), pane)
+         end
+      end),
+   },
 
    -- key-tables --
    -- resizes fonts
@@ -260,27 +282,28 @@ local keys = {
    { key = 'k', mods = 'LEADER', action = act.ShowKeybinds },
    { key = 'm', mods = 'LEADER', action = act.ShowMainMenu },
    { key = 's', mods = 'LEADER', action = act.OpenSettings },
+   { key = 'w', mods = 'LEADER', action = act.ShowWallpaperOverlay },
 
-   -- plugins: workspace switcher (智能项目切换)
+   -- plugins: workspace switcher (智能项目切换；插件缺失时跳过，WEZ-CFG-03)
    {
       key = 's',
       mods = mod.SUPER,
-      action = workspace_switcher.switch_workspace(),
+      action = workspace_switcher and workspace_switcher.switch_workspace() or act.Nop,
    },
 
-   -- plugins: resurrect (会话保存/恢复)
+   -- plugins: resurrect (会话保存/恢复；插件缺失时跳过)
    {
       key = 'S',
       mods = mod.SUPER_REV,
-      action = wezterm.action_callback(function(win, _pane)
+      action = resurrect and wezterm.action_callback(function(win, _pane)
          resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
          win:toast_notification('WezTerm', 'Workspace 状态已保存', nil, 2500)
-      end),
+      end) or act.Nop,
    },
    {
       key = 'r',
       mods = mod.SUPER_REV,
-      action = wezterm.action_callback(function(win, pane)
+      action = resurrect and wezterm.action_callback(function(win, pane)
          resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, _label)
             local state_type = string.match(id, '^([^/]+)')
             id = string.match(id, '([^/]+)$')
@@ -303,7 +326,7 @@ local keys = {
                resurrect.tab_state.restore_tab(pane:tab(), state, opts)
             end
          end)
-      end),
+      end) or act.Nop,
    },
 }
 
