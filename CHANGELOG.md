@@ -6,6 +6,9 @@
 
 ## 0.1.0(2026-09-21)
 
+- PreToolUse 安全门改为只在命令位置拦截强推/`git clean -f`/历史重写：heredoc
+  正文、搜索关键字、commit message 里的文本提及不再误拦；真执行（含链式、
+  `bash -c` 包装、环境变量前缀、`git -C`）仍拒绝，并补成对回归探针。
 - Herdr 终端协作：统一 WezTerm 前缀与 Shift 选择，按已安装 shell 提供 Windows
   启动项，使用 WSL 自动发现；补齐 zsh 幂等目录上报与隔离 PTY 回归。
 

@@ -37,11 +37,25 @@ case "$rel" in
 esac
 
 # 高破坏性 Git 操作
-case "$command" in
-  *"git push --force"*|*"git push -f"*|*"git clean -f"*|*"git filter-branch"*|*"git filter-repo"*)
-    echo "deny: 命令含历史重写或强推模式（$command）；需发布或清理时由用户显式执行。" >&2
-    exit 2
-    ;;
-esac
+# 只在命令位置命中（行首、; & | ( ` $( 之后，或 sudo/xargs/bash -c 等包装之后）：
+# 文本提及（heredoc 正文、搜索关键字、commit message）不是执行，不得误拦。
+hit=$(printf '%s' "$command" | python3 -c '
+import re, sys
+command = sys.stdin.read()
+position = (
+    r"(?m)(?:^|[;&|({`]|\$\(|\b(?:sudo|xargs|exec|nohup|env|timeout|then|do|else|bash|sh|zsh|eval)\b"
+    r"[^\n;&|]*?[\s\x27\x22])\s*(?:\w+=\S*\s+)*"
+)
+patterns = (
+    r"git(?:\s+-{1,2}[\w-]+(?:[= ]\S+)?)*?\s+push\b[^\n;&|]*\s(?:--force|-f\b)",
+    r"git(?:\s+-{1,2}[\w-]+(?:[= ]\S+)?)*?\s+clean\b[^\n;&|]*\s-\w*f",
+    r"git(?:\s+-{1,2}[\w-]+(?:[= ]\S+)?)*?\s+filter-(?:branch|repo)\b",
+)
+print("1" if any(re.search(position + p, command) for p in patterns) else "")
+')
+if [ -n "$hit" ]; then
+  echo "deny: 命令含历史重写或强推模式（$command）；需发布或清理时由用户显式执行。" >&2
+  exit 2
+fi
 
 exit 0

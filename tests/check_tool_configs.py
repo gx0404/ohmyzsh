@@ -116,5 +116,34 @@ probe(zcode_pre, "zcode")
 codex_pre = (hooks["PreToolUse"][0]["hooks"][0]["command"])
 probe(codex_pre, "codex")
 
+# --- 6. 命令位置语义：真执行必拦，文本提及（heredoc/搜索/commit message）放行 ---
+GATE = "bash .claude/hooks/pretooluse-safety-gate.sh"
+FORCE = "git pu" + "sh --force"
+CLEAN = "git cle" + "an -fd"
+
+
+def bash_payload(command: str) -> str:
+    return json.dumps({"tool_name": "Bash", "tool_input": {"command": command}})
+
+
+for executed in (
+    f"{FORCE} origin master",
+    f"make test && {FORCE}",
+    f"bash -c '{FORCE} origin master'",
+    f"GIT_TRACE=1 {CLEAN}",
+    f"bash <<'EOF'\n{CLEAN}\nEOF",
+    "git -C /tmp/x pu" + "sh -f origin master",
+    "git filter-" + "branch --all",
+):
+    code = run_gate(GATE, bash_payload(executed))
+    check(f"命令位置拒绝: {executed!r}", code == 2, f"exit={code}")
+for mentioned in (
+    f"rg '{FORCE}' docs/",
+    f"python3 - <<'PYEOF'\ntext = '禁 {FORCE} 与 {CLEAN}'\nprint(len(text))\nPYEOF",
+    f"git commit -m 'docs: 说明为何禁 {FORCE}'",
+):
+    code = run_gate(GATE, bash_payload(mentioned))
+    check(f"文本提及放行: {mentioned!r}", code == 0, f"exit={code}")
+
 print(f"config-shapes: {'FAIL ' + str(len(failures)) if failures else 'all PASS'}")
 sys.exit(1 if failures else 0)
