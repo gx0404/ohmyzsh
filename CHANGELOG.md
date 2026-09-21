@@ -4,7 +4,7 @@
 不替代上游 `omz changelog` 从 Conventional Commits 动态生成的体系。版本取
 `## X.Y.Z(日期|TBD)` 的最大数值 SemVer（scripts/version.py 维护）。
 
-## 0.1.0(TBD)
+## 0.1.0(2026-09-21)
 
 - Herdr 终端协作：统一 WezTerm 前缀与 Shift 选择，按已安装 shell 提供 Windows
   启动项，使用 WSL 自动发现；补齐 zsh 幂等目录上报与隔离 PTY 回归。
