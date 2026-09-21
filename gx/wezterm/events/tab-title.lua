@@ -122,6 +122,11 @@ end
 ---@param title string?
 local function stable_pane_title(title)
    title = title or ''
+   -- 空标题（pane 刚创建、TUI 清空标题）时 utf8.codepoint(s, 1) 会抛
+   -- "out of bounds"，连带 format-tab-title / format-window-title 整个失败。
+   if title == '' then
+      return title
+   end
    local first = utf8.codepoint(title, 1)
 
    if first and first >= 0x2800 and first <= 0x28ff then
