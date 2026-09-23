@@ -3,10 +3,10 @@ local tab_title = require('events.tab-title')
 
 local M = {}
 local last_status_by_window = {}
--- herdr 应用模式：per-window 记录「当前是否已隐藏 tab bar」与隐藏前的
--- enable_tab_bar 原值，只在该状态发生翻转时才调用 set_config_overrides
--- （见 apply_herdr_app_mode）。
-local herdr_tab_bar_state_by_window = {}
+-- herdr 应用模式的 per-window 状态存在 wezterm.GLOBAL 的这个键下（按
+-- tostring(window_id) 分桶）。不能用模块局部表：配置重载会新建 Lua 状态、
+-- 局部表清空，而窗口的 config overrides 跨重载保留，两者会失配。
+local HERDR_TAB_BAR_GLOBAL_KEY = 'herdr_app_mode_tab_bar'
 
 local colors = {
    surface = '#181825',
@@ -74,15 +74,84 @@ local function should_hide_tab_bar(herdr_app_mode, tab_count, process_name)
    return herdr_app_mode == true and tab_count == 1 and process_name == 'herdr'
 end
 
----按 herdr 应用模式決定是否隐藏 tab bar；只在「是否应隐藏」这一判定发生
----翻转时才调用 set_config_overrides，避免每次 update-status（2s）轮询都
----重设一次。翻转之间（判定不变）不覆盖，因此手动 `tabs.toggle-tab-bar`
----切出的状态会一直保留，直到前台进程/tab 数量变化触发下一次翻转。
+---@class HerdrTabBarState
+---@field hidden boolean 上次判定是否已由 herdr 应用模式隐藏 tab bar
+---@field had_prev boolean 隐藏前窗口是否已有 enable_tab_bar 覆盖（如手动切换）
+---@field prev boolean? had_prev 为 true 时，隐藏前的 enable_tab_bar 覆盖值
+
+---herdr 应用模式的 tab bar 状态转移。纯函数：不读写 window / GLOBAL，入参
+---overrides 也不修改（按需浅拷贝），可脱离 wezterm 运行时单独测试。
+---
+---只在「是否应隐藏」的判定翻转时才返回要写回的 overrides；判定不变时返回
+---nil（no-op），因此手动 `tabs.toggle-tab-bar` 切出的状态会一直保留，直到
+---前台进程 / tab 数量变化触发下一次翻转。写回时只改 enable_tab_bar 一个键，
+---其余覆盖键（壁纸等）原样保留，不把当时的 base 配置固定成窗口覆盖。
+---
+---state 为 nil 表示本进程内首次见到该窗口：此时若要隐藏，一律按「隐藏前
+---没有覆盖」记录，恢复时删掉 enable_tab_bar 回落 base 配置。这样部署本修复
+---前旧实现遗留的 enable_tab_bar=false 覆盖，在退出 herdr 后也能自愈。
+---@param state HerdrTabBarState?
+---@param hide boolean 本轮判定是否应隐藏
+---@param overrides table? 窗口当前的 config overrides（get_config_overrides()）
+---@return HerdrTabBarState new_state 判定不变且 state 非 nil 时原样返回 state
+---@return table? new_overrides 要写回的完整 overrides；nil 表示本轮不写
+local function next_tab_bar_state(state, hide, overrides)
+   local was_hidden = (state ~= nil and state.hidden) or false
+   if was_hidden == hide then
+      return state or { hidden = false, had_prev = false }, nil
+   end
+
+   local new_overrides = {}
+   for key, value in pairs(overrides or {}) do
+      new_overrides[key] = value
+   end
+
+   if hide then
+      local new_state = { hidden = true, had_prev = false }
+      if state ~= nil and new_overrides.enable_tab_bar ~= nil then
+         new_state.had_prev = true
+         new_state.prev = new_overrides.enable_tab_bar
+      end
+      new_overrides.enable_tab_bar = false
+      return new_state, new_overrides
+   end
+
+   if state.had_prev then
+      new_overrides.enable_tab_bar = state.prev
+   else
+      new_overrides.enable_tab_bar = nil
+   end
+   return { hidden = false, had_prev = false }, new_overrides
+end
+
+---从 wezterm.GLOBAL 读出某窗口的状态，转成普通 Lua 表（GLOBAL 返回的是
+---共享 userdata 代理，不宜直接交给纯函数或长期持有）。
+---@param key string tostring(window_id)
+---@return HerdrTabBarState?
+local function load_tab_bar_state(key)
+   local all = wezterm.GLOBAL[HERDR_TAB_BAR_GLOBAL_KEY]
+   local stored = all and all[key]
+   if stored == nil then
+      return nil
+   end
+   return { hidden = stored.hidden == true, had_prev = stored.had_prev == true, prev = stored.prev }
+end
+
+---@param key string tostring(window_id)
+---@param state HerdrTabBarState
+local function store_tab_bar_state(key, state)
+   if wezterm.GLOBAL[HERDR_TAB_BAR_GLOBAL_KEY] == nil then
+      wezterm.GLOBAL[HERDR_TAB_BAR_GLOBAL_KEY] = {}
+   end
+   wezterm.GLOBAL[HERDR_TAB_BAR_GLOBAL_KEY][key] = state
+end
+
+---按 herdr 应用模式决定是否隐藏 tab bar；状态转移见 next_tab_bar_state。
 ---@param window any WezTerm GuiWindow
 ---@param pane any? WezTerm Pane，可能为 nil（窗口刚创建等边界情况）
 ---@param herdr_app_mode boolean
 local function apply_herdr_app_mode(window, pane, herdr_app_mode)
-   local window_id = window:window_id()
+   local key = tostring(window:window_id())
    local tab_count = #window:mux_window():tabs()
    local process_name = ''
    if pane then
@@ -90,26 +159,19 @@ local function apply_herdr_app_mode(window, pane, herdr_app_mode)
    end
 
    local hide = should_hide_tab_bar(herdr_app_mode, tab_count, process_name)
-   local state = herdr_tab_bar_state_by_window[window_id]
-   local was_hidden = (state and state.hidden) or false
-
-   if was_hidden == hide then
-      herdr_tab_bar_state_by_window[window_id] = state or { hidden = false }
-      return
+   local state = load_tab_bar_state(key)
+   -- 判定不变时不必取 overrides（每次 update-status 都会走到这里）。
+   local overrides = nil
+   if ((state ~= nil and state.hidden) or false) ~= hide then
+      overrides = window:get_config_overrides()
    end
 
-   local effective_config = window:effective_config()
-   if hide then
-      herdr_tab_bar_state_by_window[window_id] =
-         { hidden = true, restore_value = effective_config.enable_tab_bar }
-      window:set_config_overrides({ enable_tab_bar = false, background = effective_config.background })
-   else
-      local restore_value = state and state.restore_value
-      if restore_value == nil then
-         restore_value = true
-      end
-      herdr_tab_bar_state_by_window[window_id] = { hidden = false }
-      window:set_config_overrides({ enable_tab_bar = restore_value, background = effective_config.background })
+   local new_state, new_overrides = next_tab_bar_state(state, hide, overrides)
+   if new_state ~= state then
+      store_tab_bar_state(key, new_state)
+   end
+   if new_overrides ~= nil then
+      window:set_config_overrides(new_overrides)
    end
 end
 
@@ -141,5 +203,7 @@ end
 
 -- 导出：供 tests/pure_fn_test.lua 单独驱动断言，无需起 GUI 窗口。
 M.should_hide_tab_bar = should_hide_tab_bar
+M.next_tab_bar_state = next_tab_bar_state
+M.apply_herdr_app_mode = apply_herdr_app_mode
 
 return M

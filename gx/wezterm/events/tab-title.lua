@@ -122,6 +122,23 @@ end
 -- 避免两处实现漂移；也供纯函数用例直接 require 测试。
 M.clean_process_name = clean_process_name
 
+---手动切换 tab bar 要写回的完整 overrides。纯函数：浅拷贝入参，只翻转
+---enable_tab_bar 一个键，其余覆盖键原样保留；不再顺带写 background，避免把
+---当时的壁纸固定成窗口覆盖（否则壁纸管理浮层选图重载后会被旧图顶回）。
+---@param overrides table? 窗口当前的 config overrides（get_config_overrides()）
+---@param effective_enable_tab_bar boolean 当前生效的 enable_tab_bar
+---@return table
+local function toggled_tab_bar_overrides(overrides, effective_enable_tab_bar)
+   local new_overrides = {}
+   for key, value in pairs(overrides or {}) do
+      new_overrides[key] = value
+   end
+   new_overrides.enable_tab_bar = not effective_enable_tab_bar
+   return new_overrides
+end
+
+M.toggled_tab_bar_overrides = toggled_tab_bar_overrides
+
 ---移除 Codex 等 TUI 写入窗口标题的 Braille spinner，保留稳定标题。
 ---@param title string?
 local function stable_pane_title(title)
@@ -369,13 +386,11 @@ M.setup = function(opts)
    end)
 
    -- CUSTOM EVENT
-   -- Event listener to manually update the tab name
+   -- 手动切换 tab bar（与 events/status.lua 的 herdr 应用模式共用 enable_tab_bar 覆盖）
    wezterm.on('tabs.toggle-tab-bar', function(window, _pane)
-      local effective_config = window:effective_config()
-      window:set_config_overrides({
-         enable_tab_bar = not effective_config.enable_tab_bar,
-         background = effective_config.background,
-      })
+      window:set_config_overrides(
+         toggled_tab_bar_overrides(window:get_config_overrides(), window:effective_config().enable_tab_bar)
+      )
    end)
 
    -- 固定系统窗口标题；即使 pane 的 OSC title spinner 在变化，返回值也保持稳定。
