@@ -24,6 +24,11 @@ if unifont then
    table.insert(fallback, { family = 'Unifont' })
 end
 
+-- East Asian Ambiguous 宽度：herdr（src/ui/text.rs::display_width，
+-- UnicodeWidthStr::width 非 _cjk 版本）与 wezterm 的
+-- treat_east_asian_ambiguous_width_as_wide（未设置，走默认 false）都按窄
+-- 字符处理，两侧口径已对齐，无需改动，此处只留档避免重复排查。
+
 return {
    font = wezterm.font_with_fallback(fallback),
    font_size = font_size,

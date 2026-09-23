@@ -12,6 +12,12 @@ return {
    mouse_wheel_scrolls_tabs = false,
    bypass_mouse_reporting_modifiers = 'SHIFT',
 
+   -- herdr 应用模式：单 tab 且前台是 herdr 时自动隐藏宿主 tab bar，观感更接近
+   -- Codex/Claude Code 桌面版等成熟商用软件；由 events/status.lua 的
+   -- update-status 钩子读取生效。注意这不是 wezterm 原生 config 字段，wezterm
+   -- 会忽略它；仅供 wezterm.lua 转发给 events.status.setup 使用。
+   herdr_app_mode = true,
+
    -- GNOME X11 下固定使用 Fcitx4 的 XIM 服务，避免登录顺序变化导致 WezTerm 无法呼出输入法。
    use_ime = true,
    xim_im_name = 'fcitx',

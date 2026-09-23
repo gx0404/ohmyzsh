@@ -118,6 +118,10 @@ local function clean_process_name(proc)
    return a:gsub('%.exe$', '')
 end
 
+-- 导出：events/status.lua 的 herdr 应用模式判断复用同一套清洗口径，
+-- 避免两处实现漂移；也供纯函数用例直接 require 测试。
+M.clean_process_name = clean_process_name
+
 ---移除 Codex 等 TUI 写入窗口标题的 Braille spinner，保留稳定标题。
 ---@param title string?
 local function stable_pane_title(title)
