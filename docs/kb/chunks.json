@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-09-21T07:25:49Z",
+ "built_at": "2026-09-26T08:08:39Z",
  "corpus_files": 997,
- "corpus_hash": "7a9ed0bc1112eca7ddd26e8fa1cc7f7337900d1e67390bcbdad30f582e003430",
- "content_hash": "f7971689d2bd3fe3834712bb9b8cf52b6ea3252ee9ec7c7c5f9723215f31e69f",
+ "corpus_hash": "be6bb9d263e34be405bbbd5a971b4768af04e3988163b090900edd1742b458de",
+ "content_hash": "b3dfb4fd515638d9ce6ba6d62b9091afac5d87a2022a9e11629ac90bbdb5f028",
  "chunk_count": 1667,
  "chunks": [
   {
@@ -80,19 +80,19 @@
    "layer": "doc"
   },
   {
-   "id": "a9c1a02aca1e",
+   "id": "3327d2170e22",
    "source": "CHANGELOG.md",
-   "anchor": "CHANGELOG.md#0-1-0-tbd",
-   "title": "0.1.0(TBD)",
-   "text": "- Herdr 终端协作：统一 WezTerm 前缀与 Shift 选择，按已安装 shell 提供 Windows\n  启动项，使用 WSL 自动发现；补齐 zsh 幂等目录上报与隔离 PTY 回归。",
+   "anchor": "CHANGELOG.md#0-1-0-2026-09-21",
+   "title": "0.1.0(2026-09-21)",
+   "text": "0. 初始化 AI 协作开发框架（update-ai-settings skill，参考 xyz-csm/xyz-hmi3 体系）：\n   根 `AGENTS.md` 启动协议 + `CLAUDE.md` 薄入口；`docs/AGENT_RULES/` 七份领域规则\n   与 `routes.toml` 路由闭集（全仓 Git 可见文件零遗漏、零重叠）；\n   `scripts/resolve_agent_rules.py` 按路径/任务解析必读规则（`--check` 校验）。\n1. 命令面：`Makefile` + `scripts/dev_framework.py` + `docs/dev-framework.json`\n   （15 命令真源）；lint=全量 zsh -n 语法检查（与上游 CI 对等）、test=单元 +\n   隔离加载 smoke、generated-check=KB 一致性；graph/kb/evidence/version 门就位。\n2. 测试流程：`scripts/check_syntax.sh`（语法层）、`tests/smoke_load.zsh`\n   （隔离 ZDOTDIR/HOME 加载断言，支持 `--plugins` 多插件集成变体）、\n   `scripts/run_tests.sh` 编排；zunit 族登记为可选层（doctor 报 MISSING 不假绿）。\n3. 终端证据与截图流程：`make evidence <task>` 批次目录\n   （`.playwright-mcp/<分支>/<任务>/<批次>/`，gitignored）；\n   `scripts/ui_smoke.sh` 渲染默认/指定主题并断言关键段（临时 git 仓库分支名），\n   文本捕获读回后置 `images_reviewed`。\n4. 代码图谱：`scripts/graphify.sh` wrapper（graphify 0.9.20）索引 lib/plugins/\n   themes/tools/oh-my-zsh.sh/docs，产物 `graphify-out/`（gitignored）+\n   指纹 manifest，`graph-check` 校验新鲜度。\n5. 知识库：`scripts/build_agent_kb.py` 三层语料（框架文档 + 367 份插件 README +\n   shell 符号结构）生成受控 `docs/kb/chunks.json`；`scripts/agent_kb.py`\n   BM25-lite 检索 CLI（search/stats）；`kb-check` 接入 ci-check，漂移即红。\n6. 多工具执行面（shared 无凭据基线）：`.zcode/config.json`（hooks 桥接）、\n   `.claude/`（settings.json 权限三段 + rules 薄提醒 + hooks 安全门/复审提醒）、\n   `.codex/config.toml`（sandbox + 数组表 hooks）；`.agents/README.md`。\n7. 文档：`docs/` 手册（README 索引、ARCHITECTURE、DEVELOPMENT、MAKE_COMMANDS、\n   TESTING、AI_TOOLS、RELEASE）；upstream 只增不改纪律与 .gitignore 标记块。\n8. 随 update-ai-settings sk",
    "layer": "doc"
   },
   {
-   "id": "dd3552864175",
+   "id": "8026fec834e2",
    "source": "CHANGELOG.md",
-   "anchor": "CHANGELOG.md#0-1-0-tbd",
-   "title": "0.1.0(TBD)",
-   "text": "0. 初始化 AI 协作开发框架（update-ai-settings skill，参考 xyz-csm/xyz-hmi3 体系）：\n   根 `AGENTS.md` 启动协议 + `CLAUDE.md` 薄入口；`docs/AGENT_RULES/` 七份领域规则\n   与 `routes.toml` 路由闭集（全仓 Git 可见文件零遗漏、零重叠）；\n   `scripts/resolve_agent_rules.py` 按路径/任务解析必读规则（`--check` 校验）。\n1. 命令面：`Makefile` + `scripts/dev_framework.py` + `docs/dev-framework.json`\n   （15 命令真源）；lint=全量 zsh -n 语法检查（与上游 CI 对等）、test=单元 +\n   隔离加载 smoke、generated-check=KB 一致性；graph/kb/evidence/version 门就位。\n2. 测试流程：`scripts/check_syntax.sh`（语法层）、`tests/smoke_load.zsh`\n   （隔离 ZDOTDIR/HOME 加载断言，支持 `--plugins` 多插件集成变体）、\n   `scripts/run_tests.sh` 编排；zunit 族登记为可选层（doctor 报 MISSING 不假绿）。\n3. 终端证据与截图流程：`make evidence <task>` 批次目录\n   （`.playwright-mcp/<分支>/<任务>/<批次>/`，gitignored）；\n   `scripts/ui_smoke.sh` 渲染默认/指定主题并断言关键段（临时 git 仓库分支名），\n   文本捕获读回后置 `images_reviewed`。\n4. 代码图谱：`scripts/graphify.sh` wrapper（graphify 0.9.20）索引 lib/plugins/\n   themes/tools/oh-my-zsh.sh/docs，产物 `graphify-out/`（gitignored）+\n   指纹 manifest，`graph-check` 校验新鲜度。\n5. 知识库：`scripts/build_agent_kb.py` 三层语料（框架文档 + 367 份插件 README +\n   shell 符号结构）生成受控 `docs/kb/chunks.json`；`scripts/agent_kb.py`\n   BM25-lite 检索 CLI（search/stats）；`kb-check` 接入 ci-check，漂移即红。\n6. 多工具执行面（shared 无凭据基线）：`.zcode/config.json`（hooks 桥接）、\n   `.claude/`（settings.json 权限三段 + rules 薄提醒 + hooks 安全门/复审提醒）、\n   `.codex/config.toml`（sandbox + 数组表 hooks）；`.agents/README.md`。\n7. 文档：`docs/` 手册（README 索引、ARCHITECTURE、DEVELOPMENT、MAKE_COMMANDS、\n   TESTING、AI_TOOLS、RELEASE）；upstream 只增不改纪律与 .gitignore 标记块。\n8. 随 update-ai-settings sk",
+   "anchor": "CHANGELOG.md#0-1-0-2026-09-21",
+   "title": "0.1.0(2026-09-21)",
+   "text": "- PreToolUse 安全门改为只在命令位置拦截强推/`git clean -f`/历史重写：heredoc\n  正文、搜索关键字、commit message 里的文本提及不再误拦；真执行（含链式、\n  `bash -c` 包装、环境变量前缀、`git -C`）仍拒绝，并补成对回归探针。\n- Herdr 终端协作：统一 WezTerm 前缀与 Shift 选择，按已安装 shell 提供 Windows\n  启动项，使用 WSL 自动发现；补齐 zsh 幂等目录上报与隔离 PTY 回归。",
    "layer": "doc"
   },
   {

@@ -1,13 +1,11 @@
 # ohmyzsh 项目级 Codex 配置。
 # 用户级 model/provider/auth 仍归 ~/.codex/config.toml；本文件只声明项目边界。
 
-approval_policy = "on-request"
-sandbox_mode = "workspace-write"
+approval_policy = "never"
+# 用户明确授权放开（2026-09）：关闭沙箱与网络限制，破坏性操作仍由 hook 策略真源拦截。
+sandbox_mode = "danger-full-access"
 # 根 AGENTS.md 是短入口；领域规则由 resolver 按路径显式读取。
 project_doc_max_bytes = 32768
-
-[sandbox_workspace_write]
-network_access = false
 
 [shell_environment_policy]
 inherit = "all"
