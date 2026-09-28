@@ -1,0 +1,43 @@
+# Maintainer: David Macek <david.macek.0@gmail.com>
+
+pkgname=getent
+pkgver=2.18.90
+pkgrel=6
+pkgdesc="Get entries from Name Service Switch libraries"
+arch=('i686' 'x86_64')
+url="https://www.gnu.org/software/libc/libc.html"
+license=('LGPL')
+depends=('libargp')
+conflicts=('libargp<20260115')
+makedepends=('libargp-devel' 'autotools' 'gcc')
+source=(getent-${pkgver}.tar.gz
+        cygwin-getent.patch)
+sha256sums=('290440924c7e1ba9cdb2b2a2629899bfc497024fb393de77907c6f8394e0259c'
+            '260efd98496dc54537d133daa903ed3f329b833e9726ea3f2533c1710ce65b9e')
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -p2 -i ${srcdir}/cygwin-getent.patch
+
+  autoreconf -fi
+}
+
+build() {
+  mkdir -p "${srcdir}/build-${CHOST}"
+  cd "${srcdir}/build-${CHOST}"
+
+
+  CFLAGS+=" -D_GNU_SOURCE"
+  ../${pkgname}-${pkgver}/configure \
+    --prefix=/usr \
+    --build=${CHOST} \
+    --host=${CHOST} \
+    --target=${CHOST}
+
+  make
+}
+
+package() {
+  cd "${srcdir}/build-${CHOST}"
+  make DESTDIR="${pkgdir}" install
+}

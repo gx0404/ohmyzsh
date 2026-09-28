@@ -1,0 +1,136 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=ca-certificates
+pkgver=20260816
+pkgrel=1
+pkgdesc='Common CA certificates'
+arch=('any')
+url='https://www.mozilla.org/en-US/about/governance/policies/security-group/certs/'
+license=('spdx:MPL-2.0 AND GPL-2.0-or-later')
+source=("http://ftp.debian.org/debian/pool/main/c/${pkgname}/${pkgname}_${pkgver}.tar.xz"
+        'certdata2pem.py'
+        'update-ca-trust'
+        'update-ca-trust.8')
+depends=('bash' 'openssl' 'findutils' 'coreutils' 'sed' 'p11-kit')
+makedepends=('asciidoc' 'python3' 'libxslt' 'sed' 'grep')
+install='ca-certificates.install'
+sha256sums=('d939bcdd0cb058712cf4175bac76997676eb8b68fe9473765e1b40fb3d5b186a'
+            '9508738b61cc89bfc1f42580b1091a650f0acbf5c1b49edc2aa4e0313276ea0d'
+            'f411cb774da977d3bf6647f53030cb0d584fea09591cec8b6fcc3065f7652c98'
+            'a73c6430e734178b9aa4d303709470383bc2b1cfbeb0d44fe34615df812f479d')
+
+prepare() {
+  mv "${srcdir}/${pkgname}" "${srcdir}/${pkgname}-${pkgver}"
+  sed "s|/usr/bin/python|/usr/bin/python3|g" -i certdata2pem.py
+  cp certdata2pem.py ${srcdir}/${pkgname}-${pkgver}/mozilla/certdata2pem.py
+  cd ${srcdir}/${pkgname}-${pkgver}
+  cp ${srcdir}/update-ca-trust sbin/
+  cp ${srcdir}/update-ca-trust.8 sbin/
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}/mozilla
+  mkdir -p legacy-{default,disable}
+
+  PYTHONUTF8=1 PYTHONIOENCODING=utf-8 /usr/bin/python3 ./certdata2pem.py
+
+  (
+    cat <<EOF
+# This is a bundle of X.509 certificates of public Certificate
+# Authorities.  It was generated from the Mozilla root CA list.
+# These certificates and trust/distrust attributes use the file format accepted
+# by the p11-kit-trust module.
+#
+# Source: nss/lib/ckfw/builtins/certdata.txt
+# Source: nss/lib/ckfw/builtins/nssckbi.h
+#
+# Generated from:
+EOF
+    cat nssckbi.h | grep -w NSS_BUILTINS_LIBRARY_VERSION | awk '{print "# " $2 " " $3}';
+    echo '#';
+  ) > ${srcdir}/${pkgname}-${pkgver}/ca-bundle.trust.crt
+
+  touch ${srcdir}/${pkgname}-${pkgver}/ca-bundle.legacy.default.crt
+  local NUM_LEGACY_DEFAULT=`find ./legacy-default -type f | wc -l`
+  if [ $NUM_LEGACY_DEFAULT -ne 0 ]; then
+     for f in ./legacy-default/*.crt; do 
+       echo "processing $f"
+       tbits=`sed -n '/^# openssl-trust/{s/^.*=//;p;}' $f`
+       alias=`sed -n '/^# alias=/{s/^.*=//;p;q;}' $f | sed "s/'//g" | sed 's/"//g'`
+       targs=""
+       if [ -n "$tbits" ]; then
+          for t in $tbits; do
+             targs="${targs} -addtrust $t"
+          done
+       fi
+       if [ -n "$targs" ]; then
+          echo "legacy default flags $targs for $f" >> info.trust
+          openssl x509 -text -in "$f" -trustout $targs -setalias "$alias" >> ${srcdir}/${pkgname}-${pkgver}/ca-bundle.legacy.default.crt
+       fi
+     done
+  fi
+
+  touch ${srcdir}/${pkgname}-${pkgver}/ca-bundle.legacy.disable.crt
+  NUM_LEGACY_DISABLE=`find ./legacy-disable -type f | wc -l`
+  if [ $NUM_LEGACY_DISABLE -ne 0 ]; then
+     for f in ./legacy-disable/*.crt; do 
+       echo "processing $f"
+       tbits=`sed -n '/^# openssl-trust/{s/^.*=//;p;}' $f`
+       alias=`sed -n '/^# alias=/{s/^.*=//;p;q;}' $f | sed "s/'//g" | sed 's/"//g'`
+       targs=""
+       if [ -n "$tbits" ]; then
+          for t in $tbits; do
+             targs="${targs} -addtrust $t"
+          done
+       fi
+       if [ -n "$targs" ]; then
+          echo "legacy disable flags $targs for $f" >> info.trust
+          openssl x509 -text -in "$f" -trustout $targs -setalias "$alias" >> ${srcdir}/${pkgname}-${pkgver}/ca-bundle.legacy.disable.crt
+       fi
+     done
+  fi
+
+  local P11FILES=`find . -name \*.tmp-p11-kit | wc -l`
+  if [ $P11FILES -ne 0 ]; then
+    for p in ./*.tmp-p11-kit; do 
+      cat "$p" >> ${srcdir}/${pkgname}-${pkgver}/ca-bundle.trust.crt
+    done
+  fi
+
+}
+
+
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  mkdir -p ${pkgdir}/usr/{bin,lib,share}
+  mkdir -p ${pkgdir}/etc
+  mkdir -p ${pkgdir}/usr/share/man/man8
+
+  cp -f ${srcdir}/update-ca-trust ${pkgdir}/usr/bin/
+  cp -f ${srcdir}/update-ca-trust.8 ${pkgdir}/usr/share/man/man8/
+
+  # for p11-kit
+  mkdir -p ${pkgdir}/usr/lib/p11-kit
+  cp -f ${srcdir}/update-ca-trust ${pkgdir}/usr/lib/p11-kit/p11-kit-extract-trust
+
+  mkdir -p ${pkgdir}/usr/share/pki/ca-trust-{source,legacy}
+  install -p -m 644 ca-bundle.trust.crt          ${pkgdir}/usr/share/pki/ca-trust-source/ca-bundle.trust.crt
+  install -p -m 644 ca-bundle.legacy.default.crt ${pkgdir}/usr/share/pki/ca-trust-legacy/ca-bundle.legacy.default.crt
+  install -p -m 644 ca-bundle.legacy.disable.crt ${pkgdir}/usr/share/pki/ca-trust-legacy/ca-bundle.legacy.disable.crt
+
+  # touch all files overwritten by update-ca-trust for easy cleanup
+  mkdir -p ${pkgdir}/etc/pki/ca-trust/{extracted,source}
+  mkdir -p ${pkgdir}/etc/pki/ca-trust/source/{anchors,blacklist}
+  mkdir -p ${pkgdir}/etc/pki/ca-trust/extracted/{openssl,pem,java}
+  touch ${pkgdir}/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt
+  touch ${pkgdir}/etc/pki/ca-trust/extracted/pem/{tls,email,objsign}-ca-bundle.pem
+  touch ${pkgdir}/etc/pki/ca-trust/extracted/java/cacerts
+
+  # for OpenSSL and static ca-certificates consumers
+  mkdir -p ${pkgdir}/usr/ssl/certs
+  cp -f ${pkgdir}/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem ${pkgdir}/usr/ssl/certs/ca-bundle.crt
+  cp -f ${pkgdir}/etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem ${pkgdir}/usr/ssl/cert.pem
+  cp -f ${pkgdir}/etc/pki/ca-trust/extracted/openssl/ca-bundle.trust.crt ${pkgdir}/usr/ssl/certs/ca-bundle.trust.crt
+}

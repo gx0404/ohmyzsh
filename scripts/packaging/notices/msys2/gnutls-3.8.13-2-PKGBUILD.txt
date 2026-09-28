@@ -1,0 +1,106 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgbase=gnutls
+pkgname=('gnutls' 'libgnutls' 'libgnutls-devel')
+pkgver=3.8.13
+pkgrel=2
+pkgdesc="A library which provides a secure layer over a reliable transport layer"
+arch=('x86_64' 'i686')
+license=('spdx:GPL-3.0-or-later' 'spdx:LGPL-2.1-or-later')
+url="https://www.gnutls.org/"
+msys2_repository_url="https://gitlab.com/gnutls/gnutls"
+msys2_references=(
+  "cpe: cpe:/a:gnu:gnutls"
+)
+makedepends=('gtk-doc'
+             'gcc'
+             'autotools'
+             'gettext-devel'
+             'libidn2-devel'
+             'libiconv-devel'
+             'gmp-devel'
+             'libnettle-devel'
+             'libp11-kit-devel'
+             'libtasn1-devel'
+             'libunistring-devel'
+             'zlib-devel')
+source=(https://gnupg.org/ftp/gcrypt/gnutls/v${pkgver%.*}/${pkgname}-${pkgver}.tar.xz{,.sig}
+        0001-doc-fix-implicit-rule-build-failure.patch)
+sha256sums=('ffed8ec1bf09c2426d4f14aae377de4753b53e537d685e604e99a8b16ca9c97e'
+            'SKIP'
+            'e5b3459dd15408d899073f4001b757284e1e743b19060c11b2d9be8d43b7c30b')
+validpgpkeys=('0424D4EE81A0E3D119C6F835EDA21E94B565716F' # "Simon Josefsson <simon@josefsson.org>"
+              '1F42418905D8206AA754CCDC29EE58B996865171' # "Nikos Mavrogiannopoulos <nmav@gnutls.org>
+              '462225C3B46F34879FC8496CD605848ED7E69871' # "Daiki Ueno <ueno@unixuser.org>"
+              'E987AB7F7E89667776D05B3BB0E9DD20B29F1432' # Alexander Sosedkin <monk at unboiled.info>
+              '5D46CB0F763405A7053556F47A75A648B3F9220C') # Zoltan Fridrich <zfridric at redhat.com>
+
+prepare() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+
+  patch -p1 -i "${srcdir}"/0001-doc-fix-implicit-rule-build-failure.patch
+
+  autoreconf -vfi
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # gl_cv_clean_version_stddef is needed until they update gnulib:
+  # https://github.com/msys2/MSYS2-packages/pull/5503#issuecomment-3054117962
+
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr \
+    --enable-shared \
+    --enable-static \
+    --enable-cxx \
+    --disable-hardware-acceleration \
+    --enable-heartbeat-support \
+    --with-default-trust-store-file=/usr/ssl/certs/ca-bundle.crt \
+    gl_cv_clean_version_stddef=yes
+
+  make
+  make DESTDIR="${srcdir}/dest" install
+  rm ${srcdir}/dest/usr/share/info/dir
+}
+
+check() {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+  #make check
+}
+
+package_gnutls() {
+  depends=("libgnutls=${pkgver}")
+
+  mkdir -p ${pkgdir}/usr/{bin,share}
+  cp -f ${srcdir}/dest/usr/bin/*.exe ${pkgdir}/usr/bin/
+  #cp -rf ${srcdir}/dest/usr/share/doc ${pkgdir}/usr/share/
+  cp -rf ${srcdir}/dest/usr/share/man ${pkgdir}/usr/share/
+}
+
+package_libgnutls() {
+  depends=('gcc-libs' 'libidn2' 'libiconv' 'libintl' 'gmp' 'libnettle' 'libp11-kit' 'libtasn1' 'zlib')
+  groups=('libraries')
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -f ${srcdir}/dest/usr/bin/*.dll ${pkgdir}/usr/bin/
+  mkdir -p ${pkgdir}/usr/share
+  cp -rf ${srcdir}/dest/usr/share/locale ${pkgdir}/usr/share/
+  cp -rf ${srcdir}/dest/usr/share/info ${pkgdir}/usr/share/
+}
+
+package_libgnutls-devel() {
+  pkgdesc="Libgnutls headers and libraries"
+  groups=('development')
+  depends=("libgnutls=${pkgver}"
+           'libidn2-devel'
+           'libnettle-devel'
+           'libp11-kit-devel'
+           'libtasn1-devel')
+
+  mkdir -p ${pkgdir}/usr/lib
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/usr/lib/pkgconfig ${pkgdir}/usr/lib/
+  cp -f ${srcdir}/dest/usr/lib/*.a ${pkgdir}/usr/lib/
+}

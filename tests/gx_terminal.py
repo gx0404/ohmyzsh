@@ -23,7 +23,10 @@ INSTALLER = REPO / "gx/install.sh"
 REMOTE_ENV = ("SSH_CONNECTION", "SSH_CLIENT", "SSH_TTY", "INSIDE_EMACS")
 # 安装器与 zsh 配置链会读取的宿主环境变量：隔离部署前一律剥离。
 STRIP_ENV = ("ZSH", "ZSH_CUSTOM", "ZSH_CACHE_DIR", "ZSH_COMPDUMP", "GX_HOME", "GX_KEEP_BACKUPS",
-             "GITSTATUS_CACHE_DIR",
+             "GX_PACKAGE_ROOT", "GX_PROFILE_DIR", "GX_PACKAGE_BIN", "GX_P10K_RUNTIME_DIR",
+             "POWERLEVEL9K_INSTALLATION_DIR", "POWERLEVEL9K_CONFIG_FILE", "POWERLEVEL9K_DISABLE_GITSTATUS",
+             "GITSTATUS_AUTO_INSTALL", "GITSTATUS_DAEMON",
+             "HERDR_CONFIG_PATH", "HERDR_SESSION", "HERDR_SOCKET_PATH", "GITSTATUS_CACHE_DIR",
              "GIT_DIR", "GIT_CEILING_DIRECTORIES", "FZF_DEFAULT_OPTS", "FZF_DEFAULT_COMMAND",
              "GX_TERMINAL_CWD_INSTALLED", "TERM_PROGRAM", "HERDR_ENV", "XDG_CACHE_HOME", "XDG_CONFIG_HOME",
              "TMPDIR") + REMOTE_ENV
@@ -105,7 +108,7 @@ class DeployedZshrc(unittest.TestCase):
     def run_login(self, script, **overrides):
         """在部署 HOME 中起 zsh -i -c（不加 -f，走真实 .zshenv/.zshrc 链）。"""
         result = subprocess.run(["zsh", "-i", "-c", script], env=isolated_env(self.home, **overrides),
-                                capture_output=True, timeout=90, cwd=str(self.home))
+                                capture_output=True, timeout=90, cwd=str(self.home), start_new_session=True)
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
         return result.stdout, result.stderr
 
@@ -188,6 +191,21 @@ class DeployedZshrc(unittest.TestCase):
         self.assertLess(i_block, i_suggest, "cursor-mode 块须在 autosuggestions source 之前")
         self.assertLess(i_suggest, i_highlight, "autosuggestions 须在 syntax-highlighting 之前")
 
+    def test_local_config_can_override_large_paste_policy(self):
+        local = self.home / ".zshrc.local"
+        previous = local.read_bytes() if local.exists() else None
+        try:
+            local.write_text('zstyle ":bracketed-paste-magic" active-widgets "self-*"\n')
+            out, err = self.run_login('PASTED=${(l:600::x:)}; zstyle -a :bracketed-paste-magic active-widgets reply; '
+                                      'print -r -- "${(j:,:)reply}"')
+            self.assertEqual(out, b"self-*\n")
+            self.assertEqual(err, b"")
+        finally:
+            if previous is None:
+                local.unlink()
+            else:
+                local.write_bytes(previous)
+
     def test_cursor_mode_zstyles_and_widgets(self):
         out, _err = self.run_login(
             "zstyle -L ':zle:up-line-or-beginning-search' leave-cursor; "
@@ -213,8 +231,20 @@ class DeployedZshrc(unittest.TestCase):
         text = (self.home / ".zshrc").read_text(encoding="utf-8")
         self.assertNotIn('"$HOME/.atuin/bin"', text, "path 列表仍含不存在的 .atuin/bin 条目")
         self.assertIn("$+commands[atuin]", text)
-        out, _err = self.run_login("bindkey -M emacs '^R'")
-        self.assertIn(b"fzf-history-widget", out)
+        self.assertIsNotNone(shutil.which("fzf"), "Ctrl+R 真实集成测试需要 fzf，不以缺工具跳过")
+        path_root = pathlib.Path(tempfile.mkdtemp(prefix="no-atuin-", dir=self.root))
+        path = shadow_path(path_root, hide={"atuin"})
+        out, err = self.run_login("print -r -- W:${+widgets[fzf-history-widget]}; bindkey -M emacs '^R'", PATH=path)
+        self.assertIn(b"W:0", out)
+        self.assertNotIn(b"fzf-history-widget", out)
+        self.assertEqual(err, b"")
+        shell = PtySession(self.home, PATH=path)
+        try:
+            shell.settle()
+            shell.command(*marked("print -r -- CTRL_R:$(bindkey -M emacs '^R')", 91))
+        finally:
+            data = shell.close()
+        self.assertIn(b"fzf-history-widget", captured(data, "CTRL_R", 91))
         # 宿主 PATH 里可能带着旧世代配置留下的 .atuin/bin（继承不证明 gx 添加），
         # 用洗干净的 PATH 重跑才能钉住「gx 自己不加」。
         clean, _err = self.run_login("print -r -- ${(j:|:)path}", PATH="/usr/local/bin:/usr/bin:/bin")
@@ -487,6 +517,57 @@ class DeployedInteractive(unittest.TestCase):
         ready = data.index(b":M1012")
         self.assertIn(b"armup", data[ready:typed], "输入前缀后没有出现历史建议")
 
+    def test_paste_hooks_literal_multiline_buffer_and_undo(self):
+        with tempfile.TemporaryDirectory(prefix="paste-regression-", dir=self.root) as directory:
+            root = pathlib.Path(directory)
+            buffer_file, count_file, executed = (root / name for name in ("buffer", "insert-count", "must-not-execute"))
+            long_text = ("print -r -- should-not-run > " + shlex.quote(str(executed)) + "\n# "
+                         + "中文 空格 '双引号\\\"' $(不执行) " * 40 + "\nprint -r -- end\n")
+            cases = (("x" * 512, 512), ("x" * 513, 0), (long_text, 0))
+            shell = PtySession(self.home, timeout=90, TERM_PROGRAM="WezTerm",
+                               GX_PASTE_BUFFER_FILE=str(buffer_file), GX_PASTE_COUNT_FILE=str(count_file))
+            try:
+                shell.settle()
+                shell.command(*marked(
+                    'zle -A self-insert _gx_original_self_insert; '
+                    '_gx_counted_insert() { (( ++GX_PASTE_INSERTS )); zle _gx_original_self_insert -w; }; '
+                    'zle -N self-insert _gx_counted_insert; '
+                    '_gx_snapshot_buffer() { print -rn -- "$BUFFER" > "$GX_PASTE_BUFFER_FILE"; '
+                    'print -r -- "$GX_PASTE_INSERTS" > "$GX_PASTE_COUNT_FILE"; }; '
+                    'zle -N _gx_snapshot_buffer; bindkey "^G" _gx_snapshot_buffer; '
+                    'bindkey "^X^U" undo; print -r -- PASTE-PROBE', 94))
+                for index, (text, calls) in enumerate(cases):
+                    with self.subTest(characters=len(text)):
+                        try:
+                            shell.command(*marked('typeset -gi GX_PASTE_INSERTS=0; print -r -- PASTE-READY', 95 + index))
+                            shell.send(b"echo ")
+                            shell.settle()
+                            shell.send(b"\x07")
+                            shell.settle()
+                            self.assertEqual(buffer_file.read_bytes(), b"echo ")
+                            before_calls = int(count_file.read_text())
+                            shell.send(b"\x1b[200~" + text.encode("utf-8") + b"\x1b[201~")
+                            _arrival, hung = shell.settle(cap=10)
+                            self.assertFalse(hung, "粘贴后 10 s 内未静默")
+                            shell.send(b"\x07")
+                            shell.settle()
+                            self.assertEqual(buffer_file.read_bytes(), b"echo " + text.encode("utf-8"))
+                            self.assertEqual(int(count_file.read_text()) - before_calls, calls)
+                            self.assertFalse(executed.exists(), "bracketed paste 自动执行了粘贴内容")
+                            shell.send(b"\x18\x15")
+                            shell.settle()
+                            shell.send(b"\x07")
+                            shell.settle()
+                            self.assertEqual(buffer_file.read_bytes(), b"echo ", "一次 undo 应只撤销粘贴")
+                        finally:
+                            shell.send(b"\x03")
+                            shell.settle()
+            finally:
+                data = shell.close()
+            self.assertNotIn(b"command not found", data)
+            self.assertNotIn(b"parse error", data)
+            self.assertFalse(executed.exists())
+
     def test_long_command_line_stays_editable(self):
         # GX-09：syntax-highlighting 每击键重新解析整个 buffer、autosuggestions 每击键按整个
         # buffer 查历史。4401 字符粘贴行 20 键中位的四种组合实测（部署 HOME 真 PTY）：
@@ -521,10 +602,8 @@ class DeployedInteractive(unittest.TestCase):
             value = captured(data, tag, index)
             self.assertRegex(value, rb"^\d+$", f"{tag} 未在部署形态下设置: {value!r}")
         median = statistics.median(latencies)
+        print(f"GX-PASTE-METRICS paste_ms={paste_ms:.3f} keys_median_ms={median:.3f} keys=20", flush=True)
         self.assertFalse(hung, f"粘贴/击键后 10 s 内输出仍未静默；粘贴 {paste_ms:.0f} ms，击键 {latencies}")
-        # 粘贴首帧在 zsh 5.8 PTY 里约 0.35 ms/字符（bracketed-paste 逐字节回显；只设
-        # MAXLENGTH 与两者同设实测同为 1.5 s，与 BUFFER_MAX_SIZE 无关）；这里只守住
-        # 「不再撞 20 s 上限」。
         self.assertLess(paste_ms, 5000, f"粘贴后首次渲染 {paste_ms:.0f} ms")
         self.assertLess(median, 5.0, f"每击键中位 {median:.1f} ms: {latencies}")
 

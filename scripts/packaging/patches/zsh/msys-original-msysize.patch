@@ -1,0 +1,42 @@
+diff -Naur zsh-5.0.7-orig/Src/Makefile.in zsh-5.0.7/Src/Makefile.in
+--- zsh-5.0.7-orig/Src/Makefile.in	2013-11-27 22:00:20.000000000 +0300
++++ zsh-5.0.7/Src/Makefile.in	2014-11-04 18:47:07.013600000 +0300
+@@ -65,7 +65,7 @@
+ NSTMP = stamp-modobjs
+ NLIST = `cat stamp-modobjs`
+ 
+-LIBZSH = libzsh-$(VERSION).$(DL_EXT)
++LIBZSH = msys-zsh-$(VERSION).$(DL_EXT)
+ NIBZSH =
+ INSTLIB = @INSTLIB@
+ UNINSTLIB = @UNINSTLIB@
+diff -Naur zsh-5.0.7-orig/Src/mkmakemod.sh zsh-5.0.7/Src/mkmakemod.sh
+--- zsh-5.0.7-orig/Src/mkmakemod.sh	2014-07-31 21:41:49.000000000 +0300
++++ zsh-5.0.7/Src/mkmakemod.sh	2014-11-04 18:46:59.042000000 +0300
+@@ -222,7 +222,7 @@
+ 		    export="${depbase}.export"
+ 		    case "$dep" in
+ 			zsh/main )
+-			    mdll="\$(dir_top)/Src/libzsh-\$(VERSION).\$(DL_EXT) "
++			    mdll="\$(dir_top)/Src/msys-zsh-\$(VERSION).\$(DL_EXT) "
+ 			;;
+ 			* )
+ 			    mdll="${depbase}.\$(DL_EXT) "
+@@ -242,7 +242,7 @@
+ 		    esac
+ 		    case "$dep" in
+ 			zsh/main )
+-			    mdll="\$(dir_top)/Src/libzsh-\$(VERSION).\$(DL_EXT) "
++			    mdll="\$(dir_top)/Src/msys-zsh-\$(VERSION).\$(DL_EXT) "
+ 			;;
+ 			* )
+ 			    mdll="\$(dir_top)/$loc/${depbase}.\$(DL_EXT) "
+@@ -266,7 +266,7 @@
+ 		    esac
+ 		    case "$dep" in
+ 			zsh/main )
+-			    mdll="\$(dir_top)/Src/libzsh-\$(VERSION).\$(DL_EXT) "
++			    mdll="\$(dir_top)/Src/msys-zsh-\$(VERSION).\$(DL_EXT) "
+ 			;;
+ 			* )
+ 			    mdll="\$(dir_top)/$loc/${depbase}.\$(DL_EXT) "

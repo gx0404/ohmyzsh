@@ -1,0 +1,324 @@
+name: gx-release
+run-name: "${{ inputs.publish && 'Release' || 'Build only' }} · ${{ inputs.version || 'CHANGELOG version' }} · ${{ inputs.ref }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 构建分支、标签或提交；发布仅允许默认分支本次 workflow 的同一 SHA
+        required: true
+        default: master
+        type: string
+      version:
+        description: 留空读取 CHANGELOG，手填 X.Y.Z 必须与其一致
+        required: false
+        type: string
+      publish:
+        description: 全部安装、中文配置与 PTY 验收通过后才公开 Release
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gx-release
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    if: github.repository == 'gx0404/ohmyzsh' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      sha: ${{ steps.prepare.outputs.sha }}
+      version: ${{ steps.prepare.outputs.version }}
+      rust: ${{ steps.prepare.outputs.rust }}
+      herdr_sha: ${{ steps.prepare.outputs.herdr_sha }}
+    steps:
+      - name: Checkout trusted workflow controller
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: controller
+          persist-credentials: false
+      - name: Checkout requested source as data
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ inputs.ref }}
+          path: source
+          persist-credentials: false
+      - name: Resolve immutable source and CHANGELOG version without API writes
+        id: prepare
+        env:
+          GX_VERSION: ${{ inputs.version }}
+          GX_PUBLISH: ${{ inputs.publish }}
+          GX_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          args=()
+          if [ "$GX_PUBLISH" = true ]; then args+=(--publish); fi
+          python3 -I controller/scripts/gx_release.py prepare --repo source --ref HEAD --version "$GX_VERSION" "${args[@]}"
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-x64
+            os: windows-2025
+            target: x86_64-pc-windows-msvc
+          - platform: ubuntu-amd64
+            os: ubuntu-24.04
+            target: x86_64-unknown-linux-musl
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash
+    env:
+      GX_PLATFORM: ${{ matrix.platform }}
+      GX_SHA: ${{ needs.prepare.outputs.sha }}
+      GX_VERSION: ${{ needs.prepare.outputs.version }}
+      PYTHONDONTWRITEBYTECODE: '1'
+      TZ: UTC
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.14.7'
+      - name: Check contracts, redistribution and lifecycle prerequisites
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_gx_*.py'
+          python scripts/gx_dependencies.py audit --platform "$GX_PLATFORM"
+          python scripts/gx_lifecycle.py --help
+      - uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8
+        with:
+          toolchain: ${{ needs.prepare.outputs.rust }}
+          targets: ${{ matrix.target }}
+      - name: Install Linux native build tools on disposable runner
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y musl-tools cmake ninja-build zstd
+      - name: Install checksum-pinned Inno Setup on disposable runner
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Join-Path $env:RUNNER_TEMP 'innosetup-7.1.0-x64.exe'
+          $destination = Join-Path $env:RUNNER_TEMP 'gx-inno'
+          Invoke-WebRequest 'https://github.com/jrsoftware/issrc/releases/download/is-7_1_0/innosetup-7.1.0-x64.exe' -OutFile $installer
+          if ((Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash -ne '0362a383ed217d4c4239b5933866dd96d3eb2102737da92f80f6057a4b40df2f') { throw 'Inno Setup checksum mismatch' }
+          $installed = Start-Process -FilePath $installer -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART', '/CURRENTUSER', "/DIR=`"$destination`"" -Wait -PassThru
+          if ($installed.ExitCode -ne 0) { throw "Inno Setup failed: $($installed.ExitCode)" }
+          "GX_ISCC=$(Join-Path $destination 'ISCC.exe')" >> $env:GITHUB_ENV
+      - name: Build the fixed herdr source with locked Cargo, Zig and original ConPTY verifier
+        run: |
+          set -euo pipefail
+          python scripts/gx_build_herdr.py --platform "$GX_PLATFORM" --work "$RUNNER_TEMP/gx-herdr-work" --cache "$RUNNER_TEMP/gx-cache" --output "$RUNNER_TEMP/gx-herdr"
+          python -I scripts/gx_release.py verify-herdr --platform "$GX_PLATFORM" --herdr-build "$RUNNER_TEMP/gx-herdr"
+      - name: Build source-pinned patched Zsh with private MSYS or verified Focal SDK
+        run: |
+          set -euo pipefail
+          python scripts/gx_build_zsh.py fetch --platform "$GX_PLATFORM" --cache "$RUNNER_TEMP/gx-cache"
+          args=()
+          if [ "$GX_PLATFORM" = ubuntu-amd64 ]; then
+            test -f /usr/share/keyrings/ubuntu-archive-keyring.gpg
+            args+=(--keyring /usr/share/keyrings/ubuntu-archive-keyring.gpg)
+          fi
+          python scripts/gx_build_zsh.py build --platform "$GX_PLATFORM" --cache "$RUNNER_TEMP/gx-cache" --work "$RUNNER_TEMP/gx-zsh-work" --output "$RUNNER_TEMP/gx-zsh" --jobs 2 "${args[@]}"
+          python scripts/gx_build_zsh.py verify --platform "$GX_PLATFORM" --build "$RUNNER_TEMP/gx-zsh"
+      - name: Fetch, verify and assemble locked offline dependencies
+        run: |
+          set -euo pipefail
+          python scripts/gx_dependencies.py fetch --platform "$GX_PLATFORM" --cache "$RUNNER_TEMP/gx-cache"
+          python scripts/gx_dependencies.py verify --platform "$GX_PLATFORM" --cache "$RUNNER_TEMP/gx-cache"
+          python scripts/gx_dependencies.py assemble --platform "$GX_PLATFORM" --cache "$RUNNER_TEMP/gx-cache" --herdr-build "$RUNNER_TEMP/gx-herdr" --zsh-build "$RUNNER_TEMP/gx-zsh" --output "$RUNNER_TEMP/gx-dependencies"
+      - name: Stage the exact clean commit, create native installer and independently audit runtime bytes
+        run: |
+          set -euo pipefail
+          python scripts/gx_package.py stage --ref "$GX_SHA" --version "$GX_VERSION" --platform "$GX_PLATFORM" --dependencies "$RUNNER_TEMP/gx-dependencies" --output "$RUNNER_TEMP/gx-stage"
+          args=()
+          if [ "$GX_PLATFORM" = windows-x64 ]; then args+=(--iscc "$GX_ISCC"); fi
+          python scripts/gx_package.py build --stage "$RUNNER_TEMP/gx-stage" --output "$RUNNER_TEMP/gx-artifacts" "${args[@]}"
+          python -I scripts/gx_release.py runtime-proof --sha "$GX_SHA" --version "$GX_VERSION" --platform "$GX_PLATFORM" --stage "$RUNNER_TEMP/gx-stage" --artifacts "$RUNNER_TEMP/gx-artifacts"
+          python -I scripts/gx_release.py verify-package --sha "$GX_SHA" --version "$GX_VERSION" --platform "$GX_PLATFORM" --artifacts "$RUNNER_TEMP/gx-artifacts"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gx-package-${{ matrix.platform }}
+          path: ${{ runner.temp }}/gx-artifacts/*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+
+  windows-lifecycle:
+    needs: [prepare, build]
+    runs-on: windows-2025
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c
+        with:
+          python-version: '3.14.7'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: gx-package-windows-x64
+          path: ${{ runner.temp }}/gx-artifacts
+      - name: Exercise the actual installer with Chinese HOME and independent config/cache
+        shell: pwsh
+        env:
+          GX_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Join-Path $env:RUNNER_TEMP "gx-artifacts/ohmyzsh-gx_$($env:GX_VERSION)_x86_64.manifest.json"
+          python scripts/gx_lifecycle.py --manifest $manifest --evidence "$env:RUNNER_TEMP/gx-lifecycle"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gx-evidence-windows-clean
+          path: |
+            ${{ runner.temp }}/gx-lifecycle/*.validation.json
+            ${{ runner.temp }}/gx-lifecycle/*.evidence.tar.xz
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Preserve lifecycle diagnostics without treating pending checks as approval
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: diagnostics-windows-clean
+          path: |
+            ${{ runner.temp }}/gx-lifecycle/*.validation.json
+            ${{ runner.temp }}/gx-lifecycle/*.evidence.tar.xz
+            ${{ runner.temp }}/gx-lifecycle/logs/
+            ${{ runner.temp }}/gx-lifecycle/results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  linux-lifecycle:
+    needs: [prepare, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - environment: ubuntu-20.04
+            image: ubuntu@sha256:c664f8f86ed5a386b0a340d981b8f81714e21a8b9c73f658c4bea56aa179d54a
+          - environment: ubuntu-24.04
+            image: ubuntu@sha256:496754492fb28b4d3049432f2ca787449331e23fb14f0dd3fffea86bf5a93eb4
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: gx-package-ubuntu-amd64
+          path: ${{ runner.temp }}/gx-artifacts
+      - name: Exercise the actual DEB inside the clean Ubuntu container
+        env:
+          GX_IMAGE: ${{ matrix.image }}
+          GX_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/gx-evidence"
+          docker run --rm --platform linux/amd64 --network bridge \
+            --volume "$PWD:/workspace:ro" --volume "$RUNNER_TEMP/gx-artifacts:/artifacts:ro" \
+            --volume "$RUNNER_TEMP/gx-evidence:/evidence" --workdir /workspace \
+            --env GITHUB_ACTIONS=true --env RUNNER_ENVIRONMENT=github-hosted \
+            --env GITHUB_REPOSITORY=gx0404/ohmyzsh --env GX_VERSION \
+            "$GX_IMAGE" bash -euc '
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update
+              apt-get install -y python3 ca-certificates curl build-essential xz-utils libssl-dev zlib1g-dev libbz2-dev liblzma-dev libffi-dev libreadline-dev libsqlite3-dev
+              curl --fail --location --proto "=https" --proto-redir "=https" https://www.python.org/ftp/python/3.14.7/Python-3.14.7.tar.xz --output /tmp/Python.tar.xz
+              python3 -c "import hashlib; from pathlib import Path; assert hashlib.sha256(Path(\"/tmp/Python.tar.xz\").read_bytes()).hexdigest() == \"3b48dac8fb59f62eaa67ac83c1eb12bda1b7a08406dd286e252c11a66be27f81\", \"CPython source checksum mismatch\""
+              tar -xJf /tmp/Python.tar.xz -C /tmp
+              (cd /tmp/Python-3.14.7 && ./configure --prefix=/opt/gx-python --with-ensurepip=no && make -j2 && make install)
+              useradd --create-home gx-smoke
+              /opt/gx-python/bin/python3.14 scripts/gx_lifecycle.py --manifest "/artifacts/ohmyzsh-gx_${GX_VERSION}_amd64.manifest.json" --evidence /evidence/run --run-as-user gx-smoke
+            '
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: gx-evidence-${{ matrix.environment }}
+          path: |
+            ${{ runner.temp }}/gx-evidence/run/*.validation.json
+            ${{ runner.temp }}/gx-evidence/run/*.evidence.tar.xz
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 14
+      - name: Preserve failed or pending native diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: diagnostics-${{ matrix.environment }}
+          path: |
+            ${{ runner.temp }}/gx-evidence/run/*.validation.json
+            ${{ runner.temp }}/gx-evidence/run/*.evidence.tar.xz
+            ${{ runner.temp }}/gx-evidence/run/logs/
+            ${{ runner.temp }}/gx-evidence/run/results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  verify:
+    needs: [prepare, build, windows-lifecycle, linux-lifecycle]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: controller
+          persist-credentials: false
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ needs.prepare.outputs.sha }}
+          path: source
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: gx-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/gx-artifacts
+      - name: Verify complete release even in build-only mode
+        env:
+          GX_SHA: ${{ needs.prepare.outputs.sha }}
+          GX_VERSION: ${{ needs.prepare.outputs.version }}
+        run: python3 -I controller/scripts/gx_release.py verify --repo source --sha "$GX_SHA" --version "$GX_VERSION" --artifacts "$RUNNER_TEMP/gx-artifacts"
+
+  publish:
+    needs: [prepare, verify]
+    if: inputs.publish && github.repository == 'gx0404/ohmyzsh' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && needs.prepare.outputs.sha == github.workflow_sha
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.workflow_sha }}
+          path: controller
+          persist-credentials: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          pattern: gx-*
+          merge-multiple: true
+          path: ${{ runner.temp }}/gx-artifacts
+      - name: Revalidate all assets, resume only identical draft, then publish atomically
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GX_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GX_SHA: ${{ needs.prepare.outputs.sha }}
+          GX_VERSION: ${{ needs.prepare.outputs.version }}
+        run: python3 -I controller/scripts/gx_release.py publish --repo controller --sha "$GX_SHA" --version "$GX_VERSION" --artifacts "$RUNNER_TEMP/gx-artifacts"

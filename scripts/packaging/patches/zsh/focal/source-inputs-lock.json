@@ -1,0 +1,51 @@
+{
+  "metadata": [
+    {
+      "file": "focal-InRelease",
+      "url": "https://archive.ubuntu.com/ubuntu/dists/focal/InRelease",
+      "sha256": "cc9be89a0984aeca9e3ca40ae0e6decff75aa32653a5925b04956a7c12487e99"
+    },
+    {
+      "file": "focal-main-Packages.xz",
+      "url": "https://archive.ubuntu.com/ubuntu/dists/focal/main/binary-amd64/Packages.xz",
+      "sha256": "7757921ff8feed9c3934a0c9936d441ba4a238bee3ea6c8c1df5cbcd43fc9861"
+    },
+    {
+      "file": "focal-universe-Packages.xz",
+      "url": "https://archive.ubuntu.com/ubuntu/dists/focal/universe/binary-amd64/Packages.xz",
+      "sha256": "46a746dac789bd9537aca54db1680b9dff51c248153111350382199d7d96b9d1"
+    },
+    {
+      "file": "noble-InRelease",
+      "url": "https://archive.ubuntu.com/ubuntu/dists/noble/InRelease",
+      "sha256": "cdb2f31d809f589719a53c6ad15f255b27569c4059542ada282aaa21b8e164b0"
+    },
+    {
+      "file": "noble-main-Packages.xz",
+      "url": "https://archive.ubuntu.com/ubuntu/dists/noble/main/binary-amd64/Packages.xz",
+      "sha256": "2a6a199e1031a5c279cb346646d594993f35b1c03dd4a82aaa0323980dd92451"
+    },
+    {
+      "file": "noble-universe-Packages.xz",
+      "url": "https://archive.ubuntu.com/ubuntu/dists/noble/universe/binary-amd64/Packages.xz",
+      "sha256": "ba9057fa1b91438cc8a1d26808d00c85389fe101d0c1496254df97236405599a"
+    },
+    {
+      "file": "ubuntu-base-SHA256SUMS",
+      "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/20.04/release/SHA256SUMS",
+      "sha256": "0b5eb6463c5b3b83929e64785f19a656ead2a6db0d0e4edffea721f4c6d8dea4"
+    },
+    {
+      "file": "ubuntu-base-SHA256SUMS.gpg",
+      "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/20.04/release/SHA256SUMS.gpg",
+      "sha256": "80a44ced86fddad7dc62bbfe74ceeef22d3a4a3c229f2922fbeac845d957c9fa"
+    }
+  ],
+  "rootfs": {
+    "file": "ubuntu-base-20.04.5-base-amd64.tar.gz",
+    "url": "https://cdimage.ubuntu.com/ubuntu-base/releases/20.04/release/ubuntu-base-20.04.5-base-amd64.tar.gz",
+    "sha256": "60e216b60947653dc8989be3821380268315b99b2959c29882781541bfe5a426"
+  },
+  "verification_trust": "gpgv with official Ubuntu archive keyring; InRelease -> Packages.xz -> exact package filename, version and SHA256; Ubuntu CD image signature -> rootfs SHA256",
+  "runtime_glibc": "Focal GCC 9.3.0 and GLIBC 2.31-0ubuntu9 inside isolated PRoot userland; Noble PRoot and libtalloc execute only on host and are not copied into Focal rootfs or shipped payload"
+}

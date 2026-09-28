@@ -1,0 +1,44 @@
+# Contributer: Reza Tavakoli <rta.0070@gmail.com>
+
+pkgbase=libcbor
+pkgname=("${pkgbase}" "${pkgbase}-devel")
+pkgver=0.14.0
+pkgrel=2
+pkgdesc="A C library for parsing and generating CBOR, a general-purpose schema-less binary data format"
+arch=('i686' 'x86_64')
+url="https://github.com/PJK/libcbor"
+msys2_repository_url='https://github.com/PJK/libcbor'
+license=('spdx:MIT')
+makedepends=("cmake" "ninja" "gcc")
+source=(https://github.com/PJK/libcbor/archive/v${pkgver}/${pkgname}-${pkgver}.tar.gz)
+sha256sums=('a8c1516e741562cf95aa4479c64916c3d4d2623e24fdc35e414e2320e7300aae')
+
+build() {
+  cmake \
+    -GNinja \
+    -Bbuild \
+    -S "${pkgname}-${pkgver}" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCBOR_CUSTOM_ALLOC=ON \
+    -DWITH_EXAMPLES=OFF \
+    -DBUILD_SHARED_LIBS=ON \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+  cmake --build build
+  DESTDIR="${srcdir}/dest" cmake --install build
+}
+
+package_libcbor() {
+  groups=("libraries")
+  mkdir -p ${pkgdir}/usr/bin
+  cp -f ${srcdir}/dest/usr/bin/*.dll ${pkgdir}/usr/bin/
+}
+
+package_libcbor-devel() {
+  pkgdesc="Development headers and library for libcbor"
+  depends=("$pkgbase=$pkgver")
+  groups=("development")
+  mkdir -p ${pkgdir}/usr/lib
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/lib ${pkgdir}/usr
+}

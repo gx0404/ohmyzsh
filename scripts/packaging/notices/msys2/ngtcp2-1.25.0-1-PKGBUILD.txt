@@ -1,0 +1,77 @@
+# Contributor: Christoph Reiter <reiter.christoph@gmail.com>
+
+pkgbase=ngtcp2
+pkgname=("libngtcp2" "libngtcp2-devel")
+pkgver=1.25.0
+pkgrel=1
+pkgdesc="An effort to implement IETF QUIC protocol"
+arch=(i686 x86_64)
+url='https://nghttp2.org/ngtcp2'
+msys2_repository_url='https://github.com/ngtcp2/ngtcp2'
+license=('spdx:MIT')
+makedepends=(
+  "gcc"
+  "cmake"
+  "ninja"
+  "openssl-devel"
+)
+source=("https://github.com/ngtcp2/ngtcp2/releases/download/v${pkgver}/ngtcp2-${pkgver}.tar.xz"{,.asc})
+sha256sums=('2a34d2484ba17847a5d11965704e9dd0fac4c6d8efc75ffe1ec7de66d8c6b6fb'
+            'SKIP')
+validpgpkeys=(
+  'F4F3B91474D1EB29889BD0EF7E8403D5D673C366' # Tatsuhiro Tsujikawa <tatsuhiro.t@gmail.com>
+)
+
+build() {
+  mkdir -p "${srcdir}/build-${CARCH}" && cd "${srcdir}/build-${CARCH}"
+
+  declare -a extra_config
+  if check_option "debug" "n"; then
+    extra_config+=("-DCMAKE_BUILD_TYPE=Release")
+  else
+    extra_config+=("-DCMAKE_BUILD_TYPE=Debug")
+  fi
+
+  cmake \
+    -GNinja \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    "${extra_config[@]}" \
+    -DENABLE_LIB_ONLY=ON \
+    -DENABLE_OPENSSL=ON \
+    -DBUILD_SHARED_LIBS=ON \
+    "../${pkgbase}-${pkgver}"
+
+  cmake --build .
+}
+
+package_libngtcp2() {
+  pkgdesc+=" - runtime libraries"
+  depends=(
+    "gcc-libs"
+    "libopenssl"
+  )
+
+  cd "${srcdir}/build-${CARCH}"
+
+  DESTDIR="${pkgdir}" cmake --install .
+
+  # Remove on the next update
+  cp "${pkgdir}/usr/bin/msys-ngtcp2_crypto_ossl-0.dll" "${pkgdir}/usr/bin/msys-ngtcp2_crypto_ossl.dll"
+
+  rm -rf "${pkgdir}/usr/include"
+  rm -rf "${pkgdir}/usr/lib"
+  rm -rf "${pkgdir}/usr/share"
+
+  install -Dm644 "${srcdir}/${pkgbase}-${pkgver}/COPYING" "${pkgdir}/usr/share/licenses/${pkgname}/COPYING"
+}
+
+package_libngtcp2-devel() {
+  pkgdesc+=" - development files"
+  depends=("libngtcp2" "openssl-devel")
+
+  cd "${srcdir}/build-${CARCH}"
+
+  DESTDIR="${pkgdir}" cmake --install .
+
+  rm -rf "${pkgdir}"/usr/bin
+}

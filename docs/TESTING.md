@@ -13,6 +13,12 @@
 | gx 模块单元 | `python3 tests/gx_terminal.py`（TerminalIntegration，make test 的 gx-terminal 步） | `zsh -f -i` + PTY 只加载 terminal.zsh：守卫（含 fd 重定向）、编码/缓存、上游钩子替换 |
 | gx 真实链路 | 同上（DeployedZshrc / DeployedInteractive） | install.sh 落地 mktemp HOME 后走真实 .zshenv/.zshrc（不加 -f）：fzf 版本分支、skip_global_compinit；真 PTY 起 `zsh -i` 覆盖 p10k instant prompt 形态下的 precmd 链、一次 cd 一条 `file:///` OSC 7、HERDR_ENV/TERM_PROGRAM 守卫、autosuggestions 首个提示符后不再重绑且后定义 widget 已包裹、灰色建议可见、4401 字符粘贴行每击键中位 <5 ms（高亮/建议长度上限生效）、越界后高亮停在旧帧不再重新解析（去掉 `ZSH_HIGHLIGHT_MAXLENGTH` 则会重新解析的对照）。缺 zsh/sh/PTY 或 instant prompt 缓存未生成即失败，不 skip |
 | gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、符号链接 custom 原样保留、只清无后缀与异主机/版本 compdump（含残留 `.lock` 目录）而当前一族保留且下次启动不重建、快照指纹变化时连当前 dump 一起清、无中转残留）/备份恢复/`.pre-gx-*` 按 `GX_KEEP_BACKUPS` 留「第一代 + 最新 N 份」、uninstall 后留「第一代 + N-1 份」、`all` 不回收、非法份数拒绝/自定义 ZSH 路径/`--home` 忽略环境 ZSH、环境 ZSH 越界 unattended 拒绝/上级不可写时中止且旧树不变。TMPDIR 与 fontconfig 缓存都落在沙箱 |
+| GX 包 profile | `python3 tests/gx_package_profile.py` | 只读资源与独立 profile、中文配置/缓存、herdr 补全、fzf 新旧入口及真 PTY；当前中文运行时问题必须修复，不能跳过红项 |
+| 打包与发布单元 | `python3 -m unittest discover -s tests -p 'test_gx_*.py'` | 来源/归档/摘要/权限与发布 API 契约；synthetic fixture 不代表真实安装成功 |
+| 原生启动器 | `python3 tests/gx_launcher.py` 或 `make typecheck` | 用实际 rustc 编译两个入口和 Rust 单元，执行隔离初始化/自更新拒绝测试；缺编译器即失败 |
+| 包模块聚合 | `make package-test` | Python 包单元 + 原生启动器；不安装包，不替代生命周期验收 |
+| herdr 基础 PTY | `scripts/gx_probe_herdr.py --herdr … --zsh … --output …`，Windows 另传 `--msys-root` | 唯一隔离 session 的真实 Zsh 窗格、中文输出、Ctrl+C、app-local ConPTY；不是 TUI attach/detach 或安装器测试 |
+| 原生包生命周期 | 手动 `gx-release` 的可丢弃环境验收 | 必须对真实 EXE/DEB 验证安装/升级/卸载、PATH 所有权、中文 HOME/profile、P10k/补全缓存和 TUI；全部完成前保持 PENDING |
 | 生成物 | `make generated-check`（kb-check） | docs/kb/chunks.json 与语料一致 |
 
 上游 CI（.github/workflows/main.yml）只有 zsh -n 且被
@@ -48,6 +54,11 @@
     跑测试须像 `gx_terminal.py::REMOTE_ENV` 那样剥离。
   - 任何调用 `gx/install.sh` 的测试都传 `--home <mktemp>`（安装器据此忽略继承的
     `ZSH`）并把 `TMPDIR` 指进沙箱；模拟「环境 ZSH 指向别处」只能用沙箱内假树。
+  - `capture_output=True` 不会移除控制终端；测试无 TTY 场景应使用
+    `start_new_session=True`。不能因 stdout 是管道就断言 `$TTY` 为空。
+  - WSL 的 DrvFS 目录可能固定显示 0777；compaudit 拒绝时将测试快照放入原生 Linux
+    临时目录，不能关闭 compfix。Windows CRLF 工作树不能直接作为 Linux 发布资源，
+    正式包从 Git blob 提取 LF；只在测试快照规范行尾，不批量重写上游文件。
 
 ## 证据与截图流程
 

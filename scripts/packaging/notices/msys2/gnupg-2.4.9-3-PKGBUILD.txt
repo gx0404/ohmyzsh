@@ -1,0 +1,214 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=gnupg
+pkgver=2.4.9
+pkgrel=3
+pkgdesc='Complete and free implementation of the OpenPGP standard'
+provides=('dirmngr' "gnupg2=${pkgver}")
+url='https://gnupg.org/'
+license=('spdx:GPL-3.0-or-later')
+arch=('i686' 'x86_64')
+msys2_changelog_url='https://git.gnupg.org/cgi-bin/gitweb.cgi?p=gnupg.git;a=blob;f=NEWS;hb=HEAD'
+msys2_documentation_url='https://www.gnupg.org/documentation'
+msys2_repository_url='https://git.gnupg.org/cgi-bin/gitweb.cgi?p=gnupg.git'
+msys2_issue_tracker_url='https://dev.gnupg.org/maniphest'
+msys2_pgp_keys_url='https://gnupg.org/signature_key.html'
+msys2_references=(
+  'cygwin: gnupg2'
+  'cpe: cpe:/a:gnupg:gnupg'
+)
+makedepends=('gettext-devel'
+             'libassuan-devel'
+             'libbz2-devel'
+             'libcurl-devel'
+             'libgcrypt-devel'
+             'libgnutls-devel'
+             'libgpg-error-devel'
+             'libiconv-devel'
+             'libksba-devel'
+             'libnettle-devel'
+             'libnpth-devel'
+             'libp11-kit-devel'
+             'libreadline-devel'
+             'libsqlite-devel'
+             'libtasn1-devel'
+             'libunistring-devel'
+             'gcc'
+             'nettle'
+             'tar'
+             'texinfo'
+             'autotools'
+             'zlib-devel')
+optdepends=('curl: gpg2keys_curl')
+depends=('bzip2'
+         'libassuan'
+         'libbz2'
+         'libcurl'
+         'libgcrypt'
+         'libgpg-error'
+         'libgnutls'
+         'libiconv'
+         'libintl'
+         'libksba'
+         'libnpth'
+         'libreadline'
+         'libsqlite'
+         'nettle'
+         'pinentry'
+         'zlib'
+        )
+source=("https://gnupg.org/ftp/gcrypt/${pkgname}/${pkgname}-${pkgver}.tar.bz2"{,.sig}
+        '0001-gnupg-2.2.8-msys2.patch'
+        gnupg-2.4-avoid_beta_warning.patch
+        # patches maintained by freepg project: https://gitlab.com/freepg/gnupg/-/commits/gnupg-2.4.9-freepg-1
+        0002-gpg-accept-subkeys-with-a-good-revocation-but-no-sel.patch
+        0003-gpg-allow-import-of-previously-known-keys-even-witho.patch
+        0004-tests-add-test-cases-for-import-without-uid.patch
+        0005-gpg-drop-import-clean-from-default-keyserver-import-.patch
+        0008-avoid-systemd-deprecation-warning.patch
+        0009-Add-systemd-support-for-keyboxd.patch
+        0010-Ship-sample-systemd-unit-files.patch
+        0011-el-gamal-default-to-3072-bits.patch
+        0012-gpg-default-digest-algorithm-SHA512.patch
+        0013-gpg-Prefer-SHA-512-and-SHA-384-in-personal-digest.patch
+        0018-Avoid-simple-memory-dumps-via-ptrace.patch
+        0019-Disallow-compressed-signatures-and-certificates.patch
+        0020-ssh-agent-emulation-under-systemd-inject-SSH_AUTH_SO.patch
+        0021-gpg-Sync-compliance-mode-cleanup-with-master.patch
+        0022-gpg-emit-RSA-pubkey-algorithm-when-in-compatibility-.patch
+        0023-gpg-Reintroduce-openpgp-as-distinct-from-rfc4880.patch
+        0024-gpg-Emit-LibrePGP-material-only-in-compliance-gnupg.patch
+        0025-gpg-gpgconf-list-report-actual-compliance-mode.patch
+        0026-gpg-Default-to-compliance-openpgp.patch
+        0027-gpg-Fix-newlines-in-Cleartext-Signature-Framework-CS.patch
+        0029-Add-keyboxd-systemd-support.patch
+        0033-Support-large-RSA-keygen-in-non-batch-mode.patch
+        0034-gpg-Verify-Text-mode-Signatures-over-binary-Literal-.patch
+        0039-gpg-Do-not-use-a-default-when-asking-for-another-out.patch
+        0040-Add-missing-test-files-to-EXTRA_DIST.patch
+        0045-gpg-Fix-edge-case-in-refresh-keys.patch
+        0046-gpgsm-Require-a-minimum-tag-length-for-GCM-decryptio.patch
+        0047-gpg-Fix-handling-with-no-CRC-armor.patch
+        0048-gpg-Fix-armored-input-parsing.patch
+        0049-gpg-Fix-armor-parsing-when-no-CRC-is-found.patch
+        0050-tpm-Fix-possible-buffer-overflow-in-PKDECRYPT.patch
+        0051-agent-Fix-the-regression-in-pkdecrypt-with-TPM-RSA.patch
+        0052-dirmngr-Fix-a-call-of-calloc.patch)
+sha256sums=('dd17ab2e9a04fd79d39d853f599cbc852062ddb9ab52a4ddeb4176fd8b302964'
+            'SKIP'
+            '902563c91c72ed9222343de3482f4ca7b141775235625af5ad790f3d86419370'
+            '243c3a79295519b3931f9d846cf2af5caa064a78de812ee336dc786c1567b4d0'
+            '11bffd50bc5a8e4b0159ed77170820d96414d16b48a0817b741748a9fcc5671d'
+            'f0d0c15f23cf6b5ab2ca85087c84dfc850da9870b8bf896517ff1fc339225ef5'
+            '2e8b46d21c275bc8d594389ed5bbabdc36701bca40174168e22f45101f32ab0a'
+            '552e7ef5ad3dc6083d7c5ebfc4295cdbffbc5608319618a97e9bd39b4a018f4f'
+            '5ae8139da2312c6debf0448a4391e8122597341e59abe51aafbe377e6081b02b'
+            '7c1b902aad2c62d12c341acb96d8b6821204d1b21e387153aad3476a50763b78'
+            'ea3f2305f220cc007ef72022741c9ff0c15c7224fdd27c297388f76c9b306ee9'
+            '7bad1c49374db7d1a1984190750282f50d1bf4e735b62280ee6701c66108c05f'
+            'd0046eb7ef9588647e3a0d9a2e27692b6758f6268c0162c5a5ccf539b3bdc580'
+            'e4a1e91f75c818aba3adb48bb033e99d041062f39db84984fde08b05b86a530d'
+            '46650b1ffd4b8e024243a340ec5528c87dd3bd1a7b7428533cd16177f4d59b83'
+            'a4e8ececc0ff01c849b63f90a895dfc3ff6163be1243ac97d2c268604f5d059e'
+            '499e55abf76e0b114f9101ce5caf5ca38f002e760d8b626fce7c0d48b7a9f492'
+            'a3d15348447890e7229b305cdb458e338e37410f22dc61fdb856f9fb0eb9d48c'
+            '94011708853950bc9fb7cfac69a96c2a5059c76cc7e307aacf09e739f42463e5'
+            '6ed33a5be4484e38e75ee4bfebca6104363f3d660adaadb7e43171a1e4e32934'
+            '4bad8dcbda2b9c9815415afa3790cb0f58170ec883b17fa7c3174f7618f70471'
+            'f2be2f3b583fddc895d46b4c5b0b89d866bf872cbcf4a4dbc3bfb1980df37df6'
+            '3591f631bd04688edcdb1a45d2c088d28517445175882ead04f309c29e0b7f37'
+            'ae852fe4143d3573b971c1f5756dacc9050d8c49eb9dc87faf2d3a56b9b18f35'
+            '9f2bf33c46e0c267a7d92e5e58c2f5d384448eaa7a146ef89acafa7e25140804'
+            '5ac347383e2ba17d19d2f5da28d84d73ef5a69bd493917562af348c2c0eace59'
+            '9c71219a34c47bcecdd3e4779b1ab0a88571266fe45fe9a7dfd4f5d000928f50'
+            '0ae3aaba2a3cd337d4b7ed0275af4cd5908194f7a6701bb0f0b19c6c3a14861c'
+            '9ed3f7b25eed96aa6884636e1307db23dee8b5d6b5868ea2bb8da0f9674b27aa'
+            '3b6e2d8e7b4001a0faeb533ab9e9de5b61a5ed6fef47776ed1cc982b891525bb'
+            'c9914770084ab4f9d9d2490466ffdd4131fc598385a568da97d558a8a250c8f9'
+            'e0e3b727f8927cd94cd21d3ae69fcc6c71994b8fb91a03115412178023f4a912'
+            '79f0ff84c6858187143c9e8a97cb6344c54b3ff32c377aa0aa465e2517d1d215'
+            '5b6c9a53550722fe3f742b53d258e7d6e76ddb7b038c861f2515ff50b47bb0cb'
+            'a4dee79f8301704b5c49f90fad00138e61067e29736cf14fb484c59b46e8708d'
+            'e205c14c3742c3d9a73b133275f4e3a2db09c3f51f7e453ece93b8eb09c3c5fd'
+            '0e18a69514503fae902407cb33e1d76563f3d5fac0fb4acae09e7976e6eb61dc')
+validpgpkeys=(
+  '5B80C5754298F0CB55D8ED6ABCEF7E294B092E28' # Andre Heinecke (Release Signing Key)
+  '6DAA6E64A76D2840571B4902528897B826403ADA' # Werner Koch (dist signing 2020)
+  'AC8E115BF73E2D8D47FA9908E98E9B2D19C6C8BD' # Niibe Yutaka (GnuPG Release Key)
+  '02F38DFF731FF97CB039A1DA549E695E905BA208' # GnuPG.com (Release Signing Key 2021)
+)
+install=${pkgname}.install
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  # MSYS2 patches
+  patch -p1 -i ${srcdir}/0001-gnupg-2.2.8-msys2.patch
+
+  # Arch Linux patches
+  patch -p1 -i ${srcdir}/gnupg-2.4-avoid_beta_warning.patch
+
+  # freepg patches
+  patch -p1 -i ${srcdir}/0002-gpg-accept-subkeys-with-a-good-revocation-but-no-sel.patch
+  patch -p1 -i ${srcdir}/0003-gpg-allow-import-of-previously-known-keys-even-witho.patch
+  patch -p1 -i ${srcdir}/0004-tests-add-test-cases-for-import-without-uid.patch
+  patch -p1 -i ${srcdir}/0005-gpg-drop-import-clean-from-default-keyserver-import-.patch
+  patch -p1 -i ${srcdir}/0008-avoid-systemd-deprecation-warning.patch
+  patch -p1 -i ${srcdir}/0009-Add-systemd-support-for-keyboxd.patch
+  patch -p1 -i ${srcdir}/0010-Ship-sample-systemd-unit-files.patch
+  patch -p1 -i ${srcdir}/0011-el-gamal-default-to-3072-bits.patch
+  patch -p1 -i ${srcdir}/0012-gpg-default-digest-algorithm-SHA512.patch
+  patch -p1 -i ${srcdir}/0013-gpg-Prefer-SHA-512-and-SHA-384-in-personal-digest.patch
+  patch -p1 -i ${srcdir}/0018-Avoid-simple-memory-dumps-via-ptrace.patch
+  patch -p1 -i ${srcdir}/0019-Disallow-compressed-signatures-and-certificates.patch
+  patch -p1 -i ${srcdir}/0020-ssh-agent-emulation-under-systemd-inject-SSH_AUTH_SO.patch
+  patch -p1 -i ${srcdir}/0021-gpg-Sync-compliance-mode-cleanup-with-master.patch
+  patch -p1 -i ${srcdir}/0022-gpg-emit-RSA-pubkey-algorithm-when-in-compatibility-.patch
+  patch -p1 -i ${srcdir}/0023-gpg-Reintroduce-openpgp-as-distinct-from-rfc4880.patch
+  patch -p1 -i ${srcdir}/0024-gpg-Emit-LibrePGP-material-only-in-compliance-gnupg.patch
+  patch -p1 -i ${srcdir}/0025-gpg-gpgconf-list-report-actual-compliance-mode.patch
+  patch -p1 -i ${srcdir}/0026-gpg-Default-to-compliance-openpgp.patch
+  patch -p1 -i ${srcdir}/0027-gpg-Fix-newlines-in-Cleartext-Signature-Framework-CS.patch
+  patch -p1 -i ${srcdir}/0029-Add-keyboxd-systemd-support.patch
+  patch -p1 -i ${srcdir}/0033-Support-large-RSA-keygen-in-non-batch-mode.patch
+  patch -p1 -i ${srcdir}/0034-gpg-Verify-Text-mode-Signatures-over-binary-Literal-.patch
+  patch -p1 -i ${srcdir}/0039-gpg-Do-not-use-a-default-when-asking-for-another-out.patch
+  patch -p1 -i ${srcdir}/0040-Add-missing-test-files-to-EXTRA_DIST.patch
+  patch -p1 -i ${srcdir}/0045-gpg-Fix-edge-case-in-refresh-keys.patch
+  patch -p1 -i ${srcdir}/0046-gpgsm-Require-a-minimum-tag-length-for-GCM-decryptio.patch
+  patch -p1 -i ${srcdir}/0047-gpg-Fix-handling-with-no-CRC-armor.patch
+  patch -p1 -i ${srcdir}/0048-gpg-Fix-armored-input-parsing.patch
+  patch -p1 -i ${srcdir}/0049-gpg-Fix-armor-parsing-when-no-CRC-is-found.patch
+  patch -p1 -i ${srcdir}/0050-tpm-Fix-possible-buffer-overflow-in-PKDECRYPT.patch
+  patch -p1 -i ${srcdir}/0051-agent-Fix-the-regression-in-pkdecrypt-with-TPM-RSA.patch
+  patch -p1 -i ${srcdir}/0052-dirmngr-Fix-a-call-of-calloc.patch
+
+  ./autogen.sh --force
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --sbindir=/usr/bin \
+    --libexecdir=/usr/lib/gnupg \
+    --disable-libdns \
+    --enable-large-secmem \
+    --enable-maintainer-mode
+
+  make
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make check
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

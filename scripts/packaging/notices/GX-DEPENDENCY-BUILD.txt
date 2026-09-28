@@ -1,0 +1,95 @@
+Oh My Zsh GX: redistribution and rebuild instructions
+
+This file describes the inputs shipped with the corresponding-source assets. It is
+not a claim of bit-for-bit reproducibility or a replacement for upstream licenses.
+The manifest identifies each archive by SHA-256. Do not substitute a moving branch.
+
+HERDR
+Source: gx0404/herdr 4f441b0c23304c7a641d978c9e11aabf07f6d8c4 (0.9.1).
+This fixed commit contains the Windows TUI handshake polling fix. It changes no
+Cargo.lock, Rust/Zig toolchain or ConPTY package version relative to e9f6c994.
+New binaries and receipts must be built from this commit; older receipts are not
+made valid by relabeling their revision or their source ZIP digest.
+Use Rust/Cargo 1.96.1, Zig 0.16.0, and the target recorded in herdr-build.json.
+The build receipt must supply the fixed source ZIP, cargo-vendor sources, any Zig
+package sources consumed by the build, license texts and its BUILD.json. Configure
+Cargo to use the supplied vendor directory; build with --locked --offline --release
+and the recorded target/RUSTFLAGS. Preserve the source package's local portable-pty
+patch. The receipt is mandatory: the root Apache-2.0 license does not cover all
+linked dependencies. On Windows execute the source's original
+scripts/package_windows_conpty.ps1 with the pinned Microsoft ConPTY NuGet package;
+retain the exact seven-file bundle and both Microsoft notices. On Linux the herdr
+ELF must have no dynamic interpreter or NEEDED libraries. This notice does not
+assert that a receipt or a lifecycle test has passed.
+
+POWERLEVEL10K
+Source: romkatv/powerlevel10k 9253fb1c5034410c43a0c681ff8294181c54016c.
+This shell theme requires no compilation. The repository's vendored theme tree is
+compared with this fixed source. Its MIT license and the embedded gitstatus license
+are both retained. Its gitstatus/install.info selects the separately packaged
+platform-specific gitstatusd; the embedded gitstatus/build.info is not the version
+of those release binaries.
+
+ZOXIDE
+Source: ajeetdsouza/zoxide 9cdc6aa3740b4d8a9d62406c99e84c5de49645e9 (0.9.9).
+Original Cargo.lock registry archives are redistributed with their Cargo checksums.
+The license inventory covers those archives, including build/test-only packages;
+it does not claim that every listed crate is linked into the installed binary.
+For an offline rebuild, unpack each name-version.crate into a Cargo vendor directory
+and generate each .cargo-checksum.json from its files plus the package checksum in
+Cargo.lock. Set [source.crates-io] replace-with='vendored-sources' and
+[source.vendored-sources] directory='<vendor>'. Use cargo build --locked --offline
+--release --target x86_64-unknown-linux-musl or x86_64-pc-windows-msvc and the source's
+release workflow for compiler/profile settings. The shipped executables are the
+unaltered official release assets, not locally rebuilt substitutes. The vendored
+Linux binary is byte-compared with its locked official release archive.
+
+GITSTATUS
+Linux source: romkatv/gitstatus 6dc0738c0e5199b0ae47d9693874e7d43c7f8f29 (v1.5.4).
+MSYS source: romkatv/gitstatus 96b520b248ca872646e27b3df4535898356e4637 (v1.5.1).
+Each source includes its own build, Makefile and build.info. Put the matching locked
+libgit2-tag-*.tar.gz into deps/ using the exact filename in build.info. Invoke the
+source's ./build without -i or -w after providing its documented compiler, CMake,
+make and binutils prerequisites in an isolated environment. -i installs packages
+and is not used by this packager; -w downloads and is not used for an offline build.
+libgit2 is statically linked and its GPL-2.0-with-linking-exception text and embedded
+third-party notices are retained alongside gitstatus's GPL-3.0 license. Preserve
+all build scripts and patches when redistributing the source. Compiler/libc system
+libraries are not represented as gitstatus-authored code by this inventory.
+
+NERD FONTS / JETBRAINS MONO
+The four installed faces are byte-compared with JetBrainsMono.tar.xz from Nerd Fonts
+v3.4.0. JetBrains Mono upstream version is 2.304, as recorded by the fixed Nerd Fonts
+commit fa7b859994228a9c8759f99c55a8d31ee92a1b5e. The original font and the patched font
+are under SIL OFL 1.1. Retain authors, copyright and the OFL; do not sell the fonts
+alone, rename them improperly, or imply author endorsement. OFL 1.1 does not demand
+corresponding-source delivery. The FontPatcher.zip release source and glyph sources
+are provided as supplemental build material, not as a claim to contain the entire
+upstream font-design project. To patch an upstream font, use FontForge with Python
+and the supplied font-patcher --complete on the matching JetBrains Mono face;
+consult the fixed upstream README and patcher --help for variant/font-name options.
+Glyph and patcher notices are retained separately; they do not relicense the font.
+
+ZSH PLUGINS
+zsh-autosuggestions e52ee8ca55bcc56a17c828767a3f98f22a68d4eb and
+zsh-syntax-highlighting db085e4661f6aafd24e5acb5b2e17e4dd5dddf3e are shell source
+archives with no compilation step. Install their complete source directories to
+usr/share/<plugin> in the private Windows runtime. Ubuntu uses distribution packages
+for these plugins instead of bundling this copy.
+
+MSYS2
+Each source archive is an official exact pkgbase/pkgver/pkgrel .src.tar.zst package,
+not a rolling recipe checkout. Detached signatures were checked with the public
+MSYS2 distribution signing keys from the locked base. The lock records signer,
+source archive hash, .SRCINFO identity and source membership evidence. Source
+packages contain their PKGBUILD, patches and upstream archives or pinned bare Git
+repositories. Extract the complete source package, preserve its nested repositories,
+and use the included PKGBUILD with makepkg in an isolated matching MSYS2 build
+environment. Resolve the explicit build dependencies declared by .SRCINFO before
+building; do not update source refs or use runtime pacman to mix unlocked binaries.
+The runtime packager does not run PKGBUILD, pacman, install scripts, apt or chsh.
+Package license expressions are retained individually, including GPL, LGPL, AGPL,
+BSD, MIT, Apache, Artistic, Zsh and package-specific licenses. Source and license
+assets are shared by split packages but each runtime package remains inventoried.
+An unqualified historical 'GPL' declaration is not silently relabeled MIT or a
+specific SPDX version; the original declaration and common GPL texts are retained.

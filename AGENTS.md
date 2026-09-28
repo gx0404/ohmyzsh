@@ -40,6 +40,12 @@ resolver 需 Python 3.11+ 或已装 tomli；不为检查安装依赖。
   安全模式）→ `lib/*.zsh`（字典序）→ `$plugins` → `custom/*.zsh` → 主题；
   `_omz_source` 实现 `$ZSH_CUSTOM` 覆盖 `$ZSH` 的优先级。
 - git 提示符统一走 `lib/git.zsh`（`GIT_OPTIONAL_LOCKS=0`）；`omz` CLI 在 `lib/cli.zsh`。
+- GX 原生包在 `scripts/gx_package.py` / `scripts/packaging/`，原生入口在
+  `scripts/gx-launcher/main.rs`，包配置在 `gx/config/package.zsh`；Windows 使用私有
+  MSYS2，Ubuntu 使用 DEB。当前完整包验收未完成，状态与边界见 `docs/RELEASE.md`。
+- `make package-test` 验证打包单元及原生启动器（需 Rust）；`make package` 读取显式
+  `GX_DEPENDENCY_BUNDLE` 离线构建，不自动安装或发布。`gx-release` 仅手动触发，
+  只允许发布到本 fork；源码、许可、中文配置和真实生命周期证据缺项即失败。
 - 架构细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；命令见
   [docs/MAKE_COMMANDS.md](docs/MAKE_COMMANDS.md)。
 - 质量门：上游 CI 在 fork 上不运行（repository 守卫），本地 `make ci-check` 是

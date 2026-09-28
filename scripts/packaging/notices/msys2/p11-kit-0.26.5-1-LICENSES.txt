@@ -1,0 +1,36 @@
+MSYS2 source-package license texts
+Source: https://repo.msys2.org/msys/sources/p11-kit-0.26.5-1.src.tar.zst
+SHA-256: c8ded9fc1658733c217afe5ceea817865c97094bf23faf59db83ae207cd7d5ba
+Texts below are copied from the authenticated source package. They may include build/test dependencies; this inventory does not relicense any component.
+
+========================================================================
+Member: p11-kit-0.26.5-1.src.tar.zst!p11-kit/p11-kit-0.26.5.tar.xz!p11-kit-0.26.5/COPYING
+Original SHA-256: 2e1ba993904df807a10c3eda1e5c272338edc35674b679773a8b3ad460731054
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+    * Redistributions of source code must retain the above
+      copyright notice, this list of conditions and the
+      following disclaimer.
+    * Redistributions in binary form must reproduce the
+      above copyright notice, this list of conditions and
+      the following disclaimer in the documentation and/or
+      other materials provided with the distribution.
+    * The names of contributors to this software may not be
+      used to endorse or promote products derived from this
+      software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+DAMAGE.

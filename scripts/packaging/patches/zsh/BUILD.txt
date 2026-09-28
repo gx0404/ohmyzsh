@@ -1,0 +1,88 @@
+GX patched Zsh 5.9.2 build and receipt contract
+
+Source: https://www.zsh.org/pub/zsh-5.9.2.tar.xz
+SHA-256: 36fa734374b44783582cec09bcd67822e2f992c779ec1624ab5596df078d2f81
+GX patch SHA-256: 230fc112b509bece56e97c1485b6de2ed32ca695b43af4628a697a8954a4107d
+
+The patch repairs metafied/unmetafied filename boundaries in Src/init.c,
+Src/subst.c, Src/Modules/system.c and Src/parse.c. It is a downstream GX patch,
+not a claim that upstream has accepted it. Zsh's original LICENCE is retained.
+
+Windows build:
+  python scripts/gx_build_zsh.py fetch --platform windows-x64 --cache CACHE
+  python scripts/gx_build_zsh.py build --platform windows-x64 --cache CACHE \
+    --work NEW_WORK_DIRECTORY --output NEW_RECEIPT_DIRECTORY --jobs 4
+
+The runner extracts a SHA-locked official MSYS2 base and 38 SHA-locked compiler
+packages into a fresh private root. It never runs pacman or modifies a system
+installation. Those package hashes originated in official signed MSYS2 metadata
+and were verified with detached signatures during acquisition. The source lock
+records the actual package versions; compiler --version/-dumpmachine results and
+binary hashes are captured in the generated receipt, not guessed in advance.
+
+Apply the six MSYS2 patches in the lock's order, then the GX patch. Two original
+MSYS patches need refreshed surrounding context for 5.9.2. Both original and
+refreshed forms are supplied; the runner requires their added/deleted lines to be
+identical. Patch application matches full context with zero fuzz and verifies the
+four pre/post-GX source hashes. Exact static config.modules is installed after
+configure and before make prep. A09 and D03 upstream tests must pass without skips.
+
+All build HOME/temp/output paths are isolated. Windows compiler paths are decoded
+as UTF-8. Build directories must be new. The runtime is canonicalized into:
+  payload/runtime/msys64/usr/bin/zsh.exe
+  payload/runtime/msys64/usr/bin/zsh-5.9.2.exe
+  payload/runtime/msys64/share/zsh/functions/*
+  payload/runtime/msys64/share/zsh/site-functions/.gx-empty
+  payload/runtime/msys64/share/licenses/zsh/LICENCE
+The executable stays next to the locked MSYS/ncurses/pcre DLLs. The dependency
+assembler verifies the original package file hashes before replacing both Zsh
+names and removing the original dynamically-linked msys-zsh DLL. It records every
+overlay old/new hash. It does not represent the modified executable as an unchanged
+MSYS2 package. Normal and nested zsh resolve to the patched entry.
+
+Linux builds must be amd64 with maximum required GLIBC symbol version <= 2.31,
+using an approved interpreter and library set. A Ubuntu 24.04 prototype requiring
+GLIBC_2.38 is explicitly rejected. The verified Focal SDK replay uses the official
+Ubuntu 20.04.5 base and 147 signed-index-locked packages inside private PRoot. It
+never substitutes the host compiler. On Linux/WSL invoke:
+  python scripts/gx_build_zsh.py verify-sdk --platform ubuntu-amd64 --cache CACHE \
+    --work NEW_VERIFY_WORK --sdk-cache OPTIONAL_SDK_DOWNLOAD_CACHE
+  python scripts/gx_build_zsh.py build --platform ubuntu-amd64 --cache CACHE \
+    --work NEW_BUILD_WORK --output NEW_RECEIPT --sdk-cache OPTIONAL_SDK_DOWNLOAD_CACHE
+The optional SDK cache has metadata files at its root and packages/<suite>--*.deb;
+omit --sdk-cache to download only the locked official inputs. gpgv uses the host's
+public Ubuntu archive keyring, overridable by --keyring. The pinned Focal recipe
+uses four compile jobs. The receipt layout is:
+  payload/libexec/zsh/zsh
+  payload/bin/zsh
+  payload/share/zsh/functions/*
+  payload/share/zsh/site-functions/.gx-empty
+  payload/share/licenses/zsh/LICENCE
+The bin/zsh wrapper derives its root from its own location and exports relocatable
+FPATH before executing libexec/zsh/zsh. The native launcher must set the same FPATH.
+All configured modules are linked into Zsh; external third-party dynamic Zsh
+modules are not supported. No build-directory MODULE_PATH is inherited.
+
+To ingest an already built, independently verified stage:
+  python scripts/gx_build_zsh.py record --platform windows-x64 --stage STAGE \
+    --cache CACHE --evidence BUILD_EVIDENCE.json --output NEW_RECEIPT_DIRECTORY
+The evidence must identify the exact source/patch/static-modules hashes, patched
+source hashes, actual binary SHA-256, observed toolchain and build commands. This
+is a trusted-builder attestation interface, not proof that arbitrary binaries were
+built from a claimed source. The resulting files, real PE/ELF ABI, function-tree
+hash and corresponding source/license materials are checked independently.
+
+Verify:
+  python scripts/gx_build_zsh.py verify --platform windows-x64 --build RECEIPT
+  python scripts/gx_build_zsh.py check-abi --platform ubuntu-amd64 --binary ZSH
+  python scripts/gx_dependencies.py assemble --platform windows-x64 --cache CACHE \
+    --herdr-build HERDR_RECEIPT --zsh-build ZSH_RECEIPT --output NEW_BUNDLE
+
+The source/patch archives, exact modules, original prototype recipes, source lock,
+builder scripts and generated BUILD.json accompany the receipt. To rebuild from
+its redistribution directory, use --lock ./zsh-runtime-lock.json explicitly;
+repository_path patch inputs are resolved relative to that lock file. Artifact
+hashes are computed from the real build output, never pinned to a workstation URL.
+Package manifest zsh_build and zsh_overlay retain the full receipt and replacement
+record. lifecycle/pty stay pending until the parent installation/PTY gates actually
+run against the final native EXE/DEB. The prototype's tests are not those gates.

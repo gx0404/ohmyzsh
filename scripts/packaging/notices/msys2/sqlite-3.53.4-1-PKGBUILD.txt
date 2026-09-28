@@ -1,0 +1,229 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Contributor: Renato Silva <br.renatosilva@gmail.com>
+
+pkgbase="sqlite"
+pkgname=('sqlite' 'libsqlite' 'libsqlite-devel' 'sqlite-doc'
+        'tcl-sqlite'
+         'sqlite-extensions'
+         'lemon')
+_sqlite_year=2026
+_srcver=3530400
+_docver=${_srcver}
+pkgver=3.53.4
+pkgrel=1
+pkgdesc="A C library that implements an SQL database engine"
+arch=('i686' 'x86_64')
+license=('spdx:LicenseRef-Sqlite')
+url="https://www.sqlite.org/"
+msys2_references=(
+  "anitya: 4877"
+  "cpe: cpe:/a:sqlite:sqlite"
+)
+depends=('libreadline' 'zlib' 'tcl')
+makedepends=('libreadline-devel' 'tcl-devel' 'zlib-devel' 'autotools' 'gcc')
+source=(https://www.sqlite.org/${_sqlite_year}/sqlite-src-${_srcver}.zip
+        https://www.sqlite.org/${_sqlite_year}/sqlite-doc-${_docver}.zip
+        LICENSE
+        0001-sqlite-pcachetrace-include-sqlite3.patch
+        0002-sqlite3.32.3-Makefile.in-fix-rule-compiling-rbu.exe.patch
+        0031-use-packaged-lempar.c.patch
+        Makefile.ext.in
+        README.md.in)
+sha256sums=('d18fa15aec74d8c17e1463f861095adc01b5ad190256acb4f91d22f0368d232b'
+            'a1d0f5de57485d062796ed7e67daff0758b50d00001a0f233a2c15aaf40bbdc8'
+            '0b76663a90e034f3d7f2af5bfada4cedec5ebc275361899eccc5c18e6f01ff1f'
+            '6518119034ceb2820d058afcb099d11f636271f55a41ffae22855af66a369166'
+            '2a3be75d6a0e8f7ea1a53f0434a9e1823fcb5965069f482083694388c7564f1c'
+            '9d51e267719f48454627860cf0529928b6711c053e3b930344d897e95a0810fa'
+            '8c169857b1c449fb7f4e31aaedccdb15435b2f8a83f0f4e744569894a86d8bbd'
+            'ef3a1faa02a88e05539d160d51679f164dfa23cc5a637ff36bc504bf04d6d7a6')
+
+_sqlite_tools="sqlite3.exe sqlite3_analyzer.exe sqldiff.exe dbhash.exe rbu.exe"
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _patch in "$@"
+  do
+    msg2 "Applying $_patch"
+    patch -Nbp1 -i "${srcdir}/${_patch}"
+  done
+}
+
+prepare() {
+  cd "sqlite-src-${_srcver}"
+
+  apply_patch_with_msg 0001-sqlite-pcachetrace-include-sqlite3.patch
+  apply_patch_with_msg 0002-sqlite3.32.3-Makefile.in-fix-rule-compiling-rbu.exe.patch
+  apply_patch_with_msg 0031-use-packaged-lempar.c.patch
+}
+
+build() {
+  msg2 "Building sqlite package..."
+  export CPPFLAGS="$CPPFLAGS \
+    -DSQLITE_ENABLE_DBSTAT_VTAB=1 \
+    -DSQLITE_ENABLE_DBPAGE_VTAB=1 \
+    -DSQLITE_ENABLE_STAT4=1 \
+    -DSQLITE_ENABLE_UNLOCK_NOTIFY=1 \
+    -DSQLITE_ENABLE_UPDATE_DELETE_LIMIT=1 \
+    -DSQLITE_OMIT_LOOKASIDE \
+    -DSQLITE_SECURE_DELETE=1 \
+    -DSQLITE_ENABLE_SESSION=1 \
+    -DSQLITE_ENABLE_PREUPDATE_HOOK=1 \
+    -DSQLITE_SOUNDEX=1 \
+    -DSQLITE_TEMP_STORE=1 \
+    -DSQLITE_USE_FCNTL_TRACE=1 \
+    -DUSE_SYSTEM_SQLITE=1 \
+    -DSQLITE_ENABLE_FTS3_PARENTHESIS=1 \
+    -DSQLITE_ENABLE_COLUMN_METADATA=1 \
+    -DSQLITE_USE_ALLOCA=1 \
+    -DSQLITE_ENABLE_EXPLAIN_COMMENTS=1 \
+    -DSQLITE_ENABLE_STMTVTAB=1 \
+    -DSQLITE_HAVE_ZLIB=1 \
+    -DSQLITE_ENABLE_MATH_FUNCTIONS=1 \
+"
+
+  export MSYSTEM=CYGWIN
+
+  mkdir -p build-${_srcver}-${MSYSTEM_CHOST}
+  cd build-${_srcver}-${MSYSTEM_CHOST}
+  ../sqlite-src-${_srcver}/configure \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --build=${CHOST} \
+    --enable-shared \
+    --enable-static \
+    --enable-readline \
+    --disable-editline \
+    --out-implib \
+    --soname=legacy \
+    --dll-basename=msys-sqlite3-0 \
+    --all
+
+  make -j all ${_sqlite_tools}
+
+  # Building the extensions
+  mkdir -p ext/misc
+  cp ../Makefile.ext.in ext/misc/Makefile
+  sed -e "s|@srcdir@|${srcdir}/sqlite-src-${_srcver}/ext/misc|g" -i ext/misc/Makefile
+  sed -e "s|@top_srcdir@|${srcdir}/sqlite-src-${_srcver}|g" -i ext/misc/Makefile
+  sed -e "s|@top_builddir@|${PWD}|g" -i ext/misc/Makefile
+  sed -e "s|@prefix@|/usr|g" -i ext/misc/Makefile
+  sed -e "s|@datadir@|/usr/share|g" -i ext/misc/Makefile
+  sed -e "s|@CC@|cc|g" -i ext/misc/Makefile
+  make -j -C ext/misc
+}
+
+check() {
+  cd build-${_srcver}-${MSYSTEM_CHOST}
+  # This test run lasts very loooong ... despite the target name
+  # sqlite 3.36.0: 54 errors out of 303582 tests on MSYS_NT-10.0-19043 64-bit little-endian
+  # !Failures on these tests: attach-6.2 attach-6.2.2 journal3-1.2.2.1 journal3-1.2.2.4 journal3-1.2.3.1 journal3-1.2.3.4 journal3-1.2.4.1 journal3-1.2.4.4 symlink-1.1 symlink-1.1.2 symlink-1.1.4 symlink-1.2.2 symlink-1.2.3 symlink-1.3 symlink-2.1.2 symlink-2.1.4 symlink-2.1.6 symlink-2.2.2 symlink-2.2.4 symlink-2.2.6 symlink-4.2.1 symlink-4.2.2 symlink-4.3.1 symlink-4.3.2 symlink-4.4.2 tableapi-7.transient.37 tkt3457-1.3 triggerA-3.transient.94 triggerA-3.transient.118 triggerA-3.transient.119 triggerA-3.transient.275 triggerA-3.transient.305 triggerA-3.transient.306 triggerA-3.transient.317 triggerA-3.transient.318 triggerA-3.transient.319 triggerA-3.transient.320 wal2-12.2.2.1 wal2-12.2.2.4 wal2-12.2.3.1 wal2-12.2.3.4 wal2-12.2.4.1 wal2-12.2.4.4 wal2-13.3.1 wal2-13.4.1 wal2-13.5.1 wal2-13.7.1 wal2-13.7.3 wal2-13.7.4 wal2-13.8.1 wal2-13.8.3 wal2-13.8.4 wal2-13.9.1 wal2-13.9.2
+  make quicktest || true
+}
+_install_license() {
+  install -D -m644 ${srcdir}/LICENSE ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}
+
+package_sqlite() {
+  pkgdesc="A C library that implements an SQL database engine"
+  provides=("sqlite3=${pkgver}")
+  replaces=("sqlite3")
+  replaces+=('sqlite-icu' 'sqlite-rbu')
+  depends=('libreadline' 'zlib')
+  depends+=('tcl')  # sqlite3_analyzer.exe
+
+  cd "build-${_srcver}-${MSYSTEM_CHOST}"
+
+  make DESTDIR="${pkgdir}" install-shell-0 install-man1
+  install -m755 ${_sqlite_tools} "${pkgdir}/usr/bin/"
+
+  _install_license
+}
+
+package_libsqlite() {
+  pkgdesc="Sqlite3 library"
+  groups=('libraries')
+  depends=()
+  options+=(!staticlibs)
+  provides=("libsqlite=${pkgver}")
+  # make pacman remove the following packages dependant on a certain version
+  # of libsqlite which became obsolete since sqlite 3.33.0.
+  conflicts=('sqlite-compress<3.33.0'
+             'sqlite-icu<3.33.0'
+             'sqlite-rbu<3.33.0'
+             'sqlite-vfslog<3.33.0')
+
+  cd "build-${_srcver}-${MSYSTEM_CHOST}"
+  make install-dll DESTDIR=${pkgdir}
+  rm -rf "${pkgdir}/usr/lib"
+
+  _install_license
+}
+
+package_libsqlite-devel() {
+  pkgdesc="Sqlite3 headers and libraries"
+  groups=('development')
+  depends=("libsqlite=${pkgver}" 'zlib-devel')
+  optdepends=('tcl-sqlite: Tcl bindings for SQLite')
+  options+=('staticlibs')
+
+  cd "build-${_srcver}-${MSYSTEM_CHOST}"
+
+  make install-pc install-headers install-lib install-dll DESTDIR=${pkgdir}
+  rm -rf "${pkgdir}/usr/bin"
+
+  _install_license
+}
+
+package_sqlite-doc() {
+  pkgdesc="Most of the static HTML files that comprise Sqlite ${pkgver} website, including all of the SQL Syntax and the C/C++ interface specs and other miscellaneous documentation"
+  depends=()
+  provides=("sqlite3-doc=${pkgver}")
+
+  cd ${srcdir}/sqlite-doc-${_docver}
+  mkdir -p ${pkgdir}/usr/share/doc/${pkgbase}
+  cp -R *  ${pkgdir}/usr/share/doc/${pkgbase}/
+
+  _install_license
+}
+
+package_sqlite-extensions() {
+  pkgdesc="Various extensions for the SQL database engine ${pkgver}"
+  depends=("sqlite=${pkgver}" "libsqlite=${pkgver}")
+  # sqlite 3.32.3: The replaced packages are merged into 'sqlite-extensions'.
+  replaces=('sqlite-compress' 'sqlite-vfslog')
+
+  cd "build-${_srcver}-${MSYSTEM_CHOST}"
+  make -C ext/misc install DESTDIR=${pkgdir}
+
+  mkdir -p "${pkgdir}/usr/share/sqlite/extensions/"
+  cat "${srcdir}/README.md.in" |         \
+    sed -e "s|@VERSION@|${pkgver}|g;"    \
+    > "${pkgdir}/usr/share/sqlite/extensions/README.md"
+
+  _install_license
+}
+
+package_tcl-sqlite() {
+  pkgdesc="Tcl bindings for SQLite"
+  depends=("libsqlite=${pkgver}" 'tcl') # tcl 8.6
+
+  cd "build-${_srcver}-${MSYSTEM_CHOST}"
+  make install-tcl DESTDIR=${pkgdir}
+
+   _install_license
+}
+
+package_lemon() {
+  pkgdesc="The LEMON LALR Parser Generator used in SQLite ${pkgver} (MSYS2)"
+  depends=()
+
+  cd "build-${_srcver}-${MSYSTEM_CHOST}"
+
+  mkdir -p "${pkgdir}"/usr/{bin,share/lemon}
+  cp -v lemon.exe  ${pkgdir}/usr/bin/
+  cp -v lempar.c   ${pkgdir}/usr/share/lemon/
+
+  _install_license
+}

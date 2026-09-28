@@ -23,7 +23,29 @@ gx/
 └── bundle.sh          工作树打 tar.gz 离线安装包
 ```
 
-## 安装（全新工控机）
+## 原生安装包（开发中）
+
+正在增加 Windows x64 EXE（私有 MSYS2 Zsh，非 WSL）与 Ubuntu amd64 DEB。
+原生入口为 `gx-zsh` / `herdr`，herdr 来自 `gx0404/herdr` 的 `feature/gx_herdr`
+固定提交。打包来源、工具版本、许可及对应源码见 `scripts/packaging/`。
+
+**完整包尚未验收，不应把下述接口当作已发布下载。** 中文 HOME/独立 profile/缓存、
+安装升级卸载与 TUI 均需真实通过后才能发布，详见 [发布手册](../docs/RELEASE.md)。
+
+- `config/package.zsh`：显式包模式下，将 Zsh/P10k 缓存与历史归入独立 profile，
+  不替换已有 HOME `.zshrc`；机器差异和 P10k 覆盖只从 profile 读取。
+- P10k 内部主题副本和 `.zwc` 写入 profile 的版本化缓存，不修改包资源；无控制终端的
+  命令调用不初始化提示符主题，真实终端仍启用 instant prompt 和 gitstatus。
+- Windows 包模式的 zoxide 默认数据库放在 profile 的 `.local/share/zoxide`，以原生
+  Win32 路径传给 `_ZO_DATA_DIR`；已有显式设置原样保留，不迁移或改写其他用户数据库。
+- `config/zshrc`：启用既有 herdr 插件，命令缺失时静默降级；插件本身不安装 herdr。
+- fzf 0.48+ 使用自身 `--zsh`，旧版保留发行版脚本；键位集成要求真实 TTY/ZLE，
+  无终端调用仍保留版本兼容选项和普通补全。
+- 原生包不默认复制 `gx/wezterm` 或机器专属 `zshrc.local`，不覆盖既有 WezTerm/MSYS2。
+- `make package-test` 验证模块，`make package` 需显式离线依赖 bundle；两者均不发布。
+  legacy `install.sh` 和 `bundle.sh` 保持原有用途，工作树 tar.gz 不作为正式原生包输入。
+
+## 安装（全新 Linux 工控机，legacy 脚本）
 
 ```bash
 # 方式一：在线一键（需能访问 GitHub）
@@ -59,6 +81,10 @@ chsh（交互确认）。已有官方 Oh My Zsh 或旧配置时自动备份为 `
 后缀，手工改名的备份不碰。两个例外：`$ZSH` 整树因体积固定只留「第一代 + 1 份」，
 不受 `GX_KEEP_BACKUPS` 影响；`$ZSH/custom/themes/powerlevel10k.pre-gx-*` 在用户
 运行时层里，一律不回收。
+
+同一秒内连续操作若碰到已经占用的备份、中转或卸载移出名称，安装器会以退出码 2
+拒绝并提示稍后重试，不覆盖旧备份、不删除同名残留或悬空链接。不要并发操作同一
+安装目标；这项防覆盖检查不等同于完整的多进程事务锁。
 
 常用选项：`--online`（强制拉取最新分支）、`--skip-apt/--skip-fonts/
 --skip-wezterm/--skip-chsh`、`--unattended`（无交互）、`--uninstall`（恢复最新
@@ -134,7 +160,12 @@ vim/Claude Code）时透传为应用内翻页，否则宿主滚动。插件缺�
   25.5 ms、只设建议上限 24.5 ms（≈无效）、只设高亮上限 1.0 ms、两者同设 0.65 ms。
   即 **`ZSH_HIGHLIGHT_MAXLENGTH` 是主因**（粘贴首帧也从「40 s 内仍未静默」降到
   1.5 s），`ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE` 是补足项（1.0 → 0.65 ms，并让越界时
-  不再查历史）；粘贴首帧的那 1.5 s 由逐字节回显主导，与建议上限无关。
+  不再查历史）。这些是原先仅限制高亮/建议时的测量，未包含下一项整段粘贴优化。
+- `:bracketed-paste-magic` 的 `active-widgets` 动态样式：至多 512 字符保留默认
+  `self-*` 钩子；超过 512 字符交给内建 bracketed paste 一次字面插入，避免逐字符
+  重放。修复版 Zsh 真 PTY 三轮中，4401 字符粘贴从约 5.3 s 降到 13–17 ms，
+  20 键中位约 1.1 ms。长粘贴不再逐字符执行自定义 `self-*` 处理，但保留上游
+  paste-init/paste-finish、原始内容、单次 undo 和不自动执行多行的语义；机器层可覆盖。
 - 越界后的高亮不是「没有颜色」：zsh-syntax-highlighting 在清空 `region_highlight`
   **之前**就返回，越界前那一帧的区间原样留下并随编辑平移，于是颜色可能与实际语法
   不符（行首插入一个不存在的命令，它仍显示为命令绿）。**超长行只保证可编辑，不保证

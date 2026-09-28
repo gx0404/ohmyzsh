@@ -1,0 +1,3808 @@
+{
+  "base": {
+    "filename": "msys2-base-x86_64-20260927.tar.xz",
+    "sha256": "ea2f31a0b6ade63914ce441ffb022f0f6aa96982bfefa2326460a26d5fb01322",
+    "signer": "0EBF782C5D53F7E5FB02A66746BD761F7A49B0EC",
+    "url": "https://github.com/msys2/msys2-installer/releases/download/2026-09-27/msys2-base-x86_64-20260927.tar.xz"
+  },
+  "components": [
+    {
+      "build_instructions": [],
+      "id": "msys2-base",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "2022.06-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-bash",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "5.3.020-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-bash-completion",
+      "license_expression": "spdx:GPL-2.0-only",
+      "licenses": [],
+      "sources": [],
+      "version": "2.18.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-brotli",
+      "license_expression": "MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "1.2.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-bsdtar",
+      "license_expression": "spdx:BSD-2-Clause",
+      "licenses": [],
+      "sources": [],
+      "version": "3.8.9-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-bzip2",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "1.0.8-4"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-ca-certificates",
+      "license_expression": "spdx:MPL-2.0 AND GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "20260816-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-coreutils",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "8.32-5"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-curl",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "8.22.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-dash",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "0.5.13.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-db",
+      "license_expression": "spdx:AGPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.2.32-6"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-file",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "5.48-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-filesystem",
+      "license_expression": "spdx:BSD-3-Clause",
+      "licenses": [],
+      "sources": [],
+      "version": "2026.03.06-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-findutils",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "4.11.0-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-gawk",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "5.4.1-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-gcc-libs",
+      "license_expression": "spdx:GPL-3.0-or-later AND GPL-2.0-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later AND GCC-exception-3.1 AND GFDL-1.3-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "15.3.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-gdbm",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "1.26-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-getent",
+      "license_expression": "LGPL",
+      "licenses": [],
+      "sources": [],
+      "version": "2.18.90-6"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-gettext",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "0.22.5-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-git",
+      "license_expression": "spdx:GPL-2.0-only",
+      "licenses": [],
+      "sources": [],
+      "version": "2.55.0-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-gmp",
+      "license_expression": "LGPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "6.3.0-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-gnupg",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.4.9-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-grep",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "1~3.0-7"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-gzip",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.15-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-heimdal",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "7.8.0-5"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-heimdal-libs",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "7.8.0-5"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-inetutils",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.8-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-info",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "7.2-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-less",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "710-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libargp",
+      "license_expression": "spdx:LGPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "20260115-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libasprintf",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "0.22.5-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libassuan",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "3.0.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libbz2",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "1.0.8-4"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libcbor",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "0.14.0-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libcurl",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "8.22.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libdb",
+      "license_expression": "spdx:AGPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.2.32-6"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libedit",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "20240808_3.1-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libexpat",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "2.8.5-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libffi",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "3.8.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libfido2",
+      "license_expression": "BSD-2-Clause",
+      "licenses": [],
+      "sources": [],
+      "version": "1.17.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libgcrypt",
+      "license_expression": "spdx:LGPL-2.1-or-later AND GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.12.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libgdbm",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "1.26-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libgettextpo",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "0.22.5-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libgnutls",
+      "license_expression": "spdx:GPL-3.0-or-later AND spdx:LGPL-2.1-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "3.8.13-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libgpg-error",
+      "license_expression": "spdx:LGPL-2.1-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.61-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libhogweed",
+      "license_expression": "spdx:GPL-2.0-or-later OR LGPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "4.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libiconv",
+      "license_expression": "LGPL",
+      "licenses": [],
+      "sources": [],
+      "version": "1.19-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libidn2",
+      "license_expression": "GPL3 AND LGPL",
+      "licenses": [],
+      "sources": [],
+      "version": "2.3.8-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libintl",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "0.22.5-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libksba",
+      "license_expression": "spdx:LGPL-3.0-or-later OR GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.8.1-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-liblz4",
+      "license_expression": "LGPL",
+      "licenses": [],
+      "sources": [],
+      "version": "1.10.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-liblzma",
+      "license_expression": "spdx:LGPL-2.1-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "5.8.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libnettle",
+      "license_expression": "spdx:GPL-2.0-or-later OR LGPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "4.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libnghttp2",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "1.70.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libnghttp3",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "1.18.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libngtcp2",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "1.25.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libnpth",
+      "license_expression": "LGPL",
+      "licenses": [],
+      "sources": [],
+      "version": "1.8-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libopenssl",
+      "license_expression": "spdx:Apache-2.0",
+      "licenses": [],
+      "sources": [],
+      "version": "3.6.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libp11-kit",
+      "license_expression": "spdx:BSD-3-Clause",
+      "licenses": [],
+      "sources": [],
+      "version": "0.26.5-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libpcre",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "8.45-5"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libpcre2_8",
+      "license_expression": "spdx:BSD-3-Clause WITH PCRE2-exception",
+      "licenses": [],
+      "sources": [],
+      "version": "10.48-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libpsl",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "0.23.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libreadline",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "8.3.006-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libsqlite",
+      "license_expression": "spdx:LicenseRef-Sqlite",
+      "licenses": [],
+      "sources": [],
+      "version": "3.53.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libssh2",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "1.11.1-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libtasn1",
+      "license_expression": "GPL3 AND LGPL",
+      "licenses": [],
+      "sources": [],
+      "version": "4.21.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libunistring",
+      "license_expression": "spdx:LGPL-3.0-or-later OR GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.4.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libutil-linux",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.40.2-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libxcrypt",
+      "license_expression": "spdx:LGPL-2.1-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "4.5.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-libzstd",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "1.5.7-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-make",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "4.4.1-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-mingw-w64-ucrt-x86_64-fzf",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "0.74.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-mintty",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1~3.8.3-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-mpfr",
+      "license_expression": "spdx:LGPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "4.2.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-msys2-keyring",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1~20260814-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-msys2-launcher",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "1.5-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-msys2-runtime",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "3.6.10-5"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-nano",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "9.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-ncurses",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "6.6-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-nettle",
+      "license_expression": "spdx:GPL-2.0-or-later OR LGPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "4.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-openssh",
+      "license_expression": "spdx:LicenseRef-OpenSSH",
+      "licenses": [],
+      "sources": [],
+      "version": "10.5p1-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-openssl",
+      "license_expression": "spdx:Apache-2.0",
+      "licenses": [],
+      "sources": [],
+      "version": "3.6.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-p11-kit",
+      "license_expression": "spdx:BSD-3-Clause",
+      "licenses": [],
+      "sources": [],
+      "version": "0.26.5-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-pacman",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.1.0-25"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-pacman-contrib",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.10.6-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-pacman-mirrors",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "20260129-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "5.42.3-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-authen-sasl",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.2100-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-clone",
+      "license_expression": "spdx:GPL-1.0-or-later AND spdx:Artistic-1.0-Perl",
+      "licenses": [],
+      "sources": [],
+      "version": "0.50-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-convert-binhex",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.125-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-encode-locale",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.05-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-error",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "0.17030-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-file-listing",
+      "license_expression": "spdx:Artistic-1.0-Perl AND spdx:GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.16-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-html-parser",
+      "license_expression": "spdx:Artistic-1.0-Perl AND spdx:GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "3.86-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-html-tagset",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "3.24-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-http-cookiejar",
+      "license_expression": "spdx:Apache-2.0",
+      "licenses": [],
+      "sources": [],
+      "version": "0.014-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-http-cookies",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.12-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-http-daemon",
+      "license_expression": "spdx:Artistic-1.0-Perl AND spdx:GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.17-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-http-date",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.08-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-http-message",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "7.04-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-http-negotiate",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.01-4"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-io-html",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.004-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-io-socket-ssl",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.099-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-io-stringy",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.113-4"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-libwww",
+      "license_expression": "spdx:Artistic-1.0-Perl AND spdx:GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.83-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-lwp-mediatypes",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.05-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-mailtools",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.22-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-mime-tools",
+      "license_expression": "spdx:Artistic-1.0-Perl AND spdx:GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "5.518-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-net-http",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.24-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-net-smtp-ssl",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.04-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-net-ssleay",
+      "license_expression": "spdx:Artistic-2.0",
+      "licenses": [],
+      "sources": [],
+      "version": "1.96-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-termreadkey",
+      "license_expression": "spdx:LicenseRef-TermReadKey",
+      "licenses": [],
+      "sources": [],
+      "version": "2.38-9"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-timedate",
+      "license_expression": "spdx:Artistic-1.0-Perl",
+      "licenses": [],
+      "sources": [],
+      "version": "2.35-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-try-tiny",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "0.32-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-uri",
+      "license_expression": "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "5.37-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-perl-www-robotrules",
+      "license_expression": "spdx:Artistic-1.0-Perl AND spdx:GPL-1.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "6.03-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-pinentry",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.3.3-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-rebase",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "4.5.0-5"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-sed",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "4.9-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-tar",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "1.35-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-time",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.10-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-tzcode",
+      "license_expression": "spdx:LicenseRef-tz",
+      "licenses": [],
+      "sources": [],
+      "version": "2026d-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-util-linux",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.40.2-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-wget",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "1.25.0-4"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-which",
+      "license_expression": "GPL3",
+      "licenses": [],
+      "sources": [],
+      "version": "2.25-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-xz",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "5.8.4-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-zlib",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "1.3.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-zsh",
+      "license_expression": "spdx:Zsh",
+      "licenses": [],
+      "sources": [],
+      "version": "5.9.2-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-zstd",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "1.5.7-1"
+    }
+  ],
+  "packages": [
+    {
+      "base": "base",
+      "dependencies": [
+        "bash",
+        "bash-completion",
+        "bsdtar",
+        "bzip2",
+        "coreutils",
+        "curl",
+        "dash",
+        "file",
+        "filesystem",
+        "findutils",
+        "gawk",
+        "getent",
+        "grep",
+        "gzip",
+        "inetutils",
+        "info",
+        "less",
+        "mintty",
+        "msys2-keyring",
+        "msys2-launcher",
+        "msys2-runtime",
+        "nano",
+        "pacman",
+        "pacman-contrib",
+        "pacman-mirrors",
+        "rebase",
+        "sed",
+        "tar",
+        "time",
+        "tzcode",
+        "util-linux",
+        "wget",
+        "which",
+        "zstd"
+      ],
+      "filename": "base-2022.06-1-any.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "base",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "1501b0f9e8859c4cee080cf89ea07dc16bcc5cd490383484bbff861ed88c3f4f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/base-2022.06-1-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/base",
+      "url": "https://repo.msys2.org/msys/x86_64/base-2022.06-1-any.pkg.tar.zst",
+      "version": "2022.06-1"
+    },
+    {
+      "base": "bash",
+      "dependencies": [],
+      "filename": "bash-5.3.020-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "bash",
+      "origin": "signed-base",
+      "provides": [
+        "sh"
+      ],
+      "sha256": "dd601817a00a48024a58ed087e1aec786301d929f3d373ec5c1861dd76fe3029",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/bash-5.3.020-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/bash",
+      "url": "https://repo.msys2.org/msys/x86_64/bash-5.3.020-1-x86_64.pkg.tar.zst",
+      "version": "5.3.020-1"
+    },
+    {
+      "base": "bash-completion",
+      "dependencies": [
+        "bash"
+      ],
+      "filename": "bash-completion-2.18.0-1-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-only"
+      ],
+      "name": "bash-completion",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "1babcc1d94e5e0d4e96d18c532ea2c5a6841dc64709cbe8365385511df5e932d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/bash-completion-2.18.0-1-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/bash-completion",
+      "url": "https://repo.msys2.org/msys/x86_64/bash-completion-2.18.0-1-any.pkg.tar.zst",
+      "version": "2.18.0-1"
+    },
+    {
+      "base": "brotli",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "brotli-1.2.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "MIT"
+      ],
+      "name": "brotli",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "6642bd8fcb238119b167038614ad4eaf44a25b4978a34f74349e0359565ac671",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/brotli-1.2.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/brotli",
+      "url": "https://repo.msys2.org/msys/x86_64/brotli-1.2.0-1-x86_64.pkg.tar.zst",
+      "version": "1.2.0-1"
+    },
+    {
+      "base": "libarchive",
+      "dependencies": [
+        "gcc-libs",
+        "libbz2",
+        "libiconv",
+        "libexpat",
+        "liblzma",
+        "liblz4",
+        "libopenssl",
+        "libzstd",
+        "zlib"
+      ],
+      "filename": "bsdtar-3.8.9-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:BSD-2-Clause"
+      ],
+      "name": "bsdtar",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "d30121095de6405096d1d5a2cce34cf64623c7f1d047433427003781876c54da",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/bsdtar-3.8.9-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libarchive",
+      "url": "https://repo.msys2.org/msys/x86_64/bsdtar-3.8.9-1-x86_64.pkg.tar.zst",
+      "version": "3.8.9-1"
+    },
+    {
+      "base": "bzip2",
+      "dependencies": [
+        "libbz2"
+      ],
+      "filename": "bzip2-1.0.8-4-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "bzip2",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "635c483775de60663bd38859bb4624e6aaa1086354acf8e36513b75c24f64b3c",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/bzip2-1.0.8-4-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/bzip2",
+      "url": "https://repo.msys2.org/msys/x86_64/bzip2-1.0.8-4-x86_64.pkg.tar.zst",
+      "version": "1.0.8-4"
+    },
+    {
+      "base": "ca-certificates",
+      "dependencies": [
+        "bash",
+        "openssl",
+        "findutils",
+        "coreutils",
+        "sed",
+        "p11-kit"
+      ],
+      "filename": "ca-certificates-20260816-1-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:MPL-2.0 AND GPL-2.0-or-later"
+      ],
+      "name": "ca-certificates",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "b7b2344aa87022919d6c4fd2bd9410e6490835c9a2d43092c1284186bae8c5d0",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/ca-certificates-20260816-1-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/ca-certificates",
+      "url": "https://repo.msys2.org/msys/x86_64/ca-certificates-20260816-1-any.pkg.tar.zst",
+      "version": "20260816-1"
+    },
+    {
+      "base": "coreutils",
+      "dependencies": [
+        "gmp",
+        "libiconv",
+        "libintl"
+      ],
+      "filename": "coreutils-8.32-5-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "coreutils",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "62dfee1c39fd15f99c39802b35e82643bc14fffc16d6c76d4001caa385ec77e3",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/coreutils-8.32-5-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/coreutils",
+      "url": "https://repo.msys2.org/msys/x86_64/coreutils-8.32-5-x86_64.pkg.tar.zst",
+      "version": "8.32-5"
+    },
+    {
+      "base": "curl",
+      "dependencies": [
+        "ca-certificates",
+        "libcurl",
+        "libnghttp3",
+        "libngtcp2",
+        "libunistring",
+        "libnghttp2",
+        "libpsl",
+        "openssl",
+        "zlib"
+      ],
+      "filename": "curl-8.22.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "curl",
+      "origin": "signed-base",
+      "provides": [
+        "wcurl"
+      ],
+      "sha256": "367e052883951c6c72b6aa135890f2774551ecffc6d81f740f991e2dec2d06ef",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/curl-8.22.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/curl",
+      "url": "https://repo.msys2.org/msys/x86_64/curl-8.22.0-1-x86_64.pkg.tar.zst",
+      "version": "8.22.0-1"
+    },
+    {
+      "base": "dash",
+      "dependencies": [
+        "grep",
+        "sed",
+        "filesystem"
+      ],
+      "filename": "dash-0.5.13.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "dash",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "afe51a9fcd4bb92d675937e02c5511fddb3d0f564f75775c75cc874a0768702d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/dash-0.5.13.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/dash",
+      "url": "https://repo.msys2.org/msys/x86_64/dash-0.5.13.4-1-x86_64.pkg.tar.zst",
+      "version": "0.5.13.4-1"
+    },
+    {
+      "base": "db",
+      "dependencies": [
+        "libdb=6.2.32"
+      ],
+      "filename": "db-6.2.32-6-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:AGPL-3.0-or-later"
+      ],
+      "name": "db",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "41bc94acad3b53eaa92227ec34412305f648848ffbc963bcad88274517e13e8d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/db-6.2.32-6-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/db",
+      "url": "https://repo.msys2.org/msys/x86_64/db-6.2.32-6-x86_64.pkg.tar.zst",
+      "version": "6.2.32-6"
+    },
+    {
+      "base": "file",
+      "dependencies": [
+        "gcc-libs",
+        "zlib",
+        "libbz2",
+        "liblzma",
+        "libzstd"
+      ],
+      "filename": "file-5.48-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "file",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "f55026638fe4ed4b31ee3cf316843ac190d9332816bff8dcb0a99fd8c6350608",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/file-5.48-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/file",
+      "url": "https://repo.msys2.org/msys/x86_64/file-5.48-1-x86_64.pkg.tar.zst",
+      "version": "5.48-1"
+    },
+    {
+      "base": "filesystem",
+      "dependencies": [],
+      "filename": "filesystem-2026.03.06-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:BSD-3-Clause"
+      ],
+      "name": "filesystem",
+      "origin": "signed-base",
+      "provides": [
+        "msys2-base"
+      ],
+      "sha256": "4506b2dbb496281b7645ee2b2d3700f6a2fab3d74a800733f3b3b44eeb8edc5c",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/filesystem-2026.03.06-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/filesystem",
+      "url": "https://repo.msys2.org/msys/x86_64/filesystem-2026.03.06-1-x86_64.pkg.tar.zst",
+      "version": "2026.03.06-1"
+    },
+    {
+      "base": "findutils",
+      "dependencies": [
+        "libiconv",
+        "libintl"
+      ],
+      "filename": "findutils-4.11.0-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "findutils",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "f19d3c6b1b073d4c5759ae83f5639d11a5f0227b772f7d86d600db573d9d5d32",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/findutils-4.11.0-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/findutils",
+      "url": "https://repo.msys2.org/msys/x86_64/findutils-4.11.0-2-x86_64.pkg.tar.zst",
+      "version": "4.11.0-2"
+    },
+    {
+      "base": "gawk",
+      "dependencies": [
+        "sh",
+        "mpfr",
+        "libintl",
+        "libreadline"
+      ],
+      "filename": "gawk-5.4.1-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "gawk",
+      "origin": "signed-base",
+      "provides": [
+        "awk"
+      ],
+      "sha256": "4b1322cb6c83d61fde5100e229e3cabc5b7d01fc0d0d8bc311edc08df91916be",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/gawk-5.4.1-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gawk",
+      "url": "https://repo.msys2.org/msys/x86_64/gawk-5.4.1-1-x86_64.pkg.tar.zst",
+      "version": "5.4.1-1"
+    },
+    {
+      "base": "gcc",
+      "dependencies": [],
+      "filename": "gcc-libs-15.3.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later AND GPL-2.0-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later AND GCC-exception-3.1 AND GFDL-1.3-or-later"
+      ],
+      "name": "gcc-libs",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "0d99a122c453c05ae21ba3dcea910f2e0d93d38ae067c677a112a315b0f3cec5",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/gcc-libs-15.3.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gcc",
+      "url": "https://repo.msys2.org/msys/x86_64/gcc-libs-15.3.0-1-x86_64.pkg.tar.zst",
+      "version": "15.3.0-1"
+    },
+    {
+      "base": "gdbm",
+      "dependencies": [
+        "libgdbm=1.26"
+      ],
+      "filename": "gdbm-1.26-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "gdbm",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "1f8e949be2bbe488c5644132db78ecda288c9945922e7ed2447384734e2adba2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/gdbm-1.26-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gdbm",
+      "url": "https://repo.msys2.org/msys/x86_64/gdbm-1.26-1-x86_64.pkg.tar.zst",
+      "version": "1.26-1"
+    },
+    {
+      "base": "getent",
+      "dependencies": [
+        "libargp"
+      ],
+      "filename": "getent-2.18.90-6-x86_64.pkg.tar.zst",
+      "licenses": [
+        "LGPL"
+      ],
+      "name": "getent",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "d6bcece7733d5080c6125aedf7996bbbfd33067f432dd659447f34d8136d97ca",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/getent-2.18.90-6-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/getent",
+      "url": "https://repo.msys2.org/msys/x86_64/getent-2.18.90-6-x86_64.pkg.tar.zst",
+      "version": "2.18.90-6"
+    },
+    {
+      "base": "gettext",
+      "dependencies": [
+        "libintl",
+        "libgettextpo",
+        "libasprintf"
+      ],
+      "filename": "gettext-0.22.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "gettext",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "b31ab065c3538ecb1fb6ab48ab2b3049243d6d9e585331c882f38326eefc1831",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/gettext-0.22.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gettext",
+      "url": "https://repo.msys2.org/msys/x86_64/gettext-0.22.5-1-x86_64.pkg.tar.zst",
+      "version": "0.22.5-1"
+    },
+    {
+      "base": "git",
+      "dependencies": [
+        "curl",
+        "libpcre2_8",
+        "libexpat",
+        "libintl",
+        "nano",
+        "openssh",
+        "openssl",
+        "perl-error",
+        "perl>=5.14.0",
+        "perl-authen-sasl",
+        "perl-libwww",
+        "perl-mime-tools",
+        "perl-net-smtp-ssl",
+        "perl-termreadkey"
+      ],
+      "filename": "git-2.55.0-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-only"
+      ],
+      "name": "git",
+      "origin": "signed-package",
+      "provides": [
+        "git-core"
+      ],
+      "sha256": "1919f69ad350cfb27da75cedb473c77f667213ce0c76dd7495cfa3a843055a7f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/git-2.55.0-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/git",
+      "url": "https://repo.msys2.org/msys/x86_64/git-2.55.0-2-x86_64.pkg.tar.zst",
+      "version": "2.55.0-2"
+    },
+    {
+      "base": "gmp",
+      "dependencies": [],
+      "filename": "gmp-6.3.0-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "LGPL3"
+      ],
+      "name": "gmp",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "f84536138e618d47a1df2da83916cfebbd449f159ffad52f994a71060a41cf34",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/gmp-6.3.0-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gmp",
+      "url": "https://repo.msys2.org/msys/x86_64/gmp-6.3.0-2-x86_64.pkg.tar.zst",
+      "version": "6.3.0-2"
+    },
+    {
+      "base": "gnupg",
+      "dependencies": [
+        "bzip2",
+        "libassuan",
+        "libbz2",
+        "libcurl",
+        "libgcrypt",
+        "libgpg-error",
+        "libgnutls",
+        "libiconv",
+        "libintl",
+        "libksba",
+        "libnpth",
+        "libreadline",
+        "libsqlite",
+        "nettle",
+        "pinentry",
+        "zlib"
+      ],
+      "filename": "gnupg-2.4.9-3-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "gnupg",
+      "origin": "signed-base",
+      "provides": [
+        "dirmngr",
+        "gnupg2=2.4.9"
+      ],
+      "sha256": "ff78c8391e894c53ad0e3054f1e885e34f22072ad7f8578cd199e0d5657592b2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/gnupg-2.4.9-3-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gnupg",
+      "url": "https://repo.msys2.org/msys/x86_64/gnupg-2.4.9-3-x86_64.pkg.tar.zst",
+      "version": "2.4.9-3"
+    },
+    {
+      "base": "grep",
+      "dependencies": [
+        "libiconv",
+        "libintl",
+        "libpcre",
+        "sh"
+      ],
+      "filename": "grep-1~3.0-7-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "grep",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "2909b3bbef8d33d66980339fb7bd2d3d9145bae0f04191e6671df39868aea427",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/grep-1~3.0-7-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/grep",
+      "url": "https://repo.msys2.org/msys/x86_64/grep-1~3.0-7-x86_64.pkg.tar.zst",
+      "version": "1~3.0-7"
+    },
+    {
+      "base": "gzip",
+      "dependencies": [
+        "bash",
+        "less"
+      ],
+      "filename": "gzip-1.15-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "gzip",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "3f967c87cf041391d0d43819c91174742917ccc2d1bb9419050df29ef22f4bfd",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/gzip-1.15-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gzip",
+      "url": "https://repo.msys2.org/msys/x86_64/gzip-1.15-1-x86_64.pkg.tar.zst",
+      "version": "1.15-1"
+    },
+    {
+      "base": "heimdal",
+      "dependencies": [
+        "heimdal-libs"
+      ],
+      "filename": "heimdal-7.8.0-5-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "heimdal",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "4b3906a2a677232d43db712b6fecab50da761c5b229c5018178a577c5c25ec64",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/heimdal-7.8.0-5-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/heimdal",
+      "url": "https://repo.msys2.org/msys/x86_64/heimdal-7.8.0-5-x86_64.pkg.tar.zst",
+      "version": "7.8.0-5"
+    },
+    {
+      "base": "heimdal",
+      "dependencies": [
+        "libdb",
+        "libxcrypt",
+        "libedit",
+        "libsqlite",
+        "libopenssl"
+      ],
+      "filename": "heimdal-libs-7.8.0-5-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "heimdal-libs",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "d5f139b6feebd75f0b5fefec952c7fbb4cdfa16235601c223dabc3b1bcead19f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/heimdal-libs-7.8.0-5-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/heimdal",
+      "url": "https://repo.msys2.org/msys/x86_64/heimdal-libs-7.8.0-5-x86_64.pkg.tar.zst",
+      "version": "7.8.0-5"
+    },
+    {
+      "base": "inetutils",
+      "dependencies": [
+        "gcc-libs",
+        "libintl",
+        "libreadline",
+        "ncurses"
+      ],
+      "filename": "inetutils-2.8-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "inetutils",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "b0a00adbdc549b54292db23530caf58bb0f150fc39359b99d074d6dee9aed677",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/inetutils-2.8-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/inetutils",
+      "url": "https://repo.msys2.org/msys/x86_64/inetutils-2.8-1-x86_64.pkg.tar.zst",
+      "version": "2.8-1"
+    },
+    {
+      "base": "texinfo",
+      "dependencies": [
+        "gzip",
+        "libxcrypt",
+        "libintl",
+        "ncurses"
+      ],
+      "filename": "info-7.2-3-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "info",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "69242603357aa7011356f7d15a2017ad086e5682c8577f13520943c94bd2b03e",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/info-7.2-3-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/texinfo",
+      "url": "https://repo.msys2.org/msys/x86_64/info-7.2-3-x86_64.pkg.tar.zst",
+      "version": "7.2-3"
+    },
+    {
+      "base": "less",
+      "dependencies": [
+        "ncurses",
+        "libpcre2_8"
+      ],
+      "filename": "less-710-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "less",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "894a643ecd01861490e5767873d67b55cd5a2faf2c77b0b24a62dbba7bd038fd",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/less-710-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/less",
+      "url": "https://repo.msys2.org/msys/x86_64/less-710-1-x86_64.pkg.tar.zst",
+      "version": "710-1"
+    },
+    {
+      "base": "libargp",
+      "dependencies": [],
+      "filename": "libargp-20260115-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-3.0-or-later"
+      ],
+      "name": "libargp",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "34ff307975c269d552045bab47019551d0e643d5c129e6080d1e26140d35735d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libargp-20260115-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libargp",
+      "url": "https://repo.msys2.org/msys/x86_64/libargp-20260115-1-x86_64.pkg.tar.zst",
+      "version": "20260115-1"
+    },
+    {
+      "base": "gettext",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libasprintf-0.22.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "libasprintf",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "fdd59ae72d355ae1c5615f12429493611782f3e38bf1f7ca9ca83b61fcfb6c26",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libasprintf-0.22.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gettext",
+      "url": "https://repo.msys2.org/msys/x86_64/libasprintf-0.22.5-1-x86_64.pkg.tar.zst",
+      "version": "0.22.5-1"
+    },
+    {
+      "base": "libassuan",
+      "dependencies": [
+        "gcc-libs",
+        "libgpg-error"
+      ],
+      "filename": "libassuan-3.0.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "libassuan",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "f6414e08f432e2fb130b23deb3c5c99f68c1f09768599f634c6138db50d1823f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libassuan-3.0.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libassuan",
+      "url": "https://repo.msys2.org/msys/x86_64/libassuan-3.0.2-1-x86_64.pkg.tar.zst",
+      "version": "3.0.2-1"
+    },
+    {
+      "base": "bzip2",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libbz2-1.0.8-4-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "libbz2",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "89fb0e1478b22b80effda55ab4ae7549388d01245d3841a096d8a2d63236c2a1",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libbz2-1.0.8-4-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/bzip2",
+      "url": "https://repo.msys2.org/msys/x86_64/libbz2-1.0.8-4-x86_64.pkg.tar.zst",
+      "version": "1.0.8-4"
+    },
+    {
+      "base": "libcbor",
+      "dependencies": [],
+      "filename": "libcbor-0.14.0-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libcbor",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "a661826edc2d452f8d74bae2cd5974dfbcd84e23bfbfa7ea3db38ee010d7b004",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libcbor-0.14.0-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libcbor",
+      "url": "https://repo.msys2.org/msys/x86_64/libcbor-0.14.0-2-x86_64.pkg.tar.zst",
+      "version": "0.14.0-2"
+    },
+    {
+      "base": "curl",
+      "dependencies": [
+        "brotli",
+        "ca-certificates",
+        "libidn2",
+        "libnghttp3",
+        "libngtcp2",
+        "libunistring",
+        "libnghttp2",
+        "libpsl",
+        "libssh2",
+        "openssl",
+        "zlib",
+        "libzstd"
+      ],
+      "filename": "libcurl-8.22.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libcurl",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "156d9a7e1529b298b1d831e41b695567db7722e73eb9b93823303bf28e7a16b6",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libcurl-8.22.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/curl",
+      "url": "https://repo.msys2.org/msys/x86_64/libcurl-8.22.0-1-x86_64.pkg.tar.zst",
+      "version": "8.22.0-1"
+    },
+    {
+      "base": "db",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libdb-6.2.32-6-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:AGPL-3.0-or-later"
+      ],
+      "name": "libdb",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "27a35786f3aab14e625c02df7bcd8a9dda0da782ce4f0549a427a21316b4d179",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libdb-6.2.32-6-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/db",
+      "url": "https://repo.msys2.org/msys/x86_64/libdb-6.2.32-6-x86_64.pkg.tar.zst",
+      "version": "6.2.32-6"
+    },
+    {
+      "base": "libedit",
+      "dependencies": [
+        "ncurses",
+        "sh"
+      ],
+      "filename": "libedit-20240808_3.1-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "libedit",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "aada8ba7dfe41fdcac28d3706c0dc7c621b7667035a5e629cb5f3af7fb3f7de0",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libedit-20240808_3.1-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libedit",
+      "url": "https://repo.msys2.org/msys/x86_64/libedit-20240808_3.1-1-x86_64.pkg.tar.zst",
+      "version": "20240808_3.1-1"
+    },
+    {
+      "base": "expat",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libexpat-2.8.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libexpat",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "cb6a7fd8eea31df03cd7d1a4198b690cd11388f11b36791b744fefbe0823e53b",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libexpat-2.8.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/expat",
+      "url": "https://repo.msys2.org/msys/x86_64/libexpat-2.8.5-1-x86_64.pkg.tar.zst",
+      "version": "2.8.5-1"
+    },
+    {
+      "base": "libffi",
+      "dependencies": [],
+      "filename": "libffi-3.8.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libffi",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "e0a21ae5ee3f0ce1ff3f446ea2c95ad462803081014aecfa8fc1cd22bc4df187",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libffi-3.8.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libffi",
+      "url": "https://repo.msys2.org/msys/x86_64/libffi-3.8.0-1-x86_64.pkg.tar.zst",
+      "version": "3.8.0-1"
+    },
+    {
+      "base": "libfido2",
+      "dependencies": [
+        "libcbor",
+        "openssl",
+        "zlib"
+      ],
+      "filename": "libfido2-1.17.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD-2-Clause"
+      ],
+      "name": "libfido2",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "30794db36fa21af67c7126a221e2cb95b177be08845bb38720a8c9f28c39cdbb",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libfido2-1.17.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libfido2",
+      "url": "https://repo.msys2.org/msys/x86_64/libfido2-1.17.0-1-x86_64.pkg.tar.zst",
+      "version": "1.17.0-1"
+    },
+    {
+      "base": "libgcrypt",
+      "dependencies": [
+        "libgpg-error"
+      ],
+      "filename": "libgcrypt-1.12.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-2.1-or-later AND GPL-2.0-or-later"
+      ],
+      "name": "libgcrypt",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "640aafc35d064279de3529679feccecced41267923f4e6b77e3b3dbe8614aa88",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libgcrypt-1.12.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libgcrypt",
+      "url": "https://repo.msys2.org/msys/x86_64/libgcrypt-1.12.4-1-x86_64.pkg.tar.zst",
+      "version": "1.12.4-1"
+    },
+    {
+      "base": "gdbm",
+      "dependencies": [
+        "gcc-libs",
+        "libreadline",
+        "libiconv",
+        "libintl",
+        "ncurses"
+      ],
+      "filename": "libgdbm-1.26-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "libgdbm",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "bb4b08b720dd3194db010589812e9c63bec3d29b32545e7cbd07b6443e51c5ed",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libgdbm-1.26-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gdbm",
+      "url": "https://repo.msys2.org/msys/x86_64/libgdbm-1.26-1-x86_64.pkg.tar.zst",
+      "version": "1.26-1"
+    },
+    {
+      "base": "gettext",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libgettextpo-0.22.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "libgettextpo",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "a9f3ef6b3712e20f0dc6eecaf8c2ec6aff5f259b2dbe87422a0aaca7b27c98d5",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libgettextpo-0.22.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gettext",
+      "url": "https://repo.msys2.org/msys/x86_64/libgettextpo-0.22.5-1-x86_64.pkg.tar.zst",
+      "version": "0.22.5-1"
+    },
+    {
+      "base": "gnutls",
+      "dependencies": [
+        "gcc-libs",
+        "libidn2",
+        "libiconv",
+        "libintl",
+        "gmp",
+        "libnettle",
+        "libp11-kit",
+        "libtasn1",
+        "zlib"
+      ],
+      "filename": "libgnutls-3.8.13-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later",
+        "spdx:LGPL-2.1-or-later"
+      ],
+      "name": "libgnutls",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "144a34bda1456dfbc0ca83ce8ed1ce49e89d750987ef096ab4083676dbcb373e",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libgnutls-3.8.13-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gnutls",
+      "url": "https://repo.msys2.org/msys/x86_64/libgnutls-3.8.13-2-x86_64.pkg.tar.zst",
+      "version": "3.8.13-2"
+    },
+    {
+      "base": "libgpg-error",
+      "dependencies": [
+        "sh",
+        "libiconv",
+        "libintl"
+      ],
+      "filename": "libgpg-error-1.61-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-2.1-or-later"
+      ],
+      "name": "libgpg-error",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "4c760c81be9c3875837f9b3c2a61e2c6247cbc73903e2c8696fb58df0d683e43",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libgpg-error-1.61-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libgpg-error",
+      "url": "https://repo.msys2.org/msys/x86_64/libgpg-error-1.61-1-x86_64.pkg.tar.zst",
+      "version": "1.61-1"
+    },
+    {
+      "base": "nettle",
+      "dependencies": [
+        "gmp"
+      ],
+      "filename": "libhogweed-4.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later OR LGPL-3.0-or-later"
+      ],
+      "name": "libhogweed",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "1302b7e86c5c54c93bd431685ccefa89df5f1b01257c68e24f2609df953cfdc2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libhogweed-4.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/nettle",
+      "url": "https://repo.msys2.org/msys/x86_64/libhogweed-4.0-1-x86_64.pkg.tar.zst",
+      "version": "4.0-1"
+    },
+    {
+      "base": "libiconv",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libiconv-1.19-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "LGPL"
+      ],
+      "name": "libiconv",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "0fa55ea2a6ccf97cf8c58b24b2615815e15e16e6e4e888091c263c2c83c5313d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libiconv-1.19-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libiconv",
+      "url": "https://repo.msys2.org/msys/x86_64/libiconv-1.19-1-x86_64.pkg.tar.zst",
+      "version": "1.19-1"
+    },
+    {
+      "base": "libidn2",
+      "dependencies": [
+        "libunistring",
+        "libintl"
+      ],
+      "filename": "libidn2-2.3.8-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3",
+        "LGPL"
+      ],
+      "name": "libidn2",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "55e0de96b893e9f67f14a4283d411fc2a45d7b59333bc16e2a9b16e5bfc9282f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libidn2-2.3.8-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libidn2",
+      "url": "https://repo.msys2.org/msys/x86_64/libidn2-2.3.8-1-x86_64.pkg.tar.zst",
+      "version": "2.3.8-1"
+    },
+    {
+      "base": "gettext",
+      "dependencies": [
+        "gcc-libs",
+        "libiconv"
+      ],
+      "filename": "libintl-0.22.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "libintl",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "336d66b9d95cf9c1804958f8e260762a3e83bf158ed5981f783bc772a31073cf",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libintl-0.22.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/gettext",
+      "url": "https://repo.msys2.org/msys/x86_64/libintl-0.22.5-1-x86_64.pkg.tar.zst",
+      "version": "0.22.5-1"
+    },
+    {
+      "base": "libksba",
+      "dependencies": [
+        "gcc-libs",
+        "libgpg-error"
+      ],
+      "filename": "libksba-1.8.1-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-3.0-or-later OR GPL-2.0-or-later"
+      ],
+      "name": "libksba",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "fd0e37456f563504740afab92ddbf8372471f6c0fea557dc60ec08ce8bd745ad",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libksba-1.8.1-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libksba",
+      "url": "https://repo.msys2.org/msys/x86_64/libksba-1.8.1-1-x86_64.pkg.tar.zst",
+      "version": "1.8.1-1"
+    },
+    {
+      "base": "lz4",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "liblz4-1.10.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "LGPL"
+      ],
+      "name": "liblz4",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "1cbbe51ee91bf32691aabb15bdb7c8548e8b5ef8195122ef31f10edcca6e952f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/liblz4-1.10.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/lz4",
+      "url": "https://repo.msys2.org/msys/x86_64/liblz4-1.10.0-1-x86_64.pkg.tar.zst",
+      "version": "1.10.0-1"
+    },
+    {
+      "base": "xz",
+      "dependencies": [],
+      "filename": "liblzma-5.8.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-2.1-or-later"
+      ],
+      "name": "liblzma",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "4b7d61656e72a5651a797680b66186338dce4f8fbc62a637ab3b59922dd01074",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/liblzma-5.8.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/xz",
+      "url": "https://repo.msys2.org/msys/x86_64/liblzma-5.8.4-1-x86_64.pkg.tar.zst",
+      "version": "5.8.4-1"
+    },
+    {
+      "base": "nettle",
+      "dependencies": [
+        "libhogweed"
+      ],
+      "filename": "libnettle-4.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later OR LGPL-3.0-or-later"
+      ],
+      "name": "libnettle",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "aa2a398eb5af88247f29d5de683c6d1d7411733c07cc5e6c62803e1e77337cf7",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libnettle-4.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/nettle",
+      "url": "https://repo.msys2.org/msys/x86_64/libnettle-4.0-1-x86_64.pkg.tar.zst",
+      "version": "4.0-1"
+    },
+    {
+      "base": "nghttp2",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libnghttp2-1.70.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libnghttp2",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "9b3443ff1b26a3ece9394409efca60f3ac8eee94309e5be1e6b05706f3386110",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libnghttp2-1.70.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/nghttp2",
+      "url": "https://repo.msys2.org/msys/x86_64/libnghttp2-1.70.0-1-x86_64.pkg.tar.zst",
+      "version": "1.70.0-1"
+    },
+    {
+      "base": "nghttp3",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libnghttp3-1.18.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libnghttp3",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "45fdd8613fa1da08f6c0504377194497fea540ed1fec438bc557736459040669",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libnghttp3-1.18.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/nghttp3",
+      "url": "https://repo.msys2.org/msys/x86_64/libnghttp3-1.18.0-1-x86_64.pkg.tar.zst",
+      "version": "1.18.0-1"
+    },
+    {
+      "base": "ngtcp2",
+      "dependencies": [
+        "gcc-libs",
+        "libopenssl"
+      ],
+      "filename": "libngtcp2-1.25.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libngtcp2",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "a4c389078632e64ac2b320473651e80d44c97f9fed7a746a232d95b400b14fe8",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libngtcp2-1.25.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/ngtcp2",
+      "url": "https://repo.msys2.org/msys/x86_64/libngtcp2-1.25.0-1-x86_64.pkg.tar.zst",
+      "version": "1.25.0-1"
+    },
+    {
+      "base": "npth",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libnpth-1.8-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "LGPL"
+      ],
+      "name": "libnpth",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "29803ea796a2766396351d4c7786e33f7a64ebe2576968ec5dd55338eada08fb",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libnpth-1.8-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/npth",
+      "url": "https://repo.msys2.org/msys/x86_64/libnpth-1.8-1-x86_64.pkg.tar.zst",
+      "version": "1.8-1"
+    },
+    {
+      "base": "openssl",
+      "dependencies": [],
+      "filename": "libopenssl-3.6.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:Apache-2.0"
+      ],
+      "name": "libopenssl",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "a965ce712fe42d940aad6dcd9e4ec69653c44dc4c2a1e1a109752df55f23dd1d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libopenssl-3.6.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/openssl",
+      "url": "https://repo.msys2.org/msys/x86_64/libopenssl-3.6.4-1-x86_64.pkg.tar.zst",
+      "version": "3.6.4-1"
+    },
+    {
+      "base": "p11-kit",
+      "dependencies": [
+        "libffi",
+        "libintl",
+        "libtasn1"
+      ],
+      "filename": "libp11-kit-0.26.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:BSD-3-Clause"
+      ],
+      "name": "libp11-kit",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "62707348cea67bf4ee009dbf25548c84e9f06a76b688590bd14e76321d58e125",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libp11-kit-0.26.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/p11-kit",
+      "url": "https://repo.msys2.org/msys/x86_64/libp11-kit-0.26.5-1-x86_64.pkg.tar.zst",
+      "version": "0.26.5-1"
+    },
+    {
+      "base": "pcre",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libpcre-8.45-5-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "libpcre",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "b4dc2eb7795cbacaa683101d720fa67f536262497a1d89934a58f5dab8d17d17",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libpcre-8.45-5-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/pcre",
+      "url": "https://repo.msys2.org/msys/x86_64/libpcre-8.45-5-x86_64.pkg.tar.zst",
+      "version": "8.45-5"
+    },
+    {
+      "base": "pcre2",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libpcre2_8-10.48-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:BSD-3-Clause WITH PCRE2-exception"
+      ],
+      "name": "libpcre2_8",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "0e9c99ff4ef4e0e957cb4adc9f65b329c7ebd7ca00f90f66f7bb37d3ed99df9b",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libpcre2_8-10.48-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/pcre2",
+      "url": "https://repo.msys2.org/msys/x86_64/libpcre2_8-10.48-1-x86_64.pkg.tar.zst",
+      "version": "10.48-1"
+    },
+    {
+      "base": "libpsl",
+      "dependencies": [
+        "libidn2",
+        "libunistring"
+      ],
+      "filename": "libpsl-0.23.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "libpsl",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "749014f86a1ae5f5a5adccec518e0296a03a838db9874aa9803dffaa8d30abc8",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libpsl-0.23.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libpsl",
+      "url": "https://repo.msys2.org/msys/x86_64/libpsl-0.23.2-1-x86_64.pkg.tar.zst",
+      "version": "0.23.2-1"
+    },
+    {
+      "base": "readline",
+      "dependencies": [
+        "ncurses"
+      ],
+      "filename": "libreadline-8.3.006-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "libreadline",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "29e25c50bf6cd7a5e6f2253af76f54fe3c1a915313c7c18e98bedaa665c6adea",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libreadline-8.3.006-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/readline",
+      "url": "https://repo.msys2.org/msys/x86_64/libreadline-8.3.006-1-x86_64.pkg.tar.zst",
+      "version": "8.3.006-1"
+    },
+    {
+      "base": "sqlite",
+      "dependencies": [],
+      "filename": "libsqlite-3.53.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LicenseRef-Sqlite"
+      ],
+      "name": "libsqlite",
+      "origin": "signed-base",
+      "provides": [
+        "libsqlite=3.53.4"
+      ],
+      "sha256": "3cd9364e0e3df848454bdbefad2bc84608178209fac9497636bdae11ab8972df",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libsqlite-3.53.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/sqlite",
+      "url": "https://repo.msys2.org/msys/x86_64/libsqlite-3.53.4-1-x86_64.pkg.tar.zst",
+      "version": "3.53.4-1"
+    },
+    {
+      "base": "libssh2",
+      "dependencies": [
+        "ca-certificates",
+        "openssl",
+        "zlib"
+      ],
+      "filename": "libssh2-1.11.1-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "libssh2",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "f79883af85a2bb4778e1352c0b7ea27737a05e4110ef14461f0a842a40ff893d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libssh2-1.11.1-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libssh2",
+      "url": "https://repo.msys2.org/msys/x86_64/libssh2-1.11.1-1-x86_64.pkg.tar.zst",
+      "version": "1.11.1-1"
+    },
+    {
+      "base": "libtasn1",
+      "dependencies": [
+        "info"
+      ],
+      "filename": "libtasn1-4.21.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3",
+        "LGPL"
+      ],
+      "name": "libtasn1",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "14f15c4b2b6ebeb6bfcf060cab27a32cd8967f70b0e68cc14670062cce546f04",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libtasn1-4.21.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libtasn1",
+      "url": "https://repo.msys2.org/msys/x86_64/libtasn1-4.21.0-1-x86_64.pkg.tar.zst",
+      "version": "4.21.0-1"
+    },
+    {
+      "base": "libunistring",
+      "dependencies": [
+        "libiconv"
+      ],
+      "filename": "libunistring-1.4.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-3.0-or-later OR GPL-2.0-or-later"
+      ],
+      "name": "libunistring",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "bcd04706d95b5e7127d39834565bceed6b400192f5fb51599745aba28d5da018",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libunistring-1.4.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libunistring",
+      "url": "https://repo.msys2.org/msys/x86_64/libunistring-1.4.2-1-x86_64.pkg.tar.zst",
+      "version": "1.4.2-1"
+    },
+    {
+      "base": "util-linux",
+      "dependencies": [
+        "gcc-libs",
+        "libintl"
+      ],
+      "filename": "libutil-linux-2.40.2-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later"
+      ],
+      "name": "libutil-linux",
+      "origin": "signed-base",
+      "provides": [
+        "libblkid",
+        "libuuid",
+        "libsmartcols"
+      ],
+      "sha256": "148ec8e668cb0a30ea0c4e2687e16e0953d6628305598f4c3225bedf2564192d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libutil-linux-2.40.2-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/util-linux",
+      "url": "https://repo.msys2.org/msys/x86_64/libutil-linux-2.40.2-2-x86_64.pkg.tar.zst",
+      "version": "2.40.2-2"
+    },
+    {
+      "base": "libxcrypt",
+      "dependencies": [],
+      "filename": "libxcrypt-4.5.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-2.1-or-later"
+      ],
+      "name": "libxcrypt",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "e63db0aa2b708359e25f61f506e2d2c92c315febf5f88cc9f386e4ec0bdf4fa5",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libxcrypt-4.5.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/libxcrypt",
+      "url": "https://repo.msys2.org/msys/x86_64/libxcrypt-4.5.2-1-x86_64.pkg.tar.zst",
+      "version": "4.5.2-1"
+    },
+    {
+      "base": "zstd",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "libzstd-1.5.7-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "libzstd",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "5e370b2e725a0a7e5ff58d84653c9a0cd5a10b9cfe930f2d949a28ad2a11c1f2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libzstd-1.5.7-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/zstd",
+      "url": "https://repo.msys2.org/msys/x86_64/libzstd-1.5.7-1-x86_64.pkg.tar.zst",
+      "version": "1.5.7-1"
+    },
+    {
+      "base": "make",
+      "dependencies": [
+        "libintl",
+        "sh"
+      ],
+      "filename": "make-4.4.1-3-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "make",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "af0bdba17f06fe037f0194069adaa31a8fe45f1a11381501896aea1fae37bd5d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/make-4.4.1-3-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/make",
+      "url": "https://repo.msys2.org/msys/x86_64/make-4.4.1-3-x86_64.pkg.tar.zst",
+      "version": "4.4.1-3"
+    },
+    {
+      "base": "mingw-w64-fzf",
+      "dependencies": [],
+      "filename": "mingw-w64-ucrt-x86_64-fzf-0.74.4-1-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "mingw-w64-ucrt-x86_64-fzf",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "f966079723c9398719e1395daaed65f26cffbc1db77e1e1aab11ec7da7ec71cc",
+      "signature_url": "https://repo.msys2.org/mingw/ucrt64/mingw-w64-ucrt-x86_64-fzf-0.74.4-1-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MINGW-packages/tree/master/mingw-w64-fzf",
+      "url": "https://repo.msys2.org/mingw/ucrt64/mingw-w64-ucrt-x86_64-fzf-0.74.4-1-any.pkg.tar.zst",
+      "version": "0.74.4-1"
+    },
+    {
+      "base": "mintty",
+      "dependencies": [
+        "sh"
+      ],
+      "filename": "mintty-1~3.8.3-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "mintty",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "a6b74c4beb29e4298b4d253baebfc38b1c67811f2259ab980e17dbaa5a76ac6e",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/mintty-1~3.8.3-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/mintty",
+      "url": "https://repo.msys2.org/msys/x86_64/mintty-1~3.8.3-1-x86_64.pkg.tar.zst",
+      "version": "1~3.8.3-1"
+    },
+    {
+      "base": "mpfr",
+      "dependencies": [
+        "gmp>=5.0"
+      ],
+      "filename": "mpfr-4.2.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LGPL-3.0-or-later"
+      ],
+      "name": "mpfr",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "8f1b6c17c53e00494a488e03dfdf8fc742027ed03a5bd7b1b3a6a33f595a7498",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/mpfr-4.2.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/mpfr",
+      "url": "https://repo.msys2.org/msys/x86_64/mpfr-4.2.2-1-x86_64.pkg.tar.zst",
+      "version": "4.2.2-1"
+    },
+    {
+      "base": "msys2-keyring",
+      "dependencies": [],
+      "filename": "msys2-keyring-1~20260814-1-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "msys2-keyring",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "a9a02c41bc14eb0965fb23b7e7d43a1d0eb20d9e70cbfeb193fcbf68bb0dc5d0",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/msys2-keyring-1~20260814-1-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/msys2-keyring",
+      "url": "https://repo.msys2.org/msys/x86_64/msys2-keyring-1~20260814-1-any.pkg.tar.zst",
+      "version": "1~20260814-1"
+    },
+    {
+      "base": "msys2-launcher",
+      "dependencies": [
+        "mintty>=1~2.2.1"
+      ],
+      "filename": "msys2-launcher-1.5-3-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "msys2-launcher",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "56b1170274fc33014e6d857e4e4d32a20975be0e23ed8385bb7372520118aa84",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/msys2-launcher-1.5-3-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/msys2-launcher",
+      "url": "https://repo.msys2.org/msys/x86_64/msys2-launcher-1.5-3-x86_64.pkg.tar.zst",
+      "version": "1.5-3"
+    },
+    {
+      "base": "msys2-runtime",
+      "dependencies": [],
+      "filename": "msys2-runtime-3.6.10-5-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "msys2-runtime",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "46f04552f02c0db6942ee3fdcb908c3b9b91f0bd064f86dd78a354c80b1925c0",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.6.10-5-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/msys2-runtime",
+      "url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.6.10-5-x86_64.pkg.tar.zst",
+      "version": "3.6.10-5"
+    },
+    {
+      "base": "nano",
+      "dependencies": [
+        "file",
+        "libintl",
+        "ncurses",
+        "sh"
+      ],
+      "filename": "nano-9.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "nano",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "0fd23077af18ab656e4a082ce0455ab16217c852f3968343e903843c204a12b2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/nano-9.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/nano",
+      "url": "https://repo.msys2.org/msys/x86_64/nano-9.2-1-x86_64.pkg.tar.zst",
+      "version": "9.2-1"
+    },
+    {
+      "base": "ncurses",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "ncurses-6.6-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "ncurses",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "828c92f09b17f00d3b49362fcfa4affa58e5e50e238f290ea36eb7a690da3acb",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/ncurses-6.6-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/ncurses",
+      "url": "https://repo.msys2.org/msys/x86_64/ncurses-6.6-2-x86_64.pkg.tar.zst",
+      "version": "6.6-2"
+    },
+    {
+      "base": "nettle",
+      "dependencies": [
+        "libnettle"
+      ],
+      "filename": "nettle-4.0-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later OR LGPL-3.0-or-later"
+      ],
+      "name": "nettle",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "6e8809a2dc5f98dd199a3dd7c7e3783bdaf2fec1699a0c5b9eb4480ab7dd6365",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/nettle-4.0-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/nettle",
+      "url": "https://repo.msys2.org/msys/x86_64/nettle-4.0-1-x86_64.pkg.tar.zst",
+      "version": "4.0-1"
+    },
+    {
+      "base": "openssh",
+      "dependencies": [
+        "heimdal",
+        "libedit",
+        "libxcrypt",
+        "libfido2",
+        "openssl"
+      ],
+      "filename": "openssh-10.5p1-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LicenseRef-OpenSSH"
+      ],
+      "name": "openssh",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "5adb5752c23180ad036dc44fe90e349b9943127d005d3a6b02fb2427ff6bb975",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/openssh-10.5p1-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/openssh",
+      "url": "https://repo.msys2.org/msys/x86_64/openssh-10.5p1-2-x86_64.pkg.tar.zst",
+      "version": "10.5p1-2"
+    },
+    {
+      "base": "openssl",
+      "dependencies": [
+        "libopenssl"
+      ],
+      "filename": "openssl-3.6.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:Apache-2.0"
+      ],
+      "name": "openssl",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "4554223c1ad0e01cce0f2088be5eaf128908663c280b175d2e78f93e55c6dfff",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/openssl-3.6.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/openssl",
+      "url": "https://repo.msys2.org/msys/x86_64/openssl-3.6.4-1-x86_64.pkg.tar.zst",
+      "version": "3.6.4-1"
+    },
+    {
+      "base": "p11-kit",
+      "dependencies": [
+        "libp11-kit"
+      ],
+      "filename": "p11-kit-0.26.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:BSD-3-Clause"
+      ],
+      "name": "p11-kit",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "db341cc3e91c68f5de25d9a2eda3beb752ec8ac74a89f001f60453c817ce5f51",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/p11-kit-0.26.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/p11-kit",
+      "url": "https://repo.msys2.org/msys/x86_64/p11-kit-0.26.5-1-x86_64.pkg.tar.zst",
+      "version": "0.26.5-1"
+    },
+    {
+      "base": "pacman",
+      "dependencies": [
+        "bash>=4.2.045",
+        "gettext",
+        "gnupg",
+        "curl",
+        "pacman-mirrors",
+        "msys2-keyring",
+        "which",
+        "bzip2",
+        "xz",
+        "zstd"
+      ],
+      "filename": "pacman-6.1.0-25-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later"
+      ],
+      "name": "pacman",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "cb375279a44b37f646dbe834b440c233fddbacb97d6173e5c7d91362717c970f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/pacman-6.1.0-25-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/pacman",
+      "url": "https://repo.msys2.org/msys/x86_64/pacman-6.1.0-25-x86_64.pkg.tar.zst",
+      "version": "6.1.0-25"
+    },
+    {
+      "base": "pacman-contrib",
+      "dependencies": [
+        "pacman",
+        "bash"
+      ],
+      "filename": "pacman-contrib-1.10.6-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later"
+      ],
+      "name": "pacman-contrib",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "99300a1ee81c991e78f866566b05d59d824d4774e0b5ab011d8f6b117f9ee2ae",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/pacman-contrib-1.10.6-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/pacman-contrib",
+      "url": "https://repo.msys2.org/msys/x86_64/pacman-contrib-1.10.6-2-x86_64.pkg.tar.zst",
+      "version": "1.10.6-2"
+    },
+    {
+      "base": "pacman-mirrors",
+      "dependencies": [],
+      "filename": "pacman-mirrors-20260129-1-any.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "pacman-mirrors",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "e7f8aa620cd29c7449e5a8177d83799f7ea2a5fc7afad0ec9c11b07fa46670b6",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/pacman-mirrors-20260129-1-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/pacman-mirrors",
+      "url": "https://repo.msys2.org/msys/x86_64/pacman-mirrors-20260129-1-any.pkg.tar.zst",
+      "version": "20260129-1"
+    },
+    {
+      "base": "perl",
+      "dependencies": [
+        "db",
+        "gdbm",
+        "libxcrypt",
+        "coreutils",
+        "sh"
+      ],
+      "filename": "perl-5.42.3-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl",
+      "origin": "signed-package",
+      "provides": [
+        "perl-archive-tar=3.04",
+        "perl-attribute-handlers=1.03",
+        "perl-autoloader=5.74",
+        "perl-cpan-meta-requirements=2.143",
+        "perl-cpan-meta-yaml=0.020",
+        "perl-cpan-meta=2.150010",
+        "perl-cpan=2.38",
+        "perl-carp=1.54",
+        "perl-compress-raw-bzip2=2.213",
+        "perl-compress-raw-zlib=2.213",
+        "perl-config-perl-v=0.38",
+        "perl-db_file=1.859",
+        "perl-data-dumper=2.192",
+        "perl-devel-ppport=3.73",
+        "perl-devel-selfstubber=1.06",
+        "perl-digest-md5=2.59",
+        "perl-digest-sha=6.04",
+        "perl-digest=1.20",
+        "perl-dumpvalue=1.21",
+        "perl-encode=3.21",
+        "perl-env=1.06",
+        "perl-exporter=5.79",
+        "perl-extutils-cbuilder=0.280242",
+        "perl-extutils-constant=0.25",
+        "perl-extutils-install=2.22",
+        "perl-extutils-makemaker=7.76",
+        "perl-extutils-manifest=1.75",
+        "perl-extutils-pl2bat=0.005",
+        "perl-extutils-parsexs=3.57",
+        "perl-file-fetch=1.04",
+        "perl-file-path=2.18",
+        "perl-file-temp=0.2311",
+        "perl-filter-simple=0.96",
+        "perl-filter-util-call=1.64",
+        "perl-findbin=1.54",
+        "perl-getopt-long=2.58",
+        "perl-http-tiny=0.090",
+        "perl-i18n-collate=1.02",
+        "perl-i18n-langtags=0.45",
+        "perl-io-compress=2.213",
+        "perl-io-socket-ip=0.43",
+        "perl-io-zlib=1.15",
+        "perl-io=1.55",
+        "perl-ipc-cmd=1.04",
+        "perl-ipc-sysv=2.09",
+        "perl-json-pp=4.16",
+        "perl-locale-maketext-simple=0.21_01",
+        "perl-locale-maketext=1.33",
+        "perl-mime-base64=3.16_01",
+        "perl-math-bigint-fastcalc=0.5020",
+        "perl-math-bigint=2.005002",
+        "perl-math-complex=1.63",
+        "perl-memoize=1.17",
+        "perl-module-corelist=5.20260308",
+        "perl-module-load-conditional=0.74",
+        "perl-module-load=0.36",
+        "perl-module-loaded=0.08",
+        "perl-module-metadata=1.000038",
+        "perl-next=0.69",
+        "perl-net-ping=2.76",
+        "perl-params-check=0.38",
+        "perl-pathtools=3.94",
+        "perl-perl-ostype=1.010",
+        "perl-perlio-via-quotedprint=0.10",
+        "perl-pod-checker=1.77",
+        "perl-pod-escapes=1.07",
+        "perl-pod-perldoc=3.2801",
+        "perl-pod-simple=3.45",
+        "perl-pod-usage=2.05",
+        "perl-safe=2.47",
+        "perl-scalar-list-utils=1.68_01",
+        "perl-search-dict=1.08",
+        "perl-selfloader=1.28",
+        "perl-socket=2.038",
+        "perl-storable=3.37",
+        "perl-sys-syslog=0.36",
+        "perl-term-ansicolor=5.01",
+        "perl-term-cap=1.18",
+        "perl-term-complete=1.403",
+        "perl-term-readline=1.17",
+        "perl-term-table=0.024",
+        "perl-test-harness=3.50",
+        "perl-test-simple=1.302210",
+        "perl-test=1.31",
+        "perl-text-abbrev=1.02",
+        "perl-text-balanced=2.06",
+        "perl-text-parsewords=3.31",
+        "perl-text-tabs=2024.001",
+        "perl-thread-queue=3.14",
+        "perl-thread-semaphore=2.13",
+        "perl-tie-file=1.10",
+        "perl-tie-refhash=1.41",
+        "perl-time-hires=1.9778",
+        "perl-time-local=1.35",
+        "perl-time-piece=1.36",
+        "perl-unicode-collate=1.31",
+        "perl-unicode-normalize=1.32",
+        "perl-win32=0.59_01",
+        "perl-win32api-file=0.1203_01",
+        "perl-xsloader=0.32",
+        "perl-autodie=2.37",
+        "perl-autouse=1.11",
+        "perl-base=2.27",
+        "perl-bignum=0.67",
+        "perl-constant=1.33",
+        "perl-encoding-warnings=0.14",
+        "perl-experimental=0.035",
+        "perl-if=0.0610",
+        "perl-lib=0.65",
+        "perl-libnet=3.15",
+        "perl-parent=0.244",
+        "perl-perlfaq=5.20250619",
+        "perl-podlators=6.0.2",
+        "perl-threads-shared=1.70",
+        "perl-threads=2.43",
+        "perl-version=0.9933"
+      ],
+      "sha256": "d89eaa2b8d661fd2040b54092d718f57aa1c066ea2d63735989ee47cfa7c9ef2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-5.42.3-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-5.42.3-2-x86_64.pkg.tar.zst",
+      "version": "5.42.3-2"
+    },
+    {
+      "base": "perl-authen-sasl",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-authen-sasl-2.2100-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-authen-sasl",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Authen-SASL=2.2100"
+      ],
+      "sha256": "98cdd396f65df318ca777de7f4166485ad7815c5000399e4aa6843f59e00e55b",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-authen-sasl-2.2100-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-authen-sasl",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-authen-sasl-2.2100-2-any.pkg.tar.zst",
+      "version": "2.2100-2"
+    },
+    {
+      "base": "perl-clone",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-clone-0.50-3-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-1.0-or-later",
+        "spdx:Artistic-1.0-Perl"
+      ],
+      "name": "perl-clone",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Clone=0.50"
+      ],
+      "sha256": "c9f0bc99e8e93f9ca3fe06e10d85cd2deac8a8d440a9e85e17ce109b0c5cf1c3",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-clone-0.50-3-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-clone",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-clone-0.50-3-x86_64.pkg.tar.zst",
+      "version": "0.50-3"
+    },
+    {
+      "base": "perl-convert-binhex",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-convert-binhex-1.125-3-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-convert-binhex",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Convert-BinHex=1.125"
+      ],
+      "sha256": "96d9418550129e569a69b17682654f71754c92bbe97515f2f255d6aa9ad4d1bc",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-convert-binhex-1.125-3-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-convert-binhex",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-convert-binhex-1.125-3-any.pkg.tar.zst",
+      "version": "1.125-3"
+    },
+    {
+      "base": "perl-encode-locale",
+      "dependencies": [
+        "perl>=5.008"
+      ],
+      "filename": "perl-encode-locale-1.05-3-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-encode-locale",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Encode-Locale=1.05"
+      ],
+      "sha256": "e02957a3468521d6a35fec39327ee9ecf024b00261fb4c496339cb5428decd8f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-encode-locale-1.05-3-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-encode-locale",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-encode-locale-1.05-3-any.pkg.tar.zst",
+      "version": "1.05-3"
+    },
+    {
+      "base": "perl-error",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-error-0.17030-3-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-error",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Error=0.17030"
+      ],
+      "sha256": "c5c183196a4803c0b427fc174e446cc530e80833fce7405719bc46a33d3c61fd",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-error-0.17030-3-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-error",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-error-0.17030-3-any.pkg.tar.zst",
+      "version": "0.17030-3"
+    },
+    {
+      "base": "perl-file-listing",
+      "dependencies": [
+        "perl>=5.8.8",
+        "perl-http-date>=6"
+      ],
+      "filename": "perl-file-listing-6.16-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl",
+        "spdx:GPL-1.0-or-later"
+      ],
+      "name": "perl-file-listing",
+      "origin": "signed-package",
+      "provides": [
+        "perl-File-Listing=6.16"
+      ],
+      "sha256": "15e00cd7923ec76c8127576bb64e0cb159a48ea87efefc35f64493bcd1e8a95e",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-file-listing-6.16-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-file-listing",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-file-listing-6.16-2-any.pkg.tar.zst",
+      "version": "6.16-2"
+    },
+    {
+      "base": "perl-html-parser",
+      "dependencies": [
+        "perl-html-tagset",
+        "perl-http-message",
+        "perl-uri",
+        "perl"
+      ],
+      "filename": "perl-html-parser-3.86-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl",
+        "spdx:GPL-1.0-or-later"
+      ],
+      "name": "perl-html-parser",
+      "origin": "signed-package",
+      "provides": [
+        "perl-HTML-Parser=3.86"
+      ],
+      "sha256": "18a6097593b08689f3923bfe948356c645e486929af5fee6e9d661a1285c060c",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-html-parser-3.86-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-html-parser",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-html-parser-3.86-2-x86_64.pkg.tar.zst",
+      "version": "3.86-2"
+    },
+    {
+      "base": "perl-html-tagset",
+      "dependencies": [
+        "perl>=5.10.0"
+      ],
+      "filename": "perl-html-tagset-3.24-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-html-tagset",
+      "origin": "signed-package",
+      "provides": [
+        "HTML-Tagset",
+        "perl-HTML-Tagset=3.24"
+      ],
+      "sha256": "cf9adccdaaa6b5b1307365afed083daa126d4230ef812f35ec65eb5f6e472c92",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-html-tagset-3.24-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-html-tagset",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-html-tagset-3.24-2-any.pkg.tar.zst",
+      "version": "3.24-2"
+    },
+    {
+      "base": "perl-http-cookiejar",
+      "dependencies": [
+        "perl-http-date"
+      ],
+      "filename": "perl-http-cookiejar-0.014-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Apache-2.0"
+      ],
+      "name": "perl-http-cookiejar",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "70fdf1d4bdbab078765e7200436f614cf995007f2329f487baafc1841e8d66a9",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-http-cookiejar-0.014-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-http-cookiejar",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-http-cookiejar-0.014-2-any.pkg.tar.zst",
+      "version": "0.014-2"
+    },
+    {
+      "base": "perl-http-cookies",
+      "dependencies": [
+        "perl>=5.8.8",
+        "perl-http-date>=6",
+        "perl-http-message"
+      ],
+      "filename": "perl-http-cookies-6.12-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-http-cookies",
+      "origin": "signed-package",
+      "provides": [
+        "perl-HTTP-Cookies=6.12"
+      ],
+      "sha256": "902e3d2ac5564536bafd113f42d49df7ecf8c4808c793369ba7bb413a12546d1",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-http-cookies-6.12-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-http-cookies",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-http-cookies-6.12-2-any.pkg.tar.zst",
+      "version": "6.12-2"
+    },
+    {
+      "base": "perl-http-daemon",
+      "dependencies": [
+        "perl",
+        "perl-http-date",
+        "perl-http-message",
+        "perl-io-socket-ip",
+        "perl-lwp-mediatypes"
+      ],
+      "filename": "perl-http-daemon-6.17-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl",
+        "spdx:GPL-1.0-or-later"
+      ],
+      "name": "perl-http-daemon",
+      "origin": "signed-package",
+      "provides": [
+        "perl-HTTP-Daemon=6.17"
+      ],
+      "sha256": "77d6fd31b6e1a1db66237a97da8a99c7a0eff8297ca1d5b75acfcb38a86251ca",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-http-daemon-6.17-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-http-daemon",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-http-daemon-6.17-2-any.pkg.tar.zst",
+      "version": "6.17-2"
+    },
+    {
+      "base": "perl-http-date",
+      "dependencies": [
+        "perl>=5.8.8"
+      ],
+      "filename": "perl-http-date-6.08-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-http-date",
+      "origin": "signed-package",
+      "provides": [
+        "perl-HTTP-Date=6.08"
+      ],
+      "sha256": "c26c4e9655557e7c9ec8b74c39d32e31ec5640552f5371b221d59bc22bfa520a",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-http-date-6.08-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-http-date",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-http-date-6.08-2-any.pkg.tar.zst",
+      "version": "6.08-2"
+    },
+    {
+      "base": "perl-http-message",
+      "dependencies": [
+        "perl>=5.8.8",
+        "perl-clone",
+        "perl-encode-locale>=1",
+        "perl-io-html",
+        "perl-http-date>=6",
+        "perl-lwp-mediatypes>=6",
+        "perl-uri>=1.10"
+      ],
+      "filename": "perl-http-message-7.04-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-http-message",
+      "origin": "signed-package",
+      "provides": [
+        "perl-HTTP-Message=7.04"
+      ],
+      "sha256": "526c89268f0489c37d950fbd8fdbdbb745dbe61ec2d2bd2871c6c8646d01792d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-http-message-7.04-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-http-message",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-http-message-7.04-2-any.pkg.tar.zst",
+      "version": "7.04-2"
+    },
+    {
+      "base": "perl-http-negotiate",
+      "dependencies": [
+        "perl>=5.8.8",
+        "perl-http-message"
+      ],
+      "filename": "perl-http-negotiate-6.01-4-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-http-negotiate",
+      "origin": "signed-package",
+      "provides": [
+        "perl-HTTP-Negotiate=6.01"
+      ],
+      "sha256": "0cb00eb507d51b5fb9446827acc7d7f0629381f7d7bf8548fa3e0ba64704dd5e",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-http-negotiate-6.01-4-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-http-negotiate",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-http-negotiate-6.01-4-any.pkg.tar.zst",
+      "version": "6.01-4"
+    },
+    {
+      "base": "perl-io-html",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-io-html-1.004-3-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-io-html",
+      "origin": "signed-package",
+      "provides": [
+        "perl-IO-HTML=1.004"
+      ],
+      "sha256": "3d42f5fe05b06fda5cbe94c79f98c9a1f32d0b0361b93839f9244af3676620f0",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-io-html-1.004-3-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-io-html",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-io-html-1.004-3-any.pkg.tar.zst",
+      "version": "1.004-3"
+    },
+    {
+      "base": "perl-io-socket-ssl",
+      "dependencies": [
+        "perl-net-ssleay",
+        "perl",
+        "perl-uri"
+      ],
+      "filename": "perl-io-socket-ssl-2.099-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-io-socket-ssl",
+      "origin": "signed-package",
+      "provides": [
+        "perl-IO-Socket-SSL=2.099"
+      ],
+      "sha256": "d9d0adc2c9435a50d573869031f893babbceef8ddbc8039efe01a7ee598ac35f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-io-socket-ssl-2.099-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-io-socket-ssl",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-io-socket-ssl-2.099-2-any.pkg.tar.zst",
+      "version": "2.099-2"
+    },
+    {
+      "base": "perl-io-stringy",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-io-stringy-2.113-4-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-io-stringy",
+      "origin": "signed-package",
+      "provides": [
+        "perl-IO-Stringy=2.113"
+      ],
+      "sha256": "35664d5b4b6e6c569984f4901d7d57b56869b5a41b9ab35674f938186a50b7e2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-io-stringy-2.113-4-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-io-stringy",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-io-stringy-2.113-4-any.pkg.tar.zst",
+      "version": "2.113-4"
+    },
+    {
+      "base": "perl-libwww",
+      "dependencies": [
+        "perl",
+        "perl-encode-locale",
+        "perl-file-listing",
+        "perl-html-parser",
+        "perl-http-cookies",
+        "perl-http-daemon",
+        "perl-http-cookiejar",
+        "perl-http-date",
+        "perl-http-negotiate",
+        "perl-lwp-mediatypes",
+        "perl-net-http",
+        "perl-uri",
+        "perl-www-robotrules",
+        "perl-http-message",
+        "perl-try-tiny"
+      ],
+      "filename": "perl-libwww-6.83-3-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl",
+        "spdx:GPL-1.0-or-later"
+      ],
+      "name": "perl-libwww",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "adbc8538af75c6d9d37ec3c05cbda27843ad35c6b9fc6de8de64e016bb4c27b1",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-libwww-6.83-3-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-libwww",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-libwww-6.83-3-any.pkg.tar.zst",
+      "version": "6.83-3"
+    },
+    {
+      "base": "perl-lwp-mediatypes",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-lwp-mediatypes-6.05-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-lwp-mediatypes",
+      "origin": "signed-package",
+      "provides": [
+        "perl-LWP-MediaTypes=6.05"
+      ],
+      "sha256": "4afde66f5a53366fbed27779345b3f7fd782feffa00613a5d5482b5d207f6358",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-lwp-mediatypes-6.05-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-lwp-mediatypes",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-lwp-mediatypes-6.05-2-any.pkg.tar.zst",
+      "version": "6.05-2"
+    },
+    {
+      "base": "perl-mailtools",
+      "dependencies": [
+        "perl-timedate"
+      ],
+      "filename": "perl-mailtools-2.22-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-mailtools",
+      "origin": "signed-package",
+      "provides": [
+        "perl-MailTools=2.22"
+      ],
+      "sha256": "53cba8b2bc2042518d83a88d562a9ee0d1ceae3d581ac4896baec0ac25bfc91c",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-mailtools-2.22-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-mailtools",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-mailtools-2.22-2-any.pkg.tar.zst",
+      "version": "2.22-2"
+    },
+    {
+      "base": "perl-mime-tools",
+      "dependencies": [
+        "perl-convert-binhex",
+        "perl-io-stringy",
+        "perl-mailtools"
+      ],
+      "filename": "perl-mime-tools-5.518-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl",
+        "spdx:GPL-1.0-or-later"
+      ],
+      "name": "perl-mime-tools",
+      "origin": "signed-package",
+      "provides": [
+        "perl-mime-body=5.428.0",
+        "perl-mime-decoder",
+        "perl-mime-decoder-base64",
+        "perl-mime-decoder-binary",
+        "perl-mime-decoder-binhex",
+        "perl-mime-decoder-quotedprint",
+        "perl-mime-decoder-gzip64",
+        "perl-mime-decoder-nbit",
+        "perl-mime-decoder-uu",
+        "perl-mime-entity",
+        "perl-mime-field-contdisp=5.428.0",
+        "perl-mime-field-contraenc=5.428.0",
+        "perl-mime-field-conttype=5.428.0",
+        "perl-mime-field-paramval=5.428.0",
+        "perl-mime-head=5.428.0",
+        "perl-mime-parser",
+        "perl-mime-parser-filer",
+        "perl-mime-parser-reader",
+        "perl-mime-parser-results",
+        "perl-mime-worddecoder",
+        "perl-mime-words=5.428.0",
+        "perl-MIME-tools=5.518"
+      ],
+      "sha256": "05d3cb6d53c943ce4481f67a04e7b9272e383577ea84672f2ff390d7dab95766",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-mime-tools-5.518-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-mime-tools",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-mime-tools-5.518-2-any.pkg.tar.zst",
+      "version": "5.518-2"
+    },
+    {
+      "base": "perl-net-http",
+      "dependencies": [
+        "perl>=5.6.2"
+      ],
+      "filename": "perl-net-http-6.24-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-net-http",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Net-HTTP=6.24"
+      ],
+      "sha256": "8f45b20264525e3c5788f2b12a1c15ae8a27ef2904030bd598aa7fc9d10fda36",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-net-http-6.24-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-net-http",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-net-http-6.24-2-any.pkg.tar.zst",
+      "version": "6.24-2"
+    },
+    {
+      "base": "perl-net-smtp-ssl",
+      "dependencies": [
+        "perl-io-socket-ssl"
+      ],
+      "filename": "perl-net-smtp-ssl-1.04-3-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-net-smtp-ssl",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Net-SMTP-SSL=1.04"
+      ],
+      "sha256": "d553221db395c227c93643800af42d39049b055f2630e39b1c4cd78a7d3745c1",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-net-smtp-ssl-1.04-3-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-net-smtp-ssl",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-net-smtp-ssl-1.04-3-any.pkg.tar.zst",
+      "version": "1.04-3"
+    },
+    {
+      "base": "perl-net-ssleay",
+      "dependencies": [
+        "openssl"
+      ],
+      "filename": "perl-net-ssleay-1.96-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-2.0"
+      ],
+      "name": "perl-net-ssleay",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Net-SSLeay=1.96"
+      ],
+      "sha256": "63b534ee973831d01b9c9e64fd8891925e9cf0c8923326b63f3c9d4582fee820",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-net-ssleay-1.96-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-net-ssleay",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-net-ssleay-1.96-2-x86_64.pkg.tar.zst",
+      "version": "1.96-2"
+    },
+    {
+      "base": "perl-termreadkey",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-termreadkey-2.38-9-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LicenseRef-TermReadKey"
+      ],
+      "name": "perl-termreadkey",
+      "origin": "signed-package",
+      "provides": [
+        "perl-TermReadKey=2.38"
+      ],
+      "sha256": "584029cb544e78f46d7cc2040d22d144bc26657d0584452d2119dc67f1cf747d",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-termreadkey-2.38-9-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-termreadkey",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-termreadkey-2.38-9-x86_64.pkg.tar.zst",
+      "version": "2.38-9"
+    },
+    {
+      "base": "perl-timedate",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-timedate-2.35-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl"
+      ],
+      "name": "perl-timedate",
+      "origin": "signed-package",
+      "provides": [
+        "perl-TimeDate=2.35"
+      ],
+      "sha256": "ddd3cd5bb07f6c1cc2a6315233e48002d904a492901134d6f1f4139d21f31625",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-timedate-2.35-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-timedate",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-timedate-2.35-2-any.pkg.tar.zst",
+      "version": "2.35-2"
+    },
+    {
+      "base": "perl-try-tiny",
+      "dependencies": [
+        "perl"
+      ],
+      "filename": "perl-try-tiny-0.32-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "perl-try-tiny",
+      "origin": "signed-package",
+      "provides": [
+        "perl-Try-Tiny=0.32"
+      ],
+      "sha256": "3d36d2b776c6aa8d4313b3b08eea81ad58002783c5f95c4ad8ca718cd84b9c8c",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-try-tiny-0.32-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-try-tiny",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-try-tiny-0.32-2-any.pkg.tar.zst",
+      "version": "0.32-2"
+    },
+    {
+      "base": "perl-uri",
+      "dependencies": [
+        "perl>=5.10.0"
+      ],
+      "filename": "perl-uri-5.37-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl OR GPL-1.0-or-later"
+      ],
+      "name": "perl-uri",
+      "origin": "signed-package",
+      "provides": [
+        "perl-uri-escape=3.30",
+        "perl-URI=5.37"
+      ],
+      "sha256": "80c66674e48c53b56561fe76d39a739a80fd0796644d535a70a3117bba52add2",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-uri-5.37-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-uri",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-uri-5.37-2-any.pkg.tar.zst",
+      "version": "5.37-2"
+    },
+    {
+      "base": "perl-www-robotrules",
+      "dependencies": [
+        "perl",
+        "perl-uri"
+      ],
+      "filename": "perl-www-robotrules-6.03-2-any.pkg.tar.zst",
+      "licenses": [
+        "spdx:Artistic-1.0-Perl",
+        "spdx:GPL-1.0-or-later"
+      ],
+      "name": "perl-www-robotrules",
+      "origin": "signed-package",
+      "provides": [
+        "perl-WWW-RobotRules=6.03"
+      ],
+      "sha256": "c4b720d8a7e5973d524de6b53d798db49e6f3697252da1ea68a680ca0861c4d5",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/perl-www-robotrules-6.03-2-any.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/perl-www-robotrules",
+      "url": "https://repo.msys2.org/msys/x86_64/perl-www-robotrules-6.03-2-any.pkg.tar.zst",
+      "version": "6.03-2"
+    },
+    {
+      "base": "pinentry",
+      "dependencies": [
+        "ncurses",
+        "libassuan",
+        "libgpg-error"
+      ],
+      "filename": "pinentry-1.3.3-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later"
+      ],
+      "name": "pinentry",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "6a72ff654a57181dbb168951a24147dd6cf3f53c0df6250b96a4cca6eeb4837c",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/pinentry-1.3.3-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/pinentry",
+      "url": "https://repo.msys2.org/msys/x86_64/pinentry-1.3.3-1-x86_64.pkg.tar.zst",
+      "version": "1.3.3-1"
+    },
+    {
+      "base": "rebase",
+      "dependencies": [
+        "dash"
+      ],
+      "filename": "rebase-4.5.0-5-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "rebase",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "d67e710f40b36fe2154fc32e63fdc4e2da7b7615a2e59ec996ce9b292ba85430",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/rebase-4.5.0-5-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/rebase",
+      "url": "https://repo.msys2.org/msys/x86_64/rebase-4.5.0-5-x86_64.pkg.tar.zst",
+      "version": "4.5.0-5"
+    },
+    {
+      "base": "sed",
+      "dependencies": [
+        "libintl",
+        "sh"
+      ],
+      "filename": "sed-4.9-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "sed",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "3748af28f69e946ec5a42e6670c9bbf6da7352dc93baaa537f69e99c5483b9fc",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/sed-4.9-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/sed",
+      "url": "https://repo.msys2.org/msys/x86_64/sed-4.9-1-x86_64.pkg.tar.zst",
+      "version": "4.9-1"
+    },
+    {
+      "base": "tar",
+      "dependencies": [
+        "libiconv",
+        "libintl",
+        "sh"
+      ],
+      "filename": "tar-1.35-3-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "tar",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "71983bed200c4026cdec157837d989728d3de65e8cf644e03876df41a0f1b7c4",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/tar-1.35-3-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/tar",
+      "url": "https://repo.msys2.org/msys/x86_64/tar-1.35-3-x86_64.pkg.tar.zst",
+      "version": "1.35-3"
+    },
+    {
+      "base": "time",
+      "dependencies": [],
+      "filename": "time-1.10-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "time",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "53bd332145effa8afec1209c105fe9b5264a5692ff35e0d03d96d2058ea7ae61",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/time-1.10-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/time",
+      "url": "https://repo.msys2.org/msys/x86_64/time-1.10-1-x86_64.pkg.tar.zst",
+      "version": "1.10-1"
+    },
+    {
+      "base": "tzcode",
+      "dependencies": [
+        "coreutils",
+        "gawk",
+        "sed"
+      ],
+      "filename": "tzcode-2026d-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:LicenseRef-tz"
+      ],
+      "name": "tzcode",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "45b34683e4db6813ccec2df2aecef1fb9066c17267aeef645eca447463230b2f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/tzcode-2026d-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/tzcode",
+      "url": "https://repo.msys2.org/msys/x86_64/tzcode-2026d-1-x86_64.pkg.tar.zst",
+      "version": "2026d-1"
+    },
+    {
+      "base": "util-linux",
+      "dependencies": [
+        "coreutils",
+        "libutil-linux",
+        "libiconv",
+        "libreadline",
+        "libsqlite"
+      ],
+      "filename": "util-linux-2.40.2-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later"
+      ],
+      "name": "util-linux",
+      "origin": "signed-base",
+      "provides": [
+        "getopt"
+      ],
+      "sha256": "969edb185d37986e6feddb3c54807598e3cc6774b736fec3a27d5d27731f7fdd",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/util-linux-2.40.2-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/util-linux",
+      "url": "https://repo.msys2.org/msys/x86_64/util-linux-2.40.2-2-x86_64.pkg.tar.zst",
+      "version": "2.40.2-2"
+    },
+    {
+      "base": "wget",
+      "dependencies": [
+        "gcc-libs",
+        "libiconv",
+        "libidn2",
+        "libintl",
+        "libpcre2_8",
+        "libpsl",
+        "libuuid",
+        "libgnutls",
+        "zlib"
+      ],
+      "filename": "wget-1.25.0-4-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "wget",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "533bd9beb98fe40789558de0343aa29361709876af6a3b9eb2e83f88a18645d3",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/wget-1.25.0-4-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/wget",
+      "url": "https://repo.msys2.org/msys/x86_64/wget-1.25.0-4-x86_64.pkg.tar.zst",
+      "version": "1.25.0-4"
+    },
+    {
+      "base": "which",
+      "dependencies": [
+        "sh"
+      ],
+      "filename": "which-2.25-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL3"
+      ],
+      "name": "which",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "a299e7b9076e5d9381e59fd67538aa39346eb36bb16a93834fb99cccc3f2055b",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/which-2.25-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/which",
+      "url": "https://repo.msys2.org/msys/x86_64/which-2.25-1-x86_64.pkg.tar.zst",
+      "version": "2.25-1"
+    },
+    {
+      "base": "xz",
+      "dependencies": [
+        "liblzma",
+        "libiconv",
+        "libintl"
+      ],
+      "filename": "xz-5.8.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later"
+      ],
+      "name": "xz",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "cad72459be8f5b99920bed2f122dfe81e05fc599c33f5b871bd35d72b726ef9e",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/xz-5.8.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/xz",
+      "url": "https://repo.msys2.org/msys/x86_64/xz-5.8.4-1-x86_64.pkg.tar.zst",
+      "version": "5.8.4-1"
+    },
+    {
+      "base": "zlib",
+      "dependencies": [
+        "gcc-libs"
+      ],
+      "filename": "zlib-1.3.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "zlib",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "a04aa79996c57f0db936be66cf94326d7e67e9cd8dbffe4cf6e97693d0a1d9ef",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/zlib-1.3.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/zlib",
+      "url": "https://repo.msys2.org/msys/x86_64/zlib-1.3.2-1-x86_64.pkg.tar.zst",
+      "version": "1.3.2-1"
+    },
+    {
+      "base": "zsh",
+      "dependencies": [
+        "ncurses",
+        "libpcre2_8",
+        "libiconv"
+      ],
+      "filename": "zsh-5.9.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:Zsh"
+      ],
+      "name": "zsh",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "9a134200a152d90a0f1820d6aa74c3369d8539c068b523852549d74b16739fa8",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/zsh-5.9.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/zsh",
+      "url": "https://repo.msys2.org/msys/x86_64/zsh-5.9.2-1-x86_64.pkg.tar.zst",
+      "version": "5.9.2-1"
+    },
+    {
+      "base": "zstd",
+      "dependencies": [
+        "gcc-libs",
+        "libzstd"
+      ],
+      "filename": "zstd-1.5.7-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "zstd",
+      "origin": "signed-base",
+      "provides": [],
+      "sha256": "7b8ab77828c5a1efe53ebc53e3ea9d719bfbd609bf4c810eaa88d626188ed407",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/zstd-1.5.7-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/zstd",
+      "url": "https://repo.msys2.org/msys/x86_64/zstd-1.5.7-1-x86_64.pkg.tar.zst",
+      "version": "1.5.7-1"
+    }
+  ],
+  "provenance": "Imported from authenticated MSYS2 base and signed repository databases; component source/notice inputs are deliberately unresolved, not inferred from master recipes.",
+  "schema_version": 1,
+  "signed_databases": [
+    {
+      "database_sha256": "ce2f3ae6aca4e6fe8a44030dac58042dd0a826429754f9abe5ed82850cb1cae6",
+      "repository": "msys",
+      "signature_sha256": "d117d3de17ba4f22d43ce5dbec3d76cc09f927d874e8d3f3354d18989ff1f174",
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "database_sha256": "f1dc820401f69f8f41c825fbe348ab02ecdebb67fd54da1bfb0347ffda0ee30f",
+      "repository": "ucrt64",
+      "signature_sha256": "33e667af56014a69757846d471bc61363a28e92939549db5dd11c397713e2f6a",
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    }
+  ],
+  "snapshot": "2026-09-27"
+}

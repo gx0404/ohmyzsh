@@ -1,0 +1,46 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+_perlname='libwww-perl'
+_realname="${_perlname,,}"
+pkgname="perl-libwww"
+pkgver=6.83
+pkgrel=3
+pkgdesc="The World-Wide Web library for Perl"
+arch=('any')
+url="https://metacpan.org/dist/libwww-perl"
+msys2_repository_url='https://github.com/libwww-perl/libwww-perl'
+msys2_changelog_url='https://github.com/libwww-perl/libwww-perl/blob/master/Changes'
+msys2_references=(
+  'archlinux: perl-libwww'
+  "cpe: cpe:/a:gisle_aas:libwww-perl"
+  "cpe: cpe:/a:search.cpan:libwww-perl"
+  'purl: pkg:cpan/OALDERS/libwww-perl'
+)
+groups=('perl-modules')
+license=('spdx:Artistic-1.0-Perl' 'spdx:GPL-1.0-or-later')
+options=('!emptydirs')
+depends=('perl' 'perl-encode-locale' 'perl-file-listing'
+         'perl-html-parser' 'perl-http-cookies' 'perl-http-daemon' 'perl-http-cookiejar'
+         'perl-http-date' 'perl-http-negotiate' 'perl-lwp-mediatypes'
+         'perl-net-http' 'perl-uri' 'perl-www-robotrules'
+         'perl-http-message' 'perl-try-tiny')
+optdepends=('perl-lwp-protocol-https: for https:// url schemes')
+checkdepends=('perl-test-fatal' 'perl-test-needs' 'perl-test-requiresinternet')
+source=("https://cpan.metacpan.org/authors/id/O/OA/OALDERS/${_perlname}-${pkgver}.tar.gz")
+sha256sums=('e75f0fa9d3c6f0daf5a5a72fa9f8b1c9c0d23e3a84a8522ccb4f835232b95505')
+
+build() {
+  cd "${_perlname}-${pkgver}"
+  perl Makefile.PL INSTALLDIRS=vendor
+  make
+}
+
+check() {
+  cd "${_perlname}-${pkgver}"
+  make test
+}
+
+package() {
+  cd "${_perlname}-${pkgver}"
+  make DESTDIR="$pkgdir" install
+}

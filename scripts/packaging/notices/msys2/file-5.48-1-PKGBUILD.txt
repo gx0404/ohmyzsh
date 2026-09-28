@@ -1,0 +1,55 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=file
+pkgver=5.48
+pkgrel=1
+pkgdesc="File type identification utility"
+arch=('i686' 'x86_64')
+license=('custom')
+url="https://www.darwinsys.com/file/"
+msys2_repository_url="https://github.com/file/file"
+msys2_references=(
+  "cpe: cpe:/a:file_project:file"
+)
+depends=('gcc-libs' 'zlib' 'libbz2' 'liblzma' 'libzstd')
+makedepends=('python' 'zlib-devel' 'libbz2-devel' 'liblzma-devel' 'libzstd-devel' 'autotools' 'gcc')
+options=('!libtool')
+source=("https://astron.com/pub/$pkgname/$pkgname-$pkgver.tar.gz"{,.asc})
+sha256sums=('ed14656883b23a364b4057c05595d93252da9bc473d30106519519d0da141283'
+            'SKIP')
+validpgpkeys=('BE04995BA8F90ED0C0C176C471112AB16CB33B3A') # Christos Zoulas <christos@zoulas.com>
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  autoreconf -fiv
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --prefix=/usr \
+    --build=${CHOST} \
+    --host=${CHOST} \
+    --target=${CHOST} \
+    --enable-fsect-man5 \
+    --enable-zlib \
+    --enable-bzlib \
+    --enable-xzlib \
+    --enable-zstdlib
+
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR=${pkgdir} install
+
+  install -Dm644 COPYING ${pkgdir}/usr/share/licenses/${pkgname}/COPYING
+
+  PYTHON_SITELIB=$(/usr/bin/python -c "import sysconfig; print(sysconfig.get_path('platlib'))")
+  mkdir -p ${pkgdir}/${PYTHON_SITELIB}
+  cp -f ${srcdir}/${pkgname}-${pkgver}/python/magic.py "${pkgdir}/$PYTHON_SITELIB"
+  python3 -m compileall -o 0 -o 1 -s "${pkgdir}" "${pkgdir}/$PYTHON_SITELIB"
+}

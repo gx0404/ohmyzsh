@@ -1,0 +1,71 @@
+# Maintainer: Oleg Titov <oleg.titov@gmail.com>
+
+pkgbase=zstd
+pkgname=('zstd' 'libzstd' 'libzstd-devel')
+pkgver=1.5.7
+pkgrel=1
+pkgdesc="Zstandard - Fast real-time compression algorithm"
+arch=('i686' 'x86_64')
+url='https://facebook.github.io/zstd/'
+msys2_repository_url="https://github.com/facebook/zstd"
+msys2_references=(
+  "anitya: 12083"
+  "cpe: cpe:2.3:a:facebook:zstandard"
+)
+license=('BSD')
+makedepends=('gcc' 'ninja' 'cmake')
+source=("https://github.com/facebook/${pkgbase}/releases/download/v${pkgver}/${pkgbase}-${pkgver}.tar.gz"{,.sig})
+sha256sums=('eb33e51f49a15e023950cd7825ca74a4a2b43db8354825ac24fc1b7ee09e6fa3'
+            'SKIP')
+validpgpkeys=('4EF4AC63455FC9F4545D9B7DEF8FE99528B52FFD')
+noextract=("${pkgbase}-${pkgver}.tar.gz")
+
+prepare() {
+  tar -xzf "${pkgbase}-${pkgver}.tar.gz" 2> /dev/null || tar -xzf "${pkgbase}-${pkgver}.tar.gz"
+
+  cd "${srcdir}/${pkgbase}-${pkgver}"
+}
+
+build() {
+  cd "${srcdir}/${pkgbase}-${pkgver}"
+
+  cmake \
+    -GNinja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DZSTD_PROGRAMS_LINK_SHARED=ON \
+    ../${pkgbase}-${pkgver}/build/cmake
+
+  cmake --build .
+  DESTDIR="${srcdir}/dest" cmake --install .
+}
+
+package_zstd() {
+  groups=('libraries')
+  depends=('gcc-libs' 'libzstd')
+
+  cd "${srcdir}/${pkgbase}-${pkgver}"
+  mkdir -p ${pkgdir}/usr/share
+  cp -rf ${srcdir}/dest/usr/bin ${pkgdir}/usr/bin/
+  cp -rf ${srcdir}/dest/usr/share/man ${pkgdir}/usr/share/man/
+  rm -f ${pkgdir}/usr/bin/*.dll
+  install -D -m644 "LICENSE" "${pkgdir}/usr/share/licenses/${pkgbase}/LICENSE"
+}
+
+package_libzstd() {
+  depends=('gcc-libs')
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -rf ${srcdir}/dest/usr/bin/*.dll ${pkgdir}/usr/bin/
+}
+
+package_libzstd-devel() {
+  groups=('development')
+  options=('staticlibs')
+  depends=("libzstd=${pkgver}")
+  pkgdesc="zstd headers and libraries"
+  
+  mkdir -p ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/usr/lib ${pkgdir}/usr/
+}

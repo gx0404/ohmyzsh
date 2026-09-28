@@ -4,6 +4,23 @@
 不替代上游 `omz changelog` 从 Conventional Commits 动态生成的体系。版本取
 `## X.Y.Z(日期|TBD)` 的最大数值 SemVer（scripts/version.py 维护）。
 
+## 0.2.0(TBD)
+
+- 新增 Windows x64 EXE 与 Ubuntu amd64 DEB 构建入口、依赖及对应源码/许可锁、
+  manifest 和校验值；GitHub Actions 仅手动触发，默认只构建验证，不自动公开 Release。
+- 提供 `gx-zsh` 与托管 `herdr` 入口。Windows 使用私有 MSYS2，Ubuntu 使用独立
+  Zsh 运行时；固定 herdr 来源包含 Windows 命名管道握手修复，不覆盖既有用户配置。
+- 修复 Zsh 5.9.2 中文启动文件、进程替换、sysopen 和 zcompile 的路径编码；
+  Linux 运行时通过 Ubuntu 20.04/24.04 用户态验证，保留源码补丁与构建记录。
+- 将 P10k 运行副本和编译缓存移到独立 profile，修复暖缓存无 TTY 初始化及
+  Windows zoxide 数据目录适配；长粘贴按长度选择逐键处理或一次字面插入。
+- 安装器遇到同秒备份/中转目标碰撞时安全拒绝，不再覆盖旧备份或删除同名残留。
+- 新增真实 PTY/ConPTY、中文路径、原生入口、打包、发布安全与生命周期测试。
+  开发候选包已在 Windows 和 WSL Ubuntu 24.04 实际安装并通过核心 TUI 验证；
+  原生包升级/卸载及完整发布验收仍未完成，不能据此宣称可正式发布。
+- 知识库构建统一文本换行并处理 Git 符号链接，避免 Windows/Linux checkout 形态
+  导致语料指纹漂移；同步 Make 入口、领域规则和发布/测试文档。
+
 ## 0.1.0(2026-09-21)
 
 - PreToolUse 安全门改为只在命令位置拦截强推/`git clean -f`/历史重写：heredoc

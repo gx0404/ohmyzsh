@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-COMMANDS := setup dev build lint typecheck test test-integration test-heavy generated-check ui-smoke graph graph-check kb kb-check package gx-install gx-bundle
+COMMANDS := setup dev build lint typecheck test test-integration test-heavy generated-check ui-smoke graph graph-check kb kb-check package package-test gx-install gx-bundle
 .PHONY: help framework-check framework-ready ai-doctor ci-check version version-check version-write evidence $(COMMANDS)
 
 help:

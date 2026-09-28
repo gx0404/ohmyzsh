@@ -1,0 +1,56 @@
+# Maintainer: Alexey Pavlov <Alexpux@gmail.com>
+
+pkgname=('lz4' 'liblz4' 'liblz4-devel')
+pkgver=1.10.0
+pkgrel=1
+pkgdesc='Very fast lossless compression algorithm'
+arch=('i686' 'x86_64')
+makedepends=('make' 'gcc')
+url='https://lz4.github.io/lz4/'
+msys2_repository_url="https://github.com/lz4/lz4"
+msys2_references=(
+  "cpe: cpe:/a:lz4_project:lz4"
+)
+license=('LGPL')
+source=(lz4-${pkgver}.tar.gz::"https://github.com/lz4/lz4/archive/v${pkgver}.tar.gz")
+sha256sums=('537512904744b35e232912055ccf8ec66d768639ff3abe5788d90d792ec5f48b')
+options=(!libtool)
+
+build() {
+  cd ${srcdir}/lz4-${pkgver}
+  make CC=/usr/bin/gcc CFLAGS="${CFLAGS}" all
+  make DESTDIR=${srcdir}/dest PREFIX=/usr install
+}
+
+check() {
+  cd ${srcdir}/lz4-${pkgver}
+  make check || true
+}
+
+package_lz4() {
+  groups=('libraries')
+  depends=('gcc-libs' "lz4=${pkgver}")
+
+  mkdir -p ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/bin ${pkgdir}/usr/
+  rm -f ${pkgdir}/usr/bin/*.dll
+  cp -rf ${srcdir}/dest/usr/share ${pkgdir}/usr/
+}
+
+package_liblz4() {
+  depends=('gcc-libs')
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -rf ${srcdir}/dest/usr/bin/*.dll ${pkgdir}/usr/bin/
+}
+
+package_liblz4-devel() {
+  groups=('development')
+  options=('staticlibs')
+  depends=("liblz4=${pkgver}")
+  pkgdesc="lz4 headers and libraries"
+
+  mkdir -p ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/usr/lib ${pkgdir}/usr/
+}

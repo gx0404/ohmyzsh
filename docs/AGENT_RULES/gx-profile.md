@@ -26,6 +26,21 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
 - 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`
   模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。
 
+## 原生包 profile
+
+- `gx/config/package.zsh` 只在 `GX_PACKAGE_ROOT` / `GX_PROFILE_DIR` 成对有效时启用，
+  profile 必须独立于 HOME 与只读资源树。`ZDOTDIR` 由启动器管理；包模块不得重新指定。
+- Zsh 缓存、历史与 P10k instant prompt 归 profile；不能把 XDG config/data/state
+  全局重定向到 profile，否则 herdr socket 和既有 agent 的登录配置归属会改变。
+- `GX_PACKAGE_BIN` 在调用外部工具前进入进程 PATH；MSYS 的 `OSTYPE` 可能是 cygwin，
+  不得仅以 msys 前缀判断。不能把整套 MSYS usr/bin 注册进 Windows 全局 PATH。
+- 包模式只加载 profile 的机器层和 P10k 覆盖；legacy `gx/install.sh` 的 HOME 部署
+  契约不变。必须保留顶格 `export ZSH=` 的安装器改写入口，并分别测试两种模式。
+- fzf completion 与 key-bindings 都包含 ZLE 操作，仅在真实 TTY 且 ZLE 启用时加载；
+  无终端仍设置版本兼容选项、保留普通补全，不吞初始化错误。
+- 中文 HOME、独立配置和缓存是必验场景；不得用 ASCII 路径、禁用缓存、关闭 compfix
+  或 expectedFailure 替代。原生包当前验证状态见 `docs/RELEASE.md`。
+
 ## 修改纪律
 
 - 严禁把凭据、token、内网密码写入任何 gx/ 文件；提交前对 gx/config/ 执行
@@ -46,6 +61,9 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   清理补全缓存的循环必须容错（锁是目录、`rm` 会失败），失败只告警不中止。重装采用「新树同级就位
   → 合并 custom（符号链接原样保留）→ 两次 rename 替换」，不得引入任何把用户
   数据搬离原位再回填的中间态。
+- 同秒备份/中转/卸载移出路径占用时退出 2，提示稍后重试；`guard_timestamp_paths`
+  预检和移动前复查均不能覆盖已有文件、目录或悬空链接。`.gx-new-*` 必须独占创建，
+  不先删除残留。此防线不是多进程共享目标的完整事务锁；确定性冻结时间回归见场景 K。
 - `--home` 显式给出时必须忽略继承的环境 `ZSH`（gx 会话里它指向真实
   `~/.oh-my-zsh`）；环境 `ZSH` 不在部署 home 之下且未传 `--zsh` 时 unattended
   拒绝、交互须确认。测试不得靠 `unset ZSH` 掩盖这条互锁：smoke 场景 G/H 与

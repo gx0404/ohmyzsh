@@ -1,0 +1,4808 @@
+MSYS2 exact source-package license and copyright notices
+Source: https://repo.msys2.org/msys/sources/rebase-4.5.0-5.src.tar.zst
+Source SHA-256: 5e9c24c35a881888c045aa04b676f79d238e870a7391f595665e9bd9d26b09c9
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:COPYING
+SHA-256: dcc100d4161cc0b7177545ab6e47216f84857cda3843847c792a25289852dcaa
+
+		    GNU GENERAL PUBLIC LICENSE
+		       Version 2, June 1991
+
+ Copyright (C) 1989, 1991 Free Software Foundation, Inc.
+                       59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+			    Preamble
+
+  The licenses for most software are designed to take away your
+freedom to share and change it.  By contrast, the GNU General Public
+License is intended to guarantee your freedom to share and change free
+software--to make sure the software is free for all its users.  This
+General Public License applies to most of the Free Software
+Foundation's software and to any other program whose authors commit to
+using it.  (Some other Free Software Foundation software is covered by
+the GNU Library General Public License instead.)  You can apply it to
+your programs, too.
+
+  When we speak of free software, we are referring to freedom, not
+price.  Our General Public Licenses are designed to make sure that you
+have the freedom to distribute copies of free software (and charge for
+this service if you wish), that you receive source code or can get it
+if you want it, that you can change the software or use pieces of it
+in new free programs; and that you know you can do these things.
+
+  To protect your rights, we need to make restrictions that forbid
+anyone to deny you these rights or to ask you to surrender the rights.
+These restrictions translate to certain responsibilities for you if you
+distribute copies of the software, or if you modify it.
+
+  For example, if you distribute copies of such a program, whether
+gratis or for a fee, you must give the recipients all the rights that
+you have.  You must make sure that they, too, receive or can get the
+source code.  And you must show them these terms so they know their
+rights.
+
+  We protect your rights with two steps: (1) copyright the software, and
+(2) offer you this license which gives you legal permission to copy,
+distribute and/or modify the software.
+
+  Also, for each author's protection and ours, we want to make certain
+that everyone understands that there is no warranty for this free
+software.  If the software is modified by someone else and passed on, we
+want its recipients to know that what they have is not the original, so
+that any problems introduced by others will not reflect on the original
+authors' reputations.
+
+  Finally, any free program is threatened constantly by software
+patents.  We wish to avoid the danger that redistributors of a free
+program will individually obtain patent licenses, in effect making the
+program proprietary.  To prevent this, we have made it clear that any
+patent must be licensed for everyone's free use or not licensed at all.
+
+  The precise terms and conditions for copying, distribution and
+modification follow.
+
+		    GNU GENERAL PUBLIC LICENSE
+   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+  0. This License applies to any program or other work which contains
+a notice placed by the copyright holder saying it may be distributed
+under the terms of this General Public License.  The "Program", below,
+refers to any such program or work, and a "work based on the Program"
+means either the Program or any derivative work under copyright law:
+that is to say, a work containing the Program or a portion of it,
+either verbatim or with modifications and/or translated into another
+language.  (Hereinafter, translation is included without limitation in
+the term "modification".)  Each licensee is addressed as "you".
+
+Activities other than copying, distribution and modification are not
+covered by this License; they are outside its scope.  The act of
+running the Program is not restricted, and the output from the Program
+is covered only if its contents constitute a work based on the
+Program (independent of having been made by running the Program).
+Whether that is true depends on what the Program does.
+
+  1. You may copy and distribute verbatim copies of the Program's
+source code as you receive it, in any medium, provided that you
+conspicuously and appropriately publish on each copy an appropriate
+copyright notice and disclaimer of warranty; keep intact all the
+notices that refer to this License and to the absence of any warranty;
+and give any other recipients of the Program a copy of this License
+along with the Program.
+
+You may charge a fee for the physical act of transferring a copy, and
+you may at your option offer warranty protection in exchange for a fee.
+
+  2. You may modify your copy or copies of the Program or any portion
+of it, thus forming a work based on the Program, and copy and
+distribute such modifications or work under the terms of Section 1
+above, provided that you also meet all of these conditions:
+
+    a) You must cause the modified files to carry prominent notices
+    stating that you changed the files and the date of any change.
+
+    b) You must cause any work that you distribute or publish, that in
+    whole or in part contains or is derived from the Program or any
+    part thereof, to be licensed as a whole at no charge to all third
+    parties under the terms of this License.
+
+    c) If the modified program normally reads commands interactively
+    when run, you must cause it, when started running for such
+    interactive use in the most ordinary way, to print or display an
+    announcement including an appropriate copyright notice and a
+    notice that there is no warranty (or else, saying that you provide
+    a warranty) and that users may redistribute the program under
+    these conditions, and telling the user how to view a copy of this
+    License.  (Exception: if the Program itself is interactive but
+    does not normally print such an announcement, your work based on
+    the Program is not required to print an announcement.)
+
+These requirements apply to the modified work as a whole.  If
+identifiable sections of that work are not derived from the Program,
+and can be reasonably considered independent and separate works in
+themselves, then this License, and its terms, do not apply to those
+sections when you distribute them as separate works.  But when you
+distribute the same sections as part of a whole which is a work based
+on the Program, the distribution of the whole must be on the terms of
+this License, whose permissions for other licensees extend to the
+entire whole, and thus to each and every part regardless of who wrote it.
+
+Thus, it is not the intent of this section to claim rights or contest
+your rights to work written entirely by you; rather, the intent is to
+exercise the right to control the distribution of derivative or
+collective works based on the Program.
+
+In addition, mere aggregation of another work not based on the Program
+with the Program (or with a work based on the Program) on a volume of
+a storage or distribution medium does not bring the other work under
+the scope of this License.
+
+  3. You may copy and distribute the Program (or a work based on it,
+under Section 2) in object code or executable form under the terms of
+Sections 1 and 2 above provided that you also do one of the following:
+
+    a) Accompany it with the complete corresponding machine-readable
+    source code, which must be distributed under the terms of Sections
+    1 and 2 above on a medium customarily used for software interchange; or,
+
+    b) Accompany it with a written offer, valid for at least three
+    years, to give any third party, for a charge no more than your
+    cost of physically performing source distribution, a complete
+    machine-readable copy of the corresponding source code, to be
+    distributed under the terms of Sections 1 and 2 above on a medium
+    customarily used for software interchange; or,
+
+    c) Accompany it with the information you received as to the offer
+    to distribute corresponding source code.  (This alternative is
+    allowed only for noncommercial distribution and only if you
+    received the program in object code or executable form with such
+    an offer, in accord with Subsection b above.)
+
+The source code for a work means the preferred form of the work for
+making modifications to it.  For an executable work, complete source
+code means all the source code for all modules it contains, plus any
+associated interface definition files, plus the scripts used to
+control compilation and installation of the executable.  However, as a
+special exception, the source code distributed need not include
+anything that is normally distributed (in either source or binary
+form) with the major components (compiler, kernel, and so on) of the
+operating system on which the executable runs, unless that component
+itself accompanies the executable.
+
+If distribution of executable or object code is made by offering
+access to copy from a designated place, then offering equivalent
+access to copy the source code from the same place counts as
+distribution of the source code, even though third parties are not
+compelled to copy the source along with the object code.
+
+  4. You may not copy, modify, sublicense, or distribute the Program
+except as expressly provided under this License.  Any attempt
+otherwise to copy, modify, sublicense or distribute the Program is
+void, and will automatically terminate your rights under this License.
+However, parties who have received copies, or rights, from you under
+this License will not have their licenses terminated so long as such
+parties remain in full compliance.
+
+  5. You are not required to accept this License, since you have not
+signed it.  However, nothing else grants you permission to modify or
+distribute the Program or its derivative works.  These actions are
+prohibited by law if you do not accept this License.  Therefore, by
+modifying or distributing the Program (or any work based on the
+Program), you indicate your acceptance of this License to do so, and
+all its terms and conditions for copying, distributing or modifying
+the Program or works based on it.
+
+  6. Each time you redistribute the Program (or any work based on the
+Program), the recipient automatically receives a license from the
+original licensor to copy, distribute or modify the Program subject to
+these terms and conditions.  You may not impose any further
+restrictions on the recipients' exercise of the rights granted herein.
+You are not responsible for enforcing compliance by third parties to
+this License.
+
+  7. If, as a consequence of a court judgment or allegation of patent
+infringement or for any other reason (not limited to patent issues),
+conditions are imposed on you (whether by court order, agreement or
+otherwise) that contradict the conditions of this License, they do not
+excuse you from the conditions of this License.  If you cannot
+distribute so as to satisfy simultaneously your obligations under this
+License and any other pertinent obligations, then as a consequence you
+may not distribute the Program at all.  For example, if a patent
+license would not permit royalty-free redistribution of the Program by
+all those who receive copies directly or indirectly through you, then
+the only way you could satisfy both it and this License would be to
+refrain entirely from distribution of the Program.
+
+If any portion of this section is held invalid or unenforceable under
+any particular circumstance, the balance of the section is intended to
+apply and the section as a whole is intended to apply in other
+circumstances.
+
+It is not the purpose of this section to induce you to infringe any
+patents or other property right claims or to contest validity of any
+such claims; this section has the sole purpose of protecting the
+integrity of the free software distribution system, which is
+implemented by public license practices.  Many people have made
+generous contributions to the wide range of software distributed
+through that system in reliance on consistent application of that
+system; it is up to the author/donor to decide if he or she is willing
+to distribute software through any other system and a licensee cannot
+impose that choice.
+
+This section is intended to make thoroughly clear what is believed to
+be a consequence of the rest of this License.
+
+  8. If the distribution and/or use of the Program is restricted in
+certain countries either by patents or by copyrighted interfaces, the
+original copyright holder who places the Program under this License
+may add an explicit geographical distribution limitation excluding
+those countries, so that distribution is permitted only in or among
+countries not thus excluded.  In such case, this License incorporates
+the limitation as if written in the body of this License.
+
+  9. The Free Software Foundation may publish revised and/or new versions
+of the General Public License from time to time.  Such new versions will
+be similar in spirit to the present version, but may differ in detail to
+address new problems or concerns.
+
+Each version is given a distinguishing version number.  If the Program
+specifies a version number of this License which applies to it and "any
+later version", you have the option of following the terms and conditions
+either of that version or of any later version published by the Free
+Software Foundation.  If the Program does not specify a version number of
+this License, you may choose any version ever published by the Free Software
+Foundation.
+
+  10. If you wish to incorporate parts of the Program into other free
+programs whose distribution conditions are different, write to the author
+to ask for permission.  For software which is copyrighted by the Free
+Software Foundation, write to the Free Software Foundation; we sometimes
+make exceptions for this.  Our decision will be guided by the two goals
+of preserving the free status of all derivatives of our free software and
+of promoting the sharing and reuse of software generally.
+
+			    NO WARRANTY
+
+  11. BECAUSE THE PROGRAM IS LICENSED FREE OF CHARGE, THERE IS NO WARRANTY
+FOR THE PROGRAM, TO THE EXTENT PERMITTED BY APPLICABLE LAW.  EXCEPT WHEN
+OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS AND/OR OTHER PARTIES
+PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED
+OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.  THE ENTIRE RISK AS
+TO THE QUALITY AND PERFORMANCE OF THE PROGRAM IS WITH YOU.  SHOULD THE
+PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY SERVICING,
+REPAIR OR CORRECTION.
+
+  12. IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
+WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY MODIFY AND/OR
+REDISTRIBUTE THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES,
+INCLUDING ANY GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING
+OUT OF THE USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED
+TO LOSS OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY
+YOU OR THIRD PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER
+PROGRAMS), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE
+POSSIBILITY OF SUCH DAMAGES.
+
+		     END OF TERMS AND CONDITIONS
+
+	    How to Apply These Terms to Your New Programs
+
+  If you develop a new program, and you want it to be of the greatest
+possible use to the public, the best way to achieve this is to make it
+free software which everyone can redistribute and change under these terms.
+
+  To do so, attach the following notices to the program.  It is safest
+to attach them to the start of each source file to most effectively
+convey the exclusion of warranty; and each file should have at least
+the "copyright" line and a pointer to where the full notice is found.
+
+    <one line to give the program's name and a brief idea of what it does.>
+    Copyright (C) 19yy  <name of author>
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+
+Also add information on how to contact you by electronic and paper mail.
+
+If the program is interactive, make it output a short notice like this
+when it starts in an interactive mode:
+
+    Gnomovision version 69, Copyright (C) 19yy name of author
+    Gnomovision comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
+    This is free software, and you are welcome to redistribute it
+    under certain conditions; type `show c' for details.
+
+The hypothetical commands `show w' and `show c' should show the appropriate
+parts of the General Public License.  Of course, the commands you use may
+be called something other than `show w' and `show c'; they could even be
+mouse-clicks or menu items--whatever suits your program.
+
+You should also get your employer (if you work as a programmer) or your
+school, if any, to sign a "copyright disclaimer" for the program, if
+necessary.  Here is a sample; alter the names:
+
+  Yoyodyne, Inc., hereby disclaims all copyright interest in the program
+  `Gnomovision' (which makes passes at compilers) written by James Hacker.
+
+  <signature of Ty Coon>, 1 April 1989
+  Ty Coon, President of Vice
+
+This General Public License does not permit incorporating your program into
+proprietary programs.  If your program is a subroutine library, you may
+consider it more useful to permit linking proprietary applications with the
+library.  If this is what you want to do, use the GNU Library General
+Public License instead of this License.
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:getopt_long.c
+SHA-256: 864f42b1963a7b3aa35be3766cf510b79896170904f0a8c51db802c28c8a22b4
+
+
+/*-
+ * Copyright (c) 2000 The NetBSD Foundation, Inc.
+ * All rights reserved.
+ *
+ * This code is derived from software contributed to The NetBSD Foundation
+ * by Dieter Baron and Thomas Klausner.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE NETBSD FOUNDATION, INC. AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE FOUNDATION OR CONTRIBUTORS
+ * BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ *
+ *      $NetBSD: getopt_long.c,v 1.3 2008/04/29 05:46:09 martin Exp $
+ */
+
+#include <assert.h>
+#include <errno.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "getopt.h"
+
+#ifndef _DIAGASSERT
+#define _DIAGASSERT(e)
+#endif
+
+int	opterr = 1;		/* if error message should be printed */
+int	optind = 1;		/* index into parent argv vector */
+int	optopt = '?';		/* character checked for validity */
+int	optreset;		/* reset getopt */
+char    *optarg;		/* argument associated with option */
+
+
+#define IGNORE_FIRST	(*options == '-' || *options == '+')
+#define PRINT_ERROR	((opterr) && ((*options != ':') \
+				      || (IGNORE_FIRST && options[1] != ':')))
+#define IS_POSIXLY_CORRECT (getenv("POSIXLY_CORRECT") != NULL)
+#define PERMUTE         (!IS_POSIXLY_CORRECT && !IGNORE_FIRST)
+/* XXX: GNU ignores PC if *options == '-' */
+#define IN_ORDER        (!IS_POSIXLY_CORRECT && *options == '-')
+
+/* return values */
+#define	BADCH	(int)'?'
+#define	BADARG	(int)':'
+#define INORDER (int)1
+
+#define	EMSG	""
+
+static int getopt_internal(int, char * const *, const char *);
+static int gcd(int, int);
+static void permute_args(int, int, int, char * const *);
+static void xwarnx(const char *, ...);
+
+static char *place = EMSG; /* option letter processing */
+
+/* XXX: set optreset to 1 rather than these two */
+static int nonopt_start = -1; /* first non option argument (for permute) */
+static int nonopt_end = -1;   /* first option after non options (for permute) */
+
+/* Error messages */
+static const char recargchar[] = "option requires an argument -- %c";
+static const char recargstring[] = "option requires an argument -- %s";
+static const char ambig[] = "ambiguous option -- %.*s";
+static const char noarg[] = "option doesn't take an argument -- %.*s";
+static const char illoptchar[] = "illegal option -- %c";
+static const char illoptstring[] = "illegal option -- %s";
+
+static const char *progname;
+
+
+/* Replacement for warnx(3) for systems without it. */
+static void xwarnx(const char *fmt, ...) {
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (progname)
+		(void) fprintf(stderr, "%s: ", progname);
+	if (fmt)
+		(void) vfprintf(stderr, fmt, ap);
+	(void) fprintf(stderr, "\n");
+	va_end(ap);
+}
+
+/*
+ * Compute the greatest common divisor of a and b.
+ */
+static int
+gcd(int a, int b)
+{
+	int c;
+
+	c = a % b;
+	while (c != 0) {
+		a = b;
+		b = c;
+		c = a % b;
+	}
+
+	return b;
+}
+
+/*
+ * Exchange the block from nonopt_start to nonopt_end with the block
+ * from nonopt_end to opt_end (keeping the same order of arguments
+ * in each block).
+ */
+static void
+permute_args(int nonopt_start, int nonopt_end, int opt_end, char * const *nargv)
+{
+	int cstart, cyclelen, i, j, ncycle, nnonopts, nopts, pos;
+	char *swap;
+
+	/*
+	 * compute lengths of blocks and number and size of cycles
+	 */
+	nnonopts = nonopt_end - nonopt_start;
+	nopts = opt_end - nonopt_end;
+	ncycle = gcd(nnonopts, nopts);
+	cyclelen = (opt_end - nonopt_start) / ncycle;
+
+	for (i = 0; i < ncycle; i++) {
+		cstart = nonopt_end+i;
+		pos = cstart;
+		for (j = 0; j < cyclelen; j++) {
+			if (pos >= nonopt_end)
+				pos -= nnonopts;
+			else
+				pos += nopts;
+			swap = nargv[pos];
+			/* LINTED const cast */
+			((char **) nargv)[pos] = nargv[cstart];
+			/* LINTED const cast */
+			((char **)nargv)[cstart] = swap;
+		}
+	}
+}
+
+/*
+ * getopt_internal --
+ *	Parse argc/argv argument vector.  Called by user level routines.
+ *  Returns -2 if -- is found (can be long option or end of options marker).
+ */
+static int
+getopt_internal(int nargc, char * const *nargv, const char *options)
+{
+	char *oli;				/* option letter list index */
+	int optchar;
+
+	_DIAGASSERT(nargv != NULL);
+	_DIAGASSERT(options != NULL);
+
+	optarg = NULL;
+
+	/*
+	 * XXX Some programs (like rsyncd) expect to be able to
+	 * XXX re-initialize optind to 0 and have getopt_long(3)
+	 * XXX properly function again.  Work around this braindamage.
+	 */
+	if (optind == 0)
+		optind = 1;
+
+	if (optreset)
+		nonopt_start = nonopt_end = -1;
+start:
+	if (optreset || !*place) {		/* update scanning pointer */
+		optreset = 0;
+		if (optind >= nargc) {          /* end of argument vector */
+			place = EMSG;
+			if (nonopt_end != -1) {
+				/* do permutation, if we have to */
+				permute_args(nonopt_start, nonopt_end,
+				    optind, nargv);
+				optind -= nonopt_end - nonopt_start;
+			}
+			else if (nonopt_start != -1) {
+				/*
+				 * If we skipped non-options, set optind
+				 * to the first of them.
+				 */
+				optind = nonopt_start;
+			}
+			nonopt_start = nonopt_end = -1;
+			return -1;
+		}
+		if (*(place = nargv[optind]) != '-') {  /* found non-option */
+			place = EMSG;
+			if (IN_ORDER) {
+				/*
+				 * GNU extension:
+				 * return non-option as argument to option 1
+				 */
+				optarg = nargv[optind++];
+				return INORDER;
+			}
+			if (!PERMUTE) {
+				/*
+				 * if no permutation wanted, stop parsing
+				 * at first non-option
+				 */
+				return -1;
+			}
+			/* do permutation */
+			if (nonopt_start == -1)
+				nonopt_start = optind;
+			else if (nonopt_end != -1) {
+				permute_args(nonopt_start, nonopt_end,
+				    optind, nargv);
+				nonopt_start = optind -
+				    (nonopt_end - nonopt_start);
+				nonopt_end = -1;
+			}
+			optind++;
+			/* process next argument */
+			goto start;
+		}
+		if (nonopt_start != -1 && nonopt_end == -1)
+			nonopt_end = optind;
+		if (place[1] && *++place == '-') {	/* found "--" */
+			place++;
+			return -2;
+		}
+	}
+	if ((optchar = (int)*place++) == (int)':' ||
+	    (oli = strchr(options + (IGNORE_FIRST ? 1 : 0), optchar)) == NULL) {
+		/* option letter unknown or ':' */
+		if (!*place)
+			++optind;
+		if (PRINT_ERROR)
+			xwarnx(illoptchar, optchar);
+		optopt = optchar;
+		return BADCH;
+	}
+	if (optchar == 'W' && oli[1] == ';') {		/* -W long-option */
+		/* XXX: what if no long options provided (called by getopt)? */
+		if (*place)
+			return -2;
+
+		if (++optind >= nargc) {	/* no arg */
+			place = EMSG;
+			if (PRINT_ERROR)
+				xwarnx(recargchar, optchar);
+			optopt = optchar;
+			/* XXX: GNU returns '?' if options[0] != ':' */
+			return BADARG;
+		} else				/* white space */
+			place = nargv[optind];
+		/*
+		 * Handle -W arg the same as --arg (which causes getopt to
+		 * stop parsing).
+		 */
+		return -2;
+	}
+	if (*++oli != ':') {			/* doesn't take argument */
+		if (!*place)
+			++optind;
+	} else {				/* takes (optional) argument */
+		optarg = NULL;
+		if (*place)			/* no white space */
+			optarg = place;
+		/* XXX: disable test for :: if PC? (GNU doesn't) */
+		else if (oli[1] != ':') {	/* arg not optional */
+			if (++optind >= nargc) {	/* no arg */
+				place = EMSG;
+				if (PRINT_ERROR)
+					xwarnx(recargchar, optchar);
+				optopt = optchar;
+				/* XXX: GNU returns '?' if options[0] != ':' */
+				return BADARG;
+			} else
+				optarg = nargv[optind];
+		}
+		place = EMSG;
+		++optind;
+	}
+	/* dump back option letter */
+	return optchar;
+}
+
+/*
+ * getopt --
+ *	Parse argc/argv argument vector.
+ *
+ * [eventually this will replace the real getopt]
+ */
+int
+getopt(int nargc, char * const *nargv, const char *options)
+{
+	int retval;
+
+	progname = nargv[0];
+
+	if ((retval = getopt_internal(nargc, nargv, options)) == -2) {
+		++optind;
+		/*
+		 * We found an option (--), so if we skipped non-options,
+		 * we have to permute.
+		 */
+		if (nonopt_end != -1) {
+			permute_args(nonopt_start, nonopt_end, optind,
+				       nargv);
+			optind -= nonopt_end - nonopt_start;
+		}
+		nonopt_start = nonopt_end = -1;
+		retval = -1;
+	}
+	return retval;
+}
+
+/*
+ * getopt_long --
+ *	Parse argc/argv argument vector.
+ */
+int
+getopt_long(int nargc,
+            char * const *nargv,
+            const char *options,
+            const struct option *long_options,
+            int *idx)
+{
+	int retval;
+
+	_DIAGASSERT(nargv != NULL);
+	_DIAGASSERT(options != NULL);
+	_DIAGASSERT(long_options != NULL);
+	/* idx may be NULL */
+
+	progname = nargv[0];
+
+	if ((retval = getopt_internal(nargc, nargv, options)) == -2) {
+		char *current_argv, *has_equal;
+		size_t current_argv_len;
+		int i, match;
+
+		current_argv = place;
+		match = -1;
+
+		optind++;
+		place = EMSG;
+
+		if (*current_argv == '\0') {		/* found "--" */
+			/*
+			 * We found an option (--), so if we skipped
+			 * non-options, we have to permute.
+			 */
+			if (nonopt_end != -1) {
+				permute_args(nonopt_start, nonopt_end,
+				    optind, nargv);
+				optind -= nonopt_end - nonopt_start;
+			}
+			nonopt_start = nonopt_end = -1;
+			return -1;
+		}
+		if ((has_equal = strchr(current_argv, '=')) != NULL) {
+			/* argument found (--option=arg) */
+			current_argv_len = has_equal - current_argv;
+			has_equal++;
+		} else
+			current_argv_len = strlen(current_argv);
+
+		for (i = 0; long_options[i].name; i++) {
+			/* find matching long option */
+			if (strncmp(current_argv, long_options[i].name,
+			    current_argv_len))
+				continue;
+
+			if (strlen(long_options[i].name) ==
+			    (unsigned)current_argv_len) {
+				/* exact match */
+				match = i;
+				break;
+			}
+			if (match == -1)		/* partial match */
+				match = i;
+			else {
+				/* ambiguous abbreviation */
+				if (PRINT_ERROR)
+					xwarnx(ambig, (int)current_argv_len,
+					     current_argv);
+				optopt = 0;
+				return BADCH;
+			}
+		}
+		if (match != -1) {			/* option found */
+		        if (long_options[match].has_arg == no_argument
+			    && has_equal) {
+				if (PRINT_ERROR)
+					xwarnx(noarg, (int)current_argv_len,
+					     current_argv);
+				/*
+				 * XXX: GNU sets optopt to val regardless of
+				 * flag
+				 */
+				if (long_options[match].flag == NULL)
+					optopt = long_options[match].val;
+				else
+					optopt = 0;
+				/* XXX: GNU returns '?' if options[0] != ':' */
+				return BADARG;
+			}
+			if (long_options[match].has_arg == required_argument ||
+			    long_options[match].has_arg == optional_argument) {
+				if (has_equal)
+					optarg = has_equal;
+				else if (long_options[match].has_arg ==
+				    required_argument) {
+					/*
+					 * optional argument doesn't use
+					 * next nargv
+					 */
+					optarg = nargv[optind++];
+				}
+			}
+			if ((long_options[match].has_arg == required_argument)
+			    && (optarg == NULL)) {
+				/*
+				 * Missing argument; leading ':'
+				 * indicates no error should be generated
+				 */
+				if (PRINT_ERROR)
+					xwarnx(recargstring, current_argv);
+				/*
+				 * XXX: GNU sets optopt to val regardless
+				 * of flag
+				 */
+				if (long_options[match].flag == NULL)
+					optopt = long_options[match].val;
+				else
+					optopt = 0;
+				/* XXX: GNU returns '?' if options[0] != ':' */
+				--optind;
+				return BADARG;
+			}
+		} else {			/* unknown option */
+			if (PRINT_ERROR)
+				xwarnx(illoptstring, current_argv);
+			optopt = 0;
+			return BADCH;
+		}
+		if (long_options[match].flag) {
+			*long_options[match].flag = long_options[match].val;
+			retval = 0;
+		} else
+			retval = long_options[match].val;
+		if (idx)
+			*idx = match;
+	}
+	return retval;
+}
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:imagehelper/imagehelper.h
+SHA-256: 461c56af664a48de33d5a96114e0051a21518748b540f682a472740ef3492b42
+
+/*
+ * Copyright (c) 2002 Ralf Habacker 
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * $Id$
+ */
+
+#ifndef MY_IMAGEHLP_H
+#define MY_IMAGEHLP_H
+
+#include <windows.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* Set to TRUE if ReBaseImage{64} should also set the files last write
+   time to TimeStamp when the file has been successfully rebased. */
+extern BOOL ReBaseChangeFileTime;
+/* Set to TRUE, if rebasing should also drop the /DYNAMICBASE flag
+   from the PE flags. */
+extern BOOL ReBaseDropDynamicbaseFlag;
+
+BOOL ReBaseImage64(
+  LPCSTR CurrentImageName,
+  LPCSTR SymbolPath,       // ignored
+  BOOL fReBase,
+  BOOL fRebaseSysfileOk,   // ignored
+  BOOL fGoingDown,
+  ULONG CheckImageSize,    // ignored
+  ULONG *OldImageSize,
+  ULONG64 *OldImageBase,
+  ULONG *NewImageSize,
+  ULONG64 *NewImageBase,
+  ULONG TimeStamp
+);
+
+BOOL ReBaseImage(
+  LPCSTR CurrentImageName,
+  LPCSTR SymbolPath,       // ignored
+  BOOL fReBase,
+  BOOL fRebaseSysfileOk,   // ignored
+  BOOL fGoingDown,
+  ULONG CheckImageSize,    // ignored
+  ULONG *OldImageSize,
+  ULONG *OldImageBase,
+  ULONG *NewImageSize,
+  ULONG *NewImageBase,
+  ULONG TimeStamp
+);
+
+BOOL BindImage(
+  LPCSTR ImageName,
+  LPCSTR DllPath,
+  LPCSTR SymbolPath
+);
+
+typedef enum _IMAGEHLP_STATUS_REASON {
+  BindOutOfMemory,
+  BindRvaToVaFailed,
+  BindNoRoomInImage,
+  BindImportModuleFailed,
+  BindImportProcedureFailed,
+  BindImportModule,
+  BindImportProcedure,
+  BindForwarder,
+  BindForwarderNOT,
+  BindImageModified,
+  BindExpandFileHeaders,
+  BindImageComplete,
+  BindMismatchedSymbols,
+  BindSymbolsNotUpdated
+} IMAGEHLP_STATUS_REASON;
+
+typedef BOOL(__stdcall *PIMAGEHLP_STATUS_ROUTINE)(IMAGEHLP_STATUS_REASON,LPSTR,LPSTR,ULONG,ULONG);
+
+BOOL BindImageEx(
+  DWORD Flags,
+  LPCSTR ImageName,
+  LPCSTR DllPath,
+  LPCSTR SymbolPath,
+  PIMAGEHLP_STATUS_ROUTINE
+  StatusRoutine
+);
+
+BOOL GetImageInfos64(
+  LPCSTR ImageName,
+  WORD *machine,
+  ULONG64 *ImageBase,
+  ULONG *ImageSize
+);
+
+BOOL GetImageInfos(
+  LPCSTR ImageName,
+  ULONG *ImageBase,
+  ULONG *ImageSize
+);
+
+BOOL CheckImage(
+  LPCSTR ImageName
+);
+
+BOOL FixImage(
+  LPCSTR ImageName
+);
+
+DWORD SetImageHelperDebug(
+  DWORD level
+);
+
+#ifdef __cplusplus
+}
+#endif
+#endif
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:imagehelper/objectfile.h
+SHA-256: bf6490a530f94a51e4a4d86204fd0bfb0f639a1d96b820fbb7d1f02833285337
+
+/*
+ * Copyright (c) 2002 Ralf Habacker  <Ralf.Habacker@freenet.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * $Id$
+ */
+
+#ifndef OBJECTFILE_H
+#define OBJECTFILE_H
+
+#include "sections.h"
+
+class ObjectFile : public Base
+  {
+
+  public:
+    ObjectFile(const char *FileName, bool writeable = false);
+
+    // return in the image stored filename
+    const char *getFileName(void)
+    {
+      return FileName;
+    }
+
+    PIMAGE_NT_HEADERS64 getNTHeader64 (void)
+    {
+      return (PIMAGE_NT_HEADERS64) ntheader;
+    }
+
+    PIMAGE_NT_HEADERS32 getNTHeader32 (void)
+    {
+      return ntheader;
+    }
+
+    bool isLoaded(void)
+    {
+      return Error == 0;
+    }
+
+    bool is64bit(void)
+    {
+      return is64bit_img;
+    }
+
+    bool is32bit(void)
+    {
+      return !is64bit_img;
+    }
+
+    WORD machine(void)
+    {
+      return machine_type;
+    }
+
+    int getError(void)
+    {
+      return Error;
+    }
+
+    SectionList *getSections(void)
+    {
+      return sections;
+    }
+
+    void setFileTime (ULONG seconds_since_epoche)
+    {
+      LARGE_INTEGER filetime;
+/* 100ns difference between Windows and UNIX timebase. */
+#define FACTOR (0x19db1ded53e8000LL)
+/* # of 100ns intervals per second. */
+#define NSPERSEC 10000000LL
+      filetime.QuadPart = seconds_since_epoche * NSPERSEC + FACTOR;
+      if (!SetFileTime (hfile, NULL, NULL, (FILETIME *) &filetime))
+        std::cerr << "SetFileTime: " << GetLastError () << std::endl;
+    }
+
+    ~ObjectFile();
+
+
+  protected:
+    char *FileName;
+    HANDLE hfile;
+    HANDLE hfilemapping;
+    LPVOID lpFileBase;
+    SectionList *sections;
+    ULONG64 ImageBase;
+    int Error;
+    bool isWritable;
+
+  private:
+    PIMAGE_NT_HEADERS32 ntheader;
+    bool is64bit_img;
+    WORD machine_type;
+  };
+
+class ObjectFileList;
+
+class LinkedObjectFile : public ObjectFile
+  {
+
+  public:
+    LinkedObjectFile(const char *FileName, bool writable = false);
+    ~LinkedObjectFile();
+
+    bool rebind(ObjectFileList &cache);
+    bool unbind(void);
+    bool checkRelocations(void)
+    {
+      return relocs->check();
+    }
+    bool fixRelocations(void)
+    {
+      return relocs->fix();
+    }
+    bool performRelocation(int64_t difference)
+    {
+      return relocs->relocate(difference);
+    }
+    bool PrintDependencies(ObjectFileList &cache);
+
+    Imports *getImports()
+    {
+      return imports;
+    }
+    Exports *getExports()
+    {
+      return exports;
+    }
+
+  protected:
+    Imports *imports;
+    Exports *exports;
+    Relocations *relocs;
+    static int level;
+    bool isPrinted;
+  };
+
+#include "objectfilelist.h"
+
+#endif
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:imagehelper/objectfilelist.h
+SHA-256: d7d10bd8b96b83df942b944fda187d92dae5a31d997fca1c0132e5f58c56ff70
+
+/*
+ * Copyright (c) 2002 Ralf Habacker  <Ralf.Habacker@freenet.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * $Id$    
+ */
+
+#ifndef OBJECTFILELIST_H
+#define OBJECTFILELIST_H
+
+#include "objectfile.h"
+
+class ObjectFileList
+  {
+
+  public:
+    ObjectFileList();
+
+    // add objectfile to the list
+    bool add
+      (ObjectFile *obj);
+
+    ObjectFile *get
+    (char *FileName);
+
+    // reset iterator
+    void reset(void)
+    {
+      iterator = 0;
+    }
+
+    // get next list element
+    ObjectFile *getNext(void);
+
+    // get number of elements
+    int getCount(void)
+    {
+      return count;
+    }
+
+    // destructor
+    ~ObjectFileList();
+  private:
+    int count;
+    int iterator;
+    ObjectFile *list[1000];
+
+  };
+
+#endif
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:imagehelper/sections.h
+SHA-256: 0a7324de85f29a6ac1abdf50e6e1eaecb9b9ff2bbe03f560deeb5dbfc0065d73
+
+/*
+ * Copyright (c) 2002 Ralf Habacker  <Ralf.Habacker@freenet.de>
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * $Id$
+ */
+
+#ifndef SECTIONS_H
+#define SECTIONS_H
+
+#include <windows.h>
+
+#if !defined(__CYGWIN__) || defined(__MSYS__)
+/* MinGW|MSYS: mingw only defines uintptr_t for        */
+/* MSVC 2005 or better, and MSYS doesn't have stdint.h */
+# ifndef _UINTPTR_T_DEFINED
+#  define _UINTPTR_T_DEFINED
+#  ifdef _WIN64
+     typedef unsigned __int64 uintptr_t;
+#  else
+     typedef unsigned int uintptr_t;
+#  endif
+# endif
+#else
+# include <stdint.h>
+#endif
+
+typedef unsigned int uint;
+typedef unsigned short ushort;
+
+/// the image section header.
+/// Its encapsulate the IMAGE_SECTION_HEADER structure from the windows header file
+class SectionHeader : public IMAGE_SECTION_HEADER
+	{
+	}; 
+
+/// the image data directory.
+/// Its encapsulate the IMAGE_EXPORT_DIRECTORY structure from the windows header file
+class ExportDirectory : public IMAGE_EXPORT_DIRECTORY 
+	{
+	};
+
+/// the image data directory.
+/// Its encapsulate the IMAGE_DATA_DIRECTORY structure from the windows header file
+class DataDirectory : public IMAGE_DATA_DIRECTORY 
+	{
+	};
+
+/// the image data directory. 
+/// Its encapsulate the IMAGE_IMPORT_DESCRIPTOR structure from the windows header file
+class ImportDescriptor : public IMAGE_IMPORT_DESCRIPTOR
+  {
+  };
+
+/// the bound import descriptor. 
+/// Its encapsulate the IMAGE_BOUND_IMPORT_DESCRIPTOR structure from the windows header file
+class BoundImportDescriptor : public IMAGE_BOUND_IMPORT_DESCRIPTOR 
+  {
+  };
+
+
+/// the base class. 
+/// It should be used in all classes to enable/disable debugging support. 
+class Base
+  {
+  public:
+    static int debug; /// 1 = print dedebug mode 
+  };
+
+
+class SectionBase : public Base
+  {
+  public:
+    ptrdiff_t getAdjust()
+    {
+      return adjust;
+    }
+
+  protected:
+    ptrdiff_t adjust;
+  private:
+  };
+
+class Section : public SectionBase
+  {
+  public:
+    Section(void *FileBase, SectionHeader *p);
+    void debugprint(const char *title = "");
+    void print(const char *title = "");
+    bool isIn(Section &in);
+    bool isIn(uint addr);
+    char *getName(void)
+    {
+      return Name;
+    }
+    int getVirtualAddress(void)
+    {
+      return header->VirtualAddress;
+    }
+    int getSize(void)
+    {
+      return header->SizeOfRawData;
+    }
+
+    // return memory adress of section
+    void *getStartAddress(void)
+    {
+      return (void *)(header->VirtualAddress + adjust);
+    }
+
+    void *rva2real(uint addr = 0)
+    {
+      return (void *)(addr + adjust);
+    }
+  private:
+    char Name[9];
+    //  uint FileBase;
+    SectionHeader *header;
+  };
+
+class SectionList : public Base
+  {
+  public:
+    SectionList(void *FileBase);
+    ~SectionList();
+    bool add
+      (Section *asection);
+    Section *find(const char *name);
+    Section *find(uint address);
+
+    // reset iterator
+    void reset(void);
+
+    // return next item
+    Section *getNext(void);
+
+  private:
+    uintptr_t FileBase;
+    SectionHeader *header;
+    Section **sections;
+    int count;
+    int iterator;
+  };
+
+
+
+class Exports : SectionBase
+  {
+  public:
+    Exports(Section &asection);
+    Exports(SectionList &sections, DataDirectory *iddp);
+    uint getVirtualAddress(char *symbol, uint *ordinal = 0);
+    //  int getAdjust() { return adjust; }
+
+    void reset();
+
+    // return next exported name
+    char *getNext(void);
+
+    void dump(const char *title = "");
+
+  private:
+    ExportDirectory *exports;
+    DataDirectory *header;
+    DWORD iterator;
+    //  int adjust;
+
+  };
+
+
+class Imports : public SectionBase 
+  {
+  public:
+    Imports(Section &asection);
+    Imports(SectionList &sections, DataDirectory *iddp);
+    void reset(void);
+    ImportDescriptor *getNextDescriptor(void);
+    void dump(const char *title = "");
+
+  private:
+    ImportDescriptor *imports;
+    ImportDescriptor *iterator;
+  };
+
+class Relocations : SectionBase
+  {
+  public:
+    // create a relocation object using section named "section" from  the section list "sections"
+    Relocations(SectionList &sectionList, const char *sectionName);
+
+    // check for bad relocations
+    bool check(void);
+
+    // fix bad relocations
+    bool fix(void);
+
+    // precondition: fixed dll
+    bool relocate(int64_t difference);
+
+  private:
+    PIMAGE_BASE_RELOCATION relocs;
+    SectionList *sections;
+    int size;   // section size
+  };
+
+#endif
+
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:peflags.c
+SHA-256: ef152dcdbb2e5993ef8956926641b159b7ce35cfc951799c09b6ee1daef360ed
+
+/*
+ * Copyright (c) 2009, 2011 Charles Wilson
+ * Based on rebase.c by Jason Tishler
+ * Significant contributions by Dave Korn
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * See the COPYING file for full license information.
+ */
+
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <stddef.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+#include <getopt.h>
+#include <errno.h>
+#include <limits.h>
+#if defined (__CYGWIN__) || defined (__MSYS__)
+#include <sys/mman.h>
+#endif
+#if defined(__MSYS__)
+/* MSYS has no inttypes.h */
+# define PRIu64 "llu"
+# define PRIx64 "llx"
+#else
+# include <inttypes.h>
+#endif
+
+#include <windows.h>
+
+#if defined(__MSYS__)
+/* MSYS has no strtoull */
+unsigned long long strtoull(const char *, char **, int);
+#endif
+
+/* Fix broken definitions in older w32api. */
+#ifndef IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
+#define IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE IMAGE_DLL_CHARACTERISTICS_DYNAMIC_BASE
+#endif
+#ifndef IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+#define IMAGE_DLLCHARACTERISTICS_NX_COMPAT IMAGE_DLL_CHARACTERISTICS_NX_COMPAT
+#endif
+#ifndef IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY
+#define IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY IMAGE_DLL_CHARACTERISTICS_FORCE_INTEGRITY
+#endif
+
+static WORD coff_characteristics_set;
+static WORD coff_characteristics_clr;
+static WORD coff_characteristics_show;
+static WORD pe_characteristics_set;
+static WORD pe_characteristics_clr;
+static WORD pe_characteristics_show;
+
+typedef struct
+{
+  const char *pathname;
+  PIMAGE_DOS_HEADER dosheader;
+  union
+    {
+      PIMAGE_NT_HEADERS32 ntheader32;
+      PIMAGE_NT_HEADERS64 ntheader64;
+    };
+  BOOL is_64bit;
+} pe_file;
+
+typedef struct {
+  long          flag;
+  const char *  name;
+  size_t        len;
+} symbolic_flags_t;
+
+#define CF(flag,name) { flag, #name, sizeof(#name) - 1 }
+static const symbolic_flags_t coff_symbolic_flags[] = {
+  CF(0x0001, relocs_stripped),
+  CF(0x0002, executable_image),
+  CF(0x0004, line_nums_stripped),
+  CF(0x0008, local_syms_stripped),
+  CF(0x0010, wstrim),
+  CF(0x0020, bigaddr),
+/*CF(0x0040, unspec_0x0040),*/
+  CF(0x0080, bytes_reversed_lo),
+  CF(0x0100, 32bit_machine),
+  CF(0x0200, sepdbg),
+  CF(0x0400, removable_run_from_swap),
+  CF(0x0800, net_run_from_swap),
+  CF(0x1000, system),
+  CF(0x2000, dll),
+  CF(0x4000, uniprocessor_only),
+  CF(0x8000, bytes_reversed_hi),
+  {0, 0, 0}
+};
+
+static const symbolic_flags_t pe_symbolic_flags[] = {
+/*CF(0x0001, reserved_0x0001),*/
+/*CF(0x0002, reserved_0x0002),*/
+/*CF(0x0004, reserved_0x0004),*/
+/*CF(0x0008, reserved_0x0008),*/
+/*CF(0x0010, unspec_0x0010),*/
+  CF(0x0020, high-entropy-va),
+  CF(0x0040, dynamicbase),
+  CF(0x0080, forceinteg),
+  CF(0x0100, nxcompat),
+  CF(0x0200, no-isolation),
+  CF(0x0400, no-seh),
+  CF(0x0800, no-bind),
+/*CF(0x1000, reserved_0x1000),*/
+  CF(0x2000, wdmdriver),
+/*CF(0x4000, reserved_0x4000),*/
+  CF(0x8000, tsaware),
+  {0, 0, 0}
+};
+
+enum {
+  SIZEOF_STACK_RESERVE = 0,
+  SIZEOF_STACK_COMMIT,
+  SIZEOF_HEAP_RESERVE,
+  SIZEOF_HEAP_COMMIT,
+  SIZEOF_CYGWIN_HEAP,
+  NUM_SIZEOF_VALUES		/* Keep at the end */
+};
+
+typedef enum {
+  DONT_HANDLE = 0,
+  DO_READ = 1,
+  DO_WRITE = 2
+} do_handle_t;
+
+static do_handle_t handle_any_sizeof;
+
+typedef struct {
+  ULONGLONG  value;
+  const char *name;
+  const char *unit;
+  do_handle_t handle;
+  BOOL        is_ulong;		/* Only for 64 bit files. */
+  ULONG       offset64;
+  ULONG       offset32;
+} sizeof_values_t;
+
+sizeof_values_t sizeof_vals[5] = {
+  { 0, "stack reserve size"      , "bytes", 0, FALSE,
+    offsetof (IMAGE_NT_HEADERS64, OptionalHeader.SizeOfStackReserve),
+    offsetof (IMAGE_NT_HEADERS32, OptionalHeader.SizeOfStackReserve),
+  },
+  { 0, "stack commit size"       , "bytes", 0, FALSE,
+    offsetof (IMAGE_NT_HEADERS64, OptionalHeader.SizeOfStackCommit),
+    offsetof (IMAGE_NT_HEADERS32, OptionalHeader.SizeOfStackCommit),
+  },
+  { 0, "Win32 heap reserve size" , "bytes", 0, FALSE,
+    offsetof (IMAGE_NT_HEADERS64, OptionalHeader.SizeOfHeapReserve),
+    offsetof (IMAGE_NT_HEADERS32, OptionalHeader.SizeOfHeapReserve),
+  },
+  { 0, "Win32 heap commit size"  , "bytes", 0, FALSE,
+    offsetof (IMAGE_NT_HEADERS64, OptionalHeader.SizeOfHeapCommit),
+    offsetof (IMAGE_NT_HEADERS32, OptionalHeader.SizeOfHeapCommit),
+  },
+  { 0, "initial Cygwin heap size", "MB", 0, TRUE,
+    offsetof (IMAGE_NT_HEADERS64, OptionalHeader.LoaderFlags),
+    offsetof (IMAGE_NT_HEADERS32, OptionalHeader.LoaderFlags),
+  }
+};
+
+#define pulonglong(struct, offset)	(PULONGLONG)((PBYTE)(struct)+(offset))
+#define pulong(struct, offset)		(PULONG)((PBYTE)(struct)+(offset))
+
+static struct option long_options[] = {
+  {"dynamicbase",  optional_argument, NULL, 'd'},
+  {"high-entropy-va", optional_argument, NULL, 'e'},
+  {"forceinteg",   optional_argument, NULL, 'f'},
+  {"nxcompat",     optional_argument, NULL, 'n'},
+  {"no-isolation", optional_argument, NULL, 'i'},
+  {"no-seh",       optional_argument, NULL, 's'},
+  {"no-bind",      optional_argument, NULL, 'b'},
+  {"wdmdriver",    optional_argument, NULL, 'W'},
+  {"tsaware",      optional_argument, NULL, 't'},
+  {"wstrim",       optional_argument, NULL, 'w'},
+  {"bigaddr",      optional_argument, NULL, 'l'},
+  {"sepdbg",       optional_argument, NULL, 'S'},
+  {"stack-reserve",optional_argument, NULL, 'x'},
+  {"stack-commit", optional_argument, NULL, 'X'},
+  {"heap-reserve", optional_argument, NULL, 'y'},
+  {"heap-commit",  optional_argument, NULL, 'Y'},
+  {"cygwin-heap",  optional_argument, NULL, 'z'},
+  {"filelist",     no_argument, NULL, 'T'},
+  {"verbose",      no_argument, NULL, 'v'},
+  {"help",         no_argument, NULL, 'h'},
+  {"version",      no_argument, NULL, 'V'},
+  {NULL, no_argument, NULL, 0}
+};
+static const char *short_options
+	= "d::e::f::n::i::s::b::W::t::w::l::S::x::X::y::Y::z::T:vhV";
+
+static void short_usage (FILE *f);
+static void help (FILE *f);
+static void version (FILE *f);
+
+int do_mark (const char *pathname);
+pe_file *pe_open (const char *path, BOOL writing);
+void pe_close (pe_file *pep);
+void get_and_set_sizes(const pe_file *pep);
+int get_characteristics(const pe_file *pep,
+                        WORD* coff_characteristics,
+                        WORD* pe_characteristics);
+int set_coff_characteristics(const pe_file *pep,
+                             WORD coff_characteristics);
+int set_pe_characteristics(const pe_file *pep,
+                           WORD pe_characteristics);
+
+static void display_flags (const char *field_name, const symbolic_flags_t *syms,
+                           WORD show_symbolic, WORD old_flag_value,
+			   WORD new_flag_value);
+static char *symbolic_flags (const symbolic_flags_t *syms, long show, long value);
+static void append_and_decorate (char **str, int is_set, const char *name, int len);
+static void *xmalloc (size_t num);
+#define XMALLOC(type, num)      ((type *) xmalloc ((num) * sizeof(type)))
+static void handle_coff_flag_option (const char *option_name,
+                                     const char *option_arg,
+                                     WORD   flag_value);
+static void handle_pe_flag_option (const char *option_name,
+                                   const char *option_arg,
+                                   WORD   flag_value);
+static void handle_num_option (const char *option_name,
+			       const char *option_arg,
+			       int option_index);
+void parse_args (int argc, char *argv[]);
+int string_to_bool  (const char *string, int *value);
+int string_to_ulonglong (const char *string, unsigned long long *value);
+FILE *file_list_fopen (const char *file_list);
+char *file_list_fgets (char *buf, int size, FILE *file);
+int file_list_fclose (FILE *file);
+
+
+int args_index = 0;
+int verbose = 0;
+const char *file_list = 0;
+const char *stdin_file_list = "-";
+int mark_any = 0;
+
+int
+main (int argc, char *argv[])
+{
+  int files_attempted = 0;
+  int i = 0;
+  int ret = 0;
+
+  parse_args (argc, argv);
+
+  /* Operate on files in file list, if specified. */
+  if (file_list)
+    {
+      int status = 0;
+      char filename[MAX_PATH + 2];
+      FILE *file = file_list_fopen (file_list);
+
+      if (!file)
+	exit (2);
+
+      while (file_list_fgets (filename, MAX_PATH + 2, file))
+	{
+          files_attempted++;
+	  if ((status = do_mark (filename)) != 0)
+	    ret = 2;
+	}
+
+      file_list_fclose (file);
+
+      if (files_attempted == 0)
+        {
+          /* warn the user */
+          fprintf (stderr,
+             "Error: Could not find any filenames in %s\n",
+             (strcmp(file_list, stdin_file_list) == 0 ? "<stdin>" : file_list));
+        }
+    }
+
+  /* Operate on files listed as command line arguments.
+   * Don't reset files_attempted because we do not require
+   * any args if -T filelist
+   */
+  for (i = args_index; i < argc; i++)
+    {
+      const char *filename = argv[i];
+      files_attempted++;
+      if (do_mark (filename) != 0)
+	ret = 2;
+    }
+
+  if (files_attempted == 0)
+    {
+      /* warn the user */
+      fprintf (stderr, "Error: no files to process\n");
+      short_usage (stderr);
+      exit (2);
+    }
+
+  return ret;
+}
+
+int
+do_mark (const char *pathname)
+{
+  int has_relocs;
+  int is_executable;
+  int is_dll;
+  WORD old_coff_characteristics;
+  WORD new_coff_characteristics;
+  WORD old_pe_characteristics;
+  WORD new_pe_characteristics;
+
+  /* Skip if file does not exist */
+  if (access (pathname, F_OK) == -1)
+    {
+      fprintf (stderr, "%s: skipped because nonexistent\n", pathname);
+      return 0;
+    }
+
+  if (mark_any)
+    {
+      /* Skip if not writable. */
+      if (access (pathname, W_OK) == -1)
+        {
+          fprintf (stderr, "%s: skipped because not writable\n", pathname);
+          return 0;
+        }
+    }
+
+  pe_file *pep = pe_open (pathname, mark_any != 0
+				    || handle_any_sizeof == DO_WRITE);
+  if (!pep)
+    {
+      fprintf (stderr,
+               "%s: skipped because could not open\n",
+               pathname);
+      return 0;
+    }
+
+  get_characteristics (pep,
+		       &old_coff_characteristics,
+		       &old_pe_characteristics);
+  get_and_set_sizes (pep);
+
+  new_coff_characteristics = old_coff_characteristics;
+  new_coff_characteristics |= coff_characteristics_set;
+  new_coff_characteristics &= ~coff_characteristics_clr;
+
+  new_pe_characteristics = old_pe_characteristics;
+  new_pe_characteristics |= pe_characteristics_set;
+  new_pe_characteristics &= ~pe_characteristics_clr;
+
+  is_executable = ((new_coff_characteristics & IMAGE_FILE_EXECUTABLE_IMAGE) > 0);
+  is_dll        = ((new_coff_characteristics & IMAGE_FILE_DLL) > 0);
+  has_relocs    = ((new_coff_characteristics & IMAGE_FILE_RELOCS_STRIPPED) == 0);
+
+  /* validation and warnings about things that are
+     problematic, but that we are not explicitly
+     changing */
+  if (!has_relocs)
+    {
+      if (verbose
+         && (new_pe_characteristics & IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE)
+         && (old_pe_characteristics & IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE))
+        {
+          fprintf (stderr,
+                   "Warning: file has no relocation info but has dynbase set (%s).\n",
+                   pathname);
+        }
+    }
+  if (!is_executable || is_dll)
+    {
+      if (verbose
+         && (new_pe_characteristics & IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE)
+         && (old_pe_characteristics & IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE))
+        {
+          fprintf (stderr,
+                   "Warning: file is non-executable but has tsaware set (%s).\n",
+                   pathname);
+        }
+    }
+ 
+  if (mark_any)
+    {
+      /* validation and warnings about things we are changing */
+      if (!has_relocs)
+        {
+          if (   (new_pe_characteristics & IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE)
+             && !(old_pe_characteristics & IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE))
+            {
+              fprintf (stderr,
+                       "Warning: setting dynbase on file with no relocation info (%s).\n",
+                       pathname);
+            }
+        } 
+
+      if (!is_executable || is_dll)
+        {
+          if (   (new_pe_characteristics & IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE)
+             && !(old_pe_characteristics & IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE))
+            {
+              fprintf (stderr,
+                       "Warning: setting tsaware on non-executable (%s).\n",
+                       pathname);
+            }
+        }
+
+      /* setting */
+      if (new_coff_characteristics != old_coff_characteristics)
+        set_coff_characteristics (pep, new_coff_characteristics);
+      if (new_pe_characteristics != old_pe_characteristics)
+        set_pe_characteristics (pep, new_pe_characteristics);
+    }
+
+  /* Display characteristics. */
+  if (verbose
+      || !mark_any
+      || coff_characteristics_show
+      || pe_characteristics_show
+      || handle_any_sizeof != DONT_HANDLE)
+    {
+      BOOL printed_characteristic = FALSE;
+      int i;
+
+      printf ("%s: ", pathname);
+      if (verbose
+	  || (!mark_any && handle_any_sizeof == DONT_HANDLE)
+	  || coff_characteristics_show || pe_characteristics_show)
+	{
+	  display_flags ("coff", coff_symbolic_flags,
+			 coff_characteristics_show ?:
+			 verbose ? old_coff_characteristics : 0,
+			 old_coff_characteristics,
+			 new_coff_characteristics);
+	  display_flags ("pe", pe_symbolic_flags,
+			 pe_characteristics_show ?:
+			 verbose ? old_pe_characteristics : 0,
+			 old_pe_characteristics,
+			 new_pe_characteristics);
+	  puts ("");
+	  printed_characteristic = TRUE;
+	}
+
+      for (i = 0; i < NUM_SIZEOF_VALUES; ++i)
+	{
+	  if (sizeof_vals[i].handle != DONT_HANDLE)
+	    {
+	      printf ("%*s%-24s: %" PRIu64 " (0x%" PRIx64 ") %s\n",
+		      printed_characteristic ? (int) strlen (pathname) + 2
+					     : 0, "",
+		      sizeof_vals[i].name,
+		      (uint64_t) sizeof_vals[i].value,
+		      (uint64_t) sizeof_vals[i].value,
+		      sizeof_vals[i].unit);
+	      printed_characteristic = TRUE;
+	    }
+	}
+    }
+
+  pe_close (pep);
+
+  return 0;
+}
+
+static void
+display_flags (const char *field_name, const symbolic_flags_t *syms,
+               WORD show_symbolic, WORD old_flag_value,
+	       WORD new_flag_value)
+{
+  if (show_symbolic)
+    {
+      if (old_flag_value != new_flag_value)
+        {
+          char * old_symbolic = symbolic_flags (syms, show_symbolic, old_flag_value);
+          char * new_symbolic = symbolic_flags (syms, show_symbolic, new_flag_value);
+          printf ("%s(0x%04x%s==>0x%04x%s) ", field_name,
+              old_flag_value, old_symbolic,
+              new_flag_value, new_symbolic);
+          free (old_symbolic);
+          free (new_symbolic);
+        }
+      else
+        {
+          char * old_symbolic = symbolic_flags (syms, show_symbolic, old_flag_value);
+          printf ("%s(0x%04x%s) ", field_name,
+              old_flag_value, old_symbolic);
+          free (old_symbolic);
+        }
+    }
+  else
+    {
+      if (old_flag_value != new_flag_value)
+        printf ("%s(0x%04x==>0x%04x) ", field_name,
+            old_flag_value, new_flag_value);
+      else
+        printf ("%s(0x%04x) ", field_name, old_flag_value);
+    }
+}
+
+static char *
+symbolic_flags (const symbolic_flags_t *syms, long show, long value)
+{
+  int i;
+  char * rVal = NULL;
+  for (i = 0; syms[i].name; i++)
+    {
+      if (syms[i].flag & show)
+        {
+          append_and_decorate (&rVal,
+            (value & syms[i].flag),
+            syms[i].name,
+            syms[i].len);
+        }
+    }
+  if (rVal)
+    {
+      size_t len = strlen (rVal);
+      char *tmp = XMALLOC (char, len + 3);
+      *tmp = '[';
+      memcpy (tmp+1, rVal, len);
+      tmp[len+1] = ']';
+      tmp[len+2] = '\0';
+      free (rVal);
+      rVal = tmp;
+    }
+  return rVal;
+}
+
+static void
+append_and_decorate (char **str, int is_set, const char *name, int len)
+{
+  char *tmp;
+  int slen;
+  if (!*str)
+    {
+      *str = XMALLOC (char, len + 2);
+      (*str)[0] = (is_set ? '+' : '-');
+      memcpy ((*str)+1, name, len);
+      (*str)[len+1] = '\0';
+      return; 
+    }
+  else
+    { 
+      slen = strlen (*str);
+      tmp = XMALLOC (char, slen + 2 + len + 1);
+      memcpy (tmp, *str, slen);
+      free (*str);
+      *str = tmp;
+      tmp = *str + slen;
+      *tmp++ = ',';
+      *tmp++ = (is_set ? '+' : '-');
+      memcpy (tmp, name, len);
+      tmp[len] = '\0';
+    } 
+}
+
+static void *
+xmalloc (size_t num)
+{
+  void *p = (void *) malloc (num);
+  if (!p)
+    {
+      fputs ("Memory exhausted", stderr);
+      exit (2);
+    }
+  return p;
+}
+
+static void
+handle_num_option (const char *option_name,
+		   const char *option_arg,
+		   int option_index)
+{
+  if (!option_arg)
+    {
+      if (sizeof_vals[option_index].handle == DONT_HANDLE)
+	sizeof_vals[option_index].handle = DO_READ;
+      if (handle_any_sizeof == DONT_HANDLE)
+	handle_any_sizeof = DO_READ;
+    }
+  else if (string_to_ulonglong (option_arg, &sizeof_vals[option_index].value)
+	   /* 48 bit address space */
+	   || sizeof_vals[option_index].value > 0x0000ffffffffffffULL
+	   /* Just a ULONG value */
+	   || (sizeof_vals[option_index].is_ulong
+	       && sizeof_vals[option_index].value > ULONG_MAX))
+    {
+      fprintf (stderr, "Invalid argument for %s: %s\n", 
+	       option_name, option_arg);
+      short_usage (stderr);
+      exit (1);
+    }
+  else
+    {
+      sizeof_vals[option_index].handle = DO_WRITE;
+      handle_any_sizeof = DO_WRITE;
+    }
+}
+
+static void
+handle_pe_flag_option (const char *option_name,
+                       const char *option_arg,
+                       WORD   flag_value)
+{
+  int bool_value;
+  if (!option_arg)
+    {
+      pe_characteristics_show |= flag_value;
+    }
+  else
+    {
+      if (string_to_bool (option_arg, &bool_value) != 0)
+        {
+          fprintf (stderr, "Invalid argument for %s: %s\n", 
+                   option_name, option_arg);
+          short_usage (stderr);
+          exit (1);
+        }
+      if (bool_value)
+        pe_characteristics_set |= flag_value;
+      else
+        pe_characteristics_clr |= flag_value;
+    }
+}
+
+static void
+handle_coff_flag_option (const char *option_name,
+                         const char *option_arg,
+                         WORD   flag_value)
+{
+  int bool_value;
+  if (!option_arg)
+    {
+      coff_characteristics_show |= flag_value;
+    }
+  else
+    {
+      if (string_to_bool (option_arg, &bool_value) != 0)
+        {
+          fprintf (stderr, "Invalid argument for %s: %s\n", 
+                   option_name, option_arg);
+          short_usage (stderr);
+          exit (1);
+        }
+      if (bool_value)
+        coff_characteristics_set |= flag_value;
+      else
+        coff_characteristics_clr |= flag_value;
+    }
+}
+
+void
+parse_args (int argc, char *argv[])
+{
+  int c;
+
+  while (1)
+    {
+      int option_index = 0;
+      c = getopt_long (argc, argv, short_options, long_options, &option_index);
+      if (c == -1)
+        break;
+      /* Workaround the problem that option_index is not valid if the user
+	 specified a short option. */
+      if (option_index == 0 && c != long_options[0].val)
+	{
+	  for (option_index = 1;
+	       long_options[option_index].name;
+	       ++option_index)
+	    if (long_options[option_index].val == c)
+	      break;
+	}
+
+      switch (c)
+	{
+	case 'h':
+	  help (stdout);
+          exit (0);
+          break;
+	case 'V':
+	  version (stdout);
+	  exit (0);
+	  break;
+
+	case 'd':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE);
+	  break;
+	case 'e':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_HIGH_ENTROPY_VA);
+	  break;
+	case 'n':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_NX_COMPAT);
+	  break;
+	case 't':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE);
+	  break;
+	case 'f':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY);
+	  break;
+	case 'i':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_NO_ISOLATION);
+	  break;
+	case 's':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_NO_SEH);
+	  break;
+	case 'b':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_NO_BIND);
+	  break;
+	case 'W':
+	  handle_pe_flag_option (long_options[option_index].name,
+	                         optarg,
+	                         IMAGE_DLLCHARACTERISTICS_WDM_DRIVER);
+	  break;
+	case 'w':
+	  handle_coff_flag_option (long_options[option_index].name,
+	                           optarg,
+	                           IMAGE_FILE_AGGRESIVE_WS_TRIM);
+	  break;
+	case 'l':
+	  handle_coff_flag_option (long_options[option_index].name,
+	                           optarg,
+	                           IMAGE_FILE_LARGE_ADDRESS_AWARE);
+	  break;
+	case 'S':
+	  handle_coff_flag_option (long_options[option_index].name,
+	                           optarg,
+	                           IMAGE_FILE_DEBUG_STRIPPED);
+	  break;
+	case 'x':
+	  handle_num_option (long_options[option_index].name,
+			     optarg,
+			     SIZEOF_STACK_RESERVE);
+	  break;
+	case 'X':
+	  handle_num_option (long_options[option_index].name,
+			     optarg,
+			     SIZEOF_STACK_COMMIT);
+	  break;
+	case 'y':
+	  handle_num_option (long_options[option_index].name,
+			     optarg,
+			     SIZEOF_HEAP_RESERVE);
+	  break;
+	case 'Y':
+	  handle_num_option (long_options[option_index].name,
+			     optarg,
+			     SIZEOF_HEAP_COMMIT);
+	  break;
+	case 'z':
+	  handle_num_option (long_options[option_index].name,
+			     optarg,
+			     SIZEOF_CYGWIN_HEAP);
+	  break;
+	case 'T':
+	  file_list = optarg;
+	  break;
+	case 'v':
+	  verbose = TRUE;
+	  break;
+        case '?':
+          break;
+	default:
+	  short_usage (stderr);
+	  exit (1);
+	  break;
+	}
+    }
+
+  args_index = optind;
+  mark_any =   pe_characteristics_set
+             | pe_characteristics_clr
+             | coff_characteristics_set
+             | coff_characteristics_clr;
+}
+
+int
+string_to_bool (const char *string, int *value)
+{
+  unsigned long long number = 0;
+  if (!string || !*string)
+    return 1;
+
+  if (string_to_ulonglong (string, &number) != 0)
+    {
+      size_t len = strlen (string);
+      if ( (len == 4 && strcasecmp (string, "true") == 0)
+         ||(len == 3 && strcasecmp (string, "yes") == 0) 
+         ||(len == 1 && strcasecmp (string, "t") == 0)
+         ||(len == 1 && strcasecmp (string, "y") == 0)) 
+        {
+          *value = TRUE;
+        }
+      else if ( (len == 5 && strcasecmp (string, "false") == 0)
+         ||(len == 2 && strcasecmp (string, "no") == 0) 
+         ||(len == 1 && strcasecmp (string, "f") == 0) 
+         ||(len == 1 && strcasecmp (string, "n") == 0))
+        {
+          *value = FALSE;
+        }
+      else
+        {
+          return 1;
+        }
+    }
+  else
+    {
+      *value = (number != 0);
+    }
+  return 0; 
+}
+
+int
+string_to_ulonglong (const char *string, unsigned long long *value)
+{
+  unsigned long long number = 0;
+  char * endp;
+  errno = 0;
+
+  /* null or empty input */
+  if (!string || !*string)
+    return 1;
+
+  number = strtoull (string, &endp, 0);
+
+  /* out of range */
+  if (ERANGE == errno)
+    return 1;
+
+  /* no valid numeric input */
+  if (endp == string)
+    return 1;
+
+  /* non-numeric trailing characters */
+  if (*endp != '\0')
+    return 1;
+
+  *value = number;
+  return 0;
+}
+
+#if !defined (__CYGWIN__) && !defined (__MSYS__)
+/* Minimal mmap on files for Win32 */
+#define PROT_READ 0
+#define PROT_WRITE 1
+#define MAP_SHARED 0
+#define MAP_FAILED NULL
+
+void *
+mmap (void *addr, size_t length, int prot, int flags, int fd, off_t offset)
+{
+  HANDLE fh = (HANDLE) _get_osfhandle (fd);
+  HANDLE h = CreateFileMapping (fh, NULL, prot ? PAGE_READWRITE : PAGE_READONLY,
+				0, 0, NULL);
+  if (!h)
+    return MAP_FAILED;
+  addr = MapViewOfFileEx (h, prot ? FILE_MAP_WRITE : FILE_MAP_READ,
+			  0, 0, 4096, addr);
+  CloseHandle (h);
+  return addr;
+}
+
+int
+munmap (void *addr, size_t len)
+{
+  UnmapViewOfFile (addr);
+  return 0;
+}
+#endif
+
+pe_file *
+pe_open (const char *path, BOOL writing)
+{
+  /* Non-threaded application. */
+  static pe_file pef;
+  int fd;
+  void *map;
+  
+  fd = open (path, O_BINARY | (writing ? O_RDWR : O_RDONLY));
+  if (fd == -1)
+    return NULL;
+  map = mmap (NULL, 4096, PROT_READ | (writing ? PROT_WRITE : 0), MAP_SHARED,
+	      fd, 0);
+  if (map == MAP_FAILED)
+    {
+      close (fd);
+      return NULL;
+    }
+  pef.pathname = path;
+  pef.dosheader = (PIMAGE_DOS_HEADER) map;
+  pef.ntheader32 = (PIMAGE_NT_HEADERS32)
+		   ((PBYTE) pef.dosheader + pef.dosheader->e_lfanew);
+  /* Sanity checks */
+  if (pef.dosheader->e_magic != 0x5a4d	/* "MZ" */
+      || (PBYTE) pef.ntheader32 - (PBYTE) map + sizeof *pef.ntheader32 >= 4096
+      || pef.ntheader32->Signature != 0x00004550)
+    {
+      munmap (map, 4096);
+      close (fd);
+      return NULL;
+    }
+  pef.is_64bit = pef.ntheader32->OptionalHeader.Magic
+		 == IMAGE_NT_OPTIONAL_HDR64_MAGIC;
+  return &pef;
+}
+
+void
+pe_close (pe_file *pep)
+{
+  if (pep)
+    munmap ((void *) pep->dosheader, 4096);
+}
+
+void
+get_and_set_size (const pe_file *pep, sizeof_values_t *val)
+{
+  if (val->handle == DO_READ)
+    {
+      if (!pep->is_64bit)
+	val->value = *pulong (pep->ntheader32, val->offset32);
+      else if (val->is_ulong)
+	val->value = *pulong (pep->ntheader64, val->offset64);
+      else
+	val->value = *pulonglong (pep->ntheader64, val->offset64);
+    }
+  else if (val->handle == DO_WRITE)
+    {
+      if ((!pep->is_64bit || val->is_ulong) && val->value >= ULONG_MAX)
+	{
+	  fprintf (stderr, "%s: Skip writing %s, value too big\n",
+		   pep->pathname, val->name);
+	  val->handle = DONT_HANDLE;
+	}
+      else if (!pep->is_64bit)
+	*pulong (pep->ntheader32, val->offset32) = val->value;
+      else if (val->is_ulong)
+	*pulong (pep->ntheader64, val->offset64) = val->value;
+      else
+	*pulonglong (pep->ntheader64, val->offset64) = val->value;
+    }
+}
+
+void
+get_and_set_sizes (const pe_file *pep)
+{
+  int i;
+
+  for (i = 0; i < NUM_SIZEOF_VALUES; ++i)
+    get_and_set_size (pep, sizeof_vals + i);
+}
+
+int
+get_characteristics(const pe_file *pep,
+                    WORD* coff_characteristics,
+                    WORD* pe_characteristics)
+{
+  if (pep->is_64bit)
+    {
+      *coff_characteristics = pep->ntheader64->FileHeader.Characteristics;
+      *pe_characteristics = pep->ntheader64->OptionalHeader.DllCharacteristics;
+    }
+  else
+    {
+      *coff_characteristics = pep->ntheader32->FileHeader.Characteristics;
+      *pe_characteristics = pep->ntheader32->OptionalHeader.DllCharacteristics;
+    }
+  return 0;
+}
+
+int
+set_coff_characteristics(const pe_file *pep,
+                         WORD coff_characteristics)
+{
+  if (pep->is_64bit)
+    pep->ntheader64->FileHeader.Characteristics = coff_characteristics;
+  else
+    pep->ntheader32->FileHeader.Characteristics = coff_characteristics;
+  return 0;
+}
+
+int
+set_pe_characteristics(const pe_file *pep,
+                       WORD pe_characteristics)
+{
+  if (pep->is_64bit)
+    pep->ntheader64->OptionalHeader.DllCharacteristics = pe_characteristics;
+  else
+    pep->ntheader32->OptionalHeader.DllCharacteristics = pe_characteristics;
+  return 0;
+}
+
+FILE *
+file_list_fopen (const char *file_list)
+{
+  FILE *file = stdin;
+  if (strcmp(file_list, stdin_file_list) != 0)
+    {
+      file = fopen (file_list, "r");
+      if (!file)
+	fprintf (stderr, "cannot read %s\n", file_list);
+    }
+  return file;
+}
+
+char *
+file_list_fgets (char *buf, int size, FILE *file)
+{
+  char *status = fgets (buf, size, file);
+  if (status)
+    {
+      size_t length = strlen (buf);
+      if (buf[length - 1] == '\n')
+	buf[length - 1] = '\0';
+    }
+  return status;
+}
+
+int
+file_list_fclose (FILE *file)
+{
+  int status = 0;
+  if (strcmp(file_list, stdin_file_list) != 0)
+    status = fclose (file);
+  return status;
+}
+
+static void
+short_usage (FILE *f)
+{
+  fputs ("Usage: peflags [OPTIONS] file(s)...\n", f);
+  fputs ("Sets or clears various flags in PE files (that is, exes and dlls)\n", f);
+  fputs ("Use --help for full help text\n", f);
+}
+
+static void
+help (FILE *f)
+{
+  fputs (
+"Usage: peflags [OPTIONS] file(s)...\n"
+"Sets, clears, or displays various flags in PE files (that is, exes and dlls).\n"
+"Also sets or displays various numerical values which influence executable\n"
+"startup.  For each flag, if an argument is given, then the specified flag\n"
+"will be set or cleared; if no argument is given, then the current value of\n"
+"that flag will be displayed.  For each numerical value, if an argument is\n"
+"given, the specified value will be overwritten; if no argument is given, the\n"
+"numerical value will be displayed in decimal and hexadecimal notation.\n" 
+"\n"
+"  -d, --dynamicbase  [BOOL]   Image base address may be relocated using\n"
+"                              address space layout randomization (ASLR).\n"
+"  -e,\n"
+"  --high-entropy-va  [BOOL]   Image is compatible with 64-bit address space\n"
+"                              layout randomization (ASLR).\n"
+"  -f, --forceinteg   [BOOL]   Code integrity checks are enforced.\n"
+"  -n, --nxcompat     [BOOL]   Image is compatible with data execution\n"
+"                              prevention (DEP).\n"
+"  -i, --no-isolation [BOOL]   Image understands isolation but do not isolate\n"
+"                              the image.\n"
+"  -s, --no-seh       [BOOL]   Image does not use structured exception handling\n"
+"                              (SEH). No SE handler may be called in this image.\n"
+"  -b, --no-bind      [BOOL]   Do not bind this image.\n"
+"  -W, --wdmdriver    [BOOL]   Driver uses the WDM model.\n"
+"  -t, --tsaware      [BOOL]   Image is Terminal Server aware.\n"
+"  -w, --wstrim       [BOOL]   Aggressively trim the working set.\n"
+"  -l, --bigaddr      [BOOL]   The application can handle addresses larger\n"
+"                              than 2 GB.\n"
+"  -S, --sepdbg       [BOOL]   Debugging information was removed and stored\n"
+"                              separately in another file.\n"
+"  -x, --stack-reserve [NUM]   Reserved stack size of the process in bytes.\n"
+"  -X, --stack-commit  [NUM]   Initial commited portion of the process stack\n"
+"                              in bytes.\n"
+"  -y, --heap-reserve  [NUM]   Reserved heap size of the default application\n"
+"                              heap in bytes.  Note that this value has no\n"
+"                              significant meaning to Cygwin applications.\n"
+"                              See the -z, --cygwin-heap option instead.\n"
+"  -Y, --heap-commit   [NUM]   Initial commited portion of the default\n"
+"                              application heap in bytes.  Note that this value\n"
+"                              has no significant meaning to Cygwin applications.\n"
+"                              See the -z, --cygwin-heap option instead.\n"
+"  -z, --cygwin-heap   [NUM]   Initial reserved heap size of the Cygwin\n"
+"                              application heap in Megabytes.  This value is\n"
+"                              only evaluated starting with Cygwin 1.7.10.\n"
+"                              Useful values are between 4 and 2048.  If 0,\n"
+"                              Cygwin uses the default heap size of 384 Megs.\n"
+"                              Has no meaning for non-Cygwin applications.\n"
+"  -T, --filelist FILE         Indicate that FILE contains a list\n"
+"                              of PE files to process\n"
+"  -v, --verbose               Display diagnostic information\n"
+"  -V, --version               Display version information\n"
+"  -h, --help                  Display this help\n"
+"\n"
+"BOOL: may be 1, true, or yes - indicates that the flag should be set\n"
+"          if 0, false, or no - indicates that the flag should be cleared\n"
+"          if not present, then display symbolicly the value of the flag\n"
+"NUM : may be any 32 bit value for 32 bit executables, any 48 bit value for\n"
+"      64 bit executables.\n"
+"Valid forms for short options: -d, -d0, -d1, -dfalse, etc\n"
+"                               -z, -z0, -z1024, -z0x400, etc\n"
+"Valid forms for long options :  --tsaware, --tsaware=true, etc\n"
+"                                --cygwin-heap, --cygwin-heap=512, etc\n"
+"For flag values, to set a value, and display the results symbolic, repeat the\n"
+"option:  --tsaware=true --tsaware -d0 -d\n"
+"\n", f);
+}
+
+static void
+version (FILE *f)
+{
+  fprintf (f, "peflags version %s\n", VERSION);
+  fprintf (f, "Copyright (c) 2009, 2011  Charles Wilson, Dave Korn, Jason Tishler, et al.\n");
+}
+
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:rebase-db.c
+SHA-256: face5cd4f7b92fccde6db347a269a576c31ec9ee50fbe1891484e2812fd68637
+
+/*
+ * Copyright (c) 2011 Corinna Vinschen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * See the COPYING file for full license information.
+ */
+#include "rebase-db.h"
+
+#if defined(__MSYS__)
+/* MSYS has no inttypes.h */
+# define PRIx64 "llx"
+#else
+# include <inttypes.h>
+#endif
+
+const char IMG_INFO_MAGIC[4] = "rBiI";
+const ULONG IMG_INFO_VERSION = 1;
+
+int
+img_info_cmp (const void *a, const void *b)
+{
+  ULONG64 abase = ((img_info_t *) a)->base;
+  ULONG64 bbase = ((img_info_t *) b)->base;
+
+  if (abase < bbase)
+    return -1;
+  if (abase > bbase)
+    return 1;
+  return strcmp (((img_info_t *) a)->name, ((img_info_t *) b)->name);
+}
+
+int
+img_info_name_cmp (const void *a, const void *b)
+{
+  return strcmp (((img_info_t *) a)->name, ((img_info_t *) b)->name);
+}
+
+void
+dump_rebasedb_header (FILE *f, img_info_hdr_t const *h)
+{
+  if (h == NULL)
+    {
+      fprintf (f, "Rebase DB Header is null\n");
+      return;
+    }
+
+  fprintf (f,
+      "Header\n"
+      "  magic  : %c%c%c%c\n"
+      "  machine: %s\n"
+      "  version: %d\n"
+      "  base   : 0x%0*" PRIx64 "\n"
+      "  offset : 0x%08x\n"
+      "  downflg: %s\n"
+      "  count  : %d\n",
+      h->magic[0], h->magic[1], h->magic[2], h->magic[3],
+      (h->machine == IMAGE_FILE_MACHINE_I386
+      ? "i386"
+      : (h->machine == IMAGE_FILE_MACHINE_AMD64
+        ? "x86_64"
+        : "unknown")),
+      h->version,
+      (h->machine == IMAGE_FILE_MACHINE_I386 ? 8 : 12),
+      (uint64_t) h->base,
+      (uint32_t) h->offset,
+      (h->down_flag ? "true" : "false"),
+      (uint32_t) h->count);
+}
+
+void
+dump_rebasedb_entry (FILE *f,
+                     img_info_hdr_t const *h,
+                     img_info_t const *entry)
+{
+  if (h == NULL)
+    {
+      fprintf (f, "Rebase DB Header is null\n");
+      return;
+    }
+  if (entry == NULL)
+    {
+      fprintf (f, "Rebase DB Entry is null\n");
+      return;
+    }
+  fprintf (f,
+      "%-*s base 0x%0*" PRIx64 " size 0x%08x slot 0x%08x %c\n",
+      h->machine == IMAGE_FILE_MACHINE_I386 ? 45 : 41,
+      entry->name,
+      h->machine == IMAGE_FILE_MACHINE_I386 ? 8 : 12,
+      (uint64_t) entry->base,
+      (uint32_t) entry->size,
+      (uint32_t) entry->slot_size,
+      entry->flag.needs_rebasing ? '*' : ' ');
+}
+
+void
+dump_rebasedb (FILE *f, img_info_hdr_t const *h,
+               img_info_t const *list, unsigned int sz)
+{
+  unsigned int i;
+  if (h == NULL)
+    {
+      fprintf (f, "Rebase DB Header is null\n");
+      return;
+    }
+  if (list == NULL)
+    {
+      fprintf (f, "Rebase DB List is null\n");
+      return;
+    }
+
+  dump_rebasedb_header (stdout, h);
+  for (i = 0; i < sz ; ++i)
+    {
+      dump_rebasedb_entry (stdout, h, &(list[i]));
+    }
+}
+
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:rebase-db.h
+SHA-256: ef3f74cbccf99b67e3e5f014c259a62b74b4a86c7a0fe695c1e0a87ce52f76a3
+
+/*
+ * Copyright (c) 2011 Corinna Vinschen
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * See the COPYING file for full license information.
+ */
+#ifndef REBASE_DB_H
+#define REBASE_DB_H
+
+#include <windows.h>
+#include <stdio.h>
+#if defined(__MSYS__)
+/* MSYS has no inttypes.h */
+# define PRIu64 "llu"
+# define PRIx64 "llx"
+#else
+# include <inttypes.h>
+#endif
+
+#define roundup(x,y)	((((x) + ((y) - 1)) / (y)) * (y))
+#define roundup2(x,y)	(((x) + (y) - 1) & ~((y) - 1))
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern const char IMG_INFO_MAGIC[4];
+extern const ULONG IMG_INFO_VERSION;
+
+#pragma pack (push, 4)
+
+typedef struct _img_info_hdr
+{
+  CHAR    magic[4];	/* Always IMG_INFO_MAGIC.                            */
+  WORD    machine;	/* IMAGE_FILE_MACHINE_I386/IMAGE_FILE_MACHINE_AMD64  */
+  WORD    version;	/* Database version, always set to IMG_INFO_VERSION. */
+  ULONG64 base;		/* Base address (-b) used to generate database.      */
+  ULONG   offset;	/* Offset (-o) used to generate database.            */
+  BOOL    down_flag;	/* Always TRUE right now.                            */
+  ULONG   count;	/* Number of img_info_t entries following header.    */
+} img_info_hdr_t;
+
+typedef struct _img_info
+{
+  union {
+    PCHAR   name;	/* Absolute path to DLL.  The strings are stored     */
+    ULONG64 _filler;	/* right after the img_info_t table, in the same     */
+  };			/* order as the img_info_t entries.                  */
+  ULONG   name_size;	/* Length of name string including trailing NUL.     */
+  ULONG64 base;		/* Base address the DLL has been rebased to.         */
+  ULONG   size;		/* Size of the DLL at rebased time.                  */
+  ULONG   slot_size;	/* Size of the DLL rounded to allocation granularity.*/
+  struct {		/* Flags                                             */
+    ULONG needs_rebasing : 1; /* Set to 0 in the database.  Used only        */
+			      /* while rebasing.                             */
+    ULONG cannot_rebase  : 2; /* Set to 0 in the database.  Used only        */
+			      /* while rebasing.                             */
+  } flag;
+} img_info_t;
+
+#pragma pack (pop)
+
+int img_info_cmp (const void *a, const void *b);
+int img_info_name_cmp (const void *a, const void *b);
+
+void dump_rebasedb_header (FILE *f, img_info_hdr_t const *h);
+void dump_rebasedb_entry  (FILE *f, img_info_hdr_t const *h,
+                           img_info_t const *entry);
+void dump_rebasedb (FILE *f, img_info_hdr_t const *h,
+                    img_info_t const *list, unsigned int sz);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:rebase-dump.c
+SHA-256: d5d41227bfef32470dcfc1db46d5cda00d0aec5b000fb889e5d7d35e9fba63ad
+
+/*
+ * Copyright (c) 2011 Charles Wilson
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * See the COPYING file for full license information.
+ */
+
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#if defined(__CYGWIN__) || defined(__MSYS__)
+#include <sys/cygwin.h>
+#endif
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+#include <locale.h>
+#include <getopt.h>
+#include <string.h>
+#if defined(__MSYS__)
+/* MSYS has no inttypes.h */
+# define PRIx64 "llx"
+#else
+# include <inttypes.h>
+#endif
+#include <errno.h>
+#include <windows.h>
+#include "rebase-db.h"
+
+BOOL load_image_info ();
+void parse_args (int argc, char *argv[]);
+void usage ();
+void help ();
+void version ();
+
+int args_index = 0;
+BOOL verbose = FALSE;
+BOOL quiet = FALSE;
+
+const char *progname;
+
+img_info_hdr_t hdr;
+img_info_t *img_info_list = NULL;
+unsigned int img_info_size = 0;
+unsigned int img_info_rebase_start = 0;
+unsigned int img_info_max_size = 0;
+char *db_file = NULL;
+
+void
+gen_progname (const char *arg0)
+{
+  char *p;
+
+  p = strrchr (arg0, '/');
+  if (!p)
+    p = strrchr (arg0, '\\');
+  progname = p ? p + 1 : arg0;
+  if ((p = strrchr (progname, '.')) && !strcmp (p, ".exe"))
+    *p = 0;
+}
+
+int
+main (int argc, char *argv[])
+{
+  setlocale (LC_ALL, "");
+  gen_progname (argv[0]);
+  parse_args (argc, argv);
+
+  if (args_index != argc - 1)
+    {
+      fprintf (stderr, "%s: no database file specified\n",
+	       progname);
+      usage ();
+      return 1;
+    }
+  db_file = strdup (argv[args_index]);
+
+  if (load_image_info () < 0)
+    return 2;
+
+  /* Nothing to do? */
+  if (img_info_size == 0)
+    return 0;
+
+  dump_rebasedb (stdout, &hdr, img_info_list, img_info_size);
+  return 0;
+}
+
+int
+load_image_info ()
+{
+  int fd;
+  int ret = 0;
+  int i;
+
+  fd = open (db_file, O_RDONLY | O_BINARY);
+  if (fd < 0)
+    {
+      fprintf (stderr, "%s: failed to open rebase database \"%s\":\n%s\n",
+	       progname, db_file, strerror (errno));
+      return -1;
+    }
+  /* First read the header. */
+  if (read (fd, &hdr, sizeof hdr) < 0)
+    {
+      fprintf (stderr, "%s: failed to read rebase database \"%s\":\n%s\n",
+	       progname, db_file, strerror (errno));
+      close (fd);
+      return -1;
+    }
+  if (verbose)
+    printf ("== read %" PRIu64 " (0x%08" PRIx64 ") bytes (database header)\n",
+	    (uint64_t) sizeof hdr, (uint64_t) sizeof hdr);
+
+  /* Check the header. */
+  if (memcmp (hdr.magic, IMG_INFO_MAGIC, 4) != 0)
+    {
+      fprintf (stderr, "%s: \"%s\" is not a valid rebase database.\n",
+	       progname, db_file);
+      close (fd);
+      return -1;
+    }
+  if (verbose)
+    {
+      dump_rebasedb_header (stdout, &hdr);
+    }
+  if (hdr.machine != IMAGE_FILE_MACHINE_I386 &&
+      hdr.machine != IMAGE_FILE_MACHINE_AMD64)
+    {
+      fprintf (stderr, "%s: \"%s\" is a database file for a machine type\n"
+		       "I don't know about.", progname, db_file);
+      close (fd);
+      return -1;
+    }
+  if (hdr.version != IMG_INFO_VERSION)
+    {
+      fprintf (stderr, "%s: \"%s\" is a version %u rebase database.\n"
+		       "I can only handle versions up to %u.\n",
+	       progname, db_file, hdr.version, (uint32_t) IMG_INFO_VERSION);
+      close (fd);
+      return -1;
+    }
+  img_info_size = hdr.count;
+  /* Allocate memory for the image list. */
+  if (ret == 0)
+    {
+      img_info_max_size = roundup (img_info_size, 100);
+      img_info_list = (img_info_t *) calloc (img_info_max_size,
+					     sizeof (img_info_t));
+      if (!img_info_list)
+	{
+	  fprintf (stderr, "%s: Out of memory.\n", progname);
+	  ret = -1;
+	}
+    }
+  /* Now read the list. */
+  if (ret == 0
+      && read (fd, img_info_list, img_info_size * sizeof (img_info_t)) < 0)
+    {
+      fprintf (stderr, "%s: failed to read rebase database \"%s\":\n%s\n",
+	       progname, db_file, strerror (errno));
+      ret = -1;
+    }
+  if (ret == 0 && verbose)
+    {
+      printf ("== read %" PRIu64 " (0x%08" PRIx64 ") bytes (database w/o strings)\n",
+              (uint64_t) img_info_size * sizeof (img_info_t),
+              (uint64_t) img_info_size * sizeof (img_info_t));
+    }
+  /* Make sure all pointers are NULL (also dump db as read) */
+  if (ret == 0)
+    {
+      if (verbose)
+	printf ("---- database records without strings ----\n");
+
+      for (i = 0; i < img_info_size; ++i)
+        {
+          img_info_list[i].name = NULL;
+	  if (verbose)
+            printf ("%03d: base 0x%0*" PRIx64 " size 0x%08x slot 0x%08x namesize %4d %c\n",
+	            i,
+	            hdr.machine == IMAGE_FILE_MACHINE_I386 ? 8 : 12,
+	            (uint64_t) img_info_list[i].base,
+	            (uint32_t) img_info_list[i].size,
+	            (uint32_t) img_info_list[i].slot_size,
+	            (uint32_t) img_info_list[i].name_size,
+	            img_info_list[i].flag.needs_rebasing ? '*' : ' ');
+        }
+    }
+
+  /* Eventually read the strings. */
+  if (ret == 0)
+    {
+      if (verbose)
+	printf ("---- database strings ----\n");
+
+      for (i = 0; i < img_info_size; ++i)
+	{
+	  img_info_list[i].name = (char *)
+				  calloc (img_info_list[i].name_size, sizeof(char));
+	  if (!img_info_list[i].name)
+	    {
+	      fprintf (stderr, "%s: Out of memory.\n", progname);
+	      ret = -1;
+	      break;
+	    }
+	  if (read (fd, (void *)img_info_list[i].name,
+		    (size_t) img_info_list[i].name_size) < 0)
+	    {
+	      fprintf (stderr, "%s: failed to read rebase database \"%s\": "
+		       "%s\n", progname, db_file, strerror (errno));
+	      ret = -1;
+	      break;
+	    }
+	  else if (verbose)
+	    {
+              printf ("%03d: namesize %4d (0x%04x) %s\n", i,
+		      (uint32_t) img_info_list[i].name_size,
+		      (uint32_t) img_info_list[i].name_size,
+		      img_info_list[i].name);
+	    }
+	}
+    }
+  close (fd);
+  /* On failure, free all allocated memory and set list pointer to NULL. */
+  if (ret < 0)
+    {
+      for (i = 0; i < img_info_size && img_info_list[i].name; ++i)
+	free (img_info_list[i].name);
+      free (img_info_list);
+      img_info_list = NULL;
+      img_info_size = 0;
+      img_info_max_size = 0;
+    }
+  return ret;
+}
+
+static struct option long_options[] = {
+  {"help",	no_argument,	   NULL, 'h'},
+  {"usage",	no_argument,	   NULL, 'h'},
+  {"quiet",	no_argument,	   NULL, 'q'},
+  {"usage",	no_argument,	   NULL, 'h'},
+  {"verbose",	no_argument,	   NULL, 'v'},
+  {"version",	no_argument,	   NULL, 'V'},
+  {NULL,	no_argument,	   NULL,  0 }
+};
+
+static const char *short_options = "hqvV";
+
+void
+parse_args (int argc, char *argv[])
+{
+  int opt = 0;
+
+  while ((opt = getopt_long (argc, argv, short_options, long_options, NULL))
+	 != -1)
+    {
+      switch (opt)
+	{
+	case 'q':
+	  quiet = TRUE;
+	  break;
+	case 'v':
+	  verbose = TRUE;
+	  break;
+	case 'h':
+	  help ();
+	  exit (1);
+	  break;
+	case 'V':
+	  version ();
+	  exit (1);
+	  break;
+	default:
+	  usage ();
+	  exit (1);
+	  break;
+	}
+    }
+
+  args_index = optind;
+}
+
+void
+usage ()
+{
+  fprintf (stderr,
+"usage: %s [-hqvV] dbfile\n"
+"       %s --help or --usage for full help text\n",
+	   progname, progname);
+}
+
+void
+help ()
+{
+  printf ("\
+Usage: %s [OPTIONS] [FILE]\n\
+Dumps the rebase database file in readable format.\n\
+  -q, --quiet             Be quiet about non-critical issues.\n\
+  -v, --verbose           Print some debug output.\n\
+  -V, --version           Print version info and exit.\n\
+  -h, --help, --usage     This help.\n",
+	  progname);
+}
+
+void
+version ()
+{
+  fprintf (stderr, "rebase-dump version %s (imagehelper version %s)\n",
+	   VERSION, LIB_VERSION);
+  fprintf (stderr, "Copyright (c) 2011 Charles Wilson\n");
+}
+
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:rebase.c
+SHA-256: 7b2e60e711e9a66e112f8aa82495bdceb5e986debcabcb349d6cdee880e14dbc
+
+/*
+ * Copyright (c) 2001, 2002, 2003, 2004, 2008, 2011, 2012, 2013 Jason Tishler
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * See the COPYING file for full license information.
+ *
+ * Written by Jason Tishler <jason@tishler.net>
+ *
+ * $Id$
+ */
+
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+#include <limits.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#if defined(__CYGWIN__) || defined(__MSYS__)
+#include <sys/cygwin.h>
+#endif
+#include <fcntl.h>
+#include <string.h>
+#include <unistd.h>
+#include <locale.h>
+#include <getopt.h>
+#include <string.h>
+#include <errno.h>
+#include "imagehelper.h"
+#include "rebase-db.h"
+
+BOOL save_image_info ();
+BOOL load_image_info ();
+BOOL merge_image_info ();
+BOOL collect_image_info (const char *pathname);
+void print_image_info ();
+BOOL rebase (const char *pathname, ULONG64 *new_image_base, BOOL down_flag);
+void parse_args (int argc, char *argv[]);
+unsigned long long string_to_ulonglong (const char *string);
+void usage ();
+void help ();
+BOOL is_rebaseable (const char *pathname);
+FILE *file_list_fopen (const char *file_list);
+char *file_list_fgets (char *buf, int size, FILE *file);
+int file_list_fclose (FILE *file);
+void version ();
+
+#if defined(__MSYS__)
+/* MSYS has no strtoull */
+unsigned long long strtoull(const char *, char **, int);
+#endif
+
+#ifdef __x86_64__
+WORD machine = IMAGE_FILE_MACHINE_AMD64;
+#else
+WORD machine = IMAGE_FILE_MACHINE_I386;
+#endif
+ULONG64 image_base = 0;
+ULONG64 low_addr;
+BOOL down_flag = FALSE;
+BOOL image_info_flag = FALSE;
+BOOL image_storage_flag = FALSE;
+BOOL image_oblivious_flag = FALSE;
+BOOL perform_rebase_flag = TRUE;
+BOOL force_rebase_flag = FALSE;
+ULONG offset = 0;
+int args_index = 0;
+BOOL verbose = FALSE;
+BOOL quiet = FALSE;
+const char *file_list = 0;
+const char *stdin_file_list = "-";
+
+const char *progname;
+
+ULONG ALLOCATION_SLOT;	/* Allocation granularity. */
+
+img_info_t *img_info_list = NULL;
+unsigned int img_info_size = 0;
+unsigned int img_info_rebase_start = 0;
+unsigned int img_info_max_size = 0;
+
+#if !defined (__CYGWIN__) && !defined (__MSYS__)
+#undef SYSCONFDIR
+#define SYSCONFDIR "/../etc"
+#endif
+#define IMG_INFO_FILE_I386 SYSCONFDIR "/rebase.db.i386"
+#define IMG_INFO_FILE_AMD64 SYSCONFDIR "/rebase.db.x86_64"
+#ifdef __x86_64__
+#define IMG_INFO_FILE IMG_INFO_FILE_AMD64
+#else
+#define IMG_INFO_FILE IMG_INFO_FILE_I386
+#endif
+char *DB_FILE = IMG_INFO_FILE;
+char TMP_FILE[] = SYSCONFDIR "/rebase.db.XXXXXX";
+char *db_file = NULL;
+char *tmp_file = NULL;
+
+#if defined(__CYGWIN__) || defined(__MSYS__)
+ULONG64 cygwin_dll_image_base = 0;
+ULONG cygwin_dll_image_size = 0;
+#endif
+#if defined(__MSYS__)
+# define CYGWIN_DLL "/usr/bin/msys-1.0.dll"
+#elif defined (__CYGWIN__)
+# define CYGWIN_DLL "/usr/bin/cygwin1.dll"
+#endif
+
+#define LONG_PATH_MAX 32768
+
+int
+check_base_address_sanity (ULONG64 addr, BOOL at_start)
+{
+#if defined(__CYGWIN__) || defined(__MSYS__)
+  /* Sanity checks for Cygwin:
+   *
+   * - No DLLs below 0x38000000 on 32 bit, W10 1703+ rebase those on
+   *   runtime anyway
+   * - No DLLs below 0x2:00000000, ever, on 64 bit.
+   */
+  if (addr <= low_addr)
+    {
+      if (at_start)
+	fprintf (stderr, "%s: Invalid Baseaddress 0x%" PRIx64 ", must be > 0x%" PRIx64 "\n",
+		 progname, (uint64_t) addr, (uint64_t) low_addr);
+      else
+	fprintf (stderr, "%s: Too many DLLs for available address space: %s\n",
+		 progname, strerror (ENOMEM));
+      return -1;
+    }
+#endif
+  return 0;
+}
+
+void
+gen_progname (const char *arg0)
+{
+  char *p;
+
+  p = strrchr (arg0, '/');
+  if (!p)
+    p = strrchr (arg0, '\\');
+  progname = p ? p + 1 : arg0;
+  if ((p = strrchr (progname, '.')) && !strcmp (p, ".exe"))
+    *p = 0;
+}
+
+int
+main (int argc, char *argv[])
+{
+  int i = 0;
+  SYSTEM_INFO si;
+  BOOL status;
+
+  setlocale (LC_ALL, "");
+  gen_progname (argv[0]);
+  parse_args (argc, argv);
+  GetSystemInfo (&si);
+  ALLOCATION_SLOT = si.dwAllocationGranularity;
+
+  /* If database support has been requested, load database. */
+  if (image_storage_flag)
+    {
+      if (load_image_info () < 0)
+	return 2;
+      img_info_rebase_start = img_info_size;
+    }
+
+#if defined(__MSYS__)
+  if (machine == IMAGE_FILE_MACHINE_I386)
+    {
+      GetImageInfos64 ("/bin/msys-1.0.dll", NULL,
+	               &cygwin_dll_image_base, &cygwin_dll_image_size);
+    }
+#elif defined(__CYGWIN__)
+  if (machine == IMAGE_FILE_MACHINE_I386)
+    {
+      /* Fetch the Cygwin DLLs data to make sure that DLLs aren't rebased
+	 into the memory area taken by the Cygwin DLL. */
+      GetImageInfos64 ("/bin/cygwin1.dll", NULL,
+		       &cygwin_dll_image_base, &cygwin_dll_image_size);
+      /* Take the up to four shared memory areas preceeding the DLL into
+      	 account. */
+      cygwin_dll_image_base -= 4 * ALLOCATION_SLOT;
+      /* Add a slack of 8 * 64K at the end of the Cygwin DLL.  This leave a
+	 bit of room to install newer, bigger Cygwin DLLs, as well as room to
+	 install non-optimized DLLs for debugging purposes.  Otherwise the
+	 slightest change might break fork again :-P */
+      cygwin_dll_image_size += 4 * ALLOCATION_SLOT + 8 * ALLOCATION_SLOT;
+    }
+  else
+    {
+      /* On x86_64 Cygwin, we want to keep free the whole 2 Gigs area in which
+	 the Cygwin DLL resides, no matter what. */
+      cygwin_dll_image_base = 0x180000000L;
+      cygwin_dll_image_size = 0x080000000L;
+    }
+#endif /* __CYGWIN__ */
+
+  /* Collect file list, if specified. */
+  if (file_list)
+    {
+      char filename[MAX_PATH + 2];
+      FILE *file = file_list_fopen (file_list);
+      if (!file)
+	return 2;
+
+      status = TRUE;
+      while (file_list_fgets (filename, MAX_PATH + 2, file))
+	{
+	  if (strlen (filename) > 0)
+	    {
+	      status = collect_image_info (filename);
+	      if (!status)
+		break;
+	    }
+	}
+
+      file_list_fclose (file);
+      if (!status)
+	return 2;
+    }
+
+  /* Collect command line arguments. */
+  for (i = args_index; i < argc; i++)
+    {
+      const char *filename = argv[i];
+      if (strlen (filename) > 0)
+	{
+	  status = collect_image_info (filename);
+	  if (!status)
+	    return 2;
+	}
+    }
+
+  /* Nothing to do? */
+  if (img_info_size == 0)
+    return 0;
+
+  /* Check what we have to do and do it. */
+  if (image_info_flag)
+    {
+      /* Print. */
+      print_image_info ();
+    }
+  else if (!image_storage_flag)
+    {
+      /* Rebase. */
+      ULONG64 new_image_base = image_base;
+      for (i = 0; i < img_info_size; ++i)
+	{
+	  status = rebase (img_info_list[i].name, &new_image_base, down_flag);
+	  if (!status)
+	    return 2;
+	}
+    }
+  else
+    {
+      /* Rebase with database support. */
+      BOOL header;
+
+      if (merge_image_info () < 0)
+	return 2;
+      status = TRUE;
+      for (i = 0; i < img_info_size; ++i)
+	if (img_info_list[i].flag.needs_rebasing)
+	  {
+	    ULONG64 new_image_base = img_info_list[i].base;
+	    status = rebase (img_info_list[i].name, &new_image_base, FALSE);
+	    if (status)
+	      img_info_list[i].flag.needs_rebasing = 0;
+	  }
+      for (header = FALSE, i = 0; i < img_info_size; ++i)
+	if (img_info_list[i].flag.cannot_rebase == 1)
+	  {
+	    if (!header)
+	      {
+		fputs ("\nThe following DLLs couldn't be rebased "
+		       "because they were in use:\n", stderr);
+		header = TRUE;
+	      }
+	    fprintf (stderr, "  %s\n", img_info_list[i].name);
+	  }
+      for (header = FALSE, i = 0; i < img_info_size; ++i)
+	if (img_info_list[i].flag.needs_rebasing)
+	  {
+	    if (!header)
+	      {
+		fputs ("\nThe following DLLs couldn't be rebased "
+		       "due to errors:\n", stderr);
+		header = TRUE;
+	      }
+	    fprintf (stderr, "  %s\n", img_info_list[i].name);
+	  }
+      if (save_image_info () < 0)
+	return 2;
+    }
+
+  return 0;
+}
+
+#if !defined(__CYGWIN__) && !defined(__MSYS__)
+int
+mkstemp (char *name)
+{
+  return _open (mktemp (name),
+      O_RDWR | O_BINARY | O_CREAT | O_EXCL | O_TRUNC | _O_SHORT_LIVED,
+      _S_IREAD|_S_IWRITE);
+}
+#endif
+
+int
+save_image_info ()
+{
+  int i, fd;
+  int ret = 0;
+  img_info_hdr_t hdr;
+
+  /* Do not re-write the database if --oblivious is active */
+  if (image_oblivious_flag)
+    return 0;
+  /* Drop cannot_rebase flag and remove all DLLs for which rebasing failed
+     from the list before storing it in the database file. */
+  for (i = 0; i < img_info_size; ++i)
+    {
+      img_info_list[i].flag.cannot_rebase = 0;
+      if (img_info_list[i].flag.needs_rebasing)
+	img_info_list[i--] = img_info_list[--img_info_size];
+    }
+  /* Create a temporary file to write to. */
+  fd = mkstemp (tmp_file);
+  if (fd < 0)
+    {
+      fprintf (stderr, "%s: failed to create temporary rebase database: %s\n",
+	       progname, strerror (errno));
+      return -1;
+    }
+  qsort (img_info_list, img_info_size, sizeof (img_info_t), img_info_name_cmp);
+  /* First write the number of entries. */
+  memcpy (hdr.magic, IMG_INFO_MAGIC, 4);
+  hdr.machine = machine;
+  hdr.version = IMG_INFO_VERSION;
+  hdr.base = image_base;
+  hdr.offset = offset;
+  hdr.down_flag = down_flag;
+  hdr.count = img_info_size;
+  if (write (fd, &hdr, sizeof (hdr)) < 0)
+    {
+      fprintf (stderr, "%s: failed to write rebase database: %s\n",
+	       progname, strerror (errno));
+      ret = -1;
+    }
+  /* Write the list. */
+  else if (write (fd, img_info_list, img_info_size * sizeof (img_info_t)) < 0)
+    {
+      fprintf (stderr, "%s: failed to write rebase database: %s\n",
+	       progname, strerror (errno));
+      ret = -1;
+    }
+  else
+    {
+      int i;
+
+      /* Write all strings. */
+      for (i = 0; i < img_info_size; ++i)
+	if (write (fd, img_info_list[i].name,
+		   strlen (img_info_list[i].name) + 1) < 0)
+	  {
+	    fprintf (stderr, "%s: failed to write rebase database: %s\n",
+		     progname, strerror (errno));
+	    ret = -1;
+	    break;
+	  }
+    }
+#if defined(__CYGWIN__) && !defined(__MSYS__)
+  /* fchmod is broken on msys */
+  fchmod (fd, 0660);
+#else
+  chmod (tmp_file, 0660);
+#endif
+  close (fd);
+  if (ret < 0)
+    unlink (tmp_file);
+  else
+    {
+      if (unlink (db_file) < 0 && errno != ENOENT)
+	{
+	  fprintf (stderr,
+		   "%s: failed to remove old rebase database file \"%s\":\n"
+		   "%s\n"
+		   "The new rebase database is stored in \"%s\".\n"
+		   "Manually remove \"%s\" and rename \"%s\" to \"%s\",\n"
+		   "otherwise the new rebase database will be unusable.\n",
+		   progname, db_file,
+		   strerror (errno),
+		   tmp_file,
+		   db_file, tmp_file, db_file);
+	  ret = -1;
+	}
+      else if (rename (tmp_file, db_file) < 0)
+	{
+	  fprintf (stderr,
+		   "%s: failed to rename \"%s\" to \"%s\":\n"
+		   "%s\n"
+		   "Manually rename \"%s\" to \"%s\",\n"
+		   "otherwise the new rebase database will be unusable.\n",
+		   progname, tmp_file, db_file,
+		   strerror (errno),
+		   tmp_file, db_file);
+	  ret = -1;
+	}
+    }
+  return ret;
+}
+
+int
+load_image_info ()
+{
+  int fd;
+  ssize_t read_ret;
+  int ret = 0;
+  int i;
+  img_info_hdr_t hdr;
+
+  fd = open (db_file, O_RDONLY | O_BINARY);
+  if (fd < 0)
+    {
+      /* It's no error if the file doesn't exist.  However, in this case
+	 the -b option is mandatory. */
+      if (errno == ENOENT && image_base)
+        return 0;
+      fprintf (stderr, "%s: failed to open rebase database \"%s\":\n%s\n",
+	       progname, db_file, strerror (errno));
+      return -1;
+    }
+  /* First read the header. */
+  if ((read_ret = read (fd, &hdr, sizeof hdr)) != sizeof hdr)
+    {
+      if (read_ret < 0)
+	fprintf (stderr, "%s: failed to read rebase database \"%s\":\n%s\n",
+		 progname, db_file, strerror (errno));
+      else
+	fprintf (stderr, "%s: premature end of rebase database \"%s\".\n",
+		 progname, db_file);
+      close (fd);
+      return -1;
+    }
+  /* Check the header. */
+  if (memcmp (hdr.magic, IMG_INFO_MAGIC, 4) != 0)
+    {
+      fprintf (stderr, "%s: \"%s\" is not a valid rebase database.\n",
+	       progname, db_file);
+      close (fd);
+      return -1;
+    }
+  if (hdr.machine != machine)
+    {
+      if (hdr.machine == IMAGE_FILE_MACHINE_I386)
+	fprintf (stderr,
+"%s: \"%s\" is a database file for 32 bit DLLs but\n"
+"I'm started to handle 64 bit DLLs.  If you want to handle 32 bit DLLs,\n"
+"use the -4 option.\n", progname, db_file);
+      else if (hdr.machine == IMAGE_FILE_MACHINE_AMD64)
+	fprintf (stderr,
+"%s: \"%s\" is a database file for 64 bit DLLs but\n"
+"I'm started to handle 32 bit DLLs.  If you want to handle 64 bit DLLs,\n"
+"use the -8 option.\n", progname, db_file);
+      else
+	fprintf (stderr, "%s: \"%s\" is a database file for a machine type\n"
+			 "I don't know about.", progname, db_file);
+      close (fd);
+      return -1;
+    }
+  if (hdr.version != IMG_INFO_VERSION)
+    {
+      fprintf (stderr, "%s: \"%s\" is a version %u rebase database.\n"
+		       "I can only handle versions up to %u.\n",
+	       progname, db_file, hdr.version, (uint32_t) IMG_INFO_VERSION);
+      close (fd);
+      return -1;
+    }
+  /* If no new image base has been specified, use the one from the header. */
+  if (image_base == 0)
+    {
+      image_base = hdr.base;
+      down_flag = hdr.down_flag;
+    }
+  if (offset == 0)
+    offset = hdr.offset;
+  /* Don't enforce rebasing if address and offset are unchanged or taken from
+     the file anyway. */
+  if (image_base == hdr.base && offset == hdr.offset)
+    force_rebase_flag = FALSE;
+  img_info_size = hdr.count;
+  /* Allocate memory for the image list. */
+  if (ret == 0)
+    {
+      img_info_max_size = roundup (img_info_size, 100);
+      img_info_list = (img_info_t *) calloc (img_info_max_size,
+					     sizeof (img_info_t));
+      if (!img_info_list)
+	{
+	  fprintf (stderr, "%s: Out of memory.\n", progname);
+	  ret = -1;
+	}
+    }
+  /* Now read the list. */
+  if (ret == 0
+      && (read_ret = read (fd, img_info_list,
+			   img_info_size * sizeof (img_info_t)))
+	 != img_info_size * sizeof (img_info_t))
+    {
+      if (read_ret < 0)
+	fprintf (stderr, "%s: failed to read rebase database \"%s\":\n%s\n",
+		 progname, db_file, strerror (errno));
+      else
+	fprintf (stderr, "%s: premature end of rebase database \"%s\".\n",
+		 progname, db_file);
+      ret = -1;
+    }
+  /* Make sure all pointers are NULL. */
+  if (ret == 0)
+    for (i = 0; i < img_info_size; ++i)
+      {
+	img_info_list[i].name = NULL;
+	/* Ensure that existing database entries are not touched when
+	 *  --oblivious or --merge-files is active, even if they are
+	 *  out-of sync with reality. */
+	if (image_oblivious_flag || !perform_rebase_flag)
+	  img_info_list[i].flag.cannot_rebase = 2;
+      }
+  /* Eventually read the strings. */
+  if (ret == 0)
+    {
+      for (i = 0; i < img_info_size; ++i)
+	{
+	  img_info_list[i].name = (char *)
+				  malloc (img_info_list[i].name_size);
+	  if (!img_info_list[i].name)
+	    {
+	      fprintf (stderr, "%s: Out of memory.\n", progname);
+	      ret = -1;
+	      break;
+	    }
+	  if ((read_ret = read (fd, img_info_list[i].name,
+				img_info_list[i].name_size))
+	      != img_info_list[i].name_size)
+	    {
+	      if (read_ret < 0)
+		fprintf (stderr, "%s: failed to read rebase database \"%s\": "
+			 "%s\n", progname, db_file, strerror (errno));
+	      else
+		fprintf (stderr,
+			 "%s: premature end of rebase database \"%s\".\n",
+			 progname, db_file);
+	      ret = -1;
+	      break;
+	    }
+	}
+    }
+  close (fd);
+  /* On failure, free all allocated memory and set list pointer to NULL. */
+  if (ret < 0)
+    {
+      for (i = 0; i < img_info_size && img_info_list[i].name; ++i)
+	free (img_info_list[i].name);
+      free (img_info_list);
+      img_info_list = NULL;
+      img_info_size = 0;
+      img_info_max_size = 0;
+    }
+  return ret;
+}
+
+static BOOL
+set_cannot_rebase (img_info_t *img)
+{
+  /* While --oblivious or --merge-files is active, cannot_rebase
+   * is set to 2 on loading the database entries */
+  if (img->flag.cannot_rebase <= 1 )
+    {
+      int fd = open (img->name, O_WRONLY);
+      if (fd < 0)
+	img->flag.cannot_rebase = 1;
+      else
+	close (fd);
+    }
+  return img->flag.cannot_rebase;
+}
+
+int
+merge_image_info ()
+{
+  int i, end;
+  img_info_t *match;
+  ULONG64 floating_image_base;
+
+  /* Sort new files from command line by name. */
+  qsort (img_info_list + img_info_rebase_start,
+	 img_info_size - img_info_rebase_start, sizeof (img_info_t),
+	 img_info_name_cmp);
+  /* Iterate through new files and eliminate duplicates. */
+  for (i = img_info_rebase_start; i + 1 < img_info_size; ++i)
+    if ((img_info_list[i].name_size == img_info_list[i + 1].name_size
+	 && !strcmp (img_info_list[i].name, img_info_list[i + 1].name))
+#if defined(__CYGWIN__) || defined(__MSYS__)
+	|| !strcmp (img_info_list[i].name, CYGWIN_DLL)
+#endif
+       )
+      {
+	free (img_info_list[i].name);
+	memmove (img_info_list + i, img_info_list + i + 1,
+		 (img_info_size - i - 1) * sizeof (img_info_t));
+	--img_info_size;
+	--i;
+      }
+  /* Iterate through new files and see if they are already available in
+     existing database. */
+  if (img_info_rebase_start)
+    {
+      for (i = img_info_rebase_start; i < img_info_size; ++i)
+	{
+	  /* First test if we can open the DLL for writing.  If not, it's
+	     probably blocked by another process. */
+	  set_cannot_rebase (&img_info_list[i]);
+	  match = bsearch (&img_info_list[i], img_info_list,
+			   img_info_rebase_start, sizeof (img_info_t),
+			   img_info_name_cmp);
+	  if (match)
+	    {
+	      /* We found a match.  Now test if the "new" file is actually
+		 the old file, or if it at least fits into the memory slot
+		 of the old file.  If so, screw the new file into the old slot.
+		 Otherwise set base to 0 to indicate that this DLL needs a new
+		 base address. */
+	      if (img_info_list[i].flag.cannot_rebase)
+		match->base = img_info_list[i].base;
+	      else if (match->base != img_info_list[i].base
+		       || match->slot_size < img_info_list[i].slot_size)
+		{
+		  /* Reuse the old address if possible. */
+		  if (match->slot_size < img_info_list[i].slot_size)
+		    {
+		      match->base = 0;
+		      if (verbose)
+		        fprintf (stderr, "rebasing %s because it won't fit in it's old slot size\n", img_info_list[i].name);
+		    }
+		  else if (verbose)
+		    fprintf (stderr, "rebasing %s because it's not located at it's old slot\n", img_info_list[i].name);
+
+		  match->flag.needs_rebasing = 1;
+		}
+	      /* Unconditionally overwrite old with new size. */
+	      match->size = img_info_list[i].size;
+	      match->slot_size = img_info_list[i].slot_size;
+	      /* With an --oblivious active, the files should not
+	       * already be in the database.  Warn since the file will
+	       * not be touched. */
+	      if (image_oblivious_flag)
+		fprintf (stderr, "%s: oblivious file \"%s\" already "
+			 "found in rebase database "
+			 "(file and database kept unchanged).\n",
+			 progname, img_info_list[i].name);
+	      /* Remove new entry from array. */
+	      free (img_info_list[i].name);
+	      img_info_list[i--] = img_info_list[--img_info_size];
+	    }
+	  else if (!img_info_list[i].flag.cannot_rebase)
+	    {
+	      /* Not in database yet.  Set base to 0 to choose a new one. */
+	      img_info_list[i].base = 0;
+	      if (verbose)
+		fprintf (stderr, "rebasing %s because not in database yet\n", img_info_list[i].name);
+	    }
+	}
+    }
+  if (!img_info_rebase_start || force_rebase_flag)
+    {
+      /* No database yet or enforcing a new base address.  Set base of all
+	 DLLs to 0, if possible. */
+      for (i = 0; i < img_info_size; ++i)
+	{
+	  /* Test DLLs already in database for writability. */
+	  if (i < img_info_rebase_start)
+	    set_cannot_rebase (&img_info_list[i]);
+	  if (!img_info_list[i].flag.cannot_rebase)
+	    {
+	      img_info_list[i].base = 0;
+	      if (verbose)
+		fprintf (stderr, "rebasing %s because forced or database missing\n", img_info_list[i].name);
+	    }
+	}
+      img_info_rebase_start = 0;
+    }
+
+  /* Now sort the old part of the list by base address. */
+  if (img_info_rebase_start)
+    qsort (img_info_list, img_info_rebase_start, sizeof (img_info_t),
+	   img_info_cmp);
+  /* Perform several tests on the information fetched from the database
+     to match with reality. */
+  for (i = 0; i < img_info_rebase_start; ++i)
+    {
+      ULONG64 cur_base;
+      ULONG cur_size, slot_size;
+
+      /* Files with the needs_rebasing or cannot_rebase flags set have been
+	 checked already. */
+      if (img_info_list[i].flag.needs_rebasing
+      	  || img_info_list[i].flag.cannot_rebase)
+	continue;
+      /* Check if the files in the old list still exist.  Drop non-existant
+	 or unaccessible files. */
+      if (access (img_info_list[i].name, F_OK) == -1
+	  || !GetImageInfos64 (img_info_list[i].name, NULL,
+			       &cur_base, &cur_size))
+	{
+	  free (img_info_list[i].name);
+	  memmove (img_info_list + i, img_info_list + i + 1,
+		   (img_info_size - i - 1) * sizeof (img_info_t));
+	  --img_info_rebase_start;
+	  --img_info_size;
+	  continue;
+	}
+      slot_size = roundup2 (cur_size, ALLOCATION_SLOT);
+      if (set_cannot_rebase (&img_info_list[i]))
+	img_info_list[i].base = cur_base;
+      else
+	{
+	  /* If the file has been reinstalled, try to rebase to the same address
+	     in the first place. */
+	  if (cur_base != img_info_list[i].base)
+	    {
+	      img_info_list[i].flag.needs_rebasing = 1;
+	      if (verbose)
+		fprintf (stderr, "rebasing %s because it's base has changed (due to being reinstalled?)\n", img_info_list[i].name);
+	      /* Set cur_base to the old base to simplify subsequent tests. */
+	      cur_base = img_info_list[i].base;
+	    }
+	  /* However, if the DLL got bigger and doesn't fit into its slot
+	     anymore, rebase this DLL from scratch. */
+	  if (i + 1 < img_info_rebase_start
+	      && cur_base + slot_size + offset > img_info_list[i + 1].base)
+	    {
+	      img_info_list[i].base = 0;
+	      if (verbose)
+		fprintf (stderr, "rebasing %s because it won't fit in it's old slot without overlapping next DLL\n", img_info_list[i].name);
+	    }
+	  /* Does the previous DLL reach into the address space of this
+	     DLL?  This happens if the previous DLL is not rebaseable. */
+	  else if (i > 0 && cur_base < img_info_list[i - 1].base
+				       + img_info_list[i - 1].slot_size)
+	    {
+	      img_info_list[i].base = 0;
+	      if (verbose)
+		fprintf (stderr, "rebasing %s because previous DLL now overlaps\n", img_info_list[i].name);
+	    }
+	  /* Does the file match the base address requirements?  If not,
+	     rebase from scratch. */
+	  else if ((down_flag && cur_base + slot_size + offset > image_base)
+		   || (!down_flag && cur_base < image_base))
+	    {
+	      img_info_list[i].base = 0;
+	      if (verbose)
+		fprintf (stderr, "rebasing %s because it's base address is outside the expected area\n", img_info_list[i].name);
+	    }
+	}
+      /* Unconditionally overwrite old with new size. */
+      img_info_list[i].size = cur_size;
+      img_info_list[i].slot_size = slot_size;
+      /* Make sure all DLLs with base address 0 have the needs_rebasing
+	 flag set. */
+      if (img_info_list[i].base == 0)
+	img_info_list[i].flag.needs_rebasing = 1;
+    }
+  /* The remainder of the function expects img_info_size to be > 0. */
+  if (img_info_size == 0)
+    return 0;
+
+  /* Now sort entire list by base address.  The files with address 0 will
+     be first. */
+  if (!force_rebase_flag)
+    qsort (img_info_list, img_info_size, sizeof (img_info_t), img_info_cmp);
+  /* Try to fit all DLLs with base address 0 into the given list. */
+  /* FIXME: This loop only implements the top-down case.  Implement a
+     bottom-up case, too, at one point. */
+  floating_image_base = image_base;
+  end = img_info_size - 1;
+  while (img_info_list[0].base == 0)
+    {
+      ULONG64 new_base = 0;
+
+      /* Skip trailing entries as long as there is no hole. */
+       while (end > 0
+	      && img_info_list[end].base + img_info_list[end].slot_size
+		 + offset >= floating_image_base)
+	{
+	  floating_image_base = img_info_list[end].base;
+	  --end;
+	}
+
+      /* Test if one of the DLLs with address 0 fits into the hole. */
+      for (i = 0; img_info_list[i].base == 0; ++i)
+	{
+	  ULONG64 base = floating_image_base - img_info_list[i].slot_size
+		  - offset;
+	  /* Check if address is still valid */
+	  if (check_base_address_sanity (base, FALSE))
+	    return -1;
+	  if (base >= img_info_list[end].base + img_info_list[end].slot_size
+#if defined(__CYGWIN__) || defined(__MSYS__)
+	      /* Don't overlap the Cygwin/MSYS DLL. */
+	      && (base >= cygwin_dll_image_base + cygwin_dll_image_size
+		  || base + img_info_list[i].slot_size <= cygwin_dll_image_base)
+#endif
+	     )
+	    {
+	      new_base = base;
+	      break;
+	    }
+	}
+      /* Found a match.  Mount into list. */
+      if (new_base)
+	{
+	  img_info_t tmp = img_info_list[i];
+	  tmp.base = new_base;
+	  memmove (img_info_list + i, img_info_list + i + 1,
+		   (end - i) * sizeof (img_info_t));
+	  img_info_list[end] = tmp;
+	  continue;
+	}
+      /* Nothing matches.  Set floating_image_base to the start of the
+	 uppermost DLL at this point and try again. */
+#if defined(__CYGWIN__) || defined(__MSYS__)
+      if (floating_image_base >= cygwin_dll_image_base + cygwin_dll_image_size
+	  && img_info_list[end].base < cygwin_dll_image_base)
+	  floating_image_base = cygwin_dll_image_base;
+      else
+#endif
+	{
+	  floating_image_base = img_info_list[end].base;
+	  if (--end < 0)
+	    {
+	      fprintf (stderr,
+		       "%s: Too many DLLs for available address space: %s\n",
+		       progname, strerror (ENOMEM));
+	      return -1;
+	    }
+	}
+    }
+
+  return 0;
+}
+
+BOOL
+collect_image_info (const char *pathname)
+{
+  BOOL ret;
+  WORD dll_machine;
+
+  /* Skip if file does not exist to prevent ReBaseImage() from using it's
+     stupid search algorithm (e.g, PATH, etc.). */
+  if (access (pathname, F_OK) == -1)
+    {
+      if (!quiet)
+	fprintf (stderr, "%s: skipped because nonexistent.\n", pathname);
+      return TRUE;
+    }
+
+  /* Skip if not rebaseable, but only if we're collecting for rebasing,
+     not if we're collecting for printing only. */
+  if (perform_rebase_flag && !is_rebaseable (pathname))
+    {
+      if (!quiet)
+	fprintf (stderr, "%s: skipped because not rebaseable\n", pathname);
+      return TRUE;
+    }
+
+  if (img_info_size >= img_info_max_size)
+    {
+      img_info_max_size += 100;
+      img_info_list = (img_info_t *) realloc (img_info_list,
+					      img_info_max_size
+					      * sizeof (img_info_t));
+      if (!img_info_list)
+	{
+	  fprintf (stderr, "%s: Out of memory.\n", progname);
+	  return FALSE;
+	}
+    }
+
+  ret = GetImageInfos64 (pathname, &dll_machine,
+			 &img_info_list[img_info_size].base,
+			 &img_info_list[img_info_size].size);
+  if (!ret)
+    {
+      if (!quiet)
+	fprintf (stderr, "%s: skipped because file info unreadable.\n",
+		 pathname);
+      return TRUE;
+    }
+  /* We only support IMAGE_FILE_MACHINE_I386 and IMAGE_FILE_MACHINE_AMD64
+     so far. */
+  if (machine != IMAGE_FILE_MACHINE_I386
+      && machine != IMAGE_FILE_MACHINE_AMD64)
+    {
+      if (quiet)
+	fprintf (stderr, "%s: is an executable for a machine type\n"
+			 "I don't know about.", pathname);
+      return TRUE;
+    }
+  /* We either operate on 32 bit or 64 bit files.  Never mix them. */
+  if (dll_machine != machine)
+    {
+      if (!quiet)
+	fprintf (stderr, "%s: skipped because wrong machine type.\n",
+		 pathname);
+      return TRUE;
+    }
+  img_info_list[img_info_size].slot_size
+    = roundup2 (img_info_list[img_info_size].size, ALLOCATION_SLOT);
+  if (perform_rebase_flag)
+    {
+      img_info_list[img_info_size].flag.needs_rebasing = 1;
+      img_info_list[img_info_size].flag.cannot_rebase = 0;
+    }
+  else
+    {
+      img_info_list[img_info_size].flag.needs_rebasing = 0;
+      img_info_list[img_info_size].flag.cannot_rebase = 2;
+    }
+  /* This back and forth from POSIX to Win32 is a way to get a full path
+     more thoroughly.  For instance, the difference between /bin and
+     /usr/bin will be eliminated. */
+#if defined (__MSYS__)
+  {
+    char w32_path[MAX_PATH];
+    char full_path[MAX_PATH];
+    cygwin_conv_to_full_win32_path (pathname, w32_path);
+    cygwin_conv_to_full_posix_path (w32_path, full_path);
+    img_info_list[img_info_size].name = strdup (full_path);
+    img_info_list[img_info_size].name_size = strlen (full_path) + 1;
+  }
+#elif defined (__CYGWIN__)
+  {
+    PWSTR w32_path = cygwin_create_path (CCP_POSIX_TO_WIN_W, pathname);
+    if (!w32_path)
+      {
+	fprintf (stderr, "%s: Out of memory.\n", progname);
+	return FALSE;
+      }
+    img_info_list[img_info_size].name
+      = cygwin_create_path (CCP_WIN_W_TO_POSIX, w32_path);
+    if (!img_info_list[img_info_size].name)
+      {
+	fprintf (stderr, "%s: Out of memory.\n", progname);
+	return FALSE;
+      }
+    free (w32_path);
+    img_info_list[img_info_size].name_size
+      = strlen (img_info_list[img_info_size].name) + 1;
+  }
+#else
+  {
+    char full_path[MAX_PATH];
+    GetFullPathName (pathname, MAX_PATH, full_path, NULL);
+    img_info_list[img_info_size].name = strdup (full_path);
+    img_info_list[img_info_size].name_size = strlen (full_path) + 1;
+  }
+#endif
+  if (verbose)
+    fprintf (stderr, "%s %s because filename given on command line\n",
+	     perform_rebase_flag ? "rebasing" : "considering",
+	     img_info_list[img_info_size].name);
+  ++img_info_size;
+  return TRUE;
+}
+
+void
+print_image_info ()
+{
+  unsigned int i;
+  /* Default name field width to longest available for 80 char display. */
+  int name_width = (machine == IMAGE_FILE_MACHINE_I386) ? 45 : 41;
+
+  /* Sort list by name. */
+  qsort (img_info_list, img_info_size, sizeof (img_info_t), img_info_name_cmp);
+  /* Iterate through list and eliminate duplicates. */
+  for (i = 0; i + 1 < img_info_size; ++i)
+    if (img_info_list[i].name_size == img_info_list[i + 1].name_size
+	&& !strcmp (img_info_list[i].name, img_info_list[i + 1].name))
+      {
+	/* Remove duplicate, but prefer one from the command line over one
+	   from the database, because the one from the command line reflects
+	   the reality, while the database is wishful thinking. */
+	if (img_info_list[i].flag.needs_rebasing == 0)
+	  {
+	    free (img_info_list[i].name);
+	    memmove (img_info_list + i, img_info_list + i + 1,
+		     (img_info_size - i - 1) * sizeof (img_info_t));
+	  }
+	else
+	  {
+	    free (img_info_list[i + 1].name);
+	    if (i + 2 < img_info_size)
+	      memmove (img_info_list + i + 1, img_info_list + i + 2,
+		       (img_info_size - i - 2) * sizeof (img_info_t));
+	  }
+	--img_info_size;
+	--i;
+      }
+  /* For entries loaded from database, collect image info to reflect reality.
+     Also, collect_image_info sets needs_rebasing to 1, so reset here.
+     Also, fetch the longest name length for formatting purposes. */
+  for (i = 0; i < img_info_size; ++i)
+    {
+      if (img_info_list[i].flag.needs_rebasing == 0)
+	{
+	  ULONG64 base;
+	  ULONG size;
+
+	  if (GetImageInfos64 (img_info_list[i].name, NULL, &base, &size))
+	    {
+	      img_info_list[i].base = base;
+	      img_info_list[i].size = size;
+	      img_info_list[i].slot_size
+		= roundup2 (img_info_list[i].size, ALLOCATION_SLOT);
+	    }
+	}
+      else
+	img_info_list[i].flag.needs_rebasing = 0;
+      name_width = max (name_width, img_info_list[i].name_size - 1);
+    }
+  /* Now sort by address. */
+  qsort (img_info_list, img_info_size, sizeof (img_info_t), img_info_cmp);
+  for (i = 0; i < img_info_size; ++i)
+    {
+      int tst;
+      ULONG64 end = img_info_list[i].base + img_info_list[i].slot_size;
+
+      /* Check for overlap and mark both DLLs. */
+      for (tst = i + 1;
+	   tst < img_info_size && img_info_list[tst].base < end;
+	   ++tst)
+	{
+	  img_info_list[i].flag.needs_rebasing = 1;
+	  img_info_list[tst].flag.needs_rebasing = 1;
+	}
+      printf ("%-*s base 0x%0*" PRIx64 " size 0x%08x %c\n",
+	      name_width,
+	      img_info_list[i].name,
+	      machine == IMAGE_FILE_MACHINE_I386 ? 8 : 12,
+	      (uint64_t) img_info_list[i].base,
+	      (uint32_t) img_info_list[i].size,
+	      img_info_list[i].flag.needs_rebasing ? '*' : ' ');
+    }
+}
+
+BOOL
+rebase (const char *pathname, ULONG64 *new_image_base, BOOL down_flag)
+{
+  ULONG64 old_image_base, prev_new_image_base;
+  ULONG old_image_size, new_image_size;
+  BOOL status;
+
+  /* Skip if not writable. */
+  if (access (pathname, W_OK) == -1)
+    {
+      if (!quiet)
+	fprintf (stderr, "%s: skipped because not writable\n", pathname);
+      return TRUE;
+    }
+
+  /* Calculate next base address, if rebasing down. */
+  if (down_flag)
+    *new_image_base -= offset;
+
+#if defined(__CYGWIN__) || defined(__MSYS__)
+retry:
+#endif
+
+  /* Rebase the image. */
+  prev_new_image_base = *new_image_base;
+  ReBaseImage64 ((char*) pathname,	/* CurrentImageName */
+		 "",			/* SymbolPath */
+		 TRUE,			/* fReBase */
+		 FALSE,		/* fRebaseSysfileOk */
+		 down_flag,		/* fGoingDown */
+		 0,			/* CheckImageSize */
+		 &old_image_size,	/* OldImageSize */
+		 &old_image_base,	/* OldImageBase */
+		 &new_image_size,	/* NewImageSize */
+		 new_image_base,	/* NewImageBase */
+		 time (0));		/* TimeStamp */
+
+  /* MS's ReBaseImage seems to never return false! */
+  status = GetLastError ();
+
+  /* If necessary, attempt to fix bad relocations. */
+  if (status == ERROR_INVALID_DATA)
+    {
+      if (verbose)
+	fprintf (stderr, "%s: fixing bad relocations\n", pathname);
+      BOOL status3 = FixImage ((char*) pathname);
+      if (!status3)
+	{
+	  fprintf (stderr, "FixImage (%s) failed with last error = %u\n",
+		   pathname, (uint32_t) GetLastError ());
+	  return FALSE;
+	}
+
+      /* Retry rebase.*/
+      ReBaseImage64 ((char*) pathname,	/* CurrentImageName */
+		     "",		/* SymbolPath */
+		     TRUE,		/* fReBase */
+		     FALSE,		/* fRebaseSysfileOk */
+		     down_flag,	/* fGoingDown */
+		     0,		/* CheckImageSize */
+		     &old_image_size,	/* OldImageSize */
+		     &old_image_base,	/* OldImageBase */
+		     &new_image_size,	/* NewImageSize */
+		     new_image_base,	/* NewImageBase */
+		     time (0));	/* TimeStamp */
+
+      /* MS's ReBaseImage seems to never return false! */
+      status = GetLastError ();
+    }
+
+  /* Check status of rebase. */
+  if (status != 0)
+    {
+      fprintf (stderr, "ReBaseImage (%s) failed with last error = %u\n",
+	       pathname, (uint32_t) GetLastError ());
+      return FALSE;
+    }
+
+#if defined(__CYGWIN__) || defined(__MSYS__)
+  /* Avoid the case that a DLL is rebased into the address space taken
+     by the Cygwin DLL.  Only test in down_flag == TRUE case, otherwise
+     the return value in new_image_base is not meaningful */
+  if (down_flag
+      && *new_image_base >= cygwin_dll_image_base
+      && *new_image_base <= cygwin_dll_image_base + cygwin_dll_image_size)
+    {
+      *new_image_base = cygwin_dll_image_base - new_image_size;
+      goto retry;
+    }
+#endif
+
+  /* Display rebase results, if verbose. */
+  if (verbose)
+    {
+      printf ("%s: new base = %" PRIx64 ", new size = %x\n",
+	      pathname,
+	      (uint64_t) ((down_flag) ? *new_image_base : prev_new_image_base),
+	      (uint32_t) (new_image_size + offset));
+    }
+
+  /* Calculate next base address, if rebasing up. */
+  if (!down_flag)
+    *new_image_base += offset;
+
+  return TRUE;
+}
+
+static struct option long_options[] = {
+  {"32",	no_argument,	   NULL, '4'},
+  {"64",	no_argument,	   NULL, '8'},
+  {"base",	required_argument, NULL, 'b'},
+  {"down",	no_argument,	   NULL, 'd'},
+  {"help",	no_argument,	   NULL, 'h'},
+  {"usage",	no_argument,	   NULL, 'h'},
+  {"info",	no_argument,	   NULL, 'i'},
+  {"merge-files",no_argument,	   NULL, 'M'},
+  {"offset",	required_argument, NULL, 'o'},
+  {"oblivious",	no_argument,	   NULL, 'O'},
+  {"quiet",	no_argument,	   NULL, 'q'},
+  {"database",	no_argument,	   NULL, 's'},
+  {"touch",	no_argument,	   NULL, 't'},
+  {"filelist",	required_argument, NULL, 'T'},
+  {"no-dynamicbase", no_argument,  NULL, 'n'},
+  {"verbose",	no_argument,	   NULL, 'v'},
+  {"version",	no_argument,	   NULL, 'V'},
+  {NULL,	no_argument,	   NULL,  0 }
+};
+
+static const char *short_options = "48b:dhiMno:OqstT:vV";
+
+void
+parse_args (int argc, char *argv[])
+{
+  int opt = 0;
+  int count_file_list = 0;
+
+  while ((opt = getopt_long (argc, argv, short_options, long_options, NULL))
+	 != -1)
+    {
+      switch (opt)
+	{
+	case '4':
+	  machine = IMAGE_FILE_MACHINE_I386;
+	  DB_FILE = IMG_INFO_FILE_I386;
+	  break;
+	case '8':
+	  machine = IMAGE_FILE_MACHINE_AMD64;
+	  DB_FILE = IMG_INFO_FILE_AMD64;
+	  break;
+	case 'b':
+	  image_base = string_to_ulonglong (optarg);
+	  force_rebase_flag = TRUE;
+	  break;
+	case 'd':
+	  down_flag = TRUE;
+	  break;
+	case 'i':
+	  image_info_flag = TRUE;
+	  perform_rebase_flag = FALSE;
+	  break;
+	case 'o':
+	  offset = string_to_ulonglong (optarg);
+	  force_rebase_flag = TRUE;
+	  break;
+	case 'q':
+	  quiet = TRUE;
+	  break;
+	case 'M':
+	  perform_rebase_flag = FALSE;
+	  image_storage_flag = TRUE;
+	  break;
+	case 'O':
+	  image_oblivious_flag = TRUE;
+	  /* -O implies -s, which in turn implies -d, so intentionally
+	   * fall through to -s. */
+	case 's':
+	  image_storage_flag = TRUE;
+	  /* FIXME: For now enforce top-down rebasing when using the database.*/
+	  down_flag = TRUE;
+	  break;
+	case 't':
+	  ReBaseChangeFileTime = TRUE;
+	  break;
+	case 'T':
+	  if (count_file_list++)
+	    {
+	      /* Currently only one file list allowed.  Would need an
+	       * array of file names and a loop around the file reader
+	       * for multiple occurences of this switch. */
+	      usage ();
+	      exit (1);
+	    }
+	  file_list = optarg;
+	  break;
+	case 'n':
+	  ReBaseDropDynamicbaseFlag = TRUE;
+	  break;
+	case 'v':
+	  verbose = TRUE;
+	  break;
+	case 'h':
+	  help ();
+	  exit (1);
+	  break;
+	case 'V':
+	  version ();
+	  exit (1);
+	  break;
+	default:
+	  usage ();
+	  exit (1);
+	  break;
+	}
+    }
+
+  if ((image_base == 0 && perform_rebase_flag && !image_storage_flag)
+      || (force_rebase_flag && !perform_rebase_flag))
+    {
+      usage ();
+      exit (1);
+    }
+
+  if (machine == IMAGE_FILE_MACHINE_I386 && image_base > 0xffffffff)
+    {
+      fprintf (stderr,
+	       "%s: Base address 0x%" PRIx64 " too big for 32 bit machines.\n",
+	       progname, (uint64_t) image_base);
+      exit (1);
+    }
+
+  /* The low address for 32 bit is extremly low, and apparently
+     W10 1703 and later rebase all DLLs with start addresses < 0x38000000
+     at runtime.  However, we have so many DLLs that a hardcoded lowest
+     address of 0x38000000 is just not feasible. */
+  low_addr = (machine == IMAGE_FILE_MACHINE_I386) ? 0x001000000ULL
+						  : 0x200000000ULL;
+
+  if (image_base && check_base_address_sanity (image_base, TRUE) < 0)
+    exit (1);
+
+  args_index = optind;
+
+  /* Initialize db_file and tmp_file from pattern */
+#if defined(__CYGWIN__) || defined(__MSYS__)
+  /* We don't explicitly free these, but (a) this function is only
+   * called once, and (b) we wouldn't free until exit() anyway, and
+   * that will happen automatically upon process cleanup.
+   */
+  db_file = strdup(DB_FILE);
+  tmp_file = strdup(TMP_FILE);
+#else
+  {
+    char exepath[LONG_PATH_MAX];
+    char* p = NULL;
+    char* p2 = NULL;
+    size_t sz = 0;
+
+    if (!GetModuleFileNameA (NULL, exepath, LONG_PATH_MAX))
+      fprintf (stderr, "%s: can't determine rebase installation path\n",
+	       progname);
+
+    /* strip off exename and trailing slash */
+    sz = strlen (exepath);
+    p = exepath + sz - 1;
+    while (p && (p > exepath) && (*p == '/' || *p == '\\'))
+      {
+        *p = '\0';
+        p--;
+      }
+    p = strrchr(exepath, '/');
+    p2 = strrchr(exepath, '\\');
+    if (p || p2)
+      {
+        if (p2 > p)
+          p = p2;
+        if (p > exepath)
+          *p = '\0';
+        else
+          {
+            p++;
+            *p = '\0';
+          }
+      }
+    sz = strlen (exepath);
+
+    /* We don't explicitly free these, but (a) this function is only
+     * called once, and (b) we wouldn't free until exit() anyway, and
+     * that will happen automatically upon process cleanup.
+     */
+    db_file = (char *) calloc(sz + strlen(DB_FILE) + 1, sizeof(char));
+    tmp_file = (char *) calloc(sz + strlen(TMP_FILE) + 1, sizeof(char));
+    strcpy(db_file, exepath);
+    strcpy(&db_file[sz], DB_FILE);
+    strcpy(tmp_file, exepath);
+    strcpy(&tmp_file[sz], TMP_FILE);
+
+    for (p = db_file; *p != '\0'; p++)
+      if (*p == '/')
+        *p = '\\';
+    for (p = tmp_file; *p != '\0'; p++)
+      if (*p == '/')
+        *p = '\\';
+  }
+#endif
+}
+
+unsigned long long
+string_to_ulonglong (const char *string)
+{
+  unsigned long long number = 0;
+  number = strtoull (string, NULL, 0);
+  return number;
+}
+
+void
+usage ()
+{
+  fprintf (stderr,
+"usage: %s [-b BaseAddress] [-o Offset] [-48dOsvV]"
+" [-T [FileList | -]] Files...\n"
+"       %s -i [-48MOs] [-T [FileList | -]] Files...\n"
+"       %s --help or --usage for full help text\n",
+	   progname, progname, progname);
+}
+
+void
+help ()
+{
+  printf ("\
+Usage: %s [OPTIONS] [FILE]...\n\
+Rebase PE files, usually DLLs, to a specified address or address range.\n\
+\n\
+  -4, --32                Only rebase 32 bit DLLs."
+#ifndef __x86_64__
+                          "  This is the default."
+#endif
+"\n\
+  -8, --64                Only rebase 64 bit DLLs."
+#ifdef __x86_64__
+                          "  This is the default."
+#endif
+"\n\
+  -b, --base=BASEADDRESS  Specifies the base address at which to start rebasing.\n\
+  -s, --database          Utilize the rebase database to find unused memory\n\
+                          slots to rebase the files on the command line to.\n\
+                          (Implies -d).\n\
+                          If -b is given, too, the database gets recreated.\n\
+  -O, --oblivious         Do not change any files already in the database\n\
+                          and do not record any changes to the database.\n\
+                          (Implies -s).\n\
+  -M, --merge-files       Do not perform any rebase, update the database only.\n\
+                          Implies -s, incompatible with -b and -o.\n\
+                          The files listed should have been rebased just before\n\
+                          using the -O flag (maybe in some staging directory).\n\
+  -i, --info              Rather then rebasing, just print the current base\n\
+                          address and size of the files.  With -s, use the\n\
+                          database.  The files are ordered by base address.\n\
+                          A '*' at the end of the line is printed if a\n\
+                          collisions with an adjacent file is detected.\n\
+                          Incompatible with -b and -o.\n\
+\n\
+  One of the options -b, -s or -i is mandatory.  If no rebase database exists\n\
+  yet, -b is required together with -s.\n\
+\n\
+  -d, --down              Treat the BaseAddress as upper ceiling and rebase\n\
+                          files top-down from there.  Without this option the\n\
+                          files are rebased from BaseAddress bottom-up.\n\
+                          With the -s option, this option is implicitly set.\n\
+  -n, --no-dynamicbase    Remove PE dynamicbase flag from rebased DLLs, if set.\n\
+  -o, --offset=OFFSET     Specify an additional offset between adjacent DLLs\n\
+                          when rebasing.  Default is no offset.\n\
+  -t, --touch             Use this option to make sure the file's modification\n\
+                          time is bumped if it has been successfully rebased.\n\
+                          Usually rebase does not change the file's time.\n\
+  -T, --filelist=FILE     Also rebase the files specified in FILE.  The format\n\
+                          of FILE is one DLL per line.\n\
+  -q, --quiet             Be quiet about non-critical issues.\n\
+  -v, --verbose           Print some debug output.\n\
+  -V, --version           Print version info and exit.\n\
+  -h, --help, --usage     This help.\n",
+	  progname);
+}
+
+BOOL
+is_rebaseable (const char *pathname)
+{
+  const int pe_signature_offset_offset = 0x3c;
+  const int pe_characteristics_offset = 150;
+  short int pe_signature_offset = 0;
+  BOOL status = FALSE;
+  int fd, size;
+  long offset;
+  DWORD pe_sig;
+  WORD pe_char;
+
+  fd = open (pathname, O_RDONLY);
+  if (fd == -1)
+    return status;
+
+  offset = lseek (fd, pe_signature_offset_offset, SEEK_SET);
+  if (offset == -1)
+    goto done;
+
+  size = read (fd, &pe_signature_offset, sizeof (pe_signature_offset));
+  if (size != sizeof(pe_signature_offset))
+    goto done;
+
+  offset = lseek (fd, pe_signature_offset, SEEK_SET);
+  if (offset == -1)
+    goto done;
+
+  pe_sig = 0;
+  size = read (fd, &pe_sig, sizeof (pe_sig));
+  if (size != sizeof (pe_sig))
+    goto done;
+
+  if (pe_sig != IMAGE_NT_SIGNATURE)
+    goto done;
+
+  lseek (fd, 0, SEEK_SET);
+  offset = lseek (fd, pe_characteristics_offset, SEEK_CUR);
+  if (offset == -1)
+    goto done;
+
+  pe_char = 0;
+  size = read (fd, &pe_char, sizeof (pe_char));
+  if (size != sizeof (pe_char))
+    goto done;
+
+  status = ((pe_char & IMAGE_FILE_RELOCS_STRIPPED) == 0) ? TRUE : FALSE;
+
+done:
+  close (fd);
+  return status;
+}
+
+FILE *
+file_list_fopen (const char *file_list)
+{
+  FILE *file = stdin;
+  if (strcmp(file_list, stdin_file_list) != 0)
+    {
+      file = fopen (file_list, "rt");
+      if (!file)
+	fprintf (stderr, "cannot read %s\n", file_list);
+    }
+  return file;
+}
+
+char *
+file_list_fgets (char *buf, int size, FILE *file)
+{
+  char *status = fgets (buf, size, file);
+  if (status)
+    {
+      size_t length = strlen (buf);
+      if (buf[length - 1] == '\n')
+	buf[length - 1] = '\0';
+    }
+  return status;
+}
+
+int
+file_list_fclose (FILE *file)
+{
+  int status = 0;
+  if (strcmp(file_list, stdin_file_list) != 0)
+    status = fclose (file);
+  return status;
+}
+
+void
+version ()
+{
+  fprintf (stderr, "rebase version %s (imagehelper version %s)\n",
+	   VERSION, LIB_VERSION);
+  fprintf (stderr, "Copyright (c) 2001, 2002, 2003, 2004, 2008, 2011, 2012, "
+	   "2013 Ralf Habacker, Jason Tishler, et al.\n");
+}
+
+
+
+========================================================================
+Origin: rebase-4.5.0-5.src.tar.zst!rebase/rebase-4.5.0@4b9c18ba098855504dac71cdfcf24e892750e89d:strtoll.c
+SHA-256: e1669299adb9f725f10bf4dcadc116c0f06da5f5a12e691bbcdb0a6c1bc7fddf
+
+/* implementation adapted from google android bionic libc's
+ * strntoumax and strntoimax (removing the dependency on 'n')
+ */
+
+/*-
+ * Copyright (c) 1992 The Regents of the University of California.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the University nor the names of its contributors
+ *    may be used to endorse or promote products derived from this software
+ *    without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */
+
+#include <sys/types.h>
+#include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <errno.h>
+#include <limits.h>
+
+static inline int digitval(int ch)
+{
+  unsigned  d;
+
+  d = (unsigned)(ch - '0');
+  if (d < 10) return (int)d;
+
+  d = (unsigned)(ch - 'a');
+  if (d < 6) return (int)(d+10);
+
+  d = (unsigned)(ch - 'A');
+  if (d < 6) return (int)(d+10);
+
+  return -1;
+}
+
+/*
+ * Convert a string to an unsigned long long.
+ *
+ * Ignores `locale' stuff.  Assumes that the upper and lower case
+ * alphabets and digits are each contiguous.
+ */
+unsigned long long
+strtoull(const char *nptr, char **endptr, int base)
+{
+  const unsigned char*  p   = nptr;
+  const unsigned char*  end;
+  int                   minus = 0;
+  unsigned long long    v = 0;
+  int                   d;
+  end = p + strlen(nptr);
+
+  /* skip leading space */
+  while (p < end && isspace(*p))
+    p++;
+
+  /* Single optional + or - */
+  if (p < end)
+    {
+      char c = p[0];
+      if ( c == '-' || c == '+' )
+        {
+          minus = (c == '-');
+          p++;
+        }
+    }
+
+  if ( base == 0 )
+    {
+      if ( p+2 < end && p[0] == '0' && (p[1] == 'x' || p[1] == 'X') )
+        {
+          p += 2;
+          base = 16;
+        }
+      else if ( p+1 < end && p[0] == '0' )
+        {
+          p   += 1;
+          base = 8;
+        }
+      else
+        {
+          base = 10;
+        }
+    }
+  else if ( base == 16 )
+    {
+      if ( p+2 < end && p[0] == '0' && (p[1] == 'x' || p[1] == 'X') )
+        {
+          p += 2;
+        }
+    }
+
+  while ( p < end && (d = digitval(*p)) >= 0 && d < base )
+    {
+      v = v*base + d;
+      p += 1;
+    }
+
+  if ( endptr )
+    *endptr = (char *)p;
+
+  return minus ? -v : v;
+}
+
+long long
+strtoll(const char *nptr, char **endptr, int base)
+{
+  return (long long) strtoull(nptr, endptr, base);
+}
+
+

@@ -1,0 +1,56 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=nano
+pkgver=9.2
+pkgrel=1
+pkgdesc="Pico editor clone with enhancements"
+arch=('i686' 'x86_64')
+license=('spdx:GPL-3.0-or-later')
+url="https://www.nano-editor.org"
+msys2_repository_url="https://cgit.git.savannah.gnu.org/cgit/nano.git"
+msys2_changelog_url="https://www.nano-editor.org/news.php"
+msys2_references=(
+  "anitya: 2046"
+  "archlinux: nano"
+  "cpe: cpe:/a:gnu:nano"
+  "gentoo: app-editors/nano"
+)
+groups=('editors')
+depends=('file' 'libintl' 'ncurses' 'sh')
+makedepends=('autotools'
+             'gcc'
+             'ncurses-devel'
+             'libiconv-devel'
+             'gettext-devel')
+backup=('etc/nanorc')
+source=(https://www.nano-editor.org/dist/v9/${pkgname}-${pkgver}.tar.xz{,.asc})
+sha256sums=('05ecb99247b782e8a5b3a25ed4101dd034b0236902f7449bc9795b717642f7e9'
+            'SKIP')
+validpgpkeys=(
+  '168E6F4297BFD7A79AFD4496514BBE2EB8E1961F' # Benno Schulenberg <bensberg@telfort.nl>
+)
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+
+  autoreconf -vfi
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  ./configure --build=${CHOST} \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --enable-color \
+    --enable-nanorc \
+    --enable-utf8
+
+  make
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make DESTDIR=${pkgdir} install
+  install -DTm644 ${srcdir}/${pkgname}-${pkgver}/doc/sample.nanorc ${pkgdir}/etc/nanorc
+}

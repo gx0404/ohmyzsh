@@ -1,0 +1,77 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=('libssh2' 'libssh2-devel')
+pkgver=1.11.1
+pkgrel=1
+pkgdesc="A library implementing the SSH2 protocol as defined by Internet Drafts"
+url="https://libssh2.org/"
+msys2_references=(
+  "cpe: cpe:/a:libssh2:libssh2"
+)
+groups=('libraries')
+arch=('i686' 'x86_64')
+license=('BSD')
+makedepends=('openssl-devel' 'zlib-devel' 'autotools' 'gcc')
+options=('!libtool')
+source=("https://libssh2.org/download/${pkgname}-${pkgver}.tar.gz"{,.asc}
+        "https://github.com/libssh2/libssh2/commit/ffd0c982a572094debe37d12faea6ddf3b0eb31c.patch")
+sha256sums=('d9ec76cbe34db98eec3539fe2c899d26b0c837cb3eb466a56b0f109cabf658f7'
+            'SKIP'
+            '664e1b67607ceafb045bf5a738592dbab1b0c92e546a9486dca97aa7f01ba931')
+validpgpkeys=('914C533DF9B2ADA2204F586D78E11C6B279D5C91'
+              '27EDEAF22F3ABCEB50DB9A125CC908FDB71E12C2')
+
+prepare() {
+  cd "${pkgname}-${pkgver}"
+
+  # https://github.com/libssh2/libssh2/issues/1505
+  patch -Np1 -i "${srcdir}/ffd0c982a572094debe37d12faea6ddf3b0eb31c.patch"
+
+  autoreconf -ivf
+}
+
+build() {
+  cd "${pkgname}-${pkgver}"
+
+  export MSYSTEM=CYGWIN
+  local CYGWIN_CHOST="${CHOST/-msys/-cygwin}"
+  ./configure \
+    --prefix=/usr \
+    --build=${CYGWIN_CHOST} \
+    --enable-shared \
+    --enable-static \
+    --with-openssl \
+    --with-libz \
+    --without-libz-prefix \
+    --without-libssl-prefix \
+    --without-libgcrypt-prefix
+  make
+  make DESTDIR="${srcdir}/dest" install
+}
+
+check() {
+  cd "${pkgname}-${pkgver}"
+  make check || true
+}
+
+package_libssh2() {
+  pkgdesc="Multi-protocol file transfer library (runtime)"
+  depends=('ca-certificates' 'openssl' 'zlib')
+  groups=('libraries')
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -f ${srcdir}/dest/usr/bin/*.dll ${pkgdir}/usr/bin/
+  cp -rf ${srcdir}/dest/usr/share ${pkgdir}/usr/
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+package_libssh2-devel() {
+  pkgdesc="Libssh2 headers and libraries"
+  options=('staticlibs')
+  depends=("libssh2=${pkgver}" 'openssl-devel' 'zlib-devel')
+  groups=('development')
+
+  mkdir -p ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/usr/lib ${pkgdir}/usr/
+}

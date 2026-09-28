@@ -39,17 +39,22 @@ for file in ./oh-my-zsh.sh ./lib/*.zsh ./plugins/*/*.plugin.zsh ./plugins/*/_* \
 done
 
 # --- fork 扩展：框架自有的 shell 面 ---
-for file in ./lib/tests/*.zsh ./tests/*.zsh ./tools/*.sh ./scripts/*.sh \
-            ./.claude/hooks/*.sh; do
+for file in ./lib/tests/*.zsh ./tests/*.zsh ./tools/*.sh ./scripts/*.sh ./gx/*.sh \
+            ./scripts/packaging/debian/preinst ./scripts/packaging/debian/postinst \
+            ./scripts/packaging/debian/postrm ./.claude/hooks/*.sh; do
   [ -e "$file" ] || continue
   dispatch "$file"
 done
+for file in ./gx/config/*.zsh ./gx/config/zshrc ./gx/config/zshenv; do
+  [ -e "$file" ] || continue
+  check_one "$file" zsh
+done
 
-# --- fork 扩展：框架 Python 面（hooks 适配器与形状锁测试）---
-for file in ./tests/*.py ./.codex/hooks/*.py; do
+# --- fork 扩展：框架、打包器、测试与 hooks 的 Python 面 ---
+for file in ./scripts/*.py ./tests/*.py ./.codex/hooks/*.py; do
   [ -e "$file" ] || continue
   checked=$((checked + 1))
-  if ! python3 -c "import ast,sys; ast.parse(open(sys.argv[1]).read())" "$file" \
+  if ! python3 -c "import ast,sys; ast.parse(open(sys.argv[1], encoding='utf-8').read())" "$file" \
       >/dev/null 2>"$fail_log"; then
     echo "FAIL [python ast] $file"
     sed 's/^/    /' "$fail_log"

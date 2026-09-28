@@ -45,6 +45,21 @@
   `chore(upstream)` 条目。
 - 不 `git add -A`；只 add 明确清单。没有用户要求不 commit/push，不重写历史。
 
+## GX 原生打包与发布
+
+- `scripts/gx_dependencies.py` + `scripts/packaging/` 锁定来源、摘要、许可和对应源码；
+  缺项硬失败。实验运行时里的 HOME、keyring、缓存和私钥不能进入发行负载。
+- `scripts/gx_package.py` 从干净 Git SHA 白名单读取 LF 资源；开发包显式允许 dirty
+  后永远不可发布。Windows EXE 与 Ubuntu DEB 不得混入另一平台二进制。
+- `scripts/gx-launcher/main.rs` 用锁定 Rust 编译，无额外 Cargo 依赖；测试编译并实际
+  调用入口。原生包维护脚本不写用户 HOME，不自动 chsh，不安装新的系统依赖。
+- `scripts/gx_release.py` / `gx-release.yml` 只允许手动发布到本 fork。controller 使用
+  可信工作流 SHA，构建 job 只读，写 token 只交给发布步骤。不得移动 tag 或覆盖公开版。
+- 公开 Release 前要求两平台同 SHA、完整资产摘要、再分发材料和真实生命周期/PTY
+  证据。fixture、文件存在、编译成功、仅 `--version` 均不是安装/TUI 验收证据。
+- `.iss` 模板需要真实 Inno 编译；`/O-` 只能证明模板编译，不证明安装/注册表回滚。
+  真安装/卸载只在可丢弃环境，不能把宿主当前用户作为 CI fixture。
+
 ## 并行会话与探针纪律（skill 2026-09 增补）
 
 - **写入前复查并行信号**：untracked/修改清单短间隔增长、出现新生成目录

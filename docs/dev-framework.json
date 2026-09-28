@@ -36,7 +36,7 @@
     },
     "build": {
       "status": "not-applicable",
-      "reason": "解释型 shell 框架：.zwc 编译由运行时 zrecompile 自动处理，无独立构建产物"
+      "reason": "核心 shell 框架解释执行；发行用原生启动器在 package 阶段编译，无独立核心 build 目标"
     },
     "lint": {
       "status": "configured",
@@ -44,8 +44,9 @@
       "cwd": "."
     },
     "typecheck": {
-      "status": "not-applicable",
-      "reason": "zsh 为动态语言且仓库无类型检查器；语法层由 lint（按 shebang 分派 zsh -n / sh -n / bash -n）覆盖"
+      "status": "configured",
+      "argv": ["python3", "tests/gx_launcher.py"],
+      "cwd": "."
     },
     "test": {
       "status": "configured",
@@ -58,8 +59,9 @@
       "cwd": "."
     },
     "test-heavy": {
-      "status": "not-applicable",
-      "reason": "无打包/真机/长时层；更多插件组合按需扩展 test-integration 的 --plugins 清单（环境相关插件如 kubectl 受命令守卫约束不纳入）"
+      "status": "configured",
+      "argv": ["python3", "scripts/gx_lifecycle_entry.py"],
+      "cwd": "."
     },
     "generated-check": {
       "status": "configured",
@@ -92,8 +94,14 @@
       "cwd": "."
     },
     "package": {
-      "status": "not-applicable",
-      "reason": "发布形态为 git 分支/tag；无制品打包步骤"
+      "status": "configured",
+      "argv": ["python3", "scripts/gx_package_entry.py"],
+      "cwd": "."
+    },
+    "package-test": {
+      "status": "configured",
+      "argv": ["python3", "tests/run_package_tests.py"],
+      "cwd": "."
     },
     "gx-install": {
       "status": "configured",

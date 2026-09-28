@@ -1,0 +1,11 @@
+#!/bin/sh
+# remove/purge 只维护系统字体缓存，用户配置、历史和 herdr 会话保留。
+set -eu
+case "$1" in
+  remove|purge)
+    if command -v fc-cache >/dev/null 2>&1; then
+      fc-cache -s
+    fi
+    ;;
+esac
+exit 0

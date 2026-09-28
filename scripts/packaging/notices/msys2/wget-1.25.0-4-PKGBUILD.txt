@@ -1,0 +1,70 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=wget
+pkgver=1.25.0
+pkgrel=4
+pkgdesc="A network utility to retrieve files from the Web"
+arch=('i686' 'x86_64')
+url="https://www.gnu.org/software/wget/"
+msys2_repository_url='https://cgit.git.savannah.gnu.org/cgit/wget.git'
+msys2_references=(
+  "anitya: 5124"
+  "cpe: cpe:2.3:a:gnu:wget"
+)
+license=('spdx:GPL-3.0-or-later')
+depends=('gcc-libs' 'libiconv' 'libidn2' 'libintl' 'libpcre2_8' 'libpsl' 'libuuid' 'libgnutls' 'zlib')
+makedepends=('autoconf-archive' 'gettext-devel' 'libidn2-devel' 'libuuid-devel' 'texinfo'
+             'libpsl-devel' 'libgnutls-devel' 'pcre2-devel' 'zlib-devel' 'python' 'libunistring-devel' 'autotools' 'gcc')
+checkdepends=('perl-http-daemon' 'perl-io-socket-ssl')
+optdepends=('ca-certificates: HTTPS downloads')
+backup=('etc/wgetrc')
+source=(https://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.lz{,.sig}
+        "nettle-4.patch"
+        "0001-fix-build-with-gcc-15.patch")
+sha256sums=('19225cc756b0a088fc81148dc6a40a0c8f329af7fd8483f1c7b2fe50f4e08a1f'
+            'SKIP'
+            '64165d602d501ff0974d103d7d93a336ef23106a106cce6477efeca57319a938'
+            '0079244c1b369cff4042d85687fd5f74c3cfe81a78edf53fea02b621a3e02730')
+validpgpkeys=('7845120B07CBD8D6ECE5FF2B2A1743EDA91A35B6') # Tim Rühsen <tim.ruehsen@gmx.de>
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -p1 -i "${srcdir}/nettle-4.patch"
+  patch -p1 -i "${srcdir}/0001-fix-build-with-gcc-15.patch"
+
+  autoreconf -fiv
+  cat >> doc/sample.wgetrc <<EOF
+
+# default root certs location
+ca_certificate=/usr/ssl/certs/ca-bundle.crt
+EOF
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure --build=${CHOST} \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --localstatedir=/var \
+    --with-ssl=gnutls \
+    --with-libpsl \
+    --without-libiconv-prefix \
+    --without-libintl-prefix \
+    --without-libpth-prefix \
+    --without-libgnutls-prefix \
+    --without-metalink
+
+  make
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  #make check
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+}

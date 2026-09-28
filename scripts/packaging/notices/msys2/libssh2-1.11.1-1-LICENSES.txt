@@ -1,0 +1,53 @@
+MSYS2 source-package license texts
+Source: https://repo.msys2.org/msys/sources/libssh2-1.11.1-1.src.tar.zst
+SHA-256: 264ad84471969ca2868b8a7f74ea8095a933c6112d49325cb127ce59f0b90af4
+Texts below are copied from the authenticated source package. They may include build/test dependencies; this inventory does not relicense any component.
+
+========================================================================
+Member: libssh2-1.11.1-1.src.tar.zst!libssh2/libssh2-1.11.1.tar.gz!libssh2-1.11.1/COPYING
+Original SHA-256: f7f9633cf9ff2f1333f3d7ce46973a8716a4d2a2815ad56f30d437d5fea7bafe
+
+/* Copyright (C) 2004-2007 Sara Golemon <sarag@libssh2.org>
+ * Copyright (C) 2005,2006 Mikhail Gusarov <dottedmag@dottedmag.net>
+ * Copyright (C) 2006-2007 The Written Word, Inc.
+ * Copyright (C) 2007 Eli Fant <elifantu@mail.ru>
+ * Copyright (C) 2009-2023 Daniel Stenberg
+ * Copyright (C) 2008, 2009 Simon Josefsson
+ * Copyright (C) 2000 Markus Friedl
+ * Copyright (C) 2015 Microsoft Corp.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms,
+ * with or without modification, are permitted provided
+ * that the following conditions are met:
+ *
+ *   Redistributions of source code must retain the above
+ *   copyright notice, this list of conditions and the
+ *   following disclaimer.
+ *
+ *   Redistributions in binary form must reproduce the above
+ *   copyright notice, this list of conditions and the following
+ *   disclaimer in the documentation and/or other materials
+ *   provided with the distribution.
+ *
+ *   Neither the name of the copyright holder nor the names
+ *   of any other contributors may be used to endorse or
+ *   promote products derived from this software without
+ *   specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+ * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
+ * OF SUCH DAMAGE.
+ */
+

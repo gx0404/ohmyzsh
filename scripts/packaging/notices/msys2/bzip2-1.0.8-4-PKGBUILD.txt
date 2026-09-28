@@ -1,0 +1,73 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=('bzip2' 'libbz2' 'libbz2-devel')
+pkgver=1.0.8
+pkgrel=4
+pkgdesc="A high-quality data compression program"
+groups=('compression')
+arch=('i686' 'x86_64')
+license=('custom')
+url="http://www.bzip.org"
+makedepends=('gcc' 'patch' 'autotools')
+source=(https://sourceware.org/pub/bzip2/bzip2-${pkgver}.tar.gz
+        bzip2-1.0.6-msys-dll.patch
+        bzip2-1.0.6-msys2.patch)
+sha256sums=('ab5a03176ee106d3f0fa90e381da478ddae405918153cca248e682cd0c4a2269'
+            'a14e3ef3108fe843f5bd4bdf0943cc22c0a1581c382706dbd3f42ad7dc097c88'
+            'b499532b538ae1faa9b07933013671fd8f34431bfaa802f9099a96a6a4135e80')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -p1 -i ${srcdir}/bzip2-1.0.6-msys-dll.patch
+  patch -p1 -i ${srcdir}/bzip2-1.0.6-msys2.patch
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  CFLAGS+=" -D_FILE_OFFSET_BITS=64"
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr \
+    --enable-shared
+
+  make all
+  make PREFIX="${srcdir}/dest" install
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make test
+}
+
+package_bzip2() {
+  depends=('libbz2')
+
+  mkdir -p ${pkgdir}/usr/bin
+
+  cp -f ${srcdir}/dest/bin/b* ${pkgdir}/usr/bin/
+  cp -rf ${srcdir}/dest/share ${pkgdir}/usr/
+
+}
+
+package_libbz2() {
+  groups=('libraries')
+  depends=('gcc-libs')
+
+  mkdir -p ${pkgdir}/usr/bin
+
+  cp -f ${srcdir}/dest/bin/*.dll ${pkgdir}/usr/bin/
+}
+
+package_libbz2-devel() {
+  pkgdesc="Libbz2 headers and libraries"
+  groups=('development')
+  options=('staticlibs')
+  depends=("libbz2=${pkgver}")
+
+  mkdir -p ${pkgdir}/usr/{include,lib}
+
+  cp -rf ${srcdir}/dest/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/lib ${pkgdir}/usr/
+}

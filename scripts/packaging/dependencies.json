@@ -1,0 +1,149 @@
+{
+  "assets": [
+    {
+      "authenticity": "official GitHub repository commit over HTTPS; no release checksum or detached signature verified",
+      "filename": "zsh-autosuggestions-v0.7.1-e52ee8c.tar.gz",
+      "id": "zsh-autosuggestions",
+      "install": [
+        {
+          "from": ".",
+          "to": "runtime/msys64/usr/share/zsh-autosuggestions"
+        }
+      ],
+      "platforms": [
+        "windows-x64"
+      ],
+      "revision": "e52ee8ca55bcc56a17c828767a3f98f22a68d4eb",
+      "sha256": "52ca878a8d7f2e8eb2cc6503bd83db00e872eeceb423fbe765cbc9a16a05473e",
+      "strip_components": 1,
+      "url": "https://api.github.com/repos/zsh-users/zsh-autosuggestions/tarball/e52ee8ca55bcc56a17c828767a3f98f22a68d4eb",
+      "version": "v0.7.1"
+    },
+    {
+      "authenticity": "official GitHub repository commit over HTTPS; no release checksum or detached signature verified",
+      "filename": "zsh-syntax-highlighting-0.8.0-db085e4.tar.gz",
+      "id": "zsh-syntax-highlighting",
+      "install": [
+        {
+          "from": ".",
+          "to": "runtime/msys64/usr/share/zsh-syntax-highlighting"
+        }
+      ],
+      "platforms": [
+        "windows-x64"
+      ],
+      "revision": "db085e4661f6aafd24e5acb5b2e17e4dd5dddf3e",
+      "sha256": "942603bdfd5a11f95b04278cea9a4d77faff2ac7fac21b1bc129d6e46ca2cb9a",
+      "strip_components": 1,
+      "url": "https://api.github.com/repos/zsh-users/zsh-syntax-highlighting/tarball/db085e4661f6aafd24e5acb5b2e17e4dd5dddf3e",
+      "version": "0.8.0"
+    },
+    {
+      "authenticity": "Official GitHub release asset SHA-256 digest",
+      "filename": "zoxide-0.9.9-x86_64-pc-windows-msvc.zip",
+      "id": "zoxide",
+      "install": [
+        {
+          "executable": true,
+          "from": "zoxide.exe",
+          "to": "bin/zoxide.exe"
+        }
+      ],
+      "platforms": [
+        "windows-x64"
+      ],
+      "sha256": "5af00d0916f05631e3030537289eac56605e7c1733318c4d525c8e847f12496d",
+      "url": "https://github.com/ajeetdsouza/zoxide/releases/download/v0.9.9/zoxide-0.9.9-x86_64-pc-windows-msvc.zip",
+      "version": "0.9.9"
+    },
+    {
+      "authenticity": "SHA-256 from vendored powerlevel10k/gitstatus/install.info, matched against the official release archive",
+      "filename": "gitstatusd-msys_nt-10.0-x86_64.tar.gz",
+      "id": "gitstatus-msys",
+      "version": "1.5.1",
+      "platforms": ["windows-x64"],
+      "sha256": "5d3c626b5ee564dbc13ddba89752dc58b0efe925b26dbd8b2304849d9ba01732",
+      "url": "https://github.com/romkatv/gitstatus/releases/download/v1.5.1/gitstatusd-msys_nt-10.0-x86_64.tar.gz",
+      "install": [{"from": "gitstatusd-msys_nt-10.0-x86_64", "to": "lib/gitstatus/gitstatusd-msys_nt-10.0-x86_64", "executable": true}]
+    }
+  ],
+  "redistribution": {
+    "file": "redistribution-lock.json",
+    "canonical_sha256": "15aada3f57bdf3b3bb4a3f2eccdca632edf190ed5fa2ea17ec76ba33640be201"
+  },
+  "herdr": {
+    "branch_provenance": "feature/gx_herdr",
+    "build_argv": [
+      "cargo",
+      "build",
+      "--release",
+      "--locked",
+      "--target",
+      "{target}"
+    ],
+    "conpty": {
+      "files": {
+        "THIRD-PARTY-NOTICES/Microsoft.Windows.Console.ConPTY-LICENSE.txt": "5d177f23ecfeb0ea8e050b6a5a16355e1ae9a0b286436ca8f83ed08b3795be6b",
+        "THIRD-PARTY-NOTICES/Microsoft.Windows.Console.ConPTY-NOTICE.md": "e7fbaadee6ab20c28b87730a510ee5f5815d8fb4bd88d1d54d282dc2a74c0726",
+        "conpty/arm64/OpenConsole.exe": "ed7622fd0d3bedc9ab9f122f5e58edf0def9e7999224f52dd395ba9f54edbe09",
+        "conpty/conpty.dll": "39fba2713e2495117b1591ae8c32a3b904bea7aa66069cf7815e2844c76d75d8",
+        "conpty/herdr-conpty.json": "c8f499ad82c568e737d6bc7d0b583e3785d2f43af3d2c0cebb856076690533f5",
+        "conpty/x64/OpenConsole.exe": "b7fd936c2668b87b9ecf7b3366dc6568afc1c6f981874cba3e955a1c35cf8160",
+        "herdr.exe": null
+      },
+      "package": {
+        "filename": "Microsoft.Windows.Console.ConPTY.1.24.260710001.nupkg",
+        "id": "Microsoft.Windows.Console.ConPTY",
+        "license": "MIT",
+        "release_tag": "v1.24.11911.0",
+        "sha256": "9382ad7becb7e4d84e300578d8e4f4df28f43d979d9055d978c42913c47e0e9d",
+        "url": "https://github.com/microsoft/terminal/releases/download/v1.24.11911.0/Microsoft.Windows.Console.ConPTY.1.24.260710001.nupkg",
+        "version": "1.24.260710001"
+      }
+    },
+    "repository": "https://github.com/gx0404/herdr",
+    "revision": "4f441b0c23304c7a641d978c9e11aabf07f6d8c4",
+    "rust": "1.96.1",
+    "source": {
+      "filename": "herdr-4f441b0c23304c7a641d978c9e11aabf07f6d8c4.zip",
+      "sha256": "cd1d27ba1c543126adf897f56aed9382e9d33d9be4b5af6d826a124f31773dde",
+      "url": "https://github.com/gx0404/herdr/archive/4f441b0c23304c7a641d978c9e11aabf07f6d8c4.zip"
+    },
+    "targets": {
+      "ubuntu-amd64": "x86_64-unknown-linux-musl",
+      "windows-x64": "x86_64-pc-windows-msvc"
+    },
+    "version": "0.9.1",
+    "zig": "0.16.0"
+  },
+  "msys2": {
+    "file": "msys2-lock.json",
+    "canonical_sha256": "beedb2de9d3d549fa3e2337211dc8924a0c0bc80553bef40d090a71edbf2e0b6"
+  },
+  "zsh_runtime": {
+    "file": "zsh-runtime-lock.json",
+    "canonical_sha256": "2a76ee1ccdd4816ab0bcfeabb052403696dbf0aa18de2d4214a66024cc85397c"
+  },
+  "required_payload": {
+    "ubuntu-amd64": [
+      "lib/herdr/herdr", "bin/zsh", "libexec/zsh/zsh", "share/zsh/functions/compinit", "share/licenses/zsh/LICENCE"
+    ],
+    "windows-x64": [
+      "runtime/msys64/usr/bin/zsh.exe",
+      "runtime/msys64/usr/bin/zsh-5.9.2.exe",
+      "runtime/msys64/share/zsh/functions/compinit",
+      "runtime/msys64/share/licenses/zsh/LICENCE",
+      "runtime/msys64/usr/bin/git.exe",
+      "runtime/msys64/usr/bin/cygpath.exe",
+      "runtime/msys64/usr/bin/msys-2.0.dll",
+      "runtime/msys64/ucrt64/bin/fzf.exe",
+      "runtime/msys64/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh",
+      "runtime/msys64/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh",
+      "bin/zoxide.exe",
+      "lib/gitstatus/gitstatusd-msys_nt-10.0-x86_64",
+      "lib/herdr/herdr.exe"
+    ]
+  },
+  "schema_version": 1,
+  "unresolved": []
+}

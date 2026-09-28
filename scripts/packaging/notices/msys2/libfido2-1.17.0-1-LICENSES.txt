@@ -1,0 +1,36 @@
+MSYS2 source-package license texts
+Source: https://repo.msys2.org/msys/sources/libfido2-1.17.0-1.src.tar.zst
+SHA-256: 01adcb82f4f252186d88366a5e68eb8f25b7e3714e02434f9be413d51d0d165d
+Texts below are copied from the authenticated source package. They may include build/test dependencies; this inventory does not relicense any component.
+
+========================================================================
+Member: libfido2-1.17.0-1.src.tar.zst!libfido2/libfido2-1.17.0.tar.gz!libfido2-1.17.0/LICENSE
+Original SHA-256: 4aad6cad5e570c10cccd1a6124bf2690eedb548b709fede991ed41326122ee2a
+
+Copyright (c) 2018-2026 Yubico AB. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   1. Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+   2. Redistributions in binary form must reproduce the above copyright
+      notice, this list of conditions and the following disclaimer in
+      the documentation and/or other materials provided with the
+      distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+SPDX-License-Identifier: BSD-2-Clause
+

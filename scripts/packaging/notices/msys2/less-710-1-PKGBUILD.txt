@@ -1,0 +1,41 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=less
+pkgver=710
+pkgrel=1
+pkgdesc="A terminal based program for viewing text files"
+license=('spdx:GPL-3.0-or-later')
+arch=('i686' 'x86_64')
+url="http://www.greenwoodsoftware.com/less"
+msys2_repository_url="https://github.com/gwsw/less"
+msys2_references=(
+  "cpe: cpe:/a:gnu:less"
+)
+depends=('ncurses' 'libpcre2_8')
+makedepends=('ncurses-devel' 'pcre2-devel' 'autotools' 'gcc' 'groff')
+source=("https://github.com/gwsw/${pkgname}/archive/refs/tags/v${pkgver}.tar.gz")
+sha256sums=('bc5ca2e99bf8bc6145054e8a487e716bc45275126980e46d3da638329d5e3072')
+validpgpkeys=('AE27252BD6846E7D6EAE1DD6F153A7C833235259') # Mark Nudelman
+
+prepare() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  autoreconf -vfi
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make -f Makefile.aut distfiles
+
+  ./configure \
+      --build=${CHOST} \
+      --prefix=/usr \
+      --sysconfdir=/etc \
+      --with-regex=pcre2
+  make
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make DESTDIR=${pkgdir} install
+}

@@ -1,0 +1,13 @@
+Package: ohmyzsh-gx
+Version: @VERSION@
+Section: shells
+Priority: optional
+Architecture: amd64
+Maintainer: GX maintainers <gx0404@users.noreply.github.com>
+Installed-Size: @INSTALLED_SIZE@
+Depends: libc6 (>= 2.29), libncursesw6, libtinfo6, git, fzf, zsh-autosuggestions, zsh-syntax-highlighting, fontconfig
+Homepage: https://github.com/gx0404/ohmyzsh
+Description: Isolated Oh My Zsh GX profile and pinned herdr workspace manager
+ Provides gx-zsh and a package-managed herdr entry point. User configuration
+ is created only when the ordinary user runs the launcher. System shell
+ settings, existing dotfiles and user data are not changed by dpkg scripts.

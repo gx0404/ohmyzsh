@@ -1,0 +1,7 @@
+#!/bin/sh
+# 仅刷新系统字体缓存；不启动 shell、不修改用户 HOME，失败返回非零。
+set -eu
+case "$1" in
+  configure) fc-cache -s /usr/share/fonts/truetype/ohmyzsh-gx ;;
+esac
+exit 0

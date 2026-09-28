@@ -1,0 +1,62 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=('expat' 'libexpat' 'libexpat-devel')
+pkgver=2.8.5
+pkgrel=1
+pkgdesc="An XML parser library"
+arch=('i686' 'x86_64')
+url="https://libexpat.github.io/"
+msys2_repository_url="https://github.com/libexpat/libexpat"
+msys2_references=(
+  "cpe: cpe:/a:libexpat_project:libexpat"
+)
+license=('spdx:MIT')
+makedepends=('autotools' 'gcc')
+source=(https://github.com/libexpat/libexpat/releases/download/R_${pkgver//./_}/${pkgname}-${pkgver}.tar.xz{,.asc})
+sha256sums=('1e727b8933ec51a77a9a9d9afcf8e688bce45d907c13e36ab7393fe36e703182'
+            'SKIP')
+validpgpkeys=('3176EF7DB2367F1FCA4F306B1F9B0E909AF37285') # Sebastian Pipping
+
+prepare() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  ./buildconf.sh -f
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  ./configure --prefix=/usr
+  make
+  make DESTDIR=${srcdir}/dest install
+}
+
+check() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make check
+}
+
+package_expat() {
+  mkdir -p ${pkgdir}/usr/bin
+  cp -f ${srcdir}/dest/usr/bin/xml* ${pkgdir}/usr/bin/
+  cp -rf ${srcdir}/dest/usr/share ${pkgdir}/usr/
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING ${pkgdir}/usr/share/licenses/${pkgname}/COPYING
+}
+
+package_libexpat() {
+  groups=('libraries')
+  depends=('gcc-libs')
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -f ${srcdir}/dest/usr/bin/*.dll ${pkgdir}/usr/bin/
+}
+
+package_libexpat-devel() {
+  pkgdesc="Libexpat headers and libraries"
+  options=('staticlibs')
+  groups=('development')
+  depends=("libexpat=${pkgver}")
+
+  mkdir -p ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/usr/lib ${pkgdir}/usr/
+}

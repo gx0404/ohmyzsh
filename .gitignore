@@ -28,6 +28,7 @@ log/
 graphify-out
 **/graphify-out
 test-results/
+/dist/
 __pycache__/
 *.pyc
 

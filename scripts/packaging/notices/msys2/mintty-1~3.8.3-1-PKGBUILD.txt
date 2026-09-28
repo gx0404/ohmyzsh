@@ -1,0 +1,66 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=mintty
+pkgver=3.8.3
+pkgrel=1
+epoch=1
+pkgdesc="Terminal emulator with native Windows look and feel"
+arch=('i686' 'x86_64')
+license=('spdx:GPL-3.0-or-later')
+depends=('sh')
+makedepends=('gcc')
+url="https://mintty.github.io"
+msys2_repository_url="https://github.com/mintty/mintty"
+msys2_references=(
+  "cpe: cpe:/a:mintty_project:mintty"
+)
+backup=('etc/minttyrc')
+source=(${pkgname}-${pkgver}.tar.gz::https://github.com/mintty/mintty/archive/${pkgver}.tar.gz
+        "minttyrc")
+sha256sums=('01e31d569dc11c428bc663447ee4cd3dd7bd39406f7f1cdba3d66f1039b3b38a'
+            'ce43a9b0c8eb01a695d0543ceb56c9281708a02aaf92021b72d0f0b69a7feeb9')
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  mkdir -p ${pkgdir}/etc
+  mkdir -p ${pkgdir}/usr/{bin,share}
+  mkdir -p ${pkgdir}/usr/share/man/man1
+  mkdir -p ${pkgdir}/usr/share/licenses/${pkgname}
+  mkdir -p ${pkgdir}/usr/share/${pkgname}/lang
+  mkdir -p ${pkgdir}/usr/share/${pkgname}/themes
+  mkdir -p ${pkgdir}/usr/share/${pkgname}/icon
+  mkdir -p ${pkgdir}/usr/share/${pkgname}/sounds
+  mkdir -p ${pkgdir}/usr/share/mintty/emojis
+
+  install -m644 ${srcdir}/minttyrc ${pkgdir}/etc/minttyrc
+
+  install -m755 bin/mintty.exe ${pkgdir}/usr/bin/mintty.exe
+  install -m755 tools/mintheme ${pkgdir}/usr/bin/
+  install -m644 docs/mintty.1 ${pkgdir}/usr/share/man/man1/mintty.1
+
+  install -m644 LICENSE* ${pkgdir}/usr/share/licenses/${pkgname}/
+
+  install -m644 lang/messages.pot ${pkgdir}/usr/share/${pkgname}/lang/
+  install -m644 lang/*.po ${pkgdir}/usr/share/${pkgname}/lang/
+
+  install -m644 themes/* ${pkgdir}/usr/share/${pkgname}/themes/
+
+  install -m644 tools/getemojis ${pkgdir}/usr/share/mintty/emojis
+
+  install -m644 icon/wsl.ico ${pkgdir}//usr/share/${pkgname}/icon
+  for i in 16 24 32 48 64 256
+  do
+    mkdir -p ${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps
+    install -m644 icon/hi${i}-apps-mintty.png \
+                 ${pkgdir}/usr/share/icons/hicolor/${i}x${i}/apps/mintty.png
+  done
+  install -m644 sounds/*.wav ${pkgdir}/usr/share/${pkgname}/sounds/
+  install -m644 sounds/*.WAV ${pkgdir}/usr/share/${pkgname}/sounds/
+  install -m644 sounds/*.md ${pkgdir}/usr/share/${pkgname}/sounds/
+}

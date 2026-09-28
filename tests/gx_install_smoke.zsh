@@ -9,7 +9,10 @@ set -u
 # 安装器会读取宿主的 ZSH / gitstatus 缓存等环境变量；演练一律清除作为纵深防御
 # （安装器自身的 --home 与环境 ZSH 互锁由场景 G/H 用 $tmp 内的假目录专门验证，
 # 互锁回归时受损的只是临时目录）。
-unset ZSH ZSH_CUSTOM ZSH_CACHE_DIR ZSH_COMPDUMP GX_HOME GITSTATUS_CACHE_DIR GX_KEEP_BACKUPS
+unset ZSH ZSH_CUSTOM ZSH_CACHE_DIR ZSH_COMPDUMP GX_HOME GITSTATUS_CACHE_DIR GX_KEEP_BACKUPS \
+  GX_PACKAGE_ROOT GX_PROFILE_DIR GX_PACKAGE_BIN GX_P10K_RUNTIME_DIR GITSTATUS_AUTO_INSTALL GITSTATUS_DAEMON \
+  POWERLEVEL9K_INSTALLATION_DIR POWERLEVEL9K_CONFIG_FILE POWERLEVEL9K_DISABLE_GITSTATUS \
+  HERDR_CONFIG_PATH HERDR_SESSION HERDR_SOCKET_PATH
 
 repo_root=${0:A:h:h}
 installer="$repo_root/gx/install.sh"
@@ -19,7 +22,7 @@ fail() { print -u2 "FAIL $*"; exit 1; }
 
 tmp=$(mktemp -d "${TMPDIR:-/tmp}/gx-smoke.XXXXXX")
 # 场景 I 会把某个 HOME 置为只读，清理前先恢复写权限。
-trap 'chmod -R u+w "$tmp" 2>/dev/null; rm -rf "$tmp"' EXIT
+trap 'smoke_rc=$?; chmod -R u+w "$tmp" 2>/dev/null; if (( smoke_rc == 0 )); then rm -rf "$tmp"; else print -u2 -- "GX smoke artifacts retained: $tmp"; fi; exit "$smoke_rc"' EXIT
 
 # 所有安装器调用（含需要传环境变量的场景，写成前缀 VAR=value）都经这里：TMPDIR 指进
 # 沙箱，安装器的 tar 中转文件（gx-omz.*）不落共享 /tmp、残留断言只需扫描 $tmp；宿主
@@ -27,20 +30,25 @@ trap 'chmod -R u+w "$tmp" 2>/dev/null; rm -rf "$tmp"' EXIT
 run_installer() {
   local -a pre
   while (( $# )) && [[ $1 == [A-Za-z_]*=* ]]; do pre+=("$1"); shift; done
-  env -u ZSH -u ZSH_CUSTOM -u ZSH_COMPDUMP -u GX_HOME -u GX_KEEP_BACKUPS \
+  env -u ZSH -u ZSH_CUSTOM -u ZSH_CACHE_DIR -u ZSH_COMPDUMP -u GX_HOME -u GX_KEEP_BACKUPS \
+    -u GX_PACKAGE_ROOT -u GX_PROFILE_DIR -u GX_PACKAGE_BIN -u GX_P10K_RUNTIME_DIR \
+    -u POWERLEVEL9K_INSTALLATION_DIR -u POWERLEVEL9K_CONFIG_FILE -u POWERLEVEL9K_DISABLE_GITSTATUS \
+    -u GITSTATUS_CACHE_DIR -u GITSTATUS_AUTO_INSTALL -u GITSTATUS_DAEMON \
+    -u HERDR_CONFIG_PATH -u HERDR_SESSION -u HERDR_SOCKET_PATH \
     TMPDIR="$tmp" "${pre[@]}" sh "$installer" "$@"
 }
 
-# 在隔离 HOME+ZDOTDIR 中起交互 zsh，执行 inner 断言并回读标记。
+# 在隔离 HOME+ZDOTDIR 中明确脱离控制终端，验证命令环境而非提示符主题。
 load_check() {
   local home=$1; shift
   local inner="$1"
   env -u GIT_DIR -u GIT_CEILING_DIRECTORIES HOME="$home" ZDOTDIR="$home" \
-    timeout 90 zsh -i -c "$inner" > "$tmp/load.out" 2> "$tmp/load.err"
+    python3 -c 'import subprocess, sys; sys.exit(subprocess.run(["zsh", "-i", "-c", sys.argv[1]], start_new_session=True, timeout=90).returncode)' \
+    "$inner" > "$tmp/load.out" 2> "$tmp/load.err"
   local code=$?
   if [ $code -ne 0 ]; then
-    print -u2 "FAIL isolated load exited $code"
-    print -u2 "--- stderr ---"; cat "$tmp/load.err" >&2
+    print -u2 -- "FAIL isolated load exited $code"
+    print -u2 -- "--- stderr ---"; cat "$tmp/load.err" >&2
     exit 1
   fi
 }
@@ -76,11 +84,11 @@ if command -v fc-cache >/dev/null 2>&1; then
   [ $#fccache -ge 1 ] || fail "fontconfig cache not written under isolated HOME (leaked to real ~/.cache?)"
 fi
 
-# 隔离加载：omz+p10k+插件+别名 全链路就位（p10k 会真实拉起 vendored gitstatusd）。
+# 无 TTY 命令环境：OMZ/插件/别名可用，主题由下方真实 PTY 另行验证。
 load_check "$home_a" '
 [[ -f "$ZSH/oh-my-zsh.sh" ]] || { print -u2 "FAIL: ZSH entry missing"; exit 1; }
-[[ "$ZSH_THEME" == "powerlevel10k/powerlevel10k" ]] || { print -u2 "FAIL: theme not set"; exit 1; }
-(( $+functions[p10k] )) || { print -u2 "FAIL: p10k not loaded"; exit 1; }
+[[ -z ${TTY:-} && -z "$ZSH_THEME" ]] || { print -u2 "FAIL: command environment loaded a theme"; exit 1; }
+(( $+functions[omz] && ! $+functions[p10k] )) || { print -u2 "FAIL: command environment omz/p10k contract"; exit 1; }
 (( $+aliases[gco] )) || { print -u2 "FAIL: git plugin alias gco missing"; exit 1; }
 (( $+aliases[ll] )) || { print -u2 "FAIL: alias ll missing"; exit 1; }
 [[ -x "$HOME/.local/bin/zoxide" ]] || { print -u2 "FAIL: zoxide missing"; exit 1; }
@@ -89,21 +97,34 @@ print -r -- "GX-SMOKE-OK zsh=${ZSH:t}"
 '
 grep -q "GX-SMOKE-OK" "$tmp/load.out" || fail "load marker absent in stdout"
 
-# PTY 真交互验证：zsh -i -c 无 tty 时 gitstatus 无法拉起（harness 伪影，非缺陷），
-# 必须用伪终端让提示符真实渲染，断言 VCS 状态由部署的 gitstatusd 填充。
-if command -v script >/dev/null 2>&1; then
-  git_dir="$tmp/probe-repo"
-  git init -q "$git_dir"
-  { sleep 5; printf 'cd %s\n' "$git_dir"; sleep 4
-    printf 'print -r -- PTY-VCS=${VCS_STATUS_LOCAL_BRANCH:-unset}\n'; sleep 2
-    printf 'exit\n'; } \
-    | env HOME="$home_a" ZDOTDIR="$home_a" timeout 45 script -qec "zsh -i" /dev/null \
-      > "$tmp/pty.out" 2>&1
-  tr -d '\r' < "$tmp/pty.out" | grep -aq 'PTY-VCS=' \
-    || fail "PTY probe produced no output (interactive session failed to start)"
-  tr -d '\r' < "$tmp/pty.out" | grep -aq 'PTY-VCS=unset' \
-    && fail "PTY interactive session: VCS status not populated by gitstatusd"
-fi
+# PTY 是必须执行的对照面；复用标准库 runner，不依赖 script 或以缺工具跳过。
+python3 -B - "$repo_root/tests" "$home_a" "$tmp/probe-repo" > "$tmp/pty.out" 2>&1 <<'PY'
+import pathlib
+import shlex
+import subprocess
+import sys
+sys.path.insert(0, sys.argv[1])
+from gx_terminal import PtySession, captured, marked
+home, repo = map(pathlib.Path, sys.argv[2:])
+subprocess.run(["git", "init", "-q", str(repo)], check=True)
+shell = PtySession(home, timeout=45)
+try:
+    shell.settle()
+    shell.command(*marked(f"cd {shlex.quote(str(repo))}; print -r -- PTY-CD", 80))
+    shell.command(*marked('print -r -- PTY-THEME:${ZSH_THEME}:${+functions[p10k]}', 81))
+    shell.command(*marked('print -r -- PTY-GS:${POWERLEVEL9K_DISABLE_GITSTATUS:-unset}:${GITSTATUS_DAEMON_PID_POWERLEVEL9K:-none}', 82))
+    shell.command(*marked('print -r -- PTY-VCS:${VCS_STATUS_LOCAL_BRANCH:-unset}', 83))
+finally:
+    data = shell.close()
+    sys.stdout.buffer.write(data)
+assert captured(data, "PTY-THEME", 81) == b"powerlevel10k/powerlevel10k:1", data[-2000:]
+state = captured(data, "PTY-GS", 82)
+assert state.startswith(b"unset:") and state.split(b":", 1)[1].isdigit(), state
+assert captured(data, "PTY-VCS", 83) not in (b"", b"unset"), data[-2000:]
+assert b"failed to initialize" not in data, data[-2000:]
+print("PTY-THEME-GITSTATUS-OK")
+PY
+[ $? -eq 0 ] || { cat "$tmp/pty.out" >&2; fail "PTY theme/gitstatus verification failed"; }
 
 # 交互加载后只允许 omz 的 .zcompdump-<host>-<ver> 一族：出现无后缀 .zcompdump 说明
 # ~/.zshenv 的 skip_global_compinit 没有拦住 Ubuntu /etc/zsh/zshrc 的全局 compinit。
@@ -249,7 +270,7 @@ run_installer --home "$home_d" --zsh "$zsh_d" --skip-apt --skip-chsh --unattende
 grep -q "^export ZSH=\"$zsh_d\"$" "$home_d/.zshrc" || fail "export ZSH line not rewritten"
 load_check "$home_d" '
 [[ "$ZSH" == "'"$zsh_d"'" ]] || { print -u2 "FAIL: ZSH mismatch in loaded shell"; exit 1; }
-(( $+functions[p10k] )) || { print -u2 "FAIL: p10k not loaded (custom ZSH path)"; exit 1; }
+[[ -z ${TTY:-} && -z "$ZSH_THEME" ]] && (( $+functions[omz] && ! $+functions[p10k] )) || { print -u2 "FAIL: custom command environment omz/p10k contract"; exit 1; }
 print -r -- "GX-SMOKE-OK-CUSTOM"
 '
 grep -q "GX-SMOKE-OK-CUSTOM" "$tmp/load.out" || fail "custom-path load marker absent"
@@ -432,6 +453,71 @@ grep -q "mod 1" "$zshrc_bk[1]" || fail "the single remaining backup must be the 
 run_installer GX_KEEP_BACKUPS=0 --home "$home_j" \
   --skip-apt --skip-fonts --skip-chsh --unattended > "$tmp/inst-j9.out" 2> "$tmp/inst-j9.err"
 [ $? -eq 1 ] || fail "GX_KEEP_BACKUPS=0 should be refused with exit 1"
+
+# ---------------------------------------------------------------- 场景 K：同秒密集调用不能覆盖第一代或其他占用目标
+
+clock_bin="$tmp/frozen-clock"
+mkdir "$clock_bin"
+cat > "$clock_bin/date" <<'EOF'
+#!/bin/sh
+if [ "$1" = +%Y%m%d%H%M%S ]; then
+  printf '20260928093000\n'
+else
+  exec /bin/date "$@"
+fi
+EOF
+chmod +x "$clock_bin/date"
+fixed_ts=20260928093000
+home_k="$tmp/home-k"
+mkdir "$home_k"
+print -r -- '# original before gx' > "$home_k/.zshrc"
+run_installer PATH="$clock_bin:$PATH" GX_KEEP_BACKUPS=all --home "$home_k" \
+  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k0.out" 2> "$tmp/inst-k0.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-k0.err" >&2; fail "scenario K initial install failed"; }
+original_k="$home_k/.zshrc.pre-gx-$fixed_ts"
+[ -f "$original_k" ] || fail "scenario K missing strict 14-digit backup"
+original_stat=$(stat -c '%i %y %z' "$original_k")
+for i in 1 2 3; do
+  print -r -- "# dense change $i" > "$home_k/.zshrc"
+  run_installer PATH="$clock_bin:$PATH" GX_KEEP_BACKUPS=all --home "$home_k" \
+    --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k$i.out" 2> "$tmp/inst-k$i.err"
+  [ $? -eq 2 ] || fail "scenario K collision $i was not refused"
+  grep -q '时间戳目标已存在' "$tmp/inst-k$i.err" || fail "scenario K missing collision diagnostic"
+  [ "$(cat "$original_k")" = '# original before gx' ] || fail "scenario K first generation overwritten"
+  [ "$(stat -c '%i %y %z' "$original_k")" = "$original_stat" ] || fail "scenario K backup inode/time changed"
+  [ "$(cat "$home_k/.zshrc")" = "# dense change $i" ] || fail "scenario K refusal modified current config"
+done
+k_backups=("$home_k"/.zshrc.pre-gx-*(N))
+[ $#k_backups -eq 1 ] || fail "scenario K refusal created unexpected backups"
+
+for suffix in gx-new gx-old; do
+  occupied_home="$tmp/home-k-$suffix"
+  occupied="$occupied_home/.oh-my-zsh.$suffix-$fixed_ts"
+  mkdir -p "$occupied"
+  print -r -- 'keep occupied directory' > "$occupied/sentinel"
+  run_installer PATH="$clock_bin:$PATH" --home "$occupied_home" \
+    --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k-$suffix.out" 2> "$tmp/inst-k-$suffix.err"
+  [ $? -eq 2 ] || fail "scenario K occupied $suffix was not refused"
+  [ "$(cat "$occupied/sentinel")" = 'keep occupied directory' ] || fail "scenario K occupied directory changed"
+done
+
+link_home="$tmp/home-k-link"
+mkdir "$link_home"
+print -r -- 'keep current config' > "$link_home/.zshrc"
+ln -s missing-target "$link_home/.zshrc.pre-gx-$fixed_ts"
+run_installer PATH="$clock_bin:$PATH" --home "$link_home" \
+  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k-link.out" 2> "$tmp/inst-k-link.err"
+[ $? -eq 2 ] || fail "scenario K dangling backup symlink was not refused"
+[ "$(readlink "$link_home/.zshrc.pre-gx-$fixed_ts")" = missing-target ] || fail "scenario K backup symlink changed"
+[ "$(cat "$link_home/.zshrc")" = 'keep current config' ] || fail "scenario K symlink refusal changed current config"
+
+removed_k="$home_k/.zshrc.gx-removed-$fixed_ts"
+print -r -- 'keep previous uninstall data' > "$removed_k"
+run_installer PATH="$clock_bin:$PATH" --home "$home_k" --uninstall --unattended \
+  > "$tmp/inst-k-uninstall.out" 2> "$tmp/inst-k-uninstall.err"
+[ $? -eq 2 ] || fail "scenario K occupied uninstall destination was not refused"
+[ "$(cat "$removed_k")" = 'keep previous uninstall data' ] || fail "scenario K uninstall overwrote saved data"
+[ "$(cat "$original_k")" = '# original before gx' ] || fail "scenario K uninstall touched original backup"
 
 print -r -- "GX-INSTALL-SMOKE-OK"
 exit 0

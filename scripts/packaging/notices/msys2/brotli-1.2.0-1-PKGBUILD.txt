@@ -1,0 +1,83 @@
+# Maintainer: Oleg Titov <oleg.titov@gmail.com>
+
+pkgbase=brotli
+pkgname=('brotli' 'brotli-devel' 'brotli-testdata')
+pkgver=1.2.0
+pkgrel=1
+pkgdesc='Brotli compression library'
+arch=('i686' 'x86_64')
+license=('MIT')
+url='https://github.com/google/brotli'
+msys2_references=(
+  "cpe: cpe:/a:google:brotli"
+)
+depends=('gcc-libs')
+makedepends=(
+  'cmake'
+  'gcc'
+  'ninja'
+)
+source=("${pkgbase}-${pkgver}.tar.gz::https://github.com/google/$pkgbase/archive/v${pkgver}.tar.gz")
+sha256sums=('816c96e8e8f193b40151dad7e8ff37b1221d019dbcb9c35cd3fadbfe6477dfec')
+
+prepare() {
+  cd brotli-${pkgver}
+
+}
+
+build() {
+  cd brotli-${pkgver}
+
+  cmake -GNinja -B "build-static" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_SHARED_LIBS=OFF
+  cmake --build "build-static"
+
+  cmake -GNinja -B "build-shared" \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DBUILD_SHARED_LIBS=ON
+  cmake --build "build-shared"
+}
+
+check() {
+  cd brotli-${pkgver}/build-shared
+
+  make test
+}
+
+package_brotli() {
+  cd brotli-${pkgver}
+
+  cd build-static
+  DESTDIR="${pkgdir}" cmake --install .
+  rm -rf "${pkgdir}"/usr/{include,lib} "${pkgdir}/usr/share/man/man3"
+  cd -
+  cd build-shared
+  DESTDIR="${pkgdir}" cmake --install .
+  rm -rf "${pkgdir}"/usr/{include,lib} "${pkgdir}/usr/share/man/man3"
+
+  install -D -m644 "${srcdir}"/brotli-${pkgver}/LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
+
+package_brotli-devel() {
+  depends=('brotli')
+
+  cd brotli-${pkgver}
+
+  cd build-static
+  DESTDIR="${pkgdir}" cmake --install .
+  rm -rf "${pkgdir}/usr/bin" "${pkgdir}/usr/share/man/man1"
+  cd -
+  cd build-shared
+  DESTDIR="${pkgdir}" cmake --install .
+  rm -rf "${pkgdir}/usr/bin" "${pkgdir}/usr/share/man/man1"
+}
+
+package_brotli-testdata() {
+  depends=()
+
+  cd brotli-${pkgver}
+  install -dm755 "${pkgdir}"/usr/share/brotli
+  cp -a tests/testdata "${pkgdir}"/usr/share/brotli/
+  install -D -m644 "${srcdir}"/brotli-${pkgver}/LICENSE "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}

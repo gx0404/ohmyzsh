@@ -1,0 +1,21 @@
+#!/bin/sh
+# dpkg 安装前冲突检查；不写 HOME，失败返回非零。
+set -eu
+case "$1" in
+  install|upgrade)
+    for name in gx-zsh herdr; do
+      path="/usr/bin/$name"
+      if [ -e "$path" ] || [ -L "$path" ]; then
+        owner=$(dpkg-query -S "$path" 2>/dev/null) || owner=
+        case "$owner" in
+          "ohmyzsh-gx: $path") ;;
+          *) printf '%s\n' "ohmyzsh-gx: refusing to overwrite existing $path (owner: ${owner:-unmanaged}). Move or uninstall it explicitly first." >&2; exit 1 ;;
+        esac
+      fi
+      if [ -e "/usr/local/bin/$name" ]; then
+        printf '%s\n' "ohmyzsh-gx: warning: /usr/local/bin/$name may take precedence; resolve this command conflict explicitly." >&2
+      fi
+    done
+    ;;
+esac
+exit 0

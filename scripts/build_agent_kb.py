@@ -13,7 +13,8 @@
   python3 scripts/build_agent_kb.py --check     # 校验一致性（漂移即红，接入 ci-check）
 
 一致性判定：corpus_hash（语料输入）与 content_hash（切块内容）都一致才算 PASS，
-built_at 时间戳不参与比较。仅标准库；Python 3.10 兼容。
+文本换行先规范为 LF，避免 Git autocrlf 造成跨平台漂移；built_at 时间戳不参与比较。
+仅标准库；Python 3.10 兼容。
 """
 from __future__ import annotations
 
@@ -51,6 +52,26 @@ def git_files() -> list[str]:
     if result.returncode != 0:
         raise SystemExit("FAIL: 无法枚举 Git 可见文件")
     return sorted(item.decode("utf-8") for item in result.stdout.split(b"\0") if item)
+
+
+def git_symlinks() -> set[str]:
+    result = subprocess.run(["git", "ls-files", "--stage", "-z"], cwd=ROOT, capture_output=True, check=True)
+    return {record.split(b"\t", 1)[1].decode("utf-8") for record in result.stdout.split(b"\0")
+            if record.startswith(b"120000 ")}
+
+
+def corpus_bytes(rel: str, symlinks: set[str]) -> bytes:
+    path = ROOT / rel
+    seen = set()
+    while path.is_symlink() or path.relative_to(ROOT).as_posix() in symlinks:
+        if path in seen:
+            raise ValueError(f"语料符号链接循环: {rel}")
+        seen.add(path)
+        target = os.readlink(path) if path.is_symlink() else path.read_text(encoding="utf-8").rstrip("\r\n")
+        path = Path(os.path.abspath(path.parent / target))
+        if not path.is_relative_to(ROOT) or not path.resolve().is_relative_to(ROOT.resolve()):
+            raise ValueError(f"语料符号链接越出仓库: {rel}")
+    return path.read_bytes().replace(b"\r\n", b"\n").replace(b"\r", b"\n")
 
 
 def is_shell_source(rel: str) -> bool:
@@ -146,6 +167,7 @@ def make_chunk(source: str, anchor: str, title: str, text: str, layer: str) -> d
 
 def build_chunks() -> tuple[list[dict], dict]:
     inputs = corpus_inputs(git_files())
+    symlinks = git_symlinks()
     chunks: list[dict] = []
     corpus_hasher = hashlib.sha256()
     corpus_file_count = 0
@@ -155,7 +177,7 @@ def build_chunks() -> tuple[list[dict], dict]:
         if not path.is_file():
             missing.append(rel)
             continue
-        raw = path.read_bytes()
+        raw = corpus_bytes(rel, symlinks)
         corpus_hasher.update(rel.encode("utf-8"))
         corpus_hasher.update(hashlib.sha256(raw).digest())
         corpus_file_count += 1

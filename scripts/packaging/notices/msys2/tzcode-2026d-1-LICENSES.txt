@@ -1,0 +1,15 @@
+MSYS2 source-package license texts
+Source: https://repo.msys2.org/msys/sources/tzcode-2026d-1.src.tar.zst
+SHA-256: fc5e0cc0dfbbc86e23ed038c9bf0020b925273d1e16a9dbc8dc7e036710809be
+Texts below are copied from the authenticated source package. They may include build/test dependencies; this inventory does not relicense any component.
+
+========================================================================
+Member: tzcode-2026d-1.src.tar.zst!tzcode/tzcode2026d.tar.gz!LICENSE
+Original SHA-256: 0613408568889f5739e5ae252b722a2659c02002839ad970a63dc5e9174b27cf
+
+Unless specified below, all files in the tz code and data (including
+this LICENSE file) are in the public domain.
+
+If the files date.c, newstrftime.3, and strftime.c are present, they
+contain material derived from BSD and use the BSD 3-clause license.
+

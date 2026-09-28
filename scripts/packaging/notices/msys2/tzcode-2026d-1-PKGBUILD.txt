@@ -1,0 +1,58 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=tzcode
+pkgver=2026d
+pkgrel=1
+pkgdesc="Sources for time zone and daylight saving time data"
+arch=('i686' 'x86_64')
+url="https://www.iana.org/time-zones"
+msys2_references=(
+  "anitya: 16905"
+  'archlinux: tzdata'
+)
+license=('spdx:LicenseRef-tz')
+options=('!emptydirs')
+depends=('coreutils' 'gawk' 'sed')
+makedepends=('make' 'gcc')
+source=(
+        https://www.iana.org/time-zones/repository/releases/tzdata${pkgver}.tar.gz{,.asc}
+        https://www.iana.org/time-zones/repository/releases/${pkgname}${pkgver}.tar.gz{,.asc}
+        tzcode-makefile.patch
+        tzcode-makefile-exe-extensions.patch)
+sha256sums=('0cb2aa8e333c3dc049badc42a0c61f21987b8cd44e107fa900bad764aacc7767'
+            'SKIP'
+            '2f5c9f7fe29e6b8cb863583667884b8ce17b0a485355a054b591c6bdfcd81791'
+            'SKIP'
+            '863087ac14411b761f7cce9da1e781b20d952007bd2898dfda1dfa90b36f27a4'
+            'faf73eb5f07c56b019b540005f4262f33927a4ff2acf3752a055e8530decd749')
+validpgpkeys=('7E3792A9D8ACF7D633BC1588ED97E90E62AA7E34') # Paul Eggert <eggert@cs.ucla.edu>
+
+_timezones=('africa' 'antarctica' 'asia' 'australasia'
+           'europe' 'northamerica' 'southamerica'
+           'etcetera' 'backward' 'factory')
+
+prepare() {
+  cd ${srcdir}
+  patch -p1 -i ${srcdir}/tzcode-makefile.patch
+  patch -p1 -i ${srcdir}/tzcode-makefile-exe-extensions.patch
+}
+
+build() {
+ cd ${srcdir}
+ make CFLAGS="${CFLAGS} -std=gnu99 -DHAVE_GETTEXT=0 -DHAVE_MEMPCPY=1 -DHAVE_ISSETUGID=1"
+}
+
+package() {
+  cd ${srcdir}
+
+  make -j1 DESTDIR=${pkgdir} install
+
+  ./zic -y ./yearistype -d ${pkgdir}/usr/share/zoneinfo ${_timezones[@]}
+  ./zic -y ./yearistype -d ${pkgdir}/usr/share/zoneinfo/posix ${_timezones[@]}
+  ./zic -y ./yearistype -d ${pkgdir}/usr/share/zoneinfo/right -L leapseconds ${_timezones[@]}
+
+  ./zic -y ./yearistype -d ${pkgdir}/usr/share/zoneinfo -p America/New_York
+  install -m644 -t ${pkgdir}/usr/share/zoneinfo iso3166.tab leap-seconds.list zone1970.tab zone.tab SECURITY
+
+  install -Dm644 LICENSE ${pkgdir}/usr/share/licenses/${pkgname}/LICENSE
+}

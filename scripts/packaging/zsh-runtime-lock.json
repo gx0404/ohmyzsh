@@ -1,0 +1,752 @@
+{
+  "functions_canonical_sha256": "4b94c4219ded904b64ad6b2cc64653e963eabd471ecbe8c9fb0300c30621dfc5",
+  "linux_toolchain": {
+    "status": "verified-Ubuntu-20.04-SDK",
+    "package_count": 147,
+    "package_records_digest": "8ed7d11b956be35f1b8ce41a1bb241b8dd38f3b5fdac4a813e6ebdf389544efa",
+    "kit": [
+      {"filename":"reproduce_focal.py","repository_path":"patches/zsh/focal/reproduce_focal.py","sha256":"3ff52bb372a74068f5fea75bccb2852671f58136b95fdd1edc7b34e0dec752d5"},
+      {"filename":"build_focal.sh","repository_path":"patches/zsh/focal/build_focal.sh","sha256":"56bd025f3caeeabccc5d343ac48c32b89352b5a4ce7e5c1d863c177ffe3481d6"},
+      {"filename":"populate_rootfs.sh","repository_path":"patches/zsh/focal/populate_rootfs.sh","sha256":"a0adabb4a7c5870c31340ead2098d75f20f2d2abe56a32cd2d06aa032645b2e8"},
+      {"filename":"packages-lock.json","repository_path":"patches/zsh/focal/packages-lock.json","sha256":"442b05e8dbe6dbeb0b360e28a4cae18fd6682fd819fa32f92447196381f4264f"},
+      {"filename":"source-inputs-lock.json","repository_path":"patches/zsh/focal/source-inputs-lock.json","sha256":"f8795d9649e6cbfc3a303f4bd4e023b7540be0805cb4ea432fd0818b346a8a4d"},
+      {"filename":"zsh-wrapper","repository_path":"patches/zsh/focal/zsh-wrapper","sha256":"cb489dd2b9482ce17560dc142995f71263af9a23fe020956b06ce29a02fe95ea"},
+      {"filename":"verified-indexes.json","repository_path":"patches/zsh/focal/verified-indexes.json","sha256":"839c8b1730b5ce447a7f9de47d6762471b2939c473e14e17997850b56c4252d0"}
+    ]
+  },
+  "functions_count": 1235,
+  "gx_patch": {
+    "filename": "zsh-5.9.2-metafied-paths.patch",
+    "repository_path": "patches/zsh/zsh-5.9.2-metafied-paths.patch",
+    "sha256": "230fc112b509bece56e97c1485b6de2ed32ca695b43af4628a697a8954a4107d"
+  },
+  "license_sha256": "d06fdf3ef9b1ec69d6b9e170b0a9516fbad3523261ff1668bde3bfea6e0ef5f5",
+  "original_recipes": [
+    {
+      "filename": "prototype-windows_build.sh",
+      "repository_path": "patches/zsh/prototype-windows_build.sh",
+      "sha256": "f12217254ec9014eaf68030b4d28d62fb48f1a63f0bea0fd626470a2e6056c1f"
+    },
+    {
+      "filename": "prototype-linux_ext4_build.sh",
+      "repository_path": "patches/zsh/prototype-linux_ext4_build.sh",
+      "sha256": "4b10ae3d699f1b470f475d171ed00639acff3918442039e5efd2b8d6210c8cde"
+    }
+  ],
+  "platforms": {
+    "ubuntu-amd64": {
+      "allowed_needed": [
+        "libc.so.6",
+        "libm.so.6",
+        "libdl.so.2",
+        "libpthread.so.0",
+        "libncursesw.so.6",
+        "libtinfo.so.6"
+      ],
+      "configure_args": [
+        "--prefix=/",
+        "--bindir=/libexec/zsh",
+        "--libdir=/lib",
+        "--enable-fndir=/share/zsh/functions",
+        "--enable-site-fndir=/share/zsh/site-functions",
+        "--disable-dynamic",
+        "--disable-etcdir",
+        "--enable-multibyte",
+        "--with-term-lib=ncursesw"
+      ],
+      "maximum_glibc": "2.31",
+      "modules": {
+        "filename": "static-linux.config.modules",
+        "repository_path": "patches/zsh/static-linux.config.modules",
+        "sha256": "f6d6f54087a733e9a6ce8a64827a273d8bc3f255cec16a6e160afe6a1687df70"
+      },
+      "patches": [],
+      "post_gx_source_sha256": {
+        "Src/Modules/system.c": "ce3e8c16b8bfb643dfdc39bb03f07f36761fcd9f0d2ae3ff9fdd4e860b0a424c",
+        "Src/init.c": "e8b28705d16edca623c88270dff017370fef9289dc0a817a5aecdca59205ec3b",
+        "Src/parse.c": "054c7b215fd3e155a2a11eb5a1d9db69425073bb04977d594e5e2fc240855811",
+        "Src/subst.c": "12c6e1dfa45a3aa6baeefe511986f62c97d335daad8a25e308e938a3912f3552"
+      },
+      "pre_gx_source_sha256": {
+        "Src/Modules/system.c": "ba26247c85cea3d4105298b29c6cb308efc5f29a38e0a41800c478838d78f459",
+        "Src/init.c": "e3e80519c550c3695541a5025ff5df69e954678e64b9dbd14373f5b17d559438",
+        "Src/parse.c": "a8b48a9f7290f9f188e4a87b745247e3a20c3f4fb986a96eb8f86a267a1046e7",
+        "Src/subst.c": "fc25e99e12d6eacde936fbeedf62f22c3b4fa5868a9a4b823554caebe4835292"
+      },
+      "toolchain_status": "verified-Ubuntu-20.04-SDK"
+    },
+    "windows-x64": {
+      "configure_args": [
+        "--prefix=/",
+        "--bindir=/libexec/zsh",
+        "--libdir=/lib",
+        "--enable-fndir=/share/zsh/functions",
+        "--enable-site-fndir=/share/zsh/site-functions",
+        "--disable-dynamic",
+        "--disable-etcdir",
+        "--enable-multibyte",
+        "--with-term-lib=ncursesw",
+        "--enable-pcre",
+        "--disable-cap",
+        "--enable-zsh-secure-free"
+      ],
+      "modules": {
+        "filename": "static-msys.config.modules",
+        "repository_path": "patches/zsh/static-msys.config.modules",
+        "sha256": "af46bcaaea780cd7d7bc2bcbbc415e0e7d4b3f1d33ed5620e4eec8bf5eeaa6cc"
+      },
+      "original_runtime_files": {
+        "runtime/msys64/usr/bin/msys-zsh-5.9.2.dll": "5c0e5581066a9cbe5c23fd607f7fa8b96e3ceab0d454c85bc72182ea4e534e58",
+        "runtime/msys64/usr/bin/zsh-5.9.2.exe": "1c5ff2822a06af33e4644016c8076129c8bea7308c65a9124da0e83511b58b39",
+        "runtime/msys64/usr/bin/zsh.exe": "1c5ff2822a06af33e4644016c8076129c8bea7308c65a9124da0e83511b58b39"
+      },
+      "patches": [
+        {
+          "original": {
+            "filename": "msys-original-Makefile.in.patch",
+            "repository_path": "patches/zsh/msys-original-Makefile.in.patch",
+            "sha256": "4445ca94d423bf8930c99f2f015b48f5cef6477be097beba88b5d049457c6084"
+          },
+          "strip": 0
+        },
+        {
+          "original": {
+            "filename": "msys-original-add-pwd-W-option.patch",
+            "repository_path": "patches/zsh/msys-original-add-pwd-W-option.patch",
+            "sha256": "b3f74a10a27eff498124adc96bc8c5cced7bb15e18c2603d7c3490a81e3c2e48"
+          },
+          "refreshed": {
+            "filename": "msys-add-pwd-W-exact-context.patch",
+            "repository_path": "patches/zsh/msys-add-pwd-W-exact-context.patch",
+            "sha256": "a18361c3582a38ce90846d29c84cf3205d7129fec78619164ffd981bd2a64e7b"
+          },
+          "strip": 1
+        },
+        {
+          "original": {
+            "filename": "msys-original-msysize.patch",
+            "repository_path": "patches/zsh/msys-original-msysize.patch",
+            "sha256": "85a4cc64ad11f9ce65a0af994dc84067021c33f8b751df3fa82b0255e819d04c"
+          },
+          "strip": 1
+        },
+        {
+          "original": {
+            "filename": "msys-original-zsh-5.0.6-1.patch",
+            "repository_path": "patches/zsh/msys-original-zsh-5.0.6-1.patch",
+            "sha256": "336a8e6e93b778e7aec27348619b7200e0a75e5cf14dce720afd9dd6f836ea2c"
+          },
+          "refreshed": {
+            "filename": "msys-zsh-5.0.6-1-exact-context.patch",
+            "repository_path": "patches/zsh/msys-zsh-5.0.6-1-exact-context.patch",
+            "sha256": "c402452f373e371d1b6a7ed825ef4e4ba936e492b6bf8d637f21618b65f5d4e6"
+          },
+          "strip": 1
+        },
+        {
+          "original": {
+            "filename": "msys-original-msys-symlink-hack.patch",
+            "repository_path": "patches/zsh/msys-original-msys-symlink-hack.patch",
+            "sha256": "de515b0d86c13c29a663b4ba0fdb338dea83f82f145cf8c4da78d30369f963e4"
+          },
+          "strip": 1
+        },
+        {
+          "original": {
+            "filename": "msys-original-fix-no-mmap-fallback.patch",
+            "repository_path": "patches/zsh/msys-original-fix-no-mmap-fallback.patch",
+            "sha256": "24cc021cafb508d972057ad354773465603103622c312870e9f090009f6e4b19"
+          },
+          "strip": 1
+        }
+      ],
+      "post_gx_source_sha256": {
+        "Src/Modules/system.c": "ce3e8c16b8bfb643dfdc39bb03f07f36761fcd9f0d2ae3ff9fdd4e860b0a424c",
+        "Src/init.c": "e8b28705d16edca623c88270dff017370fef9289dc0a817a5aecdca59205ec3b",
+        "Src/parse.c": "054c7b215fd3e155a2a11eb5a1d9db69425073bb04977d594e5e2fc240855811",
+        "Src/subst.c": "12c6e1dfa45a3aa6baeefe511986f62c97d335daad8a25e308e938a3912f3552"
+      },
+      "pre_gx_source_sha256": {
+        "Src/Modules/system.c": "ba26247c85cea3d4105298b29c6cb308efc5f29a38e0a41800c478838d78f459",
+        "Src/init.c": "e3e80519c550c3695541a5025ff5df69e954678e64b9dbd14373f5b17d559438",
+        "Src/parse.c": "a8b48a9f7290f9f188e4a87b745247e3a20c3f4fb986a96eb8f86a267a1046e7",
+        "Src/subst.c": "fc25e99e12d6eacde936fbeedf62f22c3b4fa5868a9a4b823554caebe4835292"
+      },
+      "remove_original_paths": [
+        "runtime/msys64/usr/bin/msys-zsh-5.9.2.dll"
+      ],
+      "replacement_paths": [
+        "runtime/msys64/usr/bin/zsh.exe",
+        "runtime/msys64/usr/bin/zsh-5.9.2.exe"
+      ],
+      "required_imports": [
+        "msys-2.0.dll",
+        "msys-ncursesw6.dll",
+        "msys-pcre2-8-0.dll"
+      ],
+      "required_runtime_dlls": [
+        "runtime/msys64/usr/bin/msys-2.0.dll",
+        "runtime/msys64/usr/bin/msys-ncursesw6.dll",
+        "runtime/msys64/usr/bin/msys-pcre2-8-0.dll"
+      ],
+      "system_imports": [
+        "kernel32.dll"
+      ]
+    }
+  },
+  "schema_version": 1,
+  "source": {
+    "filename": "zsh-5.9.2.tar.xz",
+    "sha256": "36fa734374b44783582cec09bcd67822e2f992c779ec1624ab5596df078d2f81",
+    "url": "https://www.zsh.org/pub/zsh-5.9.2.tar.xz"
+  },
+  "source_checksum_reference": "MSYS2-packages 66128f79a10b0f1a41adbb0e657f2f523214247c",
+  "version": "5.9.2+gx-metafied-paths",
+  "windows_toolchain": {
+    "base": {
+      "filename": "msys2-base-x86_64-20260927.tar.xz",
+      "sha256": "ea2f31a0b6ade63914ce441ffb022f0f6aa96982bfefa2326460a26d5fb01322",
+      "signer": "0EBF782C5D53F7E5FB02A66746BD761F7A49B0EC",
+      "url": "https://github.com/msys2/msys2-installer/releases/download/2026-09-27/msys2-base-x86_64-20260927.tar.xz"
+    },
+    "configure_host": "x86_64-pc-msys",
+    "gcc_dumpmachine": "x86_64-pc-cygwin",
+    "gcc_version": "15.3.0",
+    "packages": [
+      {
+        "dependencies": [
+          "gcc-libs=15.3.0-1",
+          "binutils",
+          "gmp",
+          "isl",
+          "libiconv",
+          "libintl",
+          "mpc",
+          "mpfr",
+          "zlib",
+          "msys2-runtime-devel",
+          "msys2-w32api-headers",
+          "msys2-w32api-runtime",
+          "windows-default-manifest"
+        ],
+        "download_size": 53961737,
+        "filename": "gcc-15.3.0-1-x86_64.pkg.tar.zst",
+        "installed_size": 207695037,
+        "name": "gcc",
+        "sha256": "f8e7e4bf21bb8f690058384fd6ee27bb3567edad49077e691d1f12f0a42119f1",
+        "url": "https://repo.msys2.org/msys/x86_64/gcc-15.3.0-1-x86_64.pkg.tar.zst",
+        "version": "15.3.0-1"
+      },
+      {
+        "dependencies": [
+          "libiconv",
+          "libintl",
+          "zlib",
+          "zstd"
+        ],
+        "download_size": 6241011,
+        "filename": "binutils-2.47-1-x86_64.pkg.tar.zst",
+        "installed_size": 45597191,
+        "name": "binutils",
+        "sha256": "b7ddaca6e8b63774cdb1f5ac2720963cd76f8f62ca7e2667b1b0f008ed7ecba2",
+        "url": "https://repo.msys2.org/msys/x86_64/binutils-2.47-1-x86_64.pkg.tar.zst",
+        "version": "2.47-1"
+      },
+      {
+        "dependencies": [
+          "gmp"
+        ],
+        "download_size": 782904,
+        "filename": "isl-0.28-1-x86_64.pkg.tar.zst",
+        "installed_size": 2210772,
+        "name": "isl",
+        "sha256": "20c8d3a623fe948c9175b236236ae31b09e77e66dc514f8467d35e81a8514f95",
+        "url": "https://repo.msys2.org/msys/x86_64/isl-0.28-1-x86_64.pkg.tar.zst",
+        "version": "0.28-1"
+      },
+      {
+        "dependencies": [
+          "gmp>=5.0",
+          "mpfr"
+        ],
+        "download_size": 87944,
+        "filename": "mpc-1.4.1-1-x86_64.pkg.tar.zst",
+        "installed_size": 162697,
+        "name": "mpc",
+        "sha256": "0f5073ec2e8be265854ee3c7cb1079b5e8e02264d53e659d8414988c6c182f16",
+        "url": "https://repo.msys2.org/msys/x86_64/mpc-1.4.1-1-x86_64.pkg.tar.zst",
+        "version": "1.4.1-1"
+      },
+      {
+        "dependencies": [
+          "msys2-runtime=3.6.10"
+        ],
+        "download_size": 5903163,
+        "filename": "msys2-runtime-devel-3.6.10-5-x86_64.pkg.tar.zst",
+        "installed_size": 27660051,
+        "name": "msys2-runtime-devel",
+        "sha256": "c98f0b9a067b9d70e7b74a86ab46bcdc81a77f8e1d0ebfbd7493b10110e3a25e",
+        "url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-devel-3.6.10-5-x86_64.pkg.tar.zst",
+        "version": "3.6.10-5"
+      },
+      {
+        "dependencies": [],
+        "download_size": 6203022,
+        "filename": "msys2-w32api-headers-14.0.0.r0.g9b3dd0125-1-x86_64.pkg.tar.zst",
+        "installed_size": 83773379,
+        "name": "msys2-w32api-headers",
+        "sha256": "fcadf735fb214d33c64e145f82490c8693aeb6cb6a20ee8479e9f408aa832613",
+        "url": "https://repo.msys2.org/msys/x86_64/msys2-w32api-headers-14.0.0.r0.g9b3dd0125-1-x86_64.pkg.tar.zst",
+        "version": "14.0.0.r0.g9b3dd0125-1"
+      },
+      {
+        "dependencies": [
+          "msys2-w32api-headers"
+        ],
+        "download_size": 3042471,
+        "filename": "msys2-w32api-runtime-14.0.0.r0.g9b3dd0125-1-x86_64.pkg.tar.zst",
+        "installed_size": 101979313,
+        "name": "msys2-w32api-runtime",
+        "sha256": "a9c5c922f5191f7e73333ea2d5392811282387986b9cb7f94a7c9156f717d4b3",
+        "url": "https://repo.msys2.org/msys/x86_64/msys2-w32api-runtime-14.0.0.r0.g9b3dd0125-1-x86_64.pkg.tar.zst",
+        "version": "14.0.0.r0.g9b3dd0125-1"
+      },
+      {
+        "dependencies": [],
+        "download_size": 2448,
+        "filename": "windows-default-manifest-20260815-1-x86_64.pkg.tar.zst",
+        "installed_size": 892,
+        "name": "windows-default-manifest",
+        "sha256": "256ce04dba46a072d4dba477be83d54f7057d07ddc7d621eab3a629a8ecd17c6",
+        "url": "https://repo.msys2.org/msys/x86_64/windows-default-manifest-20260815-1-x86_64.pkg.tar.zst",
+        "version": "20260815-1"
+      },
+      {
+        "dependencies": [
+          "libintl",
+          "sh"
+        ],
+        "download_size": 514683,
+        "filename": "make-4.4.1-3-x86_64.pkg.tar.zst",
+        "installed_size": 1695019,
+        "name": "make",
+        "sha256": "af0bdba17f06fe037f0194069adaa31a8fe45f1a11381501896aea1fae37bd5d",
+        "url": "https://repo.msys2.org/msys/x86_64/make-4.4.1-3-x86_64.pkg.tar.zst",
+        "version": "4.4.1-3"
+      },
+      {
+        "dependencies": [
+          "ncurses=6.6"
+        ],
+        "download_size": 383452,
+        "filename": "ncurses-devel-6.6-2-x86_64.pkg.tar.zst",
+        "installed_size": 5907991,
+        "name": "ncurses-devel",
+        "sha256": "d5bc13fcce30b33cbd83cfb2982db76f18bbb967cd399e4d2ece54c4968a33a1",
+        "url": "https://repo.msys2.org/msys/x86_64/ncurses-devel-6.6-2-x86_64.pkg.tar.zst",
+        "version": "6.6-2"
+      },
+      {
+        "dependencies": [
+          "libpcre2_8=10.48",
+          "libpcre2_16=10.48",
+          "libpcre2_32=10.48",
+          "libpcre2posix=10.48"
+        ],
+        "download_size": 376169,
+        "filename": "pcre2-devel-10.48-1-x86_64.pkg.tar.zst",
+        "installed_size": 1885721,
+        "name": "pcre2-devel",
+        "sha256": "e2c9ede4c687b3a5a9851799f2e4098a85c25db15c4bb9c88bdd2f1820a1729e",
+        "url": "https://repo.msys2.org/msys/x86_64/pcre2-devel-10.48-1-x86_64.pkg.tar.zst",
+        "version": "10.48-1"
+      },
+      {
+        "dependencies": [
+          "gcc-libs"
+        ],
+        "download_size": 139054,
+        "filename": "libpcre2_16-10.48-1-x86_64.pkg.tar.zst",
+        "installed_size": 398738,
+        "name": "libpcre2_16",
+        "sha256": "791da5687babd9827a2f06c0867c7885b1aae48b63c515fe2b494450273ae054",
+        "url": "https://repo.msys2.org/msys/x86_64/libpcre2_16-10.48-1-x86_64.pkg.tar.zst",
+        "version": "10.48-1"
+      },
+      {
+        "dependencies": [
+          "gcc-libs"
+        ],
+        "download_size": 131800,
+        "filename": "libpcre2_32-10.48-1-x86_64.pkg.tar.zst",
+        "installed_size": 383378,
+        "name": "libpcre2_32",
+        "sha256": "129425f14e4bfbdadc27c765dcc1ce9ea2375232c74f4042affa4bf8fedf57ea",
+        "url": "https://repo.msys2.org/msys/x86_64/libpcre2_32-10.48-1-x86_64.pkg.tar.zst",
+        "version": "10.48-1"
+      },
+      {
+        "dependencies": [
+          "libpcre2_8=10.48"
+        ],
+        "download_size": 5901,
+        "filename": "libpcre2posix-10.48-1-x86_64.pkg.tar.zst",
+        "installed_size": 11325,
+        "name": "libpcre2posix",
+        "sha256": "0d61cde7ccbcdeed795d8b38f4b54a4e3f8af4c6e2629ebb19f92bd867224b6d",
+        "url": "https://repo.msys2.org/msys/x86_64/libpcre2posix-10.48-1-x86_64.pkg.tar.zst",
+        "version": "10.48-1"
+      },
+      {
+        "dependencies": [
+          "iconv=1.19",
+          "libiconv=1.19"
+        ],
+        "download_size": 675308,
+        "filename": "libiconv-devel-1.19-1-x86_64.pkg.tar.zst",
+        "installed_size": 1233209,
+        "name": "libiconv-devel",
+        "sha256": "b4836f02199a2ae02d5a836d5a6dc4a174a055da79c30e256635e638b52e2c5d",
+        "url": "https://repo.msys2.org/msys/x86_64/libiconv-devel-1.19-1-x86_64.pkg.tar.zst",
+        "version": "1.19-1"
+      },
+      {
+        "dependencies": [
+          "gcc-libs",
+          "libiconv=1.19",
+          "libintl"
+        ],
+        "download_size": 13934,
+        "filename": "iconv-1.19-1-x86_64.pkg.tar.zst",
+        "installed_size": 33549,
+        "name": "iconv",
+        "sha256": "f1916b4fa349612c7edde73c2f8f50b1371d5945e7503b29169f08310d033633",
+        "url": "https://repo.msys2.org/msys/x86_64/iconv-1.19-1-x86_64.pkg.tar.zst",
+        "version": "1.19-1"
+      },
+      {
+        "dependencies": [
+          "bash",
+          "sed",
+          "autoconf2.73",
+          "autoconf2.72",
+          "autoconf2.71",
+          "autoconf2.69",
+          "autoconf2.13"
+        ],
+        "download_size": 5003,
+        "filename": "autoconf-wrapper-20260320-1-any.pkg.tar.zst",
+        "installed_size": 40334,
+        "name": "autoconf-wrapper",
+        "sha256": "84c1f93d4450b3bf1ef567110b51c15ffb3f13670d656cc48fea70a01371b20c",
+        "url": "https://repo.msys2.org/msys/x86_64/autoconf-wrapper-20260320-1-any.pkg.tar.zst",
+        "version": "20260320-1"
+      },
+      {
+        "dependencies": [
+          "awk",
+          "m4",
+          "diffutils",
+          "bash",
+          "perl",
+          "sed"
+        ],
+        "download_size": 747391,
+        "filename": "autoconf2.73-2.73-1-any.pkg.tar.zst",
+        "installed_size": 2452705,
+        "name": "autoconf2.73",
+        "sha256": "716d0542dc12a481f1c2d5574f17f1470eb9d3226cf6e206d4e243c12fa95e1a",
+        "url": "https://repo.msys2.org/msys/x86_64/autoconf2.73-2.73-1-any.pkg.tar.zst",
+        "version": "2.73-1"
+      },
+      {
+        "dependencies": [
+          "bash",
+          "gcc-libs",
+          "libiconv"
+        ],
+        "download_size": 258635,
+        "filename": "m4-1.4.21-1-x86_64.pkg.tar.zst",
+        "installed_size": 442390,
+        "name": "m4",
+        "sha256": "b561e8871c7599502d9fae7196ee965b3fed3d7af09154eb8d2f5e4d9e5e5106",
+        "url": "https://repo.msys2.org/msys/x86_64/m4-1.4.21-1-x86_64.pkg.tar.zst",
+        "version": "1.4.21-1"
+      },
+      {
+        "dependencies": [
+          "sh",
+          "libiconv",
+          "libintl"
+        ],
+        "download_size": 394515,
+        "filename": "diffutils-3.12-1-x86_64.pkg.tar.zst",
+        "installed_size": 1746735,
+        "name": "diffutils",
+        "sha256": "7902c8ce3d4dd69a0f5e98dc9d5c83c17b23314ba486169db57ef6e2835ce3b6",
+        "url": "https://repo.msys2.org/msys/x86_64/diffutils-3.12-1-x86_64.pkg.tar.zst",
+        "version": "3.12-1"
+      },
+      {
+        "dependencies": [
+          "db",
+          "gdbm",
+          "libxcrypt",
+          "coreutils",
+          "sh"
+        ],
+        "download_size": 7527096,
+        "filename": "perl-5.42.3-2-x86_64.pkg.tar.zst",
+        "installed_size": 45423992,
+        "name": "perl",
+        "sha256": "d89eaa2b8d661fd2040b54092d718f57aa1c066ea2d63735989ee47cfa7c9ef2",
+        "url": "https://repo.msys2.org/msys/x86_64/perl-5.42.3-2-x86_64.pkg.tar.zst",
+        "version": "5.42.3-2"
+      },
+      {
+        "dependencies": [
+          "libdb=6.2.32"
+        ],
+        "download_size": 49971,
+        "filename": "db-6.2.32-6-x86_64.pkg.tar.zst",
+        "installed_size": 267776,
+        "name": "db",
+        "sha256": "41bc94acad3b53eaa92227ec34412305f648848ffbc963bcad88274517e13e8d",
+        "url": "https://repo.msys2.org/msys/x86_64/db-6.2.32-6-x86_64.pkg.tar.zst",
+        "version": "6.2.32-6"
+      },
+      {
+        "dependencies": [
+          "gcc-libs"
+        ],
+        "download_size": 831918,
+        "filename": "libdb-6.2.32-6-x86_64.pkg.tar.zst",
+        "installed_size": 3791372,
+        "name": "libdb",
+        "sha256": "27a35786f3aab14e625c02df7bcd8a9dda0da782ce4f0549a427a21316b4d179",
+        "url": "https://repo.msys2.org/msys/x86_64/libdb-6.2.32-6-x86_64.pkg.tar.zst",
+        "version": "6.2.32-6"
+      },
+      {
+        "dependencies": [
+          "libgdbm=1.26"
+        ],
+        "download_size": 212954,
+        "filename": "gdbm-1.26-1-x86_64.pkg.tar.zst",
+        "installed_size": 607400,
+        "name": "gdbm",
+        "sha256": "1f8e949be2bbe488c5644132db78ecda288c9945922e7ed2447384734e2adba2",
+        "url": "https://repo.msys2.org/msys/x86_64/gdbm-1.26-1-x86_64.pkg.tar.zst",
+        "version": "1.26-1"
+      },
+      {
+        "dependencies": [
+          "gcc-libs",
+          "libreadline",
+          "libiconv",
+          "libintl",
+          "ncurses"
+        ],
+        "download_size": 32345,
+        "filename": "libgdbm-1.26-1-x86_64.pkg.tar.zst",
+        "installed_size": 73840,
+        "name": "libgdbm",
+        "sha256": "bb4b08b720dd3194db010589812e9c63bec3d29b32545e7cbd07b6443e51c5ed",
+        "url": "https://repo.msys2.org/msys/x86_64/libgdbm-1.26-1-x86_64.pkg.tar.zst",
+        "version": "1.26-1"
+      },
+      {
+        "dependencies": [
+          "awk",
+          "m4",
+          "diffutils",
+          "bash",
+          "perl",
+          "sed"
+        ],
+        "download_size": 339599,
+        "filename": "autoconf2.72-2.72-4-any.pkg.tar.zst",
+        "installed_size": 2022167,
+        "name": "autoconf2.72",
+        "sha256": "65b3a37edf8bb4221d38db910ce1acc1ed879c7bcba33faa058066d06d35e7b0",
+        "url": "https://repo.msys2.org/msys/x86_64/autoconf2.72-2.72-4-any.pkg.tar.zst",
+        "version": "2.72-4"
+      },
+      {
+        "dependencies": [
+          "awk",
+          "m4",
+          "diffutils",
+          "bash",
+          "perl",
+          "sed"
+        ],
+        "download_size": 335194,
+        "filename": "autoconf2.71-2.71-4-any.pkg.tar.zst",
+        "installed_size": 2002718,
+        "name": "autoconf2.71",
+        "sha256": "55be2b911beaa0424d60fdcf206f2411a0eb24cb53e66a82964497ef8a4faac0",
+        "url": "https://repo.msys2.org/msys/x86_64/autoconf2.71-2.71-4-any.pkg.tar.zst",
+        "version": "2.71-4"
+      },
+      {
+        "dependencies": [
+          "awk",
+          "m4",
+          "diffutils",
+          "bash",
+          "perl"
+        ],
+        "download_size": 291433,
+        "filename": "autoconf2.69-2.69-4-any.pkg.tar.zst",
+        "installed_size": 1795142,
+        "name": "autoconf2.69",
+        "sha256": "56b2de8e53e46a88bb217a427c2f7b5671ac6400148681fb2089e9b7be817364",
+        "url": "https://repo.msys2.org/msys/x86_64/autoconf2.69-2.69-4-any.pkg.tar.zst",
+        "version": "2.69-4"
+      },
+      {
+        "dependencies": [
+          "awk",
+          "m4",
+          "diffutils",
+          "bash",
+          "perl"
+        ],
+        "download_size": 140650,
+        "filename": "autoconf2.13-2.13-6-any.pkg.tar.zst",
+        "installed_size": 608453,
+        "name": "autoconf2.13",
+        "sha256": "38bd817375f053b6d939f80a30582d05bc6ed5cd07db135e7f3120a27f1b9512",
+        "url": "https://repo.msys2.org/msys/x86_64/autoconf2.13-2.13-6-any.pkg.tar.zst",
+        "version": "2.13-6"
+      },
+      {
+        "dependencies": [
+          "bash",
+          "gawk",
+          "automake1.11",
+          "automake1.12",
+          "automake1.13",
+          "automake1.14",
+          "automake1.15",
+          "automake1.16",
+          "automake1.17",
+          "automake1.18"
+        ],
+        "download_size": 4474,
+        "filename": "automake-wrapper-20260320-1-any.pkg.tar.zst",
+        "installed_size": 9318,
+        "name": "automake-wrapper",
+        "sha256": "693817c288c81bb9f94ac92e5b6f914402735b80bb33e326ccddd7c89cc6a719",
+        "url": "https://repo.msys2.org/msys/x86_64/automake-wrapper-20260320-1-any.pkg.tar.zst",
+        "version": "20260320-1"
+      },
+      {
+        "dependencies": [
+          "perl",
+          "bash"
+        ],
+        "download_size": 501977,
+        "filename": "automake1.11-1.11.6-6-any.pkg.tar.zst",
+        "installed_size": 1509016,
+        "name": "automake1.11",
+        "sha256": "25ecc6296e1416513153c290442cbca6dcb813c1c50e5beb3a708408ba5de3a5",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.11-1.11.6-6-any.pkg.tar.zst",
+        "version": "1.11.6-6"
+      },
+      {
+        "dependencies": [
+          "perl",
+          "bash"
+        ],
+        "download_size": 515182,
+        "filename": "automake1.12-1.12.6-6-any.pkg.tar.zst",
+        "installed_size": 1505491,
+        "name": "automake1.12",
+        "sha256": "b6c91241999c6ff8d04c5ea8011b10544a373b01eacb7993c66db99e5f4fb373",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.12-1.12.6-6-any.pkg.tar.zst",
+        "version": "1.12.6-6"
+      },
+      {
+        "dependencies": [
+          "perl",
+          "bash"
+        ],
+        "download_size": 513498,
+        "filename": "automake1.13-1.13.4-7-any.pkg.tar.zst",
+        "installed_size": 1497266,
+        "name": "automake1.13",
+        "sha256": "a0d3eb1b359a67c1c8a9161cf79ba681cccabf47c78cb40d3065b5eff02a82f0",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.13-1.13.4-7-any.pkg.tar.zst",
+        "version": "1.13.4-7"
+      },
+      {
+        "dependencies": [
+          "perl",
+          "bash"
+        ],
+        "download_size": 515193,
+        "filename": "automake1.14-1.14.1-6-any.pkg.tar.zst",
+        "installed_size": 1504833,
+        "name": "automake1.14",
+        "sha256": "0b097559c1fa79124552334b63d13417bcec8a08008ab65f77d27300a4ccc5b4",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.14-1.14.1-6-any.pkg.tar.zst",
+        "version": "1.14.1-6"
+      },
+      {
+        "dependencies": [
+          "perl",
+          "bash"
+        ],
+        "download_size": 525733,
+        "filename": "automake1.15-1.15.1-4-any.pkg.tar.zst",
+        "installed_size": 1552982,
+        "name": "automake1.15",
+        "sha256": "e3c73d0094eebbc2353b2ddd0b7c81020917c2ec09d3e4967d7abc9794fa7843",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.15-1.15.1-4-any.pkg.tar.zst",
+        "version": "1.15.1-4"
+      },
+      {
+        "dependencies": [
+          "perl",
+          "bash"
+        ],
+        "download_size": 538941,
+        "filename": "automake1.16-1.16.5-1-any.pkg.tar.zst",
+        "installed_size": 1563665,
+        "name": "automake1.16",
+        "sha256": "1963b5fa0ab5eaf1bdc311501cd742c6bb19941e831dcc8ab1e51a8c7f1634fe",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.16-1.16.5-1-any.pkg.tar.zst",
+        "version": "1.16.5-1"
+      },
+      {
+        "dependencies": [
+          "bash",
+          "perl"
+        ],
+        "download_size": 547861,
+        "filename": "automake1.17-1.17-1-any.pkg.tar.zst",
+        "installed_size": 1602621,
+        "name": "automake1.17",
+        "sha256": "bb069dbb6f580c2346d2f6d74268b5e12e625f7ba57299426f9cd6c0fa714191",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.17-1.17-1-any.pkg.tar.zst",
+        "version": "1.17-1"
+      },
+      {
+        "dependencies": [
+          "bash",
+          "perl"
+        ],
+        "download_size": 556123,
+        "filename": "automake1.18-1.18.1-1-any.pkg.tar.zst",
+        "installed_size": 1626265,
+        "name": "automake1.18",
+        "sha256": "c045d9eddf900dbacae06d9e0e19e250cc32d849def7d06b833253f85e3fc941",
+        "url": "https://repo.msys2.org/msys/x86_64/automake1.18-1.18.1-1-any.pkg.tar.zst",
+        "version": "1.18.1-1"
+      }
+    ],
+    "verification": "38 official packages previously matched signed MSYS2 database SHA-256 and detached signatures; no pacman installation is executed"
+  }
+}

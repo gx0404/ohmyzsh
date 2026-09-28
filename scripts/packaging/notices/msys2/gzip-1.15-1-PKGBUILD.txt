@@ -1,0 +1,47 @@
+# Maintainer: Alexey Pavlov <Alexpux@gmail.com>
+
+pkgname=gzip
+pkgver=1.15
+pkgrel=1
+pkgdesc="GNU compression utility"
+arch=('i686' 'x86_64')
+url="https://www.gnu.org/software/gzip/"
+msys2_repository_url="https://cgit.git.savannah.gnu.org/cgit/gzip.git"
+msys2_references=(
+  "cpe: cpe:/a:gnu:gzip"
+  "cpe: cpe:/a:gzip:gzip"
+)
+license=('spdx:GPL-3.0-or-later')
+groups=('compression')
+depends=('bash' 'less')
+makedepends=('autotools' 'gcc')
+source=(https://ftp.gnu.org/pub/gnu/gzip/gzip-$pkgver.tar.xz{,.sig})
+sha256sums=('9aa0cc780dec156b8282844833b342ab7cb08c25d2cd9a1869cdd0df31deff48'
+            'SKIP')
+validpgpkeys=('155D3FC500C834486D1EEA677FD9FCCB000BEEEE') # Jim Meyering <jim@meyering.net>
+
+prepare() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  autoreconf -fiv
+}
+
+build() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr
+
+  make
+}
+
+check() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make check || true
+}
+
+package() {
+  cd ${srcdir}/${pkgname}-${pkgver}
+  make DESTDIR=${pkgdir} install
+}

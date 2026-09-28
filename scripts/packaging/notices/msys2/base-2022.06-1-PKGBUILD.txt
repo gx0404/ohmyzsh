@@ -1,0 +1,50 @@
+# Maintainer: Christoph Reiter <reiter.christoph@gmail.com>
+
+pkgname=base
+pkgver=2022.06
+pkgrel=1
+pkgdesc='Minimal package set to define a basic MSYS2 installation'
+url='https://www.msys2.org'
+arch=('any')
+license=('GPL')
+depends=(
+  'bash'
+  'bash-completion'
+  'bsdtar'
+  'bzip2'
+  'coreutils'
+  'curl'
+  'dash'
+  'file'
+  'filesystem'
+  'findutils'
+  'gawk'
+  'getent'
+  'grep'
+  'gzip'
+  'inetutils'
+  'info'
+  'less'
+  'mintty'
+  'msys2-keyring'
+  'msys2-launcher'
+  'msys2-runtime'
+  'nano'
+  'pacman'
+  'pacman-contrib'
+  'pacman-mirrors'
+  'rebase'
+  'sed'
+  'tar'
+  'time'
+  'tzcode'
+  'util-linux'
+  'wget'
+  'which'
+  'zstd'
+)
+
+# these should be empty, but saneman in CI complains, so we keep them here
+# until that is fixed:
+source=('README.md')
+sha256sums=('46702e24eebde5cf8fbb3d412a524736ef10d16e9c85efa0fc8d256cccf00484')

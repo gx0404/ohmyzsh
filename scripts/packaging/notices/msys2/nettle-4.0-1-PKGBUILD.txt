@@ -1,0 +1,84 @@
+# Maintainer: Alexey Pavlov <Alexpux@gmail.com>
+
+pkgname=('nettle' 'libnettle' 'libhogweed' 'libnettle-devel')
+pkgver=4.0
+pkgrel=1
+pkgdesc="A low-level cryptographic library"
+arch=('i686' 'x86_64')
+url="https://www.lysator.liu.se/~nisse/nettle/"
+msys2_repository_url="https://git.lysator.liu.se/nettle/nettle"
+msys2_references=(
+  'cpe: cpe:/a:nettle_project:nettle'
+)
+license=('spdx:GPL-2.0-or-later OR LGPL-3.0-or-later')
+groups=('net-utils')
+depends=('gmp')
+makedepends=('gmp-devel' 'autotools' 'gcc')
+source=(https://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz{,.sig}
+        001-fix-dll-names.patch)
+validpgpkeys=('343C2FF0FBEE5EC2EDBEF399F3599FF828C67298') # Niels M├╢ller <nisse@lysator.liu.se>
+sha256sums=('3addbc00da01846b232fb3bc453538ea5468da43033f21bb345cb1e9073f5094'
+            'SKIP'
+            'b55a5b742e77215a8290d9adfd12378ff4b55a4e51285ac3662ac8ead9e4bfd3')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  patch -p1 -i ${srcdir}/001-fix-dll-names.patch
+  autoreconf -fi
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --prefix=/usr \
+    --libdir=/usr/lib \
+    --build=${CHOST} \
+    --enable-shared \
+    --enable-static \
+    --disable-assembler
+
+  make
+  make DESTDIR="${srcdir}/dest" install
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make -k check
+}
+
+package_nettle() {
+  depends=('libnettle')
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -rf ${srcdir}/dest/usr/bin/*.exe ${pkgdir}/usr/bin/
+  cp -rf ${srcdir}/dest/usr/share ${pkgdir}/usr/
+}
+
+package_libnettle() {
+  groups=('libraries')
+  depends=('libhogweed')
+
+  mkdir -p ${pkgdir}/usr/bin
+  cp -rf ${srcdir}/dest/usr/bin/*nettle*.dll ${pkgdir}/usr/bin/
+}
+
+package_libhogweed() {
+  groups=('libraries')
+  depends=('gmp')
+
+  mkdir -p ${pkgdir}/usr/bin/
+  cp -rf ${srcdir}/dest/usr/bin/*hogweed*.dll ${pkgdir}/usr/bin/
+}
+
+package_libnettle-devel() {
+  pkgdesc="Libnettle headers and libraries"
+  groups=('development')
+  options=('staticlibs')
+  depends=("libnettle=${pkgver}" "libhogweed=${pkgver}" 'gmp-devel')
+
+  mkdir -p ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/usr/lib ${pkgdir}/usr/
+}

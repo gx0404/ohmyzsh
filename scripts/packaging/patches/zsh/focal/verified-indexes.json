@@ -1,0 +1,29 @@
+{
+  "rootfs_sha256": "60e216b60947653dc8989be3821380268315b99b2959c29882781541bfe5a426",
+  "indexes": [
+    {
+      "suite": "focal",
+      "component": "main",
+      "index_sha256": "7757921ff8feed9c3934a0c9936d441ba4a238bee3ea6c8c1df5cbcd43fc9861",
+      "release_sha256": "cc9be89a0984aeca9e3ca40ae0e6decff75aa32653a5925b04956a7c12487e99"
+    },
+    {
+      "suite": "focal",
+      "component": "universe",
+      "index_sha256": "46a746dac789bd9537aca54db1680b9dff51c248153111350382199d7d96b9d1",
+      "release_sha256": "cc9be89a0984aeca9e3ca40ae0e6decff75aa32653a5925b04956a7c12487e99"
+    },
+    {
+      "suite": "noble",
+      "component": "main",
+      "index_sha256": "2a6a199e1031a5c279cb346646d594993f35b1c03dd4a82aaa0323980dd92451",
+      "release_sha256": "cdb2f31d809f589719a53c6ad15f255b27569c4059542ada282aaa21b8e164b0"
+    },
+    {
+      "suite": "noble",
+      "component": "universe",
+      "index_sha256": "ba9057fa1b91438cc8a1d26808d00c85389fe101d0c1496254df97236405599a",
+      "release_sha256": "cdb2f31d809f589719a53c6ad15f255b27569c4059542ada282aaa21b8e164b0"
+    }
+  ]
+}

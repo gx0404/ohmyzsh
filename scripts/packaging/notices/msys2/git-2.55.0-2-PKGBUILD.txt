@@ -1,0 +1,174 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+# Maintainer: Ray Donnelly <mingw.android@gmail.com>
+
+pkgname=git
+pkgver=2.55.0
+pkgrel=2
+pkgdesc="The fast distributed version control system"
+arch=('i686' 'x86_64')
+url="https://git-scm.com/"
+msys2_repository_url="https://git.kernel.org/pub/scm/git/git.git"
+msys2_references=(
+  "cpe: cpe:/a:git:git"
+  "cpe: cpe:/a:git-scm:git"
+  "cpe: cpe:/a:git_project:git"
+)
+msys2_ignore_vulnerabilities=(
+  "CVE-2026-62960"  # false positive, wrong CPE
+)
+license=('spdx:GPL-2.0-only')
+groups=('VCS')
+depends=('curl'
+         #'info'
+         'libpcre2_8'
+         'libexpat'
+         'libintl'
+         'nano'
+         'openssh'
+         'openssl'
+         'perl-error'
+         'perl>=5.14.0'
+         'perl-authen-sasl'
+         'perl-libwww'
+         'perl-mime-tools'
+         'perl-net-smtp-ssl'
+         'perl-termreadkey')
+makedepends=('asciidoc'
+             'autotools'
+             'docbook-xml'
+             'docbook-xsl'
+             #'docbook2x'
+             'gcc'
+             'less'
+             'libexpat-devel'
+             'libcurl-devel'
+             'libiconv-devel'
+             'gettext-devel'
+             'pcre2-devel'
+             'python'
+             'rsync'
+             'rust'
+             #'texinfo'
+             'xmlto')
+optdepends=(#'tk: gitk and git gui'
+            'python: various helper scripts'
+            'subversion: git svn'
+            'aspell: spell checking in git gui'
+            #'cvsps: git cvsimport'
+            )
+replaces=('git-core')
+provides=('git-core')
+#options=('debug' '!strip')
+source=("${pkgname}-${pkgver}.tar.gz"::https://github.com/git/git/archive/v${pkgver}.tar.gz
+        1.7.9-cygwin.patch
+        git-1.8.4-msys2.patch
+        git-2.3.5-mingw-pwd.patch
+        git-2.8.2-Cygwin-Allow-DOS-paths.patch
+        git-tcsh-completion-fixes.patch
+        git-2.43.0-git-gui.patch
+        0001-aspell.patch)
+sha256sums=('72923418db7b26dfddc21e2268660c5118e560bdfaa09b4489b67b38e9b69c49'
+            '32baa705d76789d82316a1325e61c9a261114eaa9814dca9c05683bf63069dea'
+            '9bc4da5022c5004c4c5b45417b25c6636ddf0ac338574a624c2c775d4394546d'
+            '336159815092f503e0254ebbbea2b637ffc09a36217c4c644167b86852568272'
+            '148a2c45de2c8bb2dfffc96bd40523f860a4b13f4e661609636158b7b3bc930b'
+            '6f25aae9e92469d5e284dcf372e15ee0e57ff91531e691e7391f9bfb78f73626'
+            'bf82f6017b62887c76adf2c883c004c913193e43d1c62ddbca66465b024df9ef'
+            '28ae4263169ef2b32ab2d6190752e5605d1ae3931a8f92cc5f3b38e3012d31dd')
+
+# Helper macros to help make tasks easier #
+apply_patch_with_msg() {
+  for _fname in "$@"
+  do
+    msg2 "Applying ${_fname}"
+    patch -Nbp1 -i "${srcdir}"/${_fname}
+  done
+}
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  rm -f compat/win32/git.manifest compat/win32/resource.rc
+  apply_patch_with_msg \
+    git-1.8.4-msys2.patch \
+    git-2.3.5-mingw-pwd.patch \
+    git-2.8.2-Cygwin-Allow-DOS-paths.patch \
+    git-tcsh-completion-fixes.patch
+
+  # git-gui works with git4win + native tcl/tk, or cygwin git + cygwin tcl/tk.
+  # We have a mix where git is cygwin but tcl/tk is native, so we need to adjust
+  # a few things, so git-gui works in the mingw environments at least.
+  apply_patch_with_msg git-2.43.0-git-gui.patch
+
+  # mingw aspell might work, but "--mode" is broken there,
+  # so force cygwin variant for now
+  apply_patch_with_msg 0001-aspell.patch
+
+  make configure
+}
+
+build() {
+  export PYTHON_PATH='/usr/bin/python'
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr \
+    --sysconfdir=/etc \
+    --libexecdir=/usr/lib \
+    --with-libpcre2 \
+    --with-editor=nano \
+    --htmldir=/usr/share/doc/git/html \
+    --mandir=/usr/share/man
+
+  make INSTALLDIRS=vendor WITH_RUST=1 all
+  make -j1 man
+  #make -j1 info
+  make -C contrib/subtree prefix=/usr all
+}
+
+check() {
+  export PYTHON_PATH='/usr/bin/python'
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  local jobs
+  jobs=$(expr "$MAKEFLAGS" : '.*\(-j[0-9]*\).*')
+  mkdir -p /tmp/git-test
+  # We used to use this, but silly git regressions:
+  #GIT_TEST_OPTS="--root=/dev/shm/" \
+  # https://comments.gmane.org/gmane.comp.version-control.git/202020
+  make \
+    NO_SVN_TESTS=y \
+    DEFAULT_TEST_TARGET=prove \
+    GIT_PROVE_OPTS="$jobs -Q" \
+    GIT_TEST_OPTS="--root=/tmp/git-test" \
+    test
+}
+
+package() {
+  export PYTHON_PATH='/usr/bin/python'
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make INSTALLDIRS=vendor DESTDIR="$pkgdir" install
+  make INSTALLDIRS=vendor DESTDIR="${pkgdir}" install-man
+  #make INSTALLDIRS=vendor DESTDIR="${pkgdir}" install-info
+
+  # bash completion
+  mkdir -p "${pkgdir}"/usr/share/bash-completion/completions/
+  install -m644 ./contrib/completion/git-completion.bash "${pkgdir}"/usr/share/bash-completion/completions/git
+  # fancy git prompt
+  mkdir -p "${pkgdir}"/usr/share/git/
+  install -m644 ./contrib/completion/git-prompt.sh "${pkgdir}"/usr/share/git/git-prompt.sh
+  # subtree installation
+  sed "s|libexec/git-core|lib/git-core|" -i contrib/subtree/Makefile
+  make -C contrib/subtree prefix=/usr DESTDIR="${pkgdir}" install
+
+  # the rest of the contrib stuff
+  cp -a ./contrib/* ${pkgdir}/usr/share/git/
+
+  # scripts are for python
+  sed -i 's|#![ ]*/usr/bin/env python$|#!/usr/bin/python|' \
+    $(find "${pkgdir}" -name '*.py') \
+    "${pkgdir}"/usr/lib/git-core/git-p4
+
+  # Remove *.orig files
+  find "${pkgdir}/usr" -type f -name "*.orig" -exec rm -f {} \;
+}

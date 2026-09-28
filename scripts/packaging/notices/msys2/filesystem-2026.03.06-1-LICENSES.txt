@@ -1,0 +1,56 @@
+MSYS2 exact source-package license and copyright notices
+Source: https://repo.msys2.org/msys/sources/filesystem-2026.03.06-1.src.tar.zst
+Source SHA-256: aa2444fdd7eb8456ed46b9ab014229638dabaf01f828f05bc22fe415d4cf0a2c
+
+========================================================================
+Origin: filesystem-2026.03.06-1.src.tar.zst!filesystem/profile.lang.sh
+SHA-256: 6c0ca979c7b146b3750103b1296a399764f4e1b222ee091d3aa072b6da16c1a5
+
+# To the extent possible under law, the author(s) have dedicated all 
+# copyright and related and neighboring rights to this software to the 
+# public domain worldwide. This software is distributed without any warranty. 
+# You should have received a copy of the CC0 Public Domain Dedication along 
+# with this software. 
+# If not, see <https://creativecommons.org/publicdomain/zero/1.0/>. 
+
+# /etc/profile.d/lang.sh: sourced by /etc/profile.
+
+# The latest version as installed by the MSYS2 Setup program can
+# always be found at /etc/defaults/etc/profile.d/lang.sh
+
+# Modifying /etc/profile.d/lang.sh directly will prevent
+# setup from updating it.
+
+# System-wide lang.sh file
+
+# if no locale variable is set, indicate terminal charset via LANG
+test -z "${LC_ALL:-${LC_CTYPE:-$LANG}}" && export LANG=$(exec /usr/bin/locale -uU)
+
+
+========================================================================
+Origin: filesystem-2026.03.06-1.src.tar.zst!filesystem/profile.tzset.sh
+SHA-256: cbec90c9403826bf6d8dd1fed16240b9d8695ec15df5dcdab7e485bb46c016ab
+
+# To the extent possible under law, the author(s) have dedicated all 
+# copyright and related and neighboring rights to this software to the 
+# public domain worldwide. This software is distributed without any warranty. 
+# You should have received a copy of the CC0 Public Domain Dedication along 
+# with this software. 
+# If not, see <https://creativecommons.org/publicdomain/zero/1.0/>. 
+
+# /etc/profile.d/tzset.sh: sourced by /etc/profile.
+
+# The latest version as installed by the MSYS2 Setup program can
+# always be found at /etc/defaults/etc/profile.d/tzset.sh
+
+# Modifying /etc/profile.d/tzset.sh directly will prevent
+# setup from updating it.
+
+# System-wide tzset.sh file
+
+#Uses the geographical location setting of the user to find the right
+#mapping, rather than the locale setting.  Only on Windows 2000 which
+#doesn't know about the user's geographical location, or if fetching
+#the geographical location fails, it falls back to the user's locale.
+test -z "$TZ" && export TZ=$(exec /usr/bin/tzset)
+

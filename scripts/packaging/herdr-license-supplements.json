@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "herdr_revision": "4f441b0c23304c7a641d978c9e11aabf07f6d8c4",
+  "texts": {
+    "objc2": {"path": "LICENSE.md", "notice": "objc2-LICENSE.md", "sha256": "7f976f7e9cb2d87df7230606feb932c3f21ac0e664045a775b600046ff850c54", "size": 1339},
+    "mit-reference": {"path": "SPDX-MIT-reference.txt", "notice": "SPDX-MIT.txt", "url": "https://raw.githubusercontent.com/spdx/license-list-data/31ba1a50e5397e00a304dbadc76531740e89ee48/text/MIT.txt", "sha256": "b05785f9f18e6716bab63424b11454513b9943a222595b70411009202fc592b5", "size": 1078, "role": "Reference text for the MIT license explicitly selected by the upstream objc2 notice; not a replacement copyright notice."},
+    "r-efi-5": {"path": "AUTHORS", "notice": "r-efi-5.3.0-AUTHORS", "sha256": "ff92bed461f50338dd703a9ba9aee496a425957873df1d91192776e4bdf5dda7", "size": 3693},
+    "r-efi-6": {"path": "AUTHORS", "notice": "r-efi-6.0.0-AUTHORS", "sha256": "d027e91dbc9cdbb2f1190068e498bd6b61cff022b6a032b191021ba658d96111", "size": 3733},
+    "ratatui": {"path": "LICENSE", "notice": "ratatui-LICENSE", "sha256": "50eb43e8d742c9c61a9391e42b2184fce54dbd1893a1bb1c85b8c9ee217ab1f5", "size": 1132},
+    "valuable": {"path": "LICENSE", "notice": "valuable-LICENSE", "sha256": "ed60d479b8fd1f64e9cbc3de449a16a53ac1b3d1b6aeb9bf9d190a8e93061b44", "size": 1065},
+    "bytecodealliance-mit": {"path": "LICENSE-MIT", "notice": "bytecodealliance-LICENSE-MIT", "sha256": "23f18e03dc49df91622fe2a76176497404e46ced8a715d9d2b67a7446571cca3", "size": 1023},
+    "wezterm": {"path": "LICENSE.md", "notice": "wezterm-LICENSE.md", "sha256": "37db33bbbd7348969eda397b89a16f252d56c1ca7481b6ccaf56ccdcbab5dcca", "size": 1529},
+    "themes": {"path": "LICENSE", "notice": "iTerm2-Color-Schemes-LICENSE", "sha256": "2373168614b527494dff99eb393024608216db79f687d58bad420f6c1e0ad192", "size": 1246, "role": "Original collection MIT grant. Individual theme authors retain their copyrights/licenses; original theme files and notices remain in the matching source archive."}
+  },
+  "sources": {
+    "objc2-b4167b5": {"repository": "https://github.com/madsmtm/objc2", "revision": "b4167b582b2f75f9a1be75495c41b765344fd03c", "texts": ["objc2", "mit-reference"]},
+    "objc2-8852b42": {"repository": "https://github.com/madsmtm/objc2", "revision": "8852b424193ca41602281b3d7540d7c8ed51e49a", "texts": ["objc2", "mit-reference"]},
+    "objc2-7b1abfd": {"repository": "https://github.com/madsmtm/objc2", "revision": "7b1abfd750a2cacaea71d6a56ecfb83cb7de560b", "texts": ["objc2", "mit-reference"]},
+    "objc2-8d214f5": {"repository": "https://github.com/madsmtm/objc2", "revision": "8d214f5477365ffcbcbb7de058c86ed9a518efb7", "texts": ["objc2", "mit-reference"]},
+    "r-efi-97b55be": {"repository": "https://github.com/r-efi/r-efi", "revision": "97b55bed1c2c91dcbf787674849f05337ff80b33", "texts": ["r-efi-5"]},
+    "r-efi-7e1b032": {"repository": "https://github.com/r-efi/r-efi", "revision": "7e1b0322d31d625f81a5656096330934f9cd835d", "texts": ["r-efi-6"]},
+    "ratatui-0a2a7c0": {"repository": "https://github.com/ratatui/ratatui", "revision": "0a2a7c0363a4806b0cf05c1915bf7cdd438f756c", "texts": ["ratatui"]},
+    "valuable-9efc29b": {"repository": "https://github.com/tokio-rs/valuable", "revision": "9efc29b6e58cef28f6566a47aa7e142a55fead77", "texts": ["valuable"]},
+    "wasi-06ce201": {"repository": "https://github.com/bytecodealliance/wasi-rs", "revision": "06ce201370fcde0d1b0d47cac8ecb1b0b312c9f9", "texts": ["bytecodealliance-mit"]},
+    "wasm-tools-d4e317f": {"repository": "https://github.com/bytecodealliance/wasm-tools", "revision": "d4e317f22c3bace76cb3205003bcc34b4929037d", "texts": ["bytecodealliance-mit"]},
+    "wezterm-edeae72": {"repository": "https://github.com/wez/wezterm", "revision": "edeae72b5fc55c7fa4aa1d08bbefd08c5493f757", "texts": ["wezterm"]},
+    "wezterm-d5ca550": {"repository": "https://github.com/wez/wezterm", "revision": "d5ca5509b95edc31291ba29bd1fcbf3f0b12c92d", "texts": ["wezterm"]},
+    "themes-752a9c0": {"repository": "https://github.com/mbadolato/iTerm2-Color-Schemes", "revision": "752a9c079396cc9939b86e893578ed81e80c140f", "texts": ["themes"]}
+  },
+  "cargo": [
+    {"name": "objc2-foundation", "version": "0.3.2", "checksum": "e3e0adef53c21f888deb4fa59fc59f7eb17404926ee8a6f59f5df0fd7f9f3272", "license": "MIT", "source": "objc2-7b1abfd", "crate_path": "framework-crates/objc2-foundation"},
+    {"name": "wasm-metadata", "version": "0.244.0", "checksum": "bb0e353e6a2fbdc176932bbaab493762eb1255a7900fe0fea1a2f96c296cc909", "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT", "source": "wasm-tools-d4e317f", "crate_path": "crates/wasm-metadata", "metadata_repository": "https://github.com/bytecodealliance/wasm-tools/tree/main/crates/wasm-metadata"},
+    {"name": "block2", "version": "0.6.2", "checksum": "cdeb9d870516001442e364c5220d3574d2da8dc765554b4a617230d33fa58ef5", "license": "MIT", "source": "objc2-b4167b5", "crate_path": "crates/block2"},
+    {"name": "dispatch2", "version": "0.3.1", "checksum": "1e0e367e4e7da84520dedcac1901e4da967309406d1e51017ae1abfb97adbd38", "license": "Zlib OR Apache-2.0 OR MIT", "source": "objc2-8852b42", "crate_path": "crates/dispatch2"},
+    {"name": "objc2", "version": "0.6.4", "checksum": "3a12a8ed07aefc768292f076dc3ac8c48f3781c8f2d5851dd3d98950e8c5a89f", "license": "MIT", "source": "objc2-8852b42", "crate_path": "crates/objc2"},
+    {"name": "objc2-core-foundation", "version": "0.3.2", "checksum": "2a180dd8642fa45cdb7dd721cd4c11b1cadd4929ce112ebd8b9f5803cc79d536", "license": "Zlib OR Apache-2.0 OR MIT", "source": "objc2-7b1abfd", "crate_path": "framework-crates/objc2-core-foundation"},
+    {"name": "objc2-encode", "version": "4.1.0", "checksum": "ef25abbcd74fb2609453eb695bd2f860d389e457f67dc17cafc8b8cbc89d0c33", "license": "MIT", "source": "objc2-8d214f5", "crate_path": "crates/objc2-encode"},
+    {"name": "objc2-io-kit", "version": "0.3.2", "checksum": "33fafba39597d6dc1fb709123dfa8289d39406734be322956a69f0931c73bb15", "license": "Zlib OR Apache-2.0 OR MIT", "source": "objc2-7b1abfd", "crate_path": "framework-crates/objc2-io-kit"},
+    {"name": "objc2-open-directory", "version": "0.3.2", "checksum": "bb82bed227edf5201dfedf072bba4015a33d3d4a98519837295a90f0a23f676d", "license": "Zlib OR Apache-2.0 OR MIT", "source": "objc2-7b1abfd", "crate_path": "framework-crates/objc2-open-directory"},
+    {"name": "r-efi", "version": "5.3.0", "checksum": "69cdb34c158ceb288df11e18b4bd39de994f6657d83847bdffdbd7f346754b0f", "license": "MIT OR Apache-2.0 OR LGPL-2.1-or-later", "source": "r-efi-97b55be", "crate_path": ""},
+    {"name": "r-efi", "version": "6.0.0", "checksum": "f8dcc9c7d52a811697d2151c701e0d08956f92b0e24136cf4cf27b57a6a0d9bf", "license": "MIT OR Apache-2.0 OR LGPL-2.1-or-later", "source": "r-efi-7e1b032", "crate_path": ""},
+    {"name": "ratatui", "version": "0.30.0", "checksum": "d1ce67fb8ba4446454d1c8dbaeda0557ff5e94d39d5e5ed7f10a65eb4c8266bc", "license": "MIT", "source": "ratatui-0a2a7c0", "crate_path": "ratatui"},
+    {"name": "ratatui-core", "version": "0.1.0", "checksum": "5ef8dea09a92caaf73bff7adb70b76162e5937524058a7e5bff37869cbbec293", "license": "MIT", "source": "ratatui-0a2a7c0", "crate_path": "ratatui-core"},
+    {"name": "ratatui-crossterm", "version": "0.1.0", "checksum": "577c9b9f652b4c121fb25c6a391dd06406d3b092ba68827e6d2f09550edc54b3", "license": "MIT", "source": "ratatui-0a2a7c0", "crate_path": "ratatui-crossterm"},
+    {"name": "ratatui-termwiz", "version": "0.1.0", "checksum": "0f76fe0bd0ed4295f0321b1676732e2454024c15a35d01904ddb315afd3d545c", "license": "MIT", "source": "ratatui-0a2a7c0", "crate_path": "ratatui-termwiz"},
+    {"name": "ratatui-widgets", "version": "0.3.0", "checksum": "d7dbfa023cd4e604c2553483820c5fe8aa9d71a42eea5aa77c6e7f35756612db", "license": "MIT", "source": "ratatui-0a2a7c0", "crate_path": "ratatui-widgets"},
+    {"name": "valuable", "version": "0.1.1", "checksum": "ba73ea9cf16a25df0c8caa16c51acb937d5712a8429db78a3ee29d5dcacd3a65", "license": "MIT", "source": "valuable-9efc29b", "crate_path": "valuable"},
+    {"name": "vtparse", "version": "0.6.2", "checksum": "6d9b2acfb050df409c972a37d3b8e08cdea3bddb0c09db9d53137e504cfabed0", "license": "MIT", "source": "wezterm-edeae72", "crate_path": "vtparse"},
+    {"name": "wasip2", "version": "1.0.2+wasi-0.2.9", "checksum": "9517f9239f02c069db75e65f174b3da828fe5f5b945c4dd26bd25d89c03ebcf5", "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT", "source": "wasi-06ce201", "crate_path": "crates/wasip2"},
+    {"name": "wasip3", "version": "0.4.0+wasi-0.3.0-rc-2026-01-06", "checksum": "5428f8bf88ea5ddc08faddef2ac4a67e390b88186c703ce6dbd955e1c145aca5", "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT", "source": "wasi-06ce201", "crate_path": "crates/wasip3"},
+    {"name": "wasm-encoder", "version": "0.244.0", "checksum": "990065f2fe63003fe337b932cfb5e3b80e0b4d0f5ff650e6985b1048f62c8319", "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT", "source": "wasm-tools-d4e317f", "crate_path": "crates/wasm-encoder"},
+    {"name": "wasmparser", "version": "0.244.0", "checksum": "47b807c72e1bac69382b3a6fb3dbe8ea4c0ed87ff5629b8685ae6b9a611028fe", "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT", "source": "wasm-tools-d4e317f", "crate_path": "crates/wasmparser"},
+    {"name": "wezterm-input-types", "version": "0.1.0", "checksum": "7012add459f951456ec9d6c7e6fc340b1ce15d6fc9629f8c42853412c029e57e", "license": "MIT", "source": "wezterm-d5ca550", "crate_path": "wezterm-input-types"},
+    {"name": "wit-component", "version": "0.244.0", "checksum": "9d66ea20e9553b30172b5e831994e35fbde2d165325bec84fc43dbf6f4eb9cb2", "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT", "source": "wasm-tools-d4e317f", "crate_path": "crates/wit-component"},
+    {"name": "wit-parser", "version": "0.244.0", "checksum": "ecc8ac4bc1dc3381b7f59c34f00b67e18f910c2c0f50015669dde7def656a736", "license": "Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT", "source": "wasm-tools-d4e317f", "crate_path": "crates/wit-parser"}
+  ],
+  "reuse": [
+    {"name": "winapi-i686-pc-windows-gnu", "version": "0.4.0", "checksum": "ac3b87c63620426dd9b991e5ce0329eff545bccbbb34f3be09ff6fb6ab51b7b6", "license": "MIT/Apache-2.0", "repository": "https://github.com/retep998/winapi-rs", "donor": "winapi-0.3.9"},
+    {"name": "winapi-x86_64-pc-windows-gnu", "version": "0.4.0", "checksum": "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f", "license": "MIT/Apache-2.0", "repository": "https://github.com/retep998/winapi-rs", "donor": "winapi-0.3.9"}
+  ],
+  "donors": {
+    "winapi-0.3.9": {
+      "name": "winapi", "version": "0.3.9", "checksum": "5c839a674fcd7a98952e593242ea400abe93992746761e38641405d28b00f419", "repository": "https://github.com/retep998/winapi-rs",
+      "basis": "The same official winapi-rs repository co-distributes winapi 0.3.9 and its 0.4.0 target crates with the same MIT/Apache-2.0 declaration. Both crate checksums and donor text checksums are required; no upstream commit is invented.",
+      "files": [
+        {"path": "LICENSE-MIT", "sha256": "ce7bc3499fee93d5022ef430d5e4201e79a6d9154f3974e42f41349f0569e09b", "size": 1073},
+        {"path": "LICENSE-APACHE", "sha256": "b40930bbcf80744c86c46a12bc9da056641d722716c378f5659b9e555ef833e1", "size": 11357}
+      ]
+    }
+  },
+  "zig": [
+    {"package_hash": "N-V-__8AAEFmBABuDGOKxAI6VMg41b9euMZ-z7HS9EcUdaor", "source": "themes-752a9c0", "archive_url": "https://deps.files.ghostty.org/ghostty-themes-release-20260831-151010-752a9c0.tgz", "archive_sha256": "83653eb837baeb5bfc7d50c91b7d44772796e08c1c243134e11c5edf6c8d15c5"}
+  ]
+}

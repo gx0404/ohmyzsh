@@ -168,11 +168,36 @@ report_leftovers() {
   done
 }
 
+guard_destination() {
+  if [ -e "$1" ] || [ -L "$1" ]; then
+    die "时间戳目标已存在，拒绝覆盖（请稍后重试；既有内容保留）: $1" 2
+  fi
+}
+
+# 秒级时间戳不保证唯一；在部署前拒绝碰撞，移动时再检查，不回收或复用占用项。
+guard_timestamp_paths() {
+  [ "${#TS}" -eq 14 ] || die "无效的备份时间戳: $TS" 1
+  case "$TS" in *[!0-9]*) die "无效的备份时间戳: $TS" 1 ;; esac
+  if [ "$OPT_UNINSTALL" -eq 1 ]; then
+    for _ts_file in .zshrc .zshenv .zshrc.local .p10k.zsh; do
+      guard_destination "$GX_HOME/$_ts_file.gx-removed-$TS"
+    done
+  else
+    for _ts_path in "$ZSH" "$GX_HOME/.zshrc" "$GX_HOME/.zshenv" "$GX_HOME/.p10k.zsh" \
+                    "$ZSH/custom/themes/powerlevel10k" "$GX_HOME/.config/wezterm"; do
+      guard_destination "$_ts_path.pre-gx-$TS"
+    done
+    guard_destination "$ZSH.gx-new-$TS"
+    guard_destination "$ZSH.gx-old-$TS"
+  fi
+}
+
 # 备份既有路径（文件或目录）；同批次内已备份过则跳过。
 did_backup() {
   case " $BACKED_UP " in *" $1 "*) return 1 ;; esac
+  guard_destination "$1.pre-gx-$TS"
+  mv "$1" "$1.pre-gx-$TS" || return 1
   BACKED_UP="$BACKED_UP $1 "
-  mv "$1" "$1.pre-gx-$TS"
 }
 
 # 列出 <path>.pre-gx-<14 位时间戳> 备份，按时间戳升序（最后一行最新）。只认本安装器
@@ -321,8 +346,10 @@ deploy_omz_repo() {
   _oz_new="$ZSH.gx-new-$TS"; _oz_old="$ZSH.gx-old-$TS"
   # 新快照先在 $ZSH 同级（同一文件系统，mv 为原子 rename）完整就位；在此之前既有
   # 安装不被改动。同级不可写时（rename 本身也做不了）在这里就中止。
-  rm -rf "$_oz_new"
-  mkdir -p "$_oz_new" || die "无法创建中转目录 $_oz_new（检查上级目录可写）" 2
+  guard_destination "$_oz_new"
+  guard_destination "$_oz_old"
+  mkdir -p "$(dirname "$ZSH")" || die "无法创建安装目录的上级（检查权限）: $ZSH" 2
+  mkdir "$_oz_new" || die "无法独占创建中转目录 $_oz_new（检查权限或并发安装）" 2
   # tar 中转（而非 cp -a）以应用 REPO_EXCLUDES，且失败可见、目标恒为干净快照。
   _oz_tar=$(mktemp "${TMPDIR:-/tmp}/gx-omz.XXXXXX.tar")
   if tar -cf "$_oz_tar" -C "$REPO_DIR" $REPO_EXCLUDES . 2>/dev/null \
@@ -353,6 +380,7 @@ deploy_omz_repo() {
       merge_custom_layer "$ZSH" "$_oz_new"
       # 两次 rename 之间屏蔽中断：旧树让位到 .gx-old-<ts>，新树随即就位；第二步
       # 失败则把旧树放回原位。
+      guard_destination "$_oz_old"
       trap '' INT TERM HUP
       mv "$ZSH" "$_oz_old" || die "旧安装让位失败: $ZSH，新快照保留在 $_oz_new" 2
       mv "$_oz_new" "$ZSH" || { mv "$_oz_old" "$ZSH"; die "新快照就位失败，已放回旧安装" 2; }
@@ -579,7 +607,10 @@ uninstall() {
     # 最新 = 时间戳后缀最大（与 prune_backups 同一口径，不依赖被 mv 保留的旧 mtime）。
     _un_new=$(list_backups "$GX_HOME/$_un_f" | tail -n 1)
     if [ -n "$_un_new" ]; then
-      [ -e "$GX_HOME/$_un_f" ] && mv "$GX_HOME/$_un_f" "$GX_HOME/$_un_f.gx-removed-$TS"
+      if [ -e "$GX_HOME/$_un_f" ] || [ -L "$GX_HOME/$_un_f" ]; then
+        guard_destination "$GX_HOME/$_un_f.gx-removed-$TS"
+        mv "$GX_HOME/$_un_f" "$GX_HOME/$_un_f.gx-removed-$TS"
+      fi
       mv "$_un_new" "$GX_HOME/$_un_f"
       say "已恢复: $_un_f <- $(basename "$_un_new")"
       # 恢复的那份算作最新一代，其余（第一代之外）只留 N-1 份，卸载完不留一堆。
@@ -613,6 +644,7 @@ main() {
   say "gx 安装器 (home=$GX_HOME, zsh=$ZSH, remote=$GX_REMOTE, branch=$GX_BRANCH)"
   guard_zsh_location
   report_leftovers
+  guard_timestamp_paths
   if [ "$OPT_UNINSTALL" -eq 1 ]; then
     uninstall
     return 0

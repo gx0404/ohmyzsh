@@ -1,0 +1,31 @@
+MSYS2 source-package license texts
+Source: https://repo.msys2.org/msys/sources/libcbor-0.14.0-2.src.tar.zst
+SHA-256: 84ae76a880bb327fc631a053da7c1c730e54008d485f326c741ccea47db6d11c
+Texts below are copied from the authenticated source package. They may include build/test dependencies; this inventory does not relicense any component.
+
+========================================================================
+Member: libcbor-0.14.0-2.src.tar.zst!libcbor/libcbor-0.14.0.tar.gz!libcbor-0.14.0/LICENSE.md
+Original SHA-256: 6a5e182d758db66ecad6e6fa304dc637d4d2585bafceb5003c86e8dc9f6344ff
+
+MIT License
+
+Copyright (c) 2014-2017 Pavel Kalvoda
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+

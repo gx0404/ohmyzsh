@@ -1,0 +1,5548 @@
+MSYS2 exact source-package license and copyright notices
+Source: https://repo.msys2.org/msys/sources/perl-mailtools-2.22-2.src.tar.zst
+Source SHA-256: f4b9a53ec11e66128122f10ff4d2128365f6741685771168ce18152df89e1f28
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Header.pm
+SHA-256: 2b847eedc7c578b539f0f0eddc07e5cfddad98e2bfb40e2637df6de7ede4dd0c
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Header;{
+our $VERSION = '2.22';
+}
+
+
+use strict;
+use Carp;
+
+my $MAIL_FROM = 'KEEP';
+my %HDR_LENGTHS = ();
+
+our $FIELD_NAME = '[^\x00-\x1f\x7f-\xff :]+:';
+
+
+##
+## Private functions
+##
+
+sub _error { warn @_; () }
+
+# tidy up internal hash table and list
+
+sub _tidy_header
+{   my $self    = shift;
+    my $deleted = 0;
+
+    for(my $i = 0 ; $i < @{$self->{mail_hdr_list}}; $i++)
+    {   next if defined $self->{mail_hdr_list}[$i];
+
+        splice @{$self->{mail_hdr_list}}, $i, 1;
+        $deleted++;
+        $i--;
+    }
+
+    if($deleted)
+    {   local $_;
+        my @del;
+
+        while(my ($key,$ref) = each %{$self->{mail_hdr_hash}} )
+        {   push @del, $key
+	       unless @$ref = grep { ref $_ && defined $$_ } @$ref;
+        }
+
+        delete $self->{'mail_hdr_hash'}{$_} for @del;
+    }
+}
+
+# fold the line to the given length
+
+my %STRUCTURE = map { (lc $_ => undef) }
+  qw{ To Cc Bcc From Date Reply-To Sender
+      Resent-Date Resent-From Resent-Sender Resent-To Return-Path
+      list-help list-post list-unsubscribe Mailing-List
+      Received References Message-ID In-Reply-To
+      Content-Length Content-Type Content-Disposition
+      Delivered-To
+      Lines
+      MIME-Version
+      Precedence
+      Status
+    };
+
+sub _fold_line
+{   my($ln,$maxlen) = @_;
+
+    $maxlen = 20
+       if $maxlen < 20;
+
+    my $max = int($maxlen - 5);         # 4 for leading spcs + 1 for [\,\;]
+    my $min = int($maxlen * 4 / 5) - 4;
+
+    $_[0] =~ s/[\r\n]+//og;        # Remove new-lines
+    $_[0] =~ s/\s*\Z/\n/so;        # End line with an EOLN
+
+    return if $_[0] =~ /^From\s/io;
+
+    if(length($_[0]) > $maxlen)
+    {   if($_[0] =~ /^([-\w]+)/ && exists $STRUCTURE{ lc $1 } )
+        {   #Split the line up
+            # first bias towards splitting at a , or a ; >4/5 along the line
+            # next split a whitespace
+            # else we are looking at a single word and probably don't want to split
+            my $x = "";
+            $x .= "$1\n " while $_[0] =~
+                s/^\s*
+                   ( [^"]{$min,$max} [,;]
+                   | [^"]{1,$max}    [,;\s]
+                   | [^\s"]*(?:"[^"]*"[ \t]?[^\s"]*)+\s
+                   ) //x;
+
+            $x .= $_[0];
+            $_[0] = $x;
+            $_[0] =~ s/(\A\s+|[\t ]+\Z)//sog;
+            $_[0] =~ s/\s+\n/\n/sog;
+        }
+        else
+        {   $_[0] =~ s/(.{$min,$max})(\s)/$1\n$2/g;
+            $_[0] =~ s/\s*$/\n/s;
+        }
+    }
+
+    $_[0] =~ s/\A(\S+)\n\s*(?=\S)/$1 /so; 
+}
+
+# Tags are case-insensitive, but there is a (slightly) preferred construction
+# being all characters are lowercase except the first of each word. Also
+# if the word is an `acronym' then all characters are uppercase. We decide
+# a word is an acronym if it does not contain a vowel.
+# In general, this change of capitalization is a bad idea, but it is in
+# the code for ages, and therefore probably crucial for existing
+# applications.
+
+sub _tag_case
+{   my $tag = shift;
+    $tag =~ s/\:$//;
+    join '-'
+      , map { /^[b-df-hj-np-tv-z]+$|^(?:MIME|SWE|SOAP|LDAP|ID)$/i
+              ? uc($_) : ucfirst(lc($_))
+            } split m/\-/, $tag, -1;
+}
+
+# format a complete line
+#  ensure line starts with the given tag
+#  ensure tag is correct case
+#  change the 'From ' tag as required
+#  fold the line
+
+sub _fmt_line
+{   my ($self, $tag, $line, $modify) = @_;
+    $modify ||= $self->{mail_hdr_modify};
+    my $ctag = undef;
+
+    ($tag) = $line =~ /^($FIELD_NAME|From )/oi
+        unless defined $tag;
+
+    if(defined $tag && $tag =~ /^From /io && $self->{mail_hdr_mail_from} ne 'KEEP')
+    {   if($self->{mail_hdr_mail_from} eq 'COERCE')
+        {   $line =~ s/^From /Mail-From: /o;
+            $tag = "Mail-From:";
+        }
+        elsif($self->{mail_hdr_mail_from} eq 'IGNORE')
+        {   return ();
+        }
+        elsif($self->{mail_hdr_mail_from} eq 'ERROR')
+        {    return _error "unadorned 'From ' ignored: <$line>";
+        }
+    }
+
+    if(defined $tag)
+    {   $tag  = _tag_case($ctag = $tag);
+        $ctag = $tag if $modify;
+        $ctag =~ s/([^ :])$/$1:/o if defined $ctag;
+    }
+
+    defined $ctag && $ctag =~ /^($FIELD_NAME|From )/oi
+        or croak "Bad RFC822 field name '$tag'\n";
+
+    # Ensure the line starts with tag
+    if(defined $ctag && ($modify || $line !~ /^\Q$ctag\E/i))
+    {   (my $xtag = $ctag) =~ s/\s*\Z//o;
+        $line =~ s/^(\Q$ctag\E)?\s*/$xtag /i;
+    }
+
+    my $maxlen = $self->{mail_hdr_lengths}{$tag}
+              || $HDR_LENGTHS{$tag}
+              || $self->fold_length;
+
+    if ($modify && defined $maxlen)
+    {   # folding will fix bad header continuations for us
+        _fold_line $line, $maxlen;
+    }
+    elsif($line =~ /\r?\n\S/)
+    {   return _error "Bad header continuation, skipping '$tag': ",
+                      "no space after newline in '$line'\n";
+    }
+
+
+    $line =~ s/\n*$/\n/so;
+    ($tag, $line);
+}
+
+sub _insert
+{   my ($self, $tag, $line, $where) = @_;
+
+    if($where < 0)
+    {   $where = @{$self->{mail_hdr_list}} + $where + 1;
+        $where = 0 if $where < 0;
+    }
+    elsif($where >= @{$self->{mail_hdr_list}})
+    {   $where = @{$self->{mail_hdr_list}};
+    }
+
+    my $atend = $where == @{$self->{mail_hdr_list}};
+    splice @{$self->{mail_hdr_list}}, $where, 0, $line;
+
+    $self->{mail_hdr_hash}{$tag} ||= [];
+    my $ref = \${$self->{mail_hdr_list}}[$where];
+
+    my $def = $self->{mail_hdr_hash}{$tag};
+    if($def && $where)
+    {   if($atend) { push @$def, $ref }
+        else
+        {   my $i = 0;
+            foreach my $ln (@{$self->{mail_hdr_list}})
+            {   my $r = \$ln;
+                last if $r == $ref;
+                $i++ if $r == $def->[$i];
+            }
+            splice @$def, $i, 0, $ref;
+        }
+    }
+    else
+    {    unshift @$def, $ref;
+    }
+}
+
+#------------
+
+sub new
+{   my $call  = shift;
+    my $class = ref($call) || $call;
+    my $arg   = @_ % 2 ? shift : undef;
+    my %opt   = @_;
+
+    $opt{Modify} = delete $opt{Reformat}
+        unless exists $opt{Modify};
+
+    my $self = bless
+      { mail_hdr_list     => []
+      , mail_hdr_hash     => {}
+      , mail_hdr_modify   => (delete $opt{Modify} || 0)
+      , mail_hdr_foldlen  => 79
+      , mail_hdr_lengths  => {}
+      }, $class;
+
+    $self->mail_from( uc($opt{MailFrom} || $MAIL_FROM) );
+
+    $self->fold_length($opt{FoldLength})
+        if exists $opt{FoldLength};
+
+    if(!ref $arg)               {}
+    elsif(ref($arg) eq 'ARRAY') { $self->extract( [ @$arg ] ) }
+    elsif(defined fileno($arg)) { $self->read($arg) }
+
+    $self;
+}
+
+
+sub dup
+{   my $self = shift;
+    my $dup  = ref($self)->new;
+
+    %$dup    = %$self;
+    $dup->empty;      # rebuild tables
+
+    $dup->{mail_hdr_list} = [ @{$self->{mail_hdr_list}} ];
+
+    foreach my $ln ( @{$dup->{mail_hdr_list}} )
+    {    my $tag = _tag_case +($ln =~ /^($FIELD_NAME|From )/oi)[0];
+         push @{$dup->{mail_hdr_hash}{$tag}}, \$ln;
+    }
+
+    $dup;
+}
+
+#------------
+
+sub extract
+{   my ($self, $lines) = @_;
+    $self->empty;
+
+    while(@$lines)
+    {   my $line = shift @$lines;
+        last if $line =~ /^\r?$/;
+
+        $line    =~ /^($FIELD_NAME|From )/o or next;
+        my $tag  = $1;
+
+        $line   .= shift @$lines
+            while @$lines && $lines->[0] =~ /^[ \t]+/;
+
+        ($tag, $line) = _fmt_line $self, $tag, $line;
+
+        _insert $self, $tag, $line, -1
+            if defined $line;
+    }
+
+    $self;
+}
+
+
+sub read
+{   my ($self, $fd) = @_;
+    $self->empty;
+
+    my ($ln, $tag, $line);
+    while(1)
+    {   $ln = <$fd>;
+
+        if(defined $ln && defined $line && $ln =~ /^[ \t]+/)
+        {   $line .= $ln;  # folded line
+            next;
+        }
+
+        if(defined $line)
+        {   ($tag, $line) = _fmt_line $self, $tag, $line;
+            _insert $self, $tag, $line, -1
+	        if defined $line;
+            ($tag, $line) = ();
+        }
+
+        last if !defined $ln || $ln =~ m/^\r?$/;
+
+        $ln =~ /^($FIELD_NAME|From )/o or next;
+        ($tag, $line) = ($1, $ln);
+    }
+
+    $self;
+}
+
+
+sub empty
+{   my $self = shift;
+    $self->{mail_hdr_list} = [];
+    $self->{mail_hdr_hash} = {};
+    $self;
+}
+
+
+sub header
+{   my $self = shift;
+
+    $self->extract(@_)
+	if @_;
+
+    $self->fold
+        if $self->{mail_hdr_modify};
+
+    [ @{$self->{mail_hdr_list}} ];
+}
+
+
+sub header_hashref
+{   my ($self, $hashref) = @_;
+
+    while(my ($key, $value) = each %$hashref)
+    {   $self->add($key, $_) for ref $value ? @$value : $value;
+    }
+
+    $self->fold
+        if $self->{mail_hdr_modify};
+
+    defined wantarray  # MO, added minimal optimization
+        or return;
+
+    +{ map { ($_ => [$self->get($_)] ) }   # MO: Eh?
+           keys %{$self->{mail_hdr_hash}}
+     }; 
+}
+
+#------------
+
+sub modify
+{   my $self = shift;
+    my $old  = $self->{mail_hdr_modify};
+
+    $self->{mail_hdr_modify} = 0 + shift
+	if @_;
+
+    $old;
+}
+
+
+sub mail_from
+{   my $thing  = shift;
+    my $choice = uc shift;
+
+    $choice =~ /^(IGNORE|ERROR|COERCE|KEEP)$/ 
+	or die "bad Mail-From choice: '$choice'";
+
+    if(ref $thing) { $thing->{mail_hdr_mail_from} = $choice }
+    else           { $MAIL_FROM = $choice }
+
+    $thing;
+}
+
+
+sub fold_length
+{   my $thing = shift;
+    my $old;
+
+    if(@_ == 2)
+    {   my $tag = _tag_case shift;
+        my $len = shift;
+
+        my $hash = ref $thing ? $thing->{mail_hdr_lengths} : \%HDR_LENGTHS;
+        $old     = $hash->{$tag};
+        $hash->{$tag} = $len > 20 ? $len : 20;
+    }
+    else
+    {   my $self = $thing;
+        my $len  = shift;
+        $old = $self->{mail_hdr_foldlen};
+
+        if(defined $len)
+        {    $self->{mail_hdr_foldlen} = $len > 20 ? $len : 20;
+             $self->fold if $self->{mail_hdr_modify};
+        }
+    }
+
+    $old;
+}
+
+#------------
+
+sub fold
+{   my ($self, $maxlen) = @_;
+
+    while(my ($tag, $list) = each %{$self->{mail_hdr_hash}})
+    {   my $len = $maxlen
+             || $self->{mail_hdr_lengths}{$tag}
+             || $HDR_LENGTHS{$tag}
+             || $self->fold_length;
+
+        foreach my $ln (@$list)
+        {    _fold_line $$ln, $len
+                 if defined $ln;
+        }
+    }
+
+    $self;
+}
+
+
+sub unfold
+{   my $self = shift;
+
+    if(@_)
+    {   my $tag  = _tag_case shift;
+        my $list = $self->{mail_hdr_hash}{$tag}
+            or return $self;
+
+        foreach my $ln (@$list)
+        {   $$ln =~ s/\r?\n\s+/ /sog
+                if defined $ln && defined $$ln;
+        }
+
+        return $self;
+    }
+
+    while( my ($tag, $list) = each %{$self->{mail_hdr_hash}})
+    {   foreach my $ln (@$list)
+        {   $$ln =~ s/\r?\n\s+/ /sog
+	        if defined $ln && defined $$ln;
+        }
+    }
+
+    $self;
+}
+
+
+sub add
+{   my ($self, $tag, $text, $where) = @_;
+    ($tag, my $line) = _fmt_line $self, $tag, $text;
+
+    defined $tag && defined $line
+        or return undef;
+
+    defined $where
+        or $where = -1;
+
+    _insert $self, $tag, $line, $where;
+
+    $line =~ /^\S+\s(.*)/os;
+    $1;
+}
+
+
+sub replace
+{   my $self = shift;
+    my $idx  = @_ % 2 ? pop @_ : 0;
+
+    my ($tag, $line);
+  TAG:
+    while(@_)
+    {   ($tag,$line) = _fmt_line $self, splice(@_,0,2);
+
+        defined $tag && defined $line
+            or return undef;
+
+        my $field = $self->{mail_hdr_hash}{$tag};
+        if($field && defined $field->[$idx])
+             { ${$field->[$idx]} = $line }
+        else { _insert $self, $tag, $line, -1 }
+    }
+
+    $line =~ /^\S+\s*(.*)/os;
+    $1;
+}
+
+
+sub combine
+{   my $self = shift;
+    my $tag  = _tag_case shift;
+    my $with = shift || ' ';
+
+    $tag =~ /^From /io && $self->{mail_hdr_mail_from} ne 'KEEP'
+        and return _error "unadorned 'From ' ignored";
+
+    my $def = $self->{mail_hdr_hash}{$tag}
+        or return undef;
+
+    return $def->[0]
+        if @$def <= 1;
+
+    my @lines = $self->get($tag);
+    chomp @lines;
+
+    my $line = (_fmt_line $self, $tag, join($with,@lines), 1)[1];
+
+    $self->{mail_hdr_hash}{$tag} = [ \$line ];
+    $line;
+}
+
+
+sub get
+{   my $self = shift;
+    my $tag = _tag_case shift;
+    my $idx = shift;
+
+    my $def = $self->{mail_hdr_hash}{$tag}
+        or return ();
+
+    my $l = length $tag;
+    $l   += 1 if $tag !~ / $/o;
+
+    if(defined $idx || !wantarray)
+    {    $idx ||= 0;
+         defined $def->[$idx] or return undef;
+         my $val = ${$def->[$idx]};
+         defined $val or return undef;
+
+	 $val = substr $val, $l;
+	 $val =~ s/^\s+//;
+         return $val;
+    }
+
+    map { my $tmp = substr $$_,$l; $tmp =~ s/^\s+//; $tmp } @$def;
+}
+
+
+
+sub count
+{   my $self = shift;
+    my $tag  = _tag_case shift;
+    my $def  = $self->{mail_hdr_hash}{$tag};
+    defined $def ? scalar(@$def) : 0;
+}
+
+
+
+sub delete
+{   my $self = shift;
+    my $tag  = _tag_case shift;
+    my $idx  = shift;
+    my @val;
+
+    if(my $def = $self->{mail_hdr_hash}{$tag})
+    {   my $l = length $tag;
+        $l   += 2 if $tag !~ / $/;
+
+        if(defined $idx)
+        {   if(defined $def->[$idx])
+            {   push @val, substr ${$def->[$idx]}, $l;
+                undef ${$def->[$idx]};
+            }
+        }
+        else
+        {   @val = map {my $x = substr $$_,$l; undef $$_; $x } @$def;
+        }
+
+        _tidy_header($self);
+    }
+
+    @val;
+}
+
+
+
+sub print
+{   my $self = shift;
+    my $fd   = shift || \*STDOUT;
+
+    foreach my $ln (@{$self->{mail_hdr_list}})
+    {   defined $ln or next;
+        print $fd $ln or return 0;
+    }
+
+    1;
+}
+
+
+sub as_string { join '', grep {defined} @{shift->{mail_hdr_list}} }
+
+
+sub tags { keys %{shift->{mail_hdr_hash}} }
+
+
+sub cleanup
+{   my $self = shift;
+    my $deleted = 0;
+
+    foreach my $key (@_ ? @_ : keys %{$self->{mail_hdr_hash}})
+    {   my $fields = $self->{mail_hdr_hash}{$key};
+        foreach my $field (@$fields)
+        {   next if $$field =~ /^\S+\s+\S/s;
+            undef $$field;
+            $deleted++;
+        }
+    }
+
+    _tidy_header $self
+        if $deleted;
+
+    $self;  
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Send.pod
+SHA-256: 2ac21ca89f9cb2d1ddfffa2833fac9b149709a63911dbbee9eb95f45410b8b36
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Send - Simple electronic mail interface
+
+=head1 SYNOPSIS
+
+  require Mail::Send;
+
+  $msg = Mail::Send->new;
+  $msg = Mail::Send->new(Subject => 'example', To => 'timbo');
+
+  $msg->to('user@host');
+  $msg->to('user@host', 'user2@example.com');
+  $msg->subject('example subject');
+  $msg->cc('user@host');
+  $msg->bcc('someone@else');
+
+  $msg->set($header, @values);
+  $msg->add($header, @values);
+  $msg->delete($header);
+
+  # Launch mailer and set headers. The filehandle returned
+  # by open() is an instance of the Mail::Mailer class.
+  # Arguments to the open() method are passed to the Mail::Mailer
+  # constructor.
+
+  $fh = $msg->open;   # some default mailer
+  $fh = $msg->open('sendmail'); # explicit
+  print $fh "Body of message";
+  $fh->close          # complete the message and send it
+      or die "couldn't send whole message: $!\n";
+
+=head1 DESCRIPTION
+
+L<Mail::Send|Mail::Send> creates e-mail messages without using the L<Mail::Header|Mail::Header>
+knowledge, which means that all escaping and folding must be done by
+you!  Also: do not forget to escape leading dots.  Simplicity has its price.
+
+When you have time, take a look at Mail::Transport which is part of
+the MailBox suite.
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item Mail::Send-E<gt>B<new>(PAIRS)
+
+A list of header fields (provided as key-value PAIRS) can be used to
+initialize the object, limited to the few provided as method: C<to>,
+C<subject>, C<cc>, and C<bcc>.  For other header fields, use L<add()|Mail::Send/"Header fields">.
+
+=back
+
+=head2 Header fields
+
+=over 4
+
+=item $obj-E<gt>B<add>($fieldname, @values)
+
+Add values to the list of defined values for the $fieldname.
+
+=item $obj-E<gt>B<bcc>(@values)
+
+=item $obj-E<gt>B<cc>(@values)
+
+=item $obj-E<gt>B<delete>($fieldname)
+
+=item $obj-E<gt>B<set>($fieldname, @values)
+
+The @values will replace the old values for the $fieldname.  Returned is
+the LIST of values after modification.
+
+=item $obj-E<gt>B<subject>(@values)
+
+=item $obj-E<gt>B<to>(@values)
+
+=back
+
+=head2 Sending
+
+=over 4
+
+=item $obj-E<gt>B<open>(%options)
+
+The %options are used to initiate a mailer object via
+L<Mail::Mailer::new()|Mail::Mailer/"Constructors">.  Then L<Mail::Mailer::open()|Mail::Mailer/"Constructors"> is called
+with the knowledge collected in this C<Mail::Send> object.
+
+Be warned: this module implements raw smtp, which means that you have
+to escape lines which start with a dot, by adding one in front.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer.pod
+SHA-256: cf6741d91db40dc9fd4a67b33598e016cb3cee49a259091838069138ce7f3079
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Mailer - send simple emails
+
+=head1 INHERITANCE
+
+ Mail::Mailer
+   is an IO::Handle
+
+=head1 SYNOPSIS
+
+  use Mail::Mailer;
+  use Mail::Mailer qw(mail);    # specifies default mailer
+
+  $mailer = Mail::Mailer->new;
+  $mailer = Mail::Mailer->new($type, @args);
+
+  $mailer->open(\%headers);
+  print $mailer $body;
+  $mailer->close
+      or die "couldn't send whole message: $!\n";
+
+=head1 DESCRIPTION
+
+Sends mail using any of the built-in methods.  As TYPE argument
+to L<new()|Mail::Mailer/"Constructors">, you can specify any of
+
+=over 4
+
+=item C<sendmail>
+
+Use the C<sendmail> program to deliver the mail.
+
+=item C<smtp>
+
+Use the C<smtp> protocol via Net::SMTP to deliver the mail. The server
+to use can be specified in C<@args> with
+
+ $mailer = Mail::Mailer->new('smtp', Server => $server);
+
+The smtp mailer does not handle C<Cc> and C<Bcc> lines, neither their
+C<Resent-*> fellows. The C<Debug> options enables debugging output
+from C<Net::SMTP>.
+
+[added 2.21] You may also use the C<< StartTLS => 1 >> options to upgrade
+the connection with STARTTLS.  The same for option C<< SSL => 1 >>.
+
+You may also use the C<< Auth => [ $user, $password ] >> option for SASL
+authentication. To make this work, you have to install the L<Authen::SASL>
+distribution yourself: it is not automatically installed.
+
+=item C<smtps>
+
+This option is B<deprecated> when you have C<libnet> 1.28 (2014) and above.
+
+Use the smtp over ssl protocol via L<Net::SMTP::SSL> to deliver the mail.
+Usage is identical to C<smtp>. You have to install Authen::SASL as
+well.
+
+ $mailer = Mail::Mailer->new('smtps', Server => $server);
+
+=item C<qmail>
+
+Use qmail's qmail-inject program to deliver the mail.
+
+=item C<testfile>
+
+Used for debugging, this displays the data to the file named in
+C<$Mail::Mailer::testfile::config{outfile}> which defaults to a file
+named C<mailer.testfile>.  No mail is ever sent.
+
+=back
+
+C<Mail::Mailer> will search for executables in the above order. The
+default mailer will be the first one found.
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item Mail::Mailer-E<gt>B<new>($type, %options)
+
+The $type is one of the back-end sender implementations, as described in
+the DESCRIPTION chapter of this manual page.  The %options are passed to
+that back-end.
+
+=item $obj-E<gt>B<open>(HASH)
+
+The HASH consists of key and value pairs, the key being the name of
+the header field (eg, C<To>), and the value being the corresponding
+contents of the header field.  The value can either be a scalar
+(eg, C<gnat@frii.com>) or a reference to an array of scalars
+(C<< eg, ['gnat@frii.com', 'Tim.Bunce@ig.co.uk'] >>).
+
+=back
+
+=head1 DETAILS
+
+=head2 ENVIRONMENT VARIABLES
+
+=over 4
+
+=item PERL_MAILERS
+
+Augments/override the build in choice for binary used to send out
+our mail messages.
+
+Format:
+
+    "type1:mailbinary1;mailbinary2;...:type2:mailbinaryX;...:..."
+
+Example: assume you want you use private sendmail binary instead
+of mailx, one could set C<PERL_MAILERS> to:
+
+    "mail:/does/not/exists:sendmail:$HOME/test/bin/sendmail"
+
+On systems which may include C<:> in file names, use C<|> as separator
+between type-groups.
+
+    "mail:c:/does/not/exists|sendmail:$HOME/test/bin/sendmail"
+
+=back
+
+=head2 BUGS
+
+Mail::Mailer does not help with folding, and does not protect
+against various web-script hacker attacks, for instance where
+a new-line is inserted in the content of the field.
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Filter.pod
+SHA-256: 293f0c894762e68535aeb30058f60d385502d3f0228ad2c440678d3c0c4d2b98
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Filter - filter mail through multiple subroutines
+
+=head1 SYNOPSIS
+
+ use Mail::Filter;
+    
+ my $filter = Mail::Filter->new( \&filter1, \&filter2 );
+    
+ my $mail   = Mail::Internet->new( [<>] );
+ my $mail   = $filter->filter($mail);
+
+ my $folder = Mail::Folder->new( .... );
+ my $filter->filter($folder);
+
+=head1 DESCRIPTION
+
+C<Mail::Filter> provides an interface to filtering Email through multiple
+subroutines.
+
+C<Mail::Filter> filters mail by calling each filter subroutine in turn. Each
+filter subroutine is called with two arguments, the first is the filter
+object and the second is the mail or folder object being filtered.
+
+The result from each filter sub is passed to the next filter as the mail
+object. If a filter subroutine returns undef, then C<Mail::Filter> will abort
+and return immediately.
+
+The function returns the result from the last subroutine to operate on the 
+mail object.  
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item Mail::Filter-E<gt>B<new>(@filters)
+
+Create a new C<Mail::Filter> object with the given filter subroutines. Each
+filter may be either a code reference or the name of a method to call
+on the <Mail::Filter> object.
+
+=back
+
+=head2 Accessors
+
+=over 4
+
+=item $obj-E<gt>B<add>(@filters)
+
+Add the given @filters to the end of the filter list.
+
+=back
+
+=head2 Processing
+
+=over 4
+
+=item $obj-E<gt>B<filter>($mail|$folder)
+
+If the first argument is a L<Mail::Internet|Mail::Internet> object, then this object will
+be passed through the filter list. If the first argument is a Mail::Folder
+object, then each message in turn will be passed through the filter list.
+
+=item $obj-E<gt>B<folder>()
+
+While the L<filter()|Mail::Filter/"Processing"> method is called with a Mail::Folder object, these
+filter subroutines can call this method to obtain the folder object that is
+being processed.
+
+=item $obj-E<gt>B<msgnum>()
+
+If the L<filter()|Mail::Filter/"Processing"> method is called with a Mail::Folder object, then the
+filter subroutines may call this method to obtain the message number
+of the message that is being processed.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer/smtps.pm
+SHA-256: fefa6eae42a97caecde01419158eee30429aadba545262cb87b41e3375befb26
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+# Based on smtp.pm, adapted by Maciej Żenczykowski
+
+package Mail::Mailer::smtps;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Mailer::rfc822';
+
+use strict;
+
+use Net::SMTP::SSL;
+use Mail::Util qw(mailaddress);
+use Carp;
+
+sub can_cc { 0 }
+
+sub exec {
+    my ($self, $exe, $args, $to) = @_;
+    my %opt   = @$args;
+    my $host  = $opt{Server} || undef;
+    $opt{Debug} ||= 0;
+    $opt{Port}  ||= 465;
+
+    my $smtp = Net::SMTP::SSL->new($host, %opt)
+	or return undef;
+
+    if($opt{Auth})
+    {   $smtp->auth(@{$opt{Auth}})
+           or return undef;
+    }
+
+    ${*$self}{sock} = $smtp;
+
+    $smtp->mail($opt{From} || mailaddress);
+    $smtp->to($_) for @$to;
+    $smtp->data;
+
+    untie *$self if tied *$self;
+    tie *$self, 'Mail::Mailer::smtps::pipe', $self;
+    $self;
+}
+
+sub set_headers($)
+{   my ($self, $hdrs) = @_;
+    $self->SUPER::set_headers
+     ( { From => "<" . mailaddress() . ">"
+       , %$hdrs
+       , 'X-Mailer' => "Mail::Mailer[v$Mail::Mailer::VERSION] "
+           . " Net::SMTP[v$Net::SMTP::VERSION]"
+           . " Net::SMTP::SSL[v$Net::SMTP::SSL::VERSION]"
+       }
+     );
+}
+
+sub epilogue()
+{   my $self = shift;
+    my $sock = ${*$self}{sock};
+
+    my $ok = $sock->dataend;
+    $sock->quit;
+
+    delete ${*$self}{sock};
+    untie *$self;
+    $ok;
+}
+
+sub close(@)
+{   my ($self, @to) = @_;
+    my $sock = ${*$self}{sock};
+
+    $sock && fileno $sock
+        or return 1;
+
+    my $ok = $self->epilogue;
+
+    # Epilogue should destroy the SMTP filehandle,
+    # but just to be on the safe side.
+    $sock && fileno $sock
+        or return $ok;
+
+    close $sock
+        or croak 'Cannot destroy socket filehandle';
+
+    $ok;
+}
+
+package Mail::Mailer::smtps::pipe;{
+our $VERSION = '2.22';
+}
+
+
+sub TIEHANDLE
+{   my ($class, $self) = @_;
+    my $sock = ${*$self}{sock};
+    bless \$sock, $class;
+}
+
+sub PRINT
+{   my $self = shift;
+    my $sock = $$self;
+    $sock->datasend( @_ );
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer/sendmail.pm
+SHA-256: 7cd2b7210c884cf6dfd8a4056a211b6ac2c9a754a235637275094142b4bc3ceb
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Mailer::sendmail;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Mailer::rfc822';
+
+use strict;
+
+sub exec($$$$)
+{   my($self, $exe, $args, $to, $sender) = @_;
+    # Fork and exec the mailer (no shell involved to avoid risks)
+
+    # We should always use a -t on sendmail so that Cc: and Bcc: work
+    #  Rumor: some sendmails may ignore or break with -t (AIX?)
+    # Chopped out the @$to arguments, because -t means
+    # they are sent in the body, and postfix complains if they
+    # are also given on command line.
+
+    exec( $exe, '-t', @$args );
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer/testfile.pm
+SHA-256: cb23c5f696852f100e1651fd6ae8d3a0d92c087d1d2b25177a01389376f1b0fe
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Mailer::testfile;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Mailer::rfc822';
+
+use strict;
+
+use Mail::Util qw/mailaddress/;
+
+my $num = 0;
+sub can_cc() { 0 }
+
+sub exec($$$)
+{   my ($self, $exe, $args, $to) = @_;
+
+    my $outfn = $Mail::Mailer::testfile::config{outfile} || 'mailer.testfile';
+    open F, '>>', $outfn
+        or die "Cannot append message to testfile $outfn: $!";
+
+    print F "\n===\ntest ", ++$num, " ", (scalar localtime),
+            "\nfrom: " . mailaddress(),
+            "\nto: " . join(' ',@{$to}), "\n\n";
+    close F;
+
+    untie *$self if tied *$self;
+    tie *$self, 'Mail::Mailer::testfile::pipe', $self;
+    $self;
+}
+
+sub close { 1 }
+
+package Mail::Mailer::testfile::pipe;{
+our $VERSION = '2.22';
+}
+
+
+sub TIEHANDLE
+{   my ($class, $self) = @_;
+    bless \$self, $class;
+}
+
+sub PRINT
+{   my $self = shift;
+    open F, '>>', $Mail::Mailer::testfile::config{outfile} || 'mailer.testfile';
+    print F @_;
+    close F;
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer/rfc822.pm
+SHA-256: 62bdb26c82bafa03417b9a5af1bf8d8035341fbb54493b2eb0503a5f697869ad
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Mailer::rfc822;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Mailer';
+
+use strict;
+
+# Some fields are not allowed to repeat
+my %max_once = map +($_ => 1), qw/from to cc bcc reply-to/;
+
+sub set_headers
+{   my ($self, $hdrs) = @_;
+    local $\ = "";
+
+    foreach my $f (grep /^[A-Z]/, keys %$hdrs)
+    {   # s///r requires perl 5.12: too new :-)
+        my @h = map { my $h = $_; $h =~ s/\n+\Z//; $h } $self->to_array($hdrs->{$f});
+        @h = join ', ', @h if @h && $max_once{lc $f};
+        print $self "$f: $_\n" for @h;
+    }
+
+    print $self "\n";  # end of headers
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer/qmail.pm
+SHA-256: 14b3ac7bfef1e417f1b2a1c5152deaa217ef298ee1dff449593c9efe625d4f55
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Mailer::qmail;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Mailer::rfc822';
+
+use strict;
+
+sub exec($$$$)
+{   my($self, $exe, $args, $to, $sender) = @_;
+    my $address = defined $sender && $sender =~ m/\<(.*?)\>/ ? $1 : $sender;
+
+    exec($exe, (defined $address ? "-f$address" : ()));
+    die "ERROR: cannot run $exe: $!";
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer/smtp.pm
+SHA-256: f4714548f823dd2666edcbc05074b926be37ef271f65701fe0fa672b9453ad9f
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Mailer::smtp;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Mailer::rfc822';
+
+use strict;
+
+use Net::SMTP;
+use Mail::Util qw(mailaddress);
+use Carp;
+
+sub can_cc { 0 }
+
+sub exec {
+    my ($self, $exe, $args, $to) = @_;
+    my %opt   = @$args;
+    my $host  = $opt{Server} || undef;
+    $opt{Debug} ||= 0;
+
+    my $smtp = Net::SMTP->new($host, %opt)
+        or return undef;
+
+    if($opt{StartTLS})
+    {   $smtp->starttls
+            or return undef;
+    }
+
+    if($opt{Auth})
+    {   $smtp->auth(@{$opt{Auth}})
+           or return undef;
+    }
+
+    ${*$self}{sock} = $smtp;
+
+    $smtp->mail($opt{From} || mailaddress());
+    $smtp->to($_) for @$to;
+    $smtp->data;
+
+    untie *$self if tied *$self;
+    tie *$self, 'Mail::Mailer::smtp::pipe', $self;
+    $self;
+}
+
+sub set_headers($)
+{   my ($self, $hdrs) = @_;
+    $self->SUPER::set_headers
+     ( { From => "<" . mailaddress() . ">"
+       , %$hdrs
+       , 'X-Mailer' => "Mail::Mailer[v$Mail::Mailer::VERSION] Net::SMTP[v$Net::SMTP::VERSION]"
+       }
+     );
+}
+
+sub epilogue()
+{   my $self = shift;
+    my $sock = ${*$self}{sock};
+
+    my $ok = $sock->dataend;
+    $sock->quit;
+
+    delete ${*$self}{sock};
+    untie *$self;
+    $ok;
+}
+
+sub close(@)
+{   my ($self, @to) = @_;
+    my $sock = ${*$self}{sock};
+
+    $sock && fileno $sock
+        or return 1;
+
+    my $ok = $self->epilogue;
+
+    # Epilogue should destroy the SMTP filehandle,
+    # but just to be on the safe side.
+    $sock && fileno $sock
+        or return $ok;
+
+    close $sock
+        or croak 'Cannot destroy socket filehandle';
+
+    $ok;
+}
+
+package Mail::Mailer::smtp::pipe;{
+our $VERSION = '2.22';
+}
+
+
+sub TIEHANDLE
+{   my ($class, $self) = @_;
+    my $sock = ${*$self}{sock};
+    bless \$sock, $class;
+}
+
+sub PRINT
+{   my $self = shift;
+    my $sock = $$self;
+    $sock->datasend( @_ );
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field.pm
+SHA-256: 02515b15ce9be82380f1e0e117fa078b78b72b915b6357f88520b10c05b9b997
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Field;{
+our $VERSION = '2.22';
+}
+
+
+use strict;
+
+use Carp;
+use Mail::Field::Generic;
+
+
+sub _header_pkg_name
+{   my $header = lc shift;
+    $header    =~ s/((\b|_)\w)/\U$1/g;
+
+    if(length($header) > 8)
+    {   my @header = split /[-_]+/, $header;
+        my $chars  = int((7 + @header) / @header) || 1;
+        $header    = substr join('', map {substr $_,0,$chars} @header), 0, 8;
+    }
+    else
+    {   $header =~ s/[-_]+//g;
+    }
+
+    'Mail::Field::' . $header;
+}
+
+sub _require_dir
+{   my($class, $dir, $dir_sep) = @_;
+
+    local *DIR;
+    opendir DIR, $dir
+        or return;
+
+    my @inc;
+    foreach my $f (readdir DIR)
+    {   $f =~ /^([\w\-]+)/ or next;
+        my $p = $1;
+        my $n = "$dir$dir_sep$p";
+
+        if(-d $n )
+        {   _require_dir("${class}::$f", $n, $dir_sep);
+        }
+        else
+        {   $p =~ s/-/_/go;
+            eval "require ${class}::$p";
+
+            # added next warning in 2.14, may be ignored for ancient code
+            warn $@ if $@;
+        }
+    }
+    closedir DIR;
+}
+
+sub import
+{   my $class = shift;
+
+    if(@_)
+    {   local $_;
+        eval "require " . _header_pkg_name($_) || die $@
+            for @_;
+        return;
+    }
+
+    my ($dir, $dir_sep);
+    foreach my $f (grep defined $INC{$_}, keys %INC)
+    {   next if $f !~ /^Mail(\W)Field\W/i;
+        $dir_sep = $1;
+# $dir = ($INC{$f} =~ /(.*Mail\W+Field)/i)[0] . $dir_sep;
+        ($dir = $INC{$f}) =~ s/(Mail\W+Field).*/$1$dir_sep/;
+        last;
+    }
+
+    _require_dir('Mail::Field', $dir, $dir_sep);
+}
+
+# register a header class, this creates a new method in Mail::Field
+# which will call new on that class
+sub register
+{   my $thing  = shift;
+    my $method = lc shift;
+    my $class  = shift || ref($thing) || $thing;
+
+    $method    =~ tr/-/_/;
+    $class     = _header_pkg_name $method
+	if $class eq "Mail::Field";
+
+    croak "Re-register of $method"
+	if Mail::Field->can($method);
+
+    no strict 'refs';
+    *{$method} = sub {
+	shift;
+	$class->can('stringify') or eval "require $class" or die $@;
+	$class->_build(@_);
+    };
+}
+
+# the *real* constructor
+# if called with one argument then the `parse' method will be called
+# otherwise the `create' method is called
+
+sub _build
+{   my $self = bless {}, shift;
+    @_==1 ? $self->parse(@_) : $self->create(@_);
+}
+
+#-------------
+
+sub new
+{   my $class = shift;
+    my $field = lc shift;
+    $field =~ tr/-/_/;
+    $class->$field(@_);
+}
+
+
+sub combine {confess "Combine not implemented" }
+
+our $AUTOLOAD;
+sub AUTOLOAD
+{   my $method = $AUTOLOAD;
+    $method    =~ s/.*:://;
+
+    $method    =~ /^[^A-Z\x00-\x1f\x80-\xff :]+$/
+        or croak "Undefined subroutine &$AUTOLOAD called";
+
+    my $class = _header_pkg_name $method;
+
+    unless(eval "require $class")
+    {   my $tag = $method;
+        $tag    =~ s/_/-/g;
+        $tag    = join '-',
+            map { /^[b-df-hj-np-tv-z]+$|^MIME$/i ? uc($_) : ucfirst(lc $_) }
+                split /\-/, $tag;
+
+        no strict;
+        @{"${class}::ISA"} = qw(Mail::Field::Generic);
+        *{"${class}::tag"} = sub { $tag };
+    }
+
+    Mail::Field->can($method)
+        or $class->register($method);
+
+    goto &$AUTOLOAD;
+}
+
+
+# Of course, the functionality should have been in the Mail::Header class
+sub extract
+{   my ($class, $tag, $head) = (shift, shift, shift);
+
+    my $method = lc $tag;
+    $method    =~ tr/-/_/;
+
+    if(@_==0 && wantarray)
+    {   my @ret;
+        my $text;  # need real copy!
+        foreach $text ($head->get($tag))
+        {   chomp $text;
+            push @ret, $class->$method($text);
+        }
+        return @ret;
+    }
+
+    my $idx  = shift || 0;
+    my $text = $head->get($tag,$idx)
+        or return undef;
+
+    chomp $text;
+    $class->$method($text);
+}
+
+#-------------
+
+# before 2.00, this method could be called as class method, however
+# not all extensions supported that.
+sub create
+{   my ($self, %arg) = @_;
+    %$self = ();
+    $self->set(\%arg);
+}
+
+
+# before 2.00, this method could be called as class method, however
+# not all extensions supported that.
+sub parse
+{   my $class = ref shift;
+    confess "parse() not implemented";
+}
+
+#-------------
+
+sub stringify { confess "stringify() not implemented" } 
+
+
+sub tag
+{   my $thing = shift;
+    my $tag   = ref($thing) || $thing;
+    $tag =~ s/.*:://;
+    $tag =~ s/_/-/g;
+
+    join '-',
+        map { /^[b-df-hj-np-tv-z]+$|^MIME$/i ? uc($_) : ucfirst(lc $_) }
+            split /\-/, $tag;
+}
+
+
+sub set(@) { confess "set() not implemented" }
+
+# prevent the calling of AUTOLOAD for DESTROY :-)
+sub DESTROY {}
+
+#-------------
+
+sub text
+{   my $self = shift;
+    @_ ? $self->parse(@_) : $self->stringify;
+}
+
+#-------------
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Send.pm
+SHA-256: ee056a9d7d1e05beceed923233148bb70c2cb23fffd350cfb4024b944c3f021c
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Send;{
+our $VERSION = '2.22';
+}
+
+
+use strict;
+
+use Mail::Mailer ();
+
+sub Version { our $VERSION }
+
+#------------------
+
+sub new(@)
+{   my ($class, %attr) = @_;
+    my $self = bless {}, $class;
+
+    while(my($key, $value) = each %attr)
+    {	$key = lc $key;
+        $self->$key($value);
+    }
+
+    $self;
+}
+
+#---------------
+
+sub set($@)
+{   my ($self, $hdr, @values) = @_;
+    $self->{$hdr} = [ @values ] if @values;
+    @{$self->{$hdr} || []};	# return new (or original) values
+}
+
+
+sub add($@)
+{   my ($self, $hdr, @values) = @_;
+    push @{$self->{$hdr}}, @values;
+}
+
+
+sub delete($)
+{   my($self, $hdr) = @_;
+    delete $self->{$hdr};
+}
+
+
+sub to		{ my $self=shift; $self->set('To', @_); }
+sub cc		{ my $self=shift; $self->set('Cc', @_); }
+sub bcc		{ my $self=shift; $self->set('Bcc', @_); }
+sub subject	{ my $self=shift; $self->set('Subject', join (' ', @_)); }
+
+#---------------
+
+sub open(@)
+{   my $self = shift;
+    Mail::Mailer->new(@_)->open($self);
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Internet.pm
+SHA-256: 5074e1883592103afbb35815ce6d4254f266560c7c1bc1615d2099bb7aace812
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Internet;{
+our $VERSION = '2.22';
+}
+
+use strict;
+# use warnings?  probably breaking too much code
+
+use Carp;
+use Mail::Header;
+use Mail::Util    qw/mailaddress/;
+use Mail::Address;
+
+
+sub new(@)
+{   my $call  = shift;
+    my $arg   = @_ % 2 ? shift : undef;
+    my %opt   = @_;
+
+    my $class = ref($call) || $call;
+    my $self  = bless {}, $class;
+
+    $self->{mail_inet_head} = $opt{Header} if exists $opt{Header};
+    $self->{mail_inet_body} = $opt{Body}   if exists $opt{Body};
+
+    my $head = $self->head;
+    $head->fold_length(delete $opt{FoldLength} || 79);
+    $head->mail_from($opt{MailFrom}) if exists $opt{MailFrom};
+    $head->modify(exists $opt{Modify} ? $opt{Modify} : 1);
+
+    if(!defined $arg) { }
+    elsif(ref($arg) eq 'ARRAY')
+    {   $self->header($arg) unless exists $opt{Header};
+        $self->body($arg)   unless exists $opt{Body};
+    }
+    elsif(defined fileno($arg))
+    {   $self->read_header($arg) unless exists $opt{Header};
+        $self->read_body($arg)   unless exists $opt{Body};
+    }
+    else
+    {   croak "couldn't understand $arg to Mail::Internet constructor";
+    }
+
+    $self;
+}
+
+
+sub read(@)
+{   my $self = shift;
+    $self->read_header(@_);
+    $self->read_body(@_);
+}
+
+sub read_body($)
+{   my ($self, $fd) = @_;
+    $self->body( [ <$fd> ] );
+}
+
+sub read_header(@)
+{   my $head = shift->head;
+    $head->read(@_);
+    $head->header;
+}
+
+
+sub extract($)
+{   my ($self, $lines) = @_;
+    $self->head->extract($lines);
+    $self->body($lines);
+}
+
+
+sub dup()
+{   my $self = shift;
+    my $dup  = ref($self)->new;
+
+    my $body = $self->{mail_inet_body} || [];
+    my $head = $self->{mail_inet_head};;
+
+    $dup->{mail_inet_body} = [ @$body ];
+    $dup->{mail_inet_head} = $head->dup if $head;
+    $dup;
+}
+
+#---------------
+
+sub body(;$@)
+{   my $self = shift;
+
+    return $self->{mail_inet_body} ||= []
+        unless @_;
+
+    $self->{mail_inet_body} = ref $_[0] eq 'ARRAY' ? $_[0] : [ @_ ];
+}
+
+
+sub head         { shift->{mail_inet_head} ||= Mail::Header->new }
+
+#---------------
+
+sub print($)
+{   my $self = shift;
+    my $fd   = shift || \*STDOUT;
+
+    $self->print_header($fd)
+       and print $fd "\n"
+       and $self->print_body($fd);
+}
+
+
+sub print_header($) { shift->head->print(@_) }
+
+sub print_body($)
+{   my $self = shift;
+    my $fd   = shift || \*STDOUT;
+
+    foreach my $ln (@{$self->body})
+    {    print $fd $ln or return 0;
+    }
+
+    1;
+}
+
+
+sub as_string()
+{   my $self = shift;
+    $self->head->as_string . "\n" . join '', @{$self->body};
+}
+
+
+sub as_mbox_string($)
+{   my $self    = shift->dup;
+    my $escaped = shift;
+
+    $self->head->delete('Content-Length');
+    $self->escape_from unless $escaped;
+    $self->as_string . "\n";
+}
+
+#---------------
+
+sub header       { shift->head->header(@_) }
+sub fold         { shift->head->fold(@_) }
+sub fold_length  { shift->head->fold_length(@_) }
+sub combine      { shift->head->combine(@_) }
+
+
+sub add(@)
+{   my $head = shift->head;
+    my $ret;
+    while(@_)
+    {   my ($tag, $line) = splice @_, 0, 2;
+        $ret = $head->add($tag, $line, -1)
+            or return undef;
+    }
+
+    $ret;
+}
+
+
+sub replace(@)
+{   my $head = shift->head;
+    my $ret;
+
+    while(@_)
+    {   my ($tag, $line) = splice @_, 0, 2;
+        $ret = $head->replace($tag, $line, 0)
+             or return undef;
+    }
+
+    $ret;
+}
+
+
+sub get(@)
+{   my $head = shift->head;
+
+    return map { $head->get($_) } @_
+        if wantarray;
+
+    foreach my $tag (@_)
+    {   my $r = $head->get($tag);
+        return $r if defined $r;
+    }
+
+    undef;
+}
+
+
+sub delete(@)
+{   my $head = shift->head;
+    map { $head->delete($_) } @_;
+}
+
+# Undocumented; unused???
+sub empty()
+{   my $self = shift;
+    %$self = ();
+    1;
+}
+
+#---------------
+
+sub remove_sig($)
+{   my $body   = shift->body;
+    my $nlines = shift || 10;
+    my $start  = @$body;
+
+    my $i    = 0;
+    while($i++ < $nlines && $start--)
+    {   next if $body->[$start] !~ /^--[ ]?[\r\n]/;
+
+        splice @$body, $start, $i;
+        last;
+    }
+}
+
+
+sub sign(@)
+{   my ($self, %arg) = @_;
+    my ($sig, @sig);
+
+    if($sig = delete $arg{File})
+    {   local *SIG;
+
+        if(open(SIG, $sig))
+        {   local $_;
+            while(<SIG>) { last unless /^(--)?\s*$/ }
+            @sig = ($_, <SIG>, "\n");
+            close SIG;
+        }
+    }
+    elsif($sig = delete $arg{Signature})
+    {    @sig = ref($sig) ? @$sig : split(/\n/, $sig);
+    }
+
+    if(@sig)
+    {   $self->remove_sig;
+        s/[\r\n]*$/\n/ for @sig;
+        push @{$self->body}, "-- \n", @sig;
+    }
+
+    $self;
+}
+
+
+sub tidy_body()
+{   my $body = shift->body;
+
+    shift @$body while @$body && $body->[0]  =~ /^\s*$/;
+    pop @$body   while @$body && $body->[-1] =~ /^\s*$/;
+    $body;
+}
+
+#---------------
+
+sub reply(@)
+{   my ($self, %arg) = @_;
+    my $class = ref $self;
+    my @reply;
+
+    local *MAILHDR;
+    if(open(MAILHDR, "$ENV{HOME}/.mailhdr")) 
+    {    # User has defined a mail header template
+         @reply = <MAILHDR>;
+         close MAILHDR;
+    }
+
+    my $reply = $class->new(\@reply);
+
+    # The Subject line
+    my $subject = $self->get('Subject') || "";
+    $subject = "Re: " . $subject
+        if $subject =~ /\S+/ && $subject !~ /Re:/i;
+
+    $reply->replace(Subject => $subject);
+
+    # Locate who we are sending to
+    my $to = $self->get('Reply-To')
+          || $self->get('From')
+          || $self->get('Return-Path')
+          || "";
+
+    my $sender = (Mail::Address->parse($to))[0];
+
+    my $name = $sender->name;
+    unless(defined $name)
+    {    my $fr = $self->get('From');
+         $fr    = (Mail::Address->parse($fr))[0] if defined $fr;
+         $name  = $fr->name if defined $fr;
+    }
+
+    my $indent = $arg{Indent} || ">";
+    if($indent =~ /\%/) 
+    {   my %hash = ( '%' => '%');
+        my @name = $name ? grep( {length $_} split /[\n\s]+/, $name) : '';
+
+        $hash{f} = $name[0];
+        $hash{F} = $#name ? substr($hash{f},0,1) : $hash{f};
+
+        $hash{l} = $#name ? $name[$#name] : "";
+        $hash{L} = substr($hash{l},0,1) || "";
+
+        $hash{n} = $name || "";
+        $hash{I} = join "", map {substr($_,0,1)} @name;
+
+        $indent  =~ s/\%(.)/defined $hash{$1} ? $hash{$1} : $1/eg;
+    }
+
+    my $id     = $sender->address;
+    $reply->replace(To => $id);
+
+    # Find addresses not to include
+    my $mailaddresses = $ENV{MAILADDRESSES} || "";
+
+    my %nocc = (lc($id) => 1);
+    $nocc{lc $_->address} = 1
+        for Mail::Address->parse($reply->get('Bcc'), $mailaddresses);
+
+    if($arg{ReplyAll})   # Who shall we copy this to
+    {   my %cc;
+        foreach my $addr (Mail::Address->parse($self->get('To'), $self->get('Cc'))) 
+        {   my $lc   = lc $addr->address;
+            $cc{$lc} = $addr->format
+                 unless $nocc{$lc};
+        }
+        my $cc = join ', ', values %cc;
+        $reply->replace(Cc => $cc);
+    }
+
+    # References
+    my $refs    = $self->get('References') || "";
+    my $mid     = $self->get('Message-Id');
+
+    $refs      .= " " . $mid if defined $mid;
+    $reply->replace(References => $refs);
+
+    # In-Reply-To
+    my $date    = $self->get('Date');
+    my $inreply = "";
+
+    if(defined $mid)
+    {    $inreply  = $mid;
+         my @comment;
+         push @comment, "from $name" if defined $name;
+         push @comment, "on $date"   if defined $date;
+         local $"  = ' ';
+         $inreply .= " (@comment)"   if @comment;
+    }
+    elsif(defined $name)
+    {    $inreply  = $name    . "'s message";
+         $inreply .= "of "    . $date if defined $date;
+    }
+    $reply->replace('In-Reply-To' => $inreply);
+
+    # Quote the body
+    my $body  = $reply->body;
+    @$body = @{$self->body};    # copy body
+    $reply->remove_sig;
+    $reply->tidy_body;
+    s/\A/$indent/ for @$body;
+
+    # Add references
+    unshift @{$body}, (defined $name ? $name . " " : "") . "<$id> writes:\n";
+
+    if(defined $arg{Keep} && ref $arg{Keep} eq 'ARRAY')      # Include lines
+    {   foreach my $keep (@{$arg{Keep}}) 
+        {    my $ln = $self->get($keep);
+             $reply->replace($keep => $ln) if defined $ln;
+        }
+    }
+
+    if(defined $arg{Exclude} && ref $arg{Exclude} eq 'ARRAY') # Exclude lines
+    {    $reply->delete(@{$arg{Exclude}});
+    }
+
+    $reply->head->cleanup;      # remove empty header lines
+    $reply;
+}
+
+
+sub smtpsend($@)
+{   my ($self, %opt) = @_;
+
+    require Net::SMTP;
+    require Net::Domain;
+
+    my $host     = $opt{Host};
+    my $envelope = $opt{MailFrom} || mailaddress();
+    my $quit     = 1;
+
+    my ($smtp, @hello);
+
+    push @hello, Hello => $opt{Hello}
+        if defined $opt{Hello};
+
+    push @hello, Port => $opt{Port}
+	if exists $opt{Port};
+
+    push @hello, Debug => $opt{Debug}
+	if exists $opt{Debug};
+
+    if(!defined $host)
+    {   local $SIG{__DIE__};
+	my @hosts = qw(mailhost localhost);
+	unshift @hosts, split /\:/, $ENV{SMTPHOSTS}
+            if defined $ENV{SMTPHOSTS};
+
+	foreach $host (@hosts)
+        {   $smtp = eval { Net::SMTP->new($host, @hello) };
+	    last if defined $smtp;
+	}
+    }
+    elsif(UNIVERSAL::isa($host,'Net::SMTP')
+       || UNIVERSAL::isa($host,'Net::SMTP::SSL'))
+    {   $smtp = $host;
+	$quit = 0;
+    }
+    else
+    {   local $SIG{__DIE__};
+	$smtp = eval { Net::SMTP->new($host, @hello) };
+    }
+
+    defined $smtp or return ();
+
+    my $head = $self->cleaned_header_dup;
+
+    # Who is it to
+
+    my @rcpt = map { ref $_ ? @$_ : $_ } grep { defined } @opt{'To','Cc','Bcc'};
+    @rcpt    = map { $head->get($_) } qw(To Cc Bcc)
+	unless @rcpt;
+
+    my @addr = map {$_->address} Mail::Address->parse(@rcpt);
+    @addr or return ();
+
+    $head->delete('Bcc');
+
+    # Send it
+
+    my $ok = $smtp->mail($envelope)
+          && $smtp->to(@addr)
+          && $smtp->data(join("", @{$head->header}, "\n", @{$self->body}));
+
+    $quit && $smtp->quit;
+    $ok ? @addr : ();
+}
+
+
+sub send($@)
+{   my ($self, $type, @args) = @_;
+
+    require Mail::Mailer;
+
+    my $head  = $self->cleaned_header_dup;
+    my $mailer = Mail::Mailer->new($type, @args);
+
+    $mailer->open($head->header_hashref);
+    $self->print_body($mailer);
+    $mailer->close;
+}
+
+
+sub nntppost
+{   my ($self, %opt) = @_;
+
+    require Net::NNTP;
+
+    my $groups = $self->get('Newsgroups') || "";
+    my @groups = split /[\s,]+/, $groups;
+    @groups or return ();
+
+    my $head   = $self->cleaned_header_dup;
+
+    # Remove these incase the NNTP host decides to mail as well as me
+    $head->delete(qw(To Cc Bcc)); 
+
+    my $news;
+    my $quit   = 1;
+
+    my $host   = $opt{Host};
+    if(ref($host) && UNIVERSAL::isa($host,'Net::NNTP'))
+    {   $news = $host;
+	$quit = 0;
+    }
+    else
+    {   my @opt = $opt{Host};
+
+	push @opt, Port => $opt{Port}
+	    if exists $opt{Port};
+
+	push @opt, Debug => $opt{Debug}
+	    if exists $opt{Debug};
+
+	$news = Net::NNTP->new(@opt)
+	    or return ();
+    }
+
+    $news->post(@{$head->header}, "\n", @{$self->body});
+    my $rc = $news->code;
+
+    $news->quit if $quit;
+
+    $rc == 240 ? @groups : ();
+}
+
+
+sub escape_from
+{   my $body = shift->body;
+    scalar grep { s/\A(>*From) />$1 /o } @$body;
+}
+
+
+
+sub unescape_from
+{   my $body = shift->body;
+    scalar grep { s/\A>(>*From) /$1 /o } @$body;
+}
+
+# Don't tell people it exists
+sub cleaned_header_dup()
+{   my $head = shift->head->dup;
+
+    $head->delete('From '); # Just in case :-)
+
+    # An original message should not have any Received lines
+    $head->delete('Received');
+
+    $head->replace('X-Mailer', "Perl5 Mail::Internet v".$Mail::Internet::VERSION)
+        unless $head->count('X-Mailer');
+
+    my $name = eval {local $SIG{__DIE__}; (getpwuid($>))[6]} || $ENV{NAME} ||"";
+
+    while($name =~ s/\([^\(\)]*\)//) { 1; }
+
+    if($name =~ /[^\w\s]/)
+    {   $name =~ s/"/\"/g;
+	$name = '"' . $name . '"';
+    }
+
+    my $from = sprintf "%s <%s>", $name, mailaddress();
+    $from =~ s/\s{2,}/ /g;
+
+    foreach my $tag (qw(From Sender))
+    {   $head->get($tag) or $head->add($tag, $from);
+    }
+
+    $head;
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Internet.pod
+SHA-256: 8426dec7b98effbba9bfdc718b5c3df604bc82ba306ec18596e4f386a0ee2122
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Internet - manipulate email messages
+
+=head1 SYNOPSIS
+
+  use Mail::Internet;
+  my $msg = Mail::Internet->new(\*STDIN);
+
+=head1 DESCRIPTION
+
+This package implements reading, creating, manipulating, and writing email
+messages.  Sometimes, the implementation tries to be too smart, but in
+the general case it works as expected.
+
+If you start writing a B<new application>, you should use the L<Mail::Box>
+distribution, which has more features and handles messages much better
+according to the RFCs.  See L<http://perl.overmeer.net/mailbox/>.
+You may also chose L<MIME::Entity>, to get at least some multipart
+support in your application.
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item $obj-E<gt>B<dup>()
+
+Duplicate the message as a whole.  Both header and body will be
+deep-copied: a new L<Mail::Internet|Mail::Internet> object is returned.
+
+=item $obj-E<gt>B<extract>(\@lines)
+
+Extract header and body from an ARRAY of message lines.  Requires an
+object already created with L<new()|Mail::Internet/"Constructors">, which contents will get overwritten.
+
+=item $obj-E<gt>B<new>( [$arg], [%options] )
+
+=item Mail::Internet-E<gt>B<new>( [$arg], [%options] )
+
+$arg is optional and may be either a file descriptor (reference to a GLOB)
+or a reference to an array. If given the new object will be
+initialized with headers and body either from the array of read from 
+the file descriptor.
+
+The L<Mail::Header::new()|Mail::Header/"Constructors"> %options C<Modify>, C<MailFrom> and C<FoldLength>
+may also be given.
+
+ -Option--Default
+  Body    []
+  Header  undef
+
+=over 2
+
+=item Body => ARRAY-of-LINES
+
+The value of this option should be a reference to an array which contains
+the lines for the body of the message. Each line should be terminated with
+C<\n> (LF). If Body is given then C<Mail::Internet> will not attempt to
+read the body from C<$arg> (even if it is specified).
+
+=item Header => Mail::Header
+
+The value of this option should be a L<Mail::Header|Mail::Header> object. If given then
+C<Mail::Internet> will not attempt to read a mail header from C<$arg>, if
+it was specified.
+
+=back
+
+=item $obj-E<gt>B<read>($fh)
+
+Read a message from the $fh into an already existing message
+object.  Better use L<new()|Mail::Internet/"Constructors"> with the $fh as first argument.
+
+=back
+
+=head2 Accessors
+
+=over 4
+
+=item $obj-E<gt>B<body>( [$body] )
+
+Returns the body of the message. This is a reference to an array.
+Each entry in the array represents a single line in the message.
+
+If I<$body> is given, it can be a reference to an array or an array, then
+the body will be replaced. If a reference is passed, it is used directly
+and not copied, so any subsequent changes to the array will change the
+contents of the body.
+
+=item $obj-E<gt>B<head>()
+
+Returns the C<Mail::Header> object which holds the headers for the current
+message
+
+=back
+
+=head2 Processing the message as a whole
+
+=over 4
+
+=item $obj-E<gt>B<as_mbox_string>( [$already_escaped] )
+
+Returns the message as a string in mbox format.  C<$already_escaped>, if
+given and true, indicates that L<escape_from()|Mail::Internet/"High-level functionality"> has already been called on
+this object.
+
+=item $obj-E<gt>B<as_string>()
+
+Returns the message as a single string.
+
+=item $obj-E<gt>B<print>( [$fh] )
+
+Print the header, body or whole message to file descriptor I<$fh>.
+I<$fd> should be a reference to a GLOB. If I<$fh> is not given the
+output will be sent to STDOUT.
+
+example: 
+
+    $mail->print( \*STDOUT );  # Print message to STDOUT
+
+=item $obj-E<gt>B<print_body>( [$fh] )
+
+Print only the body to the $fh (default STDOUT).
+
+=item $obj-E<gt>B<print_header>( [$fh] )
+
+Print only the header to the $fh (default STDOUT).
+
+=back
+
+=head2 Processing the header
+
+Most of these methods are simply wrappers around methods provided
+by L<Mail::Header|Mail::Header>.
+
+=over 4
+
+=item $obj-E<gt>B<add>(PAIRS)
+
+The PAIRS are field-name and field-content.  For each PAIR,
+L<Mail::Header::add()|Mail::Header/"Processing"> is called.  All fields are added after
+existing fields.  The last addition is returned.
+
+=item $obj-E<gt>B<combine>( $tag, [$with] )
+
+See L<Mail::Header::combine()|Mail::Header/"Processing">.
+
+=item $obj-E<gt>B<delete>( $tag, [$tags] )
+
+Delete all fields with the name $tag.  L<Mail::Header::delete()|Mail::Header/"Processing"> is doing the
+work.
+
+=item $obj-E<gt>B<fold>( [$length] )
+
+See L<Mail::Header::fold()|Mail::Header/"Processing">.
+
+=item $obj-E<gt>B<fold_length>( [$tag], [$length] )
+
+See L<Mail::Header::fold_length()|Mail::Header/"Accessors">.
+
+=item $obj-E<gt>B<get>( $tag, [$tags] )
+
+In LIST context, all fields with the name $tag are returned.  In SCALAR
+context, only the first field which matches the earliest $tag is returned.
+L<Mail::Header::get()|Mail::Header/"Processing"> is called to collect the data.
+
+=item $obj-E<gt>B<header>(\@lines)
+
+See L<Mail::Header::header()|Mail::Header/""Fake" constructors">.
+
+=item $obj-E<gt>B<replace>(PAIRS)
+
+The PAIRS are field-name and field-content.  For each PAIR,
+L<Mail::Header::replace()|Mail::Header/"Processing"> is called with index 0. If a $field is already
+in the header, it will be removed first.  Do not specified the same
+field-name twice.
+
+=back
+
+=head2 Processing the body
+
+=over 4
+
+=item $obj-E<gt>B<remove_sig>( [$nlines] )
+
+Attempts to remove a user's signature from the body of a message. It does this 
+by looking for a line equal to C<'-- '> within the last C<$nlines> of the
+message. If found then that line and all lines after it will be removed. If
+C<$nlines> is not given a default value of 10 will be used. This would be of
+most use in auto-reply scripts.
+
+=item $obj-E<gt>B<sign>(%options)
+
+Add your signature to the body.  L<remove_sig()|Mail::Internet/"Processing the body"> will strip existing
+signatures first.
+
+ -Option   --Default
+  File       undef
+  Signature  []
+
+=over 2
+
+=item File => FILEHANDLE
+
+Take from the FILEHANDLE all lines starting from the first C<< -- >>.
+
+=item Signature => STRING|ARRAY-of-LINES
+
+=back
+
+=item $obj-E<gt>B<tidy_body>()
+
+Removes all leading and trailing lines from the body that only contain
+white spaces.
+
+=back
+
+=head2 High-level functionality
+
+=over 4
+
+=item $obj-E<gt>B<escape_from>()
+
+It can cause problems with some applications if a message contains a line
+starting with C<`From '>, in particular when attempting to split a folder.
+This method inserts a leading C<`>'> on any line that matches the regular
+expression C</^>*From/>
+
+=item $obj-E<gt>B<nntppost>( [%options] )
+
+Post an article via NNTP.  Requires Net::NNTP to be installed.
+
+ -Option--Default
+  Debug   <false>
+  Host    <required>
+  Port    119
+
+=over 2
+
+=item Debug => BOOLEAN
+
+Debug value to pass to Net::NNTP, see L<Net::NNTP>
+
+=item Host => HOSTNAME|Net::NNTP object
+
+Name of NNTP server to connect to, or a Net::NNTP object to use.
+
+=item Port => INTEGER
+
+Port number to connect to on remote host
+
+=back
+
+=item $obj-E<gt>B<reply>(%options)
+
+Create a new object with header initialised for a reply to the current 
+object. And the body will be a copy of the current message indented.
+
+The C<.mailhdr> file in your home directory (if exists) will be read
+first, to provide defaults.
+
+ -Option  --Default
+  Exclude   []
+  Indent    '>'
+  Keep      []
+  ReplyAll  false
+
+=over 2
+
+=item Exclude => ARRAY-of-FIELDS
+
+Remove the listed FIELDS from the produced message.
+
+=item Indent => STRING
+
+Use as indentation string.  The string may contain C<%%> to get a single C<%>,
+C<%f> to get the first from name, C<%F> is the first character of C<%f>,
+C<%l> is the last name, C<%L> its first character, C<%n> the whole from
+string, and C<%I> the first character of each of the names in the from string.
+
+=item Keep => ARRAY-of-FIELDS
+
+Copy the listed FIELDS from the original message.
+
+=item ReplyAll => BOOLEAN
+
+Automatically include all To and Cc addresses of the original mail,
+excluding those mentioned in the Bcc list.
+
+=back
+
+=item $obj-E<gt>B<send>( [$type, [$args...]] )
+
+Send a Mail::Internet message using L<Mail::Mailer|Mail::Mailer>.  $type and $args are
+passed on to L<Mail::Mailer::new()|Mail::Mailer/"Constructors">.
+
+=item $obj-E<gt>B<smtpsend>( [%options] )
+
+Send a Mail::Internet message using direct SMTP to the given
+ADDRESSES, each can be either a string or a reference to a list of email
+addresses. If none of C<To>, <Cc> or C<Bcc> are given then the addresses
+are extracted from the message being sent.
+
+The return value will be a list of email addresses that the message was sent
+to. If the message was not sent the list will be empty.
+
+Requires Net::SMTP and Net::Domain to be installed.
+
+ -Option  --Default
+  Bcc       undef
+  Cc        undef
+  Debug     <false>
+  Hello     localhost.localdomain
+  Host      $ENV{SMTPHOSTS}
+  MailFrom  Mail::Util::mailaddress()
+  Port      25
+  To        undef
+
+=over 2
+
+=item Bcc => ADDRESSES
+
+=item Cc => ADDRESSES
+
+=item Debug => BOOLEAN
+
+Debug value to pass to Net::SMTP, see <Net::SMTP>
+
+=item Hello => STRING
+
+Send a HELO (or EHLO) command to the server with the given name.
+
+=item Host => HOSTNAME
+
+Name of the SMTP server to connect to, or a Net::SMTP object to use
+
+If C<Host> is not given then the SMTP host is found by attempting
+connections first to hosts specified in C<$ENV{SMTPHOSTS}>, a colon
+separated list, then C<mailhost> and C<localhost>.
+
+=item MailFrom => ADDRESS
+
+The e-mail address which is used as sender.  By default,
+L<Mail::Util::mailaddress()|Mail::Util/"FUNCTIONS"> provides the address of the sender.
+
+=item Port => INTEGER
+
+Port number to connect to on remote host
+
+=item To => ADDRESSES
+
+=back
+
+=item $obj-E<gt>B<unescape_from>(())
+
+Remove the escaping added by L<escape_from()|Mail::Internet/"High-level functionality">.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field/Date.pod
+SHA-256: ec6f949e8719fd99f84501b94b940d7a6df9fa04d9d9a3b5efed03c1d5a3695e
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Field::Date - a date header field
+
+=head1 INHERITANCE
+
+ Mail::Field::Date
+   is a Mail::Field
+
+=head1 SYNOPSIS
+
+  use HTTP::Date 'time2iso';
+  my $field = Mail::Field->new(Date => time2iso());
+
+=head1 DESCRIPTION
+
+Represents one "Date" header field.
+
+Extends L<"DESCRIPTION" in Mail::Field|Mail::Field/"DESCRIPTION">.
+ 
+=head1 METHODS
+
+Extends L<"METHODS" in Mail::Field|Mail::Field/"METHODS">.
+ 
+=head2 Constructors
+
+Extends L<"Constructors" in Mail::Field|Mail::Field/"Constructors">.
+ 
+=over 4
+
+=item Mail::Field::Date-E<gt>B<combine>($fields)
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=item Mail::Field::Date-E<gt>B<extract>( $tag, $head [, $index ] )
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=item Mail::Field::Date-E<gt>B<new>( $tag [, STRING | %options] )
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=back
+
+=head2 "Fake" constructors
+
+Extends L<""Fake" constructors" in Mail::Field|Mail::Field/""Fake" constructors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<create>(%options)
+
+Inherited, see L<Mail::Field/""Fake" constructors">
+
+=item $obj-E<gt>B<parse>()
+
+Inherited, see L<Mail::Field/""Fake" constructors">
+
+=back
+
+=head2 Accessors
+
+Extends L<"Accessors" in Mail::Field|Mail::Field/"Accessors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<set>(%options)
+
+ -Option --Default
+  Time     undef
+  TimeStr  undef
+
+=over 2
+
+=item Time => SECONDS
+
+=item TimeStr => STRING
+
+A string acceptable to Date::Parse.
+
+=back
+
+=item $obj-E<gt>B<stringify>()
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=item $obj-E<gt>B<tag>()
+
+=item Mail::Field::Date-E<gt>B<tag>()
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=back
+
+=head2 Smart accessors
+
+Extends L<"Smart accessors" in Mail::Field|Mail::Field/"Smart accessors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<text>( [STRING] )
+
+Inherited, see L<Mail::Field/"Smart accessors">
+
+=item $obj-E<gt>B<time>( [$time] )
+
+Query (or change) the $time (as stored in the field) in seconds.
+
+=back
+
+=head1 DETAILS
+
+Extends L<"DETAILS" in Mail::Field|Mail::Field/"DETAILS">.
+ 
+=head1 DIAGNOSTICS
+
+=over 4
+
+=item Error: Undefined subroutine <method> called
+
+Mail::Field objects use autoloading to compile new functionality.
+Apparently, the method called is not implemented for the specific
+class of the field object.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field/Generic.pm
+SHA-256: 7dee0ce39b9aeb62827690a97b61c044ea19b7ef6b98a0800006a6e5c48c13d9
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Field::Generic;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Field';
+
+use Carp;
+
+
+sub create
+{   my ($self, %arg) = @_;
+    $self->{Text} = delete $arg{Text};
+
+    croak "Unknown options " . join(",", keys %arg)
+       if %arg;
+
+    $self;
+}
+
+
+sub parse
+{   my $self = shift;
+    $self->{Text} = shift || "";
+    $self;
+}
+
+sub stringify { shift->{Text} }
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field/AddrList.pod
+SHA-256: 99450bb680b1a0ef1f18728d996656d52a30a54b0fbda75a5eb0b25d16559f68
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Field::AddrList - object representation of e-mail address lists
+
+=head1 INHERITANCE
+
+ Mail::Field::AddrList
+   is a Mail::Field
+
+=head1 SYNOPSIS
+
+  use Mail::Field::AddrList;
+
+  $to   = Mail::Field->new('To');
+  $from = Mail::Field->new('From', 'poe@daimi.aau.dk (Peter Orbaek)');
+  
+  $from->create('foo@bar.com' => 'Mr. Foo', poe => 'Peter');
+  $from->parse('foo@bar.com (Mr Foo), Peter Orbaek <poe>');
+
+  # make a RFC822 header string
+  print $from->stringify(),"\n";
+
+  # extract e-mail addresses and names
+  @addresses = $from->addresses(); # strings
+  @names     = $from->names();     # strings
+  @addr      = $from->addr_list(); # Mail::Address objects (v2.00)
+
+  # adjoin a new address to the list
+  $from->set_address('foo@bar.com', 'Mr. Foo');
+
+=head1 DESCRIPTION
+
+Defines parsing and formatting of address field, for the following
+fields: C<To>, C<From>, C<Cc>, C<Reply-To>, and C<Sender>.
+
+All the normally used features of the address field specification of
+RFC2822 are implemented, but some complex (and therefore hardly ever used)
+constructs will not be understood.  Use Mail::Message::Field::Full
+in MailBox if you need full RFC compliance.
+
+Extends L<"DESCRIPTION" in Mail::Field|Mail::Field/"DESCRIPTION">.
+ 
+=head1 METHODS
+
+Extends L<"METHODS" in Mail::Field|Mail::Field/"METHODS">.
+ 
+=head2 Constructors
+
+Extends L<"Constructors" in Mail::Field|Mail::Field/"Constructors">.
+ 
+=over 4
+
+=item Mail::Field::AddrList-E<gt>B<combine>($fields)
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=item Mail::Field::AddrList-E<gt>B<extract>( $tag, $head [, $index ] )
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=item Mail::Field::AddrList-E<gt>B<new>( $tag [, STRING | %options] )
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=back
+
+=head2 "Fake" constructors
+
+Extends L<""Fake" constructors" in Mail::Field|Mail::Field/""Fake" constructors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<create>(%options)
+
+Inherited, see L<Mail::Field/""Fake" constructors">
+
+=item $obj-E<gt>B<parse>()
+
+Inherited, see L<Mail::Field/""Fake" constructors">
+
+=back
+
+=head2 Accessors
+
+Extends L<"Accessors" in Mail::Field|Mail::Field/"Accessors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<set>(%options)
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=item $obj-E<gt>B<stringify>()
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=item $obj-E<gt>B<tag>()
+
+=item Mail::Field::AddrList-E<gt>B<tag>()
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=back
+
+=head2 Smart accessors
+
+Extends L<"Smart accessors" in Mail::Field|Mail::Field/"Smart accessors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<addr_list>()
+
+Returns the collected L<Mail::Address|Mail::Address> objects.
+
+=item $obj-E<gt>B<addresses>()
+
+Returns a list if email addresses, found in the field content.
+
+=item $obj-E<gt>B<names>()
+
+Returns a list of nicely formatted named, for each of the addresses
+found in the content.
+
+=item $obj-E<gt>B<set_address>($email, $name)
+
+Add/replace an $email address to the field.
+
+=item $obj-E<gt>B<text>( [STRING] )
+
+Inherited, see L<Mail::Field/"Smart accessors">
+
+=back
+
+=head1 DETAILS
+
+Extends L<"DETAILS" in Mail::Field|Mail::Field/"DETAILS">.
+ 
+=head1 DIAGNOSTICS
+
+=over 4
+
+=item Error: Undefined subroutine <method> called
+
+Mail::Field objects use autoloading to compile new functionality.
+Apparently, the method called is not implemented for the specific
+class of the field object.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field/Date.pm
+SHA-256: f0baa51bc3d709e9c91ae615a01c300517e07f7ffb08848022419584a1dd39e6
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Field::Date;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Field';
+
+use strict;
+
+use Date::Format qw(time2str);
+use Date::Parse  qw(str2time);
+
+(bless [])->register('Date');
+
+
+sub set()
+{   my $self = shift;
+    my $arg = @_ == 1 ? shift : { @_ };
+
+    foreach my $s (qw(Time TimeStr))
+    {   if(exists $arg->{$s})
+             { $self->{$s} = $arg->{$s} }
+        else { delete $self->{$s} }
+    }
+
+    $self;
+}
+
+sub parse($)
+{   my $self = shift;
+    delete $self->{Time};
+    $self->{TimeStr} = shift;
+    $self;
+}
+
+
+sub time(;$)
+{   my $self = shift;
+
+    if(@_)
+    {   delete $self->{TimeStr};
+        return $self->{Time} = shift;
+    }
+
+    $self->{Time} ||= str2time $self->{TimeStr};
+}
+
+sub stringify
+{   my $self = shift;
+    $self->{TimeStr} ||= time2str("%a, %e %b %Y %T %z", $self->time);
+}
+
+sub reformat
+{   my $self = shift;
+    $self->time($self->time);
+    $self->stringify;
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field/AddrList.pm
+SHA-256: 77da6dc8ab056c32c06a8a709c4632bdbf969fe55c560e8b4325b7ad4fa356c8
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+use strict;
+
+package Mail::Field::AddrList;{
+our $VERSION = '2.22';
+}
+
+use base 'Mail::Field';
+
+use Carp;
+use Mail::Address;
+
+
+my $x = bless [];
+$x->register('To');
+$x->register('From');
+$x->register('Cc');
+$x->register('Reply-To');
+$x->register('Sender');
+
+sub create(@)
+{   my ($self, %arg)  = @_;
+    $self->{AddrList} = {};
+
+    while(my ($e, $n) = each %arg)
+    {   $self->{AddrList}{$e} = Mail::Address->new($n, $e);
+    }
+
+    $self;
+}
+
+sub parse($)
+{   my ($self, $string) = @_;
+    foreach my $a (Mail::Address->parse($string))
+    {   my $e = $a->address;
+	$self->{AddrList}{$e} = $a;
+    }
+    $self;
+}
+
+sub stringify()
+{   my $self = shift;
+    join(", ", map { $_->format } values %{$self->{AddrList}});
+}
+
+
+sub addresses { keys %{shift->{AddrList}} }
+
+
+# someone forgot to implement a method to return the Mail::Address
+# objects.  Added in 2.00; a pity that the name addresses() is already
+# given :(  That one should have been named emails()
+sub addr_list { values %{shift->{AddrList}} }
+
+
+sub names { map { $_->name } values %{shift->{AddrList}} }
+
+
+sub set_address($$)
+{   my ($self, $email, $name) = @_;
+    $self->{AddrList}{$email} = Mail::Address->new($name, $email);
+    $self;
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field/Generic.pod
+SHA-256: ee42bcfe0f6ab3d66bfff77f7bc156e99de309ba196c81d0a9dad765525b3391
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Field::Generic - implementation for inspecific fields
+
+=head1 INHERITANCE
+
+ Mail::Field::Generic
+   is a Mail::Field
+
+=head1 SYNOPSIS
+
+ use Mail::Field;
+ my $field = Mail::Field->new('Subject', 'some subject text');
+ my $field = Mail::Field->new(subject => 'some subject text');
+
+=head1 DESCRIPTION
+
+A generic implementation for header fields without own
+implementation. This is fine for fields like C<Subject>, C<X-Mailer>,
+etc., where the field holds only a string of no particular
+importance/format.
+
+Extends L<"DESCRIPTION" in Mail::Field|Mail::Field/"DESCRIPTION">.
+ 
+=head1 METHODS
+
+Extends L<"METHODS" in Mail::Field|Mail::Field/"METHODS">.
+ 
+=head2 Constructors
+
+Extends L<"Constructors" in Mail::Field|Mail::Field/"Constructors">.
+ 
+=over 4
+
+=item Mail::Field::Generic-E<gt>B<combine>($fields)
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=item Mail::Field::Generic-E<gt>B<extract>( $tag, $head [, $index ] )
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=item Mail::Field::Generic-E<gt>B<new>( $tag [, STRING | %options] )
+
+Inherited, see L<Mail::Field/"Constructors">
+
+=back
+
+=head2 "Fake" constructors
+
+Extends L<""Fake" constructors" in Mail::Field|Mail::Field/""Fake" constructors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<create>(%options)
+
+ -Option--Default
+  Text    ''
+
+=over 2
+
+=item Text => STRING
+
+=back
+
+=item $obj-E<gt>B<parse>( [STRING] )
+
+Set the new text, which is empty when no STRING is provided.
+
+=back
+
+=head2 Accessors
+
+Extends L<"Accessors" in Mail::Field|Mail::Field/"Accessors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<set>(%options)
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=item $obj-E<gt>B<stringify>()
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=item $obj-E<gt>B<tag>()
+
+=item Mail::Field::Generic-E<gt>B<tag>()
+
+Inherited, see L<Mail::Field/"Accessors">
+
+=back
+
+=head2 Smart accessors
+
+Extends L<"Smart accessors" in Mail::Field|Mail::Field/"Smart accessors">.
+ 
+=over 4
+
+=item $obj-E<gt>B<text>( [STRING] )
+
+Inherited, see L<Mail::Field/"Smart accessors">
+
+=back
+
+=head1 DETAILS
+
+Extends L<"DETAILS" in Mail::Field|Mail::Field/"DETAILS">.
+ 
+=head1 DIAGNOSTICS
+
+=over 4
+
+=item Error: Undefined subroutine <method> called
+
+Mail::Field objects use autoloading to compile new functionality.
+Apparently, the method called is not implemented for the specific
+class of the field object.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Field.pod
+SHA-256: 1b800d36cb4b8960894b3b0117a1f035d7d68c81a3d42b21f63ec0a8325c6627
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Field - base-class for manipulation of mail header fields
+
+=head1 INHERITANCE
+
+ Mail::Field is extended by
+   Mail::Field::AddrList
+   Mail::Field::Date
+   Mail::Field::Generic
+
+=head1 SYNOPSIS
+
+ use Mail::Field;
+    
+ my $field = Mail::Field->new('Subject', 'some subject text');
+ my $field = Mail::Field->new(Subject => 'some subject text');
+ print $field->tag,": ",$field->stringify,"\n";
+
+ my $field = Mail::Field->subject('some subject text');
+
+=head1 DESCRIPTION
+
+C<Mail::Field> creates and manipulates fields in MIME headers, collected
+within a L<Mail::Header|Mail::Header> object.  Different field types have their
+own sub-class (extension), defining additional useful accessors to the
+field content.
+
+People are invited to merge their implementation to special fields into
+MailTools, to maintain a consistent set of packages and documentation.
+
+=head1 METHODS
+
+=head2 Constructors
+
+Mail::Field (and it's sub-classes) define several methods which return
+new objects. These can all be categorized as constructor.
+
+=over 4
+
+=item Mail::Field-E<gt>B<combine>($fields)
+
+Take a LIST of C<Mail::Field> objects (which should all be of the same
+sub-class) and create a new object in that same class.
+
+=item Mail::Field-E<gt>B<extract>( $tag, $head [, $index ] )
+
+Takes as arguments the tag name, a C<Mail::Head> object
+and optionally an index.
+
+If the index argument is given then C<extract> will retrieve the given tag
+from the C<Mail::Head> object and create a new C<Mail::Field> based object.
+I<undef> will be returned in the field does not exist.
+
+If the index argument is not given the result depends on the context
+in which C<extract> is called. If called in a scalar context the result
+will be as if C<extract> was called with an index value of zero. If called
+in an array context then all tags will be retrieved and a list of
+C<Mail::Field> objects will be returned.
+
+=item Mail::Field-E<gt>B<new>( $tag [, STRING | %options] )
+
+Create an object in the class which defines the field specified by
+the $tag argument.
+
+=back
+
+=head2 "Fake" constructors
+
+=over 4
+
+=item $obj-E<gt>B<create>(%options)
+
+This constructor is used internally with preprocessed field information.
+When called on an existing object, its original content will get
+replaced.
+
+=item $obj-E<gt>B<parse>()
+
+Parse a field line.
+
+=back
+
+=head2 Accessors
+
+=over 4
+
+=item $obj-E<gt>B<set>(%options)
+
+Change the settings (the content, but then smart) of this field.
+
+=item $obj-E<gt>B<stringify>()
+
+Returns the field as a string.
+
+=item $obj-E<gt>B<tag>()
+
+=item Mail::Field-E<gt>B<tag>()
+
+Return the tag (in the correct case) for this item.  Well, actually any
+casing is OK, because the field tags are treated case-insensitive; however
+people have some preferences.
+
+=back
+
+=head2 Smart accessors
+
+=over 4
+
+=item $obj-E<gt>B<text>( [STRING] )
+
+Without arguments, the field is returned as L<stringify()|Mail::Field/"Accessors"> does.  Otherwise,
+the STRING is parsed with L<parse()|Mail::Field/""Fake" constructors"> to replace the object's content.
+
+It is more clear to call either L<stringify()|Mail::Field/"Accessors"> or L<parse()|Mail::Field/""Fake" constructors"> directly, because
+this method does not add additional processing.
+
+=back
+
+=head1 DETAILS
+
+=head2 SUB-CLASS PACKAGE NAMES
+
+All sub-classes should be called Mail::Field::I<name> where I<name> is
+derived from the tag using these rules.
+
+=over 4
+
+=item *
+
+Consider a tag as being made up of elements separated by '-'
+
+=item *
+
+Convert all characters to lowercase except the first in each element, which
+should be uppercase.
+
+=item *
+
+I<name> is then created from these elements by using the first
+N characters from each element.
+
+=item *
+
+N is calculated by using the formula :-
+
+    int((7 + #elements) / #elements)
+
+=item *
+
+I<name> is then limited to a maximum of 8 characters, keeping the first 8
+characters.
+
+=back
+
+For an example of this take a look at the definition of the 
+C<_header_pkg_name()> subroutine in C<Mail::Field>
+
+=head1 DIAGNOSTICS
+
+=over 4
+
+=item Error: Undefined subroutine <method> called
+
+Mail::Field objects use autoloading to compile new functionality.
+Apparently, the method called is not implemented for the specific
+class of the field object.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Cap.pm
+SHA-256: 99e019ef7b4ff822eea4fb781dbd414b6a7daf8fdf2fdf8b3bea23f6b4bb0d69
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Cap;{
+our $VERSION = '2.22';
+}
+
+
+use strict;
+
+sub Version { our $VERSION }
+
+
+our $useCache = 1;  # don't evaluate tests every time
+
+my @path;
+if($^O eq "MacOS")
+{   @path = split /\,/, $ENV{MAILCAPS} || "$ENV{HOME}mailcap";
+}
+else
+{   @path = split /\:/
+      , ( $ENV{MAILCAPS} || (defined $ENV{HOME} ? "$ENV{HOME}/.mailcap:" : '')
+        . '/etc/mailcap:/usr/etc/mailcap:/usr/local/etc/mailcap'
+        );   # this path is specified under RFC1524 appendix A 
+}
+
+#--------
+
+sub new
+{   my $class = shift;
+    
+    unshift @_, 'filename' if @_ % 2;
+    my %args  = @_;
+
+    my $take_all = $args{take} && uc $args{take} eq 'ALL';
+
+    my $self  = bless {_count => 0}, $class;
+
+    $self->_process_file($args{filename})
+        if defined $args{filename} && -r $args{filename};
+
+    if(!defined $args{filename} || $take_all)
+    {   foreach my $fname (@path)
+        {   -r $fname or next;
+
+            $self->_process_file($fname);
+            last unless $take_all;
+        }
+    }
+
+    unless($self->{_count})
+    {   # Set up default mailcap
+        $self->{'audio/*'} = [{'view' => "showaudio %s"}];
+        $self->{'image/*'} = [{'view' => "xv %s"}];
+        $self->{'message/rfc822'} = [{'view' => "xterm -e metamail %s"}];
+    }
+
+    $self;
+}
+
+sub _process_file
+{   my $self = shift;
+    my $file = shift or return;
+
+    local *MAILCAP;
+    open MAILCAP, $file
+        or return;
+
+    $self->{_file} = $file;
+
+    local $_;
+    while(<MAILCAP>)
+    {   next if /^\s*#/; # comment
+        next if /^\s*$/; # blank line
+        $_ .= <MAILCAP>  # continuation line
+           while s/(^|[^\\])((?:\\\\)*)\\\s*$/$1$2/;
+        chomp;
+        s/\0//g;              # ensure no NULs in the line
+        s/(^|[^\\]);/$1\0/g;  # make field separator NUL
+        my ($type, $view, @parts) = split /\s*\0\s*/;
+
+        $type    .= "/*" if $type !~ m[/];
+        $view     =~ s/\\;/;/g;
+        $view     =~ s/\\\\/\\/g;
+        my %field = (view => $view);
+
+        foreach (@parts)
+        {   my($key, $val) = split /\s*\=\s*/, $_, 2;
+            if(defined $val)
+            {   $val =~ s/\\;/;/g;
+                $val =~ s/\\\\/\\/g;
+                $field{$key} = $val;
+            }
+            else
+            {   $field{$key} = 1;
+            }
+        }
+
+        if(my $test = $field{test})
+        {   unless ($test =~ /\%/)
+            {   # No parameters in test, can perform it right away
+                system $test;
+                next if $?;
+            }
+        }
+
+        # record this entry
+        unless(exists $self->{$type})
+        {   $self->{$type} = [];
+            $self->{_count}++; 
+        }
+        push @{$self->{$type}}, \%field;
+    }
+
+    close MAILCAP;
+}
+
+#------------------
+
+sub view    { my $self = shift; $self->_run($self->viewCmd(@_))    }
+sub compose { my $self = shift; $self->_run($self->composeCmd(@_)) }
+sub edit    { my $self = shift; $self->_run($self->editCmd(@_))    }
+sub print   { my $self = shift; $self->_run($self->printCmd(@_))   }
+
+sub _run($)
+{   my ($self, $cmd) = @_;
+    defined $cmd or return 0;
+
+    system $cmd;
+    1;
+}
+
+#------------------
+
+sub viewCmd    { shift->_createCommand(view    => @_) }
+sub composeCmd { shift->_createCommand(compose => @_) }
+sub editCmd    { shift->_createCommand(edit    => @_) }
+sub printCmd   { shift->_createCommand(print   => @_) }
+
+sub _createCommand($$$)
+{   my ($self, $method, $type, $file) = @_;
+    my $entry = $self->getEntry($type, $file);
+
+    $entry && exists $entry->{$method}
+        or return undef;
+
+    $self->expandPercentMacros($entry->{$method}, $type, $file);
+}
+
+sub makeName($$)
+{   my ($self, $type, $basename) = @_;
+    my $template = $self->nametemplate($type)
+        or return $basename;
+
+    $template =~ s/%s/$basename/g;
+    $template;
+}
+
+#------------------
+
+sub field($$)
+{   my($self, $type, $field) = @_;
+    my $entry = $self->getEntry($type);
+    $entry->{$field};
+}
+
+
+sub description     { shift->field(shift, 'description');     }
+sub textualnewlines { shift->field(shift, 'textualnewlines'); }
+sub x11_bitmap      { shift->field(shift, 'x11-bitmap');      }
+sub nametemplate    { shift->field(shift, 'nametemplate');    }
+
+sub getEntry
+{   my($self, $origtype, $file) = @_;
+
+    return $self->{_cache}{$origtype}
+        if $useCache && exists $self->{_cache}{$origtype};
+
+    my ($fulltype, @params) = split /\s*;\s*/, $origtype;
+    my ($type, $subtype)    = split m[/], $fulltype, 2;
+    $subtype ||= '';
+
+    my $entry;
+    foreach (@{$self->{"$type/$subtype"}}, @{$self->{"$type/*"}})
+    {   if(exists $_->{'test'})
+        {   # must run test to see if it applies
+            my $test = $self->expandPercentMacros($_->{'test'},
+        					  $origtype, $file);
+            system $test;
+            next if $?;
+        }
+        $entry = { %$_ };  # make copy
+        last;
+    }
+    $self->{_cache}{$origtype} = $entry if $useCache;
+    $entry;
+}
+
+sub expandPercentMacros
+{   my ($self, $text, $type, $file) = @_;
+    defined $type or return $text;
+    defined $file or $file = "";
+
+    my ($fulltype, @params) = split /\s*;\s*/, $type;
+    ($type, my $subtype)    = split m[/], $fulltype, 2;
+
+    my %params;
+    foreach (@params)
+    {   my($key, $val) = split /\s*=\s*/, $_, 2;
+        $params{$key} = $val;
+    }
+    $text =~ s/\\%/\0/g;        # hide all escaped %'s
+    $text =~ s/%t/$fulltype/g;  # expand %t
+    $text =~ s/%s/$file/g;      # expand %s
+    {   # expand %{field}
+        local $^W = 0;  # avoid warnings when expanding %params
+        $text =~ s/%\{\s*(.*?)\s*\}/$params{$1}/g;
+    }
+    $text =~ s/\0/%/g;
+    $text;
+}
+
+# This following procedures can be useful for debugging purposes
+
+sub dumpEntry
+{   my($hash, $prefix) = @_;
+    defined $prefix or $prefix = "";
+    print "$prefix$_ = $hash->{$_}\n"
+        for sort keys %$hash;
+}
+
+sub dump
+{   my $self = shift;
+    foreach (keys %$self)
+    {   next if /^_/;
+        print "$_\n";
+        foreach (@{$self->{$_}})
+        {   dumpEntry($_, "\t");
+            print "\n";
+        }
+    }
+
+    if(exists $self->{_cache})
+    {   print "Cached types\n";
+        print "\t$_\n"
+            for keys %{$self->{_cache}};
+    }
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Util.pm
+SHA-256: b49fb10e91e652ec52f572299d69318b4aec08d1dfee13fad10089ff70d96801
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Util;{
+our $VERSION = '2.22';
+}
+
+use base 'Exporter';
+
+use strict;
+use Carp;
+
+our @EXPORT_OK = qw(read_mbox maildomain mailaddress);
+
+sub Version { our $VERSION }
+
+my ($domain, $mailaddress);
+my @sendmailcf = qw(/etc /etc/sendmail /etc/ucblib
+    /etc/mail /usr/lib /var/adm/sendmail);
+
+
+sub read_mbox($)
+{   my $file  = shift;
+
+    local *FH;
+    open FH,'<', $file
+	or croak "cannot open '$file': $!\n";
+
+    local $_;
+    my @mbox;
+    my $mail  = [];
+    my $blank = 1;
+
+    while(<FH>)
+    {   if($blank && /^From .*\d{4}/)
+        {   push @mbox, $mail if @$mail;
+            $mail  = [ $_ ];
+            $blank = 0;
+        }
+        else
+        {   $blank = m/^$/ ? 1 : 0;
+            push @$mail, $_;
+        }
+    }
+
+    push @mbox, $mail if @$mail;
+    close FH;
+
+    wantarray ? @mbox : \@mbox;
+}
+
+
+sub maildomain()
+{   return $domain
+	if defined $domain;
+
+    $domain = $ENV{MAILDOMAIN}
+        and return $domain;
+
+    # Try sendmail configuration file
+
+    my $config = (grep -r, map {"$_/sendmail.cf"} @sendmailcf)[0];
+
+    local *CF;
+    local $_;
+    if(defined $config && open CF, '<', $config)
+    {   my %var;
+	while(<CF>)
+        {   if(my ($v, $arg) = /^D([a-zA-Z])([\w.\$\-]+)/)
+            {   $arg =~ s/\$([a-zA-Z])/exists $var{$1} ? $var{$1} : '$'.$1/eg;
+		$var{$v} = $arg;
+	    }
+	}
+	close CF;
+	$domain = $var{j} if defined $var{j};
+	$domain = $var{M} if defined $var{M};
+
+        $domain = $1
+            if $domain && $domain =~ m/([A-Za-z0-9](?:[\.\-A-Za-z0-9]+))/;
+
+	return $domain
+	    if defined $domain && $domain !~ /\$/;
+    }
+
+    # Try smail config file if exists
+
+    if(open CF, '<', "/usr/lib/smail/config")
+    {   while(<CF>)
+        {   if( /\A\s*hostnames?\s*=\s*(\S+)/ )
+            {   $domain = (split /\:/,$1)[0];
+		last;
+	    }
+	}
+	close CF;
+
+	return $domain
+	    if defined $domain;
+    }
+
+    # Try a SMTP connection to 'mailhost'
+
+    if(eval {require Net::SMTP})
+    {   foreach my $host (qw(mailhost localhost))
+        {   # hosts are local, so short timeout
+            my $smtp = eval { Net::SMTP->new($host, Timeout => 5) };
+	    if(defined $smtp)
+            {   $domain = $smtp->domain;
+		$smtp->quit;
+		last;
+	    }
+	}
+    }
+
+    # Use internet(DNS) domain name, if it can be found
+    $domain = Net::Domain::domainname()
+        if !defined $domain && eval {require Net::Domain};
+
+    $domain ||= "localhost";
+}
+
+
+sub mailaddress(;$)
+{   $mailaddress = shift if @_;
+
+    return $mailaddress
+        if defined $mailaddress;
+
+    # Get user name from environment
+    $mailaddress = $ENV{MAILADDRESS};
+
+    unless($mailaddress || $^O ne 'MacOS')
+    {   require Mac::InternetConfig;
+
+        no strict;
+	Mac::InternetConfig->import;
+	$mailaddress = $InternetConfig{kICEmail()};
+    }
+
+    $mailaddress ||= $ENV{USER} || $ENV{LOGNAME} || eval {getpwuid $>}
+                 ||  "postmaster";
+
+    # Add domain if it does not exist
+    $mailaddress .= '@' . maildomain
+	if $mailaddress !~ /\@/;
+
+    $mailaddress =~ s/(^.*<|>.*$)//g;
+    $mailaddress;
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Address.pod
+SHA-256: 7baa2233bc1f1e962a71f3c1de68837f2504b00a852f09edcc9a4230ad6e1421
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Address - parse mail addresses
+
+=head1 SYNOPSIS
+
+ use Mail::Address;
+ my @addrs = Mail::Address->parse($line);
+
+ foreach $addr (@addrs) {
+     print $addr->format,"\n";
+ }
+
+=head1 DESCRIPTION
+
+C<Mail::Address> extracts and manipulates email addresses from a message
+header.  It cannot be used to extract addresses from some random text.
+You can use this module to create RFC822 compliant fields.
+
+Although C<Mail::Address> is a very popular subject for books, and is
+used in many applications, it does a very poor job on the more complex
+message fields.  It does only handle simple address formats (which
+covers about 95% of what can be found). Problems are with
+
+=over 4
+
+=item *
+
+no support for address groups, even not with the semi-colon as
+separator between addresses;
+
+=item *
+
+limited support for escapes in phrases and comments.  There are
+cases where it can get wrong; and
+
+=item *
+
+you have to take care of most escaping when you create an address yourself:
+C<Mail::Address> does not do that for you.
+
+=back
+
+Often requests are made to the maintainers of this code improve this
+situation, but this is not a good idea, where it will break zillions
+of existing applications.  If you wish for a fully RFC2822 compliant
+implementation you may take a look at L<Mail::Message::Field::Full>,
+part of MailBox.
+
+B<. Example>
+
+  my $s = Mail::Message::Field::Full->new($from_header);
+  # ref $s isa Mail::Message::Field::Addresses;
+
+  my @g = $s->groups;          # all groups, at least one
+  # ref $g[0] isa Mail::Message::Field::AddrGroup;
+  my $ga = $g[0]->addresses;   # group addresses
+
+  my @a = $s->addresses;       # all addresses
+  # ref $a[0] isa Mail::Message::Field::Address;
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item Mail::Address-E<gt>B<new>( $phrase, $address, [ $comment ] )
+
+Create a new C<Mail::Address> object which represents an address with the
+elements given. In a message these 3 elements would be seen like:
+
+ PHRASE <ADDRESS> (COMMENT)
+ ADDRESS (COMMENT)
+
+example: 
+
+ Mail::Address->new("Perl5 Porters", "perl5-porters@africa.nicoh.com");
+
+=item $obj-E<gt>B<parse>($line)
+
+Parse the given line a return a list of extracted C<Mail::Address> objects.
+The line would normally be one taken from a To,Cc or Bcc line in a message
+
+example: 
+
+ my @addr = Mail::Address->parse($line);
+
+=back
+
+=head2 Accessors
+
+=over 4
+
+=item $obj-E<gt>B<address>()
+
+Return the address part of the object.
+
+=item $obj-E<gt>B<comment>()
+
+Return the comment part of the object
+
+=item $obj-E<gt>B<format>(@addresses)
+
+Return a string representing the address in a suitable form to be placed
+on a C<To>, C<Cc>, or C<Bcc> line of a message.  This method is called on
+the first address to be used; other specified addresses will be appended,
+separated by commas.
+
+=item $obj-E<gt>B<phrase>()
+
+Return the phrase part of the object.
+
+=back
+
+=head2 Smart accessors
+
+=over 4
+
+=item $obj-E<gt>B<host>()
+
+Return the address excluding the user id and '@'
+
+=item $obj-E<gt>B<name>()
+
+Using the information contained within the object attempt to identify what
+the person or groups name is.
+
+B<Note:> This function tries to be smart with the "phrase" of the
+email address, which is probably a very bad idea.  Consider to use
+L<phrase()|Mail::Address/"Accessors"> itself.
+
+=item $obj-E<gt>B<user>()
+
+Return the address excluding the '@' and the mail domain
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Mailer.pm
+SHA-256: bdfbbc1bb97efc5cd7ab0557561231d5551a52735412772e8c426f9d04df7584
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Mailer;{
+our $VERSION = '2.22';
+}
+
+use base 'IO::Handle';
+
+use strict;
+use POSIX qw/_exit/;
+
+use Carp;
+use Config;
+
+#--------------
+
+
+sub is_exe($);
+
+sub Version { our $VERSION }
+
+our @Mailers =
+  ( sendmail => '/usr/lib/sendmail;/usr/sbin/sendmail;/usr/ucblib/sendmail'
+  , smtp     => undef
+  , smtps    => undef
+  , qmail    => '/usr/sbin/qmail-inject;/var/qmail/bin/qmail-inject'
+  , testfile => undef
+  );
+
+push @Mailers, map { split /\:/, $_, 2 }
+                   split /$Config{path_sep}/, $ENV{PERL_MAILERS}
+    if $ENV{PERL_MAILERS};
+
+our %Mailers = @Mailers;
+our $MailerType;
+our $MailerBinary;
+
+# does this really need to be done? or should a default mailer be specified?
+
+$Mailers{sendmail} = 'sendmail'
+    if $^O eq 'os2' && ! is_exe $Mailers{sendmail};
+
+if($^O =~ m/MacOS|VMS|MSWin|os2|NetWare/i )
+{   $MailerType   = 'smtp';
+    $MailerBinary = $Mailers{$MailerType};
+}
+else
+{   for(my $i = 0 ; $i < @Mailers ; $i += 2)
+    {   $MailerType = $Mailers[$i];
+        if(my $binary = is_exe $Mailers{$MailerType})
+        {   $MailerBinary = $binary;
+            last;
+        }
+    }
+}
+
+sub import
+{   shift;  # class
+    @_ or return;
+
+    my $type = shift;
+    my $exe  = shift || $Mailers{$type};
+
+    is_exe $exe
+        or carp "Cannot locate '$exe'";
+
+    $MailerType = $type;
+    $Mailers{$MailerType} = $exe;
+}
+
+sub to_array($)
+{   my ($self, $thing) = @_;
+    ref $thing ? @$thing : $thing;
+}
+
+sub is_exe($)
+{   my $exe = shift || '';
+
+    foreach my $cmd (split /\;/, $exe)
+    {   $cmd =~ s/^\s+//;
+
+        # remove any options
+        my $name = ($cmd =~ /^(\S+)/)[0];
+
+        # check for absolute or relative path
+        return $cmd
+            if -x $name && ! -d $name && $name =~ m![\\/]!;
+
+        if(defined $ENV{PATH})
+        {   foreach my $dir (split /$Config{path_sep}/, $ENV{PATH})
+            {   return "$dir/$cmd"
+                   if -x "$dir/$name" && ! -d "$dir/$name";
+            }
+        }
+    }
+    0;
+}
+
+
+sub new($@)
+{   my ($class, $type, @args) = @_;
+
+    unless($type)
+    {   $MailerType or croak "No MailerType specified";
+
+        warn "No real MTA found, using '$MailerType'"
+             if $MailerType eq 'testfile';
+
+        $type = $MailerType;
+    }
+
+    my $exe = $Mailers{$type};
+
+    if(defined $exe)
+    {   $exe   = is_exe $exe
+            if defined $type;
+
+        $exe ||= $MailerBinary
+            or croak "No mailer type specified (and no default available), thus can not find executable program.";
+    }
+
+    $class = "Mail::Mailer::$type";
+    eval "require $class" or die $@;
+
+    my $glob = $class->SUPER::new;   # object is a GLOB!
+    %{*$glob} = (Exe => $exe, Args => [ @args ]);
+    $glob;
+}
+
+
+sub open($)
+{   my ($self, $hdrs) = @_;
+    my $exe    = *$self->{Exe};   # no exe, then direct smtp
+    my $args   = *$self->{Args};
+
+    my @to     = $self->who_to($hdrs);
+    my $sender = $self->who_sender($hdrs);
+    
+    $self->close;	# just in case;
+
+    if(defined $exe)
+    {   # Fork and start a mailer
+        my $child = open $self, '|-';
+        defined $child or die "Failed to send: $!";
+
+        if($child==0)
+        {   # Child process will handle sending, but this is not real exec()
+            # this is a setup!!!
+            unless($self->exec($exe, $args, \@to, $sender))
+            {   warn $!;     # setup failed
+                _exit(1);    # no DESTROY(), keep it for parent
+            }
+        }
+    }
+    else
+    {   # Sending is handled by a subclass
+        $self->exec(undef, $args, \@to)
+            or die $!;    
+    }
+
+    $self->set_headers($hdrs);
+    $self;
+}
+
+sub _cleanup_hdrs($)
+{   foreach my $h (values %{(shift)})
+    {   foreach (ref $h ? @$h : $h)
+        {   s/\n\s*/ /g;
+            s/\s+$//;
+        }
+    }
+}
+
+sub exec($$$$)
+{   my($self, $exe, $args, $to, $sender) = @_;
+
+    # Fork and exec the mailer (no shell involved to avoid risks)
+    my @exe = split /\s+/, $exe;
+    exec @exe, @$args, @$to;
+}
+
+sub can_cc { 1 }	# overridden in subclass for mailer that can't
+
+sub who_to($)
+{   my($self, $hdrs) = @_;
+    my @to = $self->to_array($hdrs->{To});
+    unless($self->can_cc)  # Can't cc/bcc so add them to @to
+    {   push @to, $self->to_array($hdrs->{Cc} ) if $hdrs->{Cc};
+        push @to, $self->to_array($hdrs->{Bcc}) if $hdrs->{Bcc};
+    }
+    @to;
+}
+
+sub who_sender($)
+{   my ($self, $hdrs) = @_;
+    ($self->to_array($hdrs->{Sender} || $hdrs->{From}))[0];
+}
+
+sub epilogue {
+    # This could send a .signature, also see ::smtp subclass
+}
+
+sub close(@)
+{   my $self = shift;
+    fileno $self or return;
+
+    $self->epilogue;
+    CORE::close $self;
+}
+
+sub DESTROY { shift->close }
+
+#--------------
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Filter.pm
+SHA-256: 4afdff32f50a19f1c633058aa2c4038ada293784df9361ce6c91d8f62b66d8d6
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Filter;{
+our $VERSION = '2.22';
+}
+
+
+use strict;
+use Carp;
+
+
+sub new(@)
+{   my $class = shift;
+    bless { filters => [ @_ ] }, $class;
+}
+
+#------------
+
+sub add(@)
+{   my $self = shift;
+    push @{$self->{filters}}, @_;
+}
+
+#------------
+
+sub _filter($)
+{   my ($self, $mail) = @_;
+
+    foreach my $sub ( @{$self->{filters}} )
+    {   my $mail
+          = ref $sub eq 'CODE' ? $sub->($self,$mail)
+	  : !ref $sub          ? $self->$sub($mail)
+	  : carp "Cannot call filter '$sub', ignored";
+
+	ref $mail or last;
+    }
+
+    $mail;
+}
+
+sub filter
+{   my ($self, $obj) = @_;
+    if($obj->isa('Mail::Folder'))
+    {   $self->{folder} = $obj;
+	foreach my $m ($obj->message_list)
+	{   my $mail = $obj->get_message($m) or next;
+	    $self->{msgnum} = $m;
+	    $self->_filter($mail);
+	}
+	delete $self->{folder};
+	delete $self->{msgnum};
+    }
+    elsif($obj->isa('Mail::Internet'))
+    {   return $self->filter($obj);
+    }
+    else
+    {   carp "Cannot process '$obj'";
+	return undef;
+    }
+}
+
+
+sub folder() {shift->{folder}}
+
+
+sub msgnum() {shift->{msgnum}}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Cap.pod
+SHA-256: c1e33dad5653361cd13ab45b341161a7a6436466542da86da91e28a3bd9d8bab
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Cap - understand mailcap files
+
+=head1 SYNOPSIS
+
+ my $mc   = Mail::Cap->new;
+
+ my $desc = $mc->description('image/gif');
+ print "GIF desc: $desc\n";
+
+ my $cmd  = $mc->viewCmd('text/plain; charset=iso-8859-1', 'file.txt');
+
+=head1 DESCRIPTION
+
+Parse mailcap files as specified in "RFC 1524 --A User Agent
+Configuration Mechanism For Multimedia Mail Format Information>.  In
+the description below C<$type> refers to the MIME type as specified in
+the C<Content-Type> header of mail or HTTP messages.  Examples of
+types are:
+
+  image/gif
+  text/html
+  text/plain; charset=iso-8859-1
+
+You could also take a look at the File::MimeInfo distribution, which
+are accessing tables which are used by many applications on a system,
+and therefore have succeeded the mail-cap specifications on modern
+(UNIX) systems.
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item Mail::Cap-E<gt>B<new>(%options)
+
+Create and initialize a new Mail::Cap object.  If you give it an
+argument it will try to parse the specified file.  Without any
+arguments it will search for the mailcap file using the standard
+mailcap path, or the MAILCAPS environment variable if it is defined.
+
+ -Option  --Default
+  filename  undef
+  take      'FIRST'
+
+=over 2
+
+=item filename => FILENAME
+
+Add the specified file to the list to standard locations.  This file
+is tried first.
+
+=item take => 'ALL'|'FIRST'
+
+Include all mailcap files you can find.  By default, only the first
+file is parsed, however the RFC tells us to include ALL.  To maintain
+backwards compatibility, the default only takes the FIRST.
+
+=back
+
+example: 
+
+  $mcap = new Mail::Cap;
+  $mcap = new Mail::Cap "/mydir/mailcap";
+  $mcap = new Mail::Cap filename => "/mydir/mailcap";
+  $mcap = new Mail::Cap take => 'ALL';
+  $mcap = Mail::Cap->new(take => 'ALL');
+
+=back
+
+=head2 Run commands
+
+These methods invoke a suitable program presenting or manipulating the
+media object in the specified file.  They all return C<1> if a command
+was found, and C<0> otherwise.  You might test C<$?> for the outcome
+of the command.
+
+=over 4
+
+=item $obj-E<gt>B<compose>($type, $file)
+
+=item $obj-E<gt>B<edit>($type, $file)
+
+=item $obj-E<gt>B<print>($type, $file)
+
+=item $obj-E<gt>B<view>($type, $file)
+
+=back
+
+=head2 Command creator
+
+These methods return a string that is suitable for feeding to system()
+in order to invoke a suitable program presenting or manipulating the
+media object in the specified file.  It will return C<undef> if no
+suitable specification exists.
+
+=over 4
+
+=item $obj-E<gt>B<composeCmd>($type, $file)
+
+=item $obj-E<gt>B<editCmd>($type, $file)
+
+=item $obj-E<gt>B<printCmd>($type, $file)
+
+=item $obj-E<gt>B<viewCmd>($type, $file)
+
+=back
+
+=head2 Look-up definitions
+
+Methods return the corresponding mailcap field for the type.
+
+=over 4
+
+=item $obj-E<gt>B<description>($type)
+
+=item $obj-E<gt>B<field>($type, $field)
+
+Returns the specified field for the type.  Returns undef if no
+specification exists.
+
+=item $obj-E<gt>B<nametemplate>($type)
+
+=item $obj-E<gt>B<textualnewlines>($type)
+
+=item $obj-E<gt>B<x11_bitmap>($type)
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Header.pod
+SHA-256: ff3372aa6eea956244903f58743664cd771726ddef6495f8e6427563aa9a0bec
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Header - manipulate MIME headers
+
+=head1 SYNOPSIS
+
+ use Mail::Header;
+    
+ my $head = Mail::Header->new;
+ my $head = Mail::Header->new( \*STDIN );
+ my $head = Mail::Header->new( [<>], Modify => 0);
+
+=head1 DESCRIPTION
+
+Read, write, create, and manipulate MIME headers, the leading part
+of each modern e-mail message, but also used in other protocols
+like HTTP.  The fields are kept in L<Mail::Field|Mail::Field> objects.
+
+Be aware that the header fields each have a name part, which shall
+be treated case-insensitive, and a content part, which may be folded
+over multiple lines.  
+
+Mail::Header does not always follow the RFCs strict enough, does not
+help you with character encodings.  It does not use weak references
+where it could (because those did not exist when the module was written)
+which costs some performance and make the implementation a little more
+complicated.  The Mail::Message::Head implementation is much newer
+and therefore better.
+
+=head1 METHODS
+
+=head2 Constructors
+
+=over 4
+
+=item $obj-E<gt>B<dup>()
+
+Create a duplicate of the current object.
+
+=item $obj-E<gt>B<new>( [$source], [%options] )
+
+=item Mail::Header-E<gt>B<new>( [$source], [%options] )
+
+The $source may be either a file descriptor (reference to a GLOB)
+or a reference to an array. If given the new object will be
+initialized with headers either from the array of read from 
+the file descriptor.
+
+%options is a list of options given in the form of key-value
+pairs, just like a hash table. Valid options are
+
+ -Option    --Default
+  FoldLength  79
+  MailFrom    'KEEP'
+  Modify      false
+
+=over 2
+
+=item FoldLength => INTEGER
+
+The default length of line to be used when folding header lines.
+See L<fold_length()|Mail::Header/"Accessors">.
+
+=item MailFrom => 'IGNORE'|'COERCE'|'KEEP'|'ERROR'
+
+See method L<mail_from()|Mail::Header/"Accessors">.
+
+=item Modify => BOOLEAN
+
+If this value is I<true> then the headers will be re-formatted,
+otherwise the format of the header lines will remain unchanged.
+
+=back
+
+=back
+
+=head2 "Fake" constructors
+
+Be warned that the next constructors all require an already created
+header object, of which the original content will be destroyed.
+
+=over 4
+
+=item $obj-E<gt>B<empty>()
+
+Empty an existing C<Mail::Header> object of all lines.
+
+=item $obj-E<gt>B<extract>(ARRAY)
+
+Extract a header from the given array into an existing Mail::Header
+object. C<extract> B<will modify> this array.
+Returns the object that the method was called on.
+
+=item $obj-E<gt>B<header>( [ARRAY] )
+
+C<header> does multiple operations. First it will extract a header from
+the ARRAY, if given. It will then reformat the header (if reformatting
+is permitted), and finally return a reference to an array which
+contains the header in a printable form.
+
+=item $obj-E<gt>B<header_hashref>( [HASH] )
+
+As L<header()|Mail::Header/""Fake" constructors">, but it will eventually set headers from a hash
+reference, and it will return the headers as a hash reference.
+
+example: 
+
+ $fields->{From} = 'Tobias Brox <tobix@cpan.org>';
+ $fields->{To}   = ['you@somewhere', 'me@localhost'];
+ $head->header_hashref($fields);
+
+=item $obj-E<gt>B<read>($fh)
+
+Read a header from the given file descriptor into an existing Mail::Header
+object.
+
+=back
+
+=head2 Accessors
+
+=over 4
+
+=item $obj-E<gt>B<fold_length>( [$tag], [$length] )
+
+Set the default fold length for all tags or just one. With no arguments
+the default fold length is returned. With two arguments it sets the fold
+length for the given tag and returns the previous value. If only C<$length>
+is given it sets the default fold length for the current object.
+
+In the two argument form C<fold_length> may be called as a static method,
+setting default fold lengths for tags that will be used by B<all>
+C<Mail::Header> objects. See the C<fold> method for
+a description on how C<Mail::Header> uses these values.
+
+=item $obj-E<gt>B<mail_from>('IGNORE'|'COERCE'|'KEEP'|'ERROR')
+
+This specifies what to do when a C<`From '> line is encountered.
+Valid values are C<IGNORE> - ignore and discard the header,
+C<ERROR> - invoke an error (call die), C<COERCE> - rename them as Mail-From
+and C<KEEP> - keep them.
+
+=item $obj-E<gt>B<modify>( [$value] )
+
+If C<$value> is I<false> then C<Mail::Header> will not do any automatic
+reformatting of the headers, other than to ensure that the line
+starts with the tags given.
+
+=back
+
+=head2 Processing
+
+=over 4
+
+=item $obj-E<gt>B<add>( $tag, $line [, $index] )
+
+Add a new line to the header. If $tag is C<undef> the tag will be
+extracted from the beginning of the given line. If $index is given,
+the new line will be inserted into the header at the given point, otherwise
+the new line will be appended to the end of the header.
+
+=item $obj-E<gt>B<as_string>()
+
+Returns the header as a single string.
+
+=item $obj-E<gt>B<cleanup>()
+
+Remove any header line that, other than the tag, only contains whitespace
+
+=item $obj-E<gt>B<combine>( $tag [, $with] )
+
+Combine all instances of $tag into one. The lines will be
+joined together $with, or a single space if not given. The new
+item will be positioned in the header where the first instance was, all
+other instances of $tag will be removed.
+
+=item $obj-E<gt>B<count>($tag)
+
+Returns the number of times the given atg appears in the header
+
+=item $obj-E<gt>B<delete>( $tag [, $index ] )
+
+Delete a tag from the header. If an $index id is given, then the Nth instance
+of the tag will be removed. If no $index is given, then all instances
+of tag will be removed.
+
+=item $obj-E<gt>B<fold>( [$length] )
+
+Fold the header. If $length is not given, then C<Mail::Header> uses the
+following rules to determine what length to fold a line.
+
+=item $obj-E<gt>B<get>( $tag [, $index] )
+
+Get the text from a line. If an $index is given, then the text of the Nth
+instance will be returned. If it is not given the return value depends on the
+context in which C<get> was called. In an array context a list of all the
+text from all the instances of the $tag will be returned. In a scalar context
+the text for the first instance will be returned.
+
+The lines are unfolded, but still terminated with a new-line (see C<chomp>)
+
+=item $obj-E<gt>B<print>( [$fh] )
+
+Print the header to the given file descriptor, or C<STDOUT> if no
+file descriptor is given.
+
+=item $obj-E<gt>B<replace>( $tag, $line [, $index ] )
+
+Replace a line in the header.  If $tag is C<undef> the tag will be
+extracted from the beginning of the given line. If $index is given
+the new line will replace the Nth instance of that tag, otherwise the
+first instance of the tag is replaced. If the tag does not appear in the
+header then a new line will be appended to the header.
+
+=item $obj-E<gt>B<tags>()
+
+Returns an array of all the tags that exist in the header. Each tag will
+only appear in the list once. The order of the tags is not specified.
+
+=item $obj-E<gt>B<unfold>( [$tag] )
+
+Unfold all instances of the given tag so that they do not spread across
+multiple lines. If C<$tag> is not given then all lines are unfolded.
+
+The unfolding process is wrong but (for compatibility reasons) will
+not be repaired: only one blank at the start of the line should be
+removed, not all of them.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Util.pod
+SHA-256: 9213adadecd4b2383a6d1f0b55e806b07b4ca87980b5140e13555f561aa34cc2
+
+=encoding utf8
+
+=head1 NAME
+
+Mail::Util - mail utility functions
+
+=head1 INHERITANCE
+
+ Mail::Util
+   is an Exporter
+
+=head1 SYNOPSIS
+
+  use Mail::Util qw( ... );
+
+=head1 DESCRIPTION
+
+This package provides several mail related utility functions. Any function
+required must by explicitly listed on the use line to be exported into
+the calling package.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item B<mailaddress>( [$address] )
+
+Return a guess at the current users mail address. The user can force
+the return value by setting the MAILADDRESS environment variable.
+[2.10] You may set the $address via the parameter.
+
+WARNING:
+When not supplied via the environment variable, <mailaddress> looks at
+various configuration files and other environmental data. Although this
+seems to be smart behavior, this is not predictable enough (IMHO) to
+be used.  Please set the MAILADDRESS explicitly, and do not trust on
+the "automatic detection", even when that produces a correct address
+(on the moment)
+
+example: 
+
+ # in your main script
+ $ENV{MAILADDRESS} = 'me@example.com';
+
+ # everywhere else
+ use Mail::Util 'mailaddress';
+ print mailaddress;
+
+ # since v2.10
+ mailaddress "me@example.com";
+
+=item B<maildomain>()
+
+Attempt to determine the current user mail domain string via the following
+methods
+
+=over 4
+
+=item * Look for the MAILDOMAIN environment variable, which can be set from outside the program.  This is by far the best way to configure the domain.
+
+=item * Look for a sendmail.cf file and extract DH parameter
+
+=item * Look for a smail config file and usr the first host defined in hostname(s)
+
+=item * Try an SMTP connect (if Net::SMTP exists) first to mailhost then localhost
+
+=item * Use value from Net::Domain::domainname (if Net::Domain exists)
+
+=back
+
+WARNING:
+On modern machines, there is only one good way to provide information to
+this method: the first; always explicitly configure the MAILDOMAIN.
+
+example: 
+
+ # in your main script
+ $ENV{MAILDOMAIN} = 'example.com';
+
+ # everywhere else
+ use Mail::Util 'maildomain';
+ print maildomain;
+
+=item B<read_mbox>($file)
+
+Read $file, a binmail mailbox file, and return a list of  references.
+Each reference is a reference to an array containing one message.
+
+WARNING:
+This method does not quote lines which accidentally also start with the
+message separator C<From>, so this implementation can be considered
+broken.  See Mail::Box::Mbox
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/Mail/Address.pm
+SHA-256: 16c3865aff1e9fe0cd4880b4eb21580973e89cf25fea3c8166203c5e24518f48
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package Mail::Address;{
+our $VERSION = '2.22';
+}
+
+use strict;
+
+use Carp;
+
+# use locale;   removed in version 1.78, because it causes taint problems
+
+sub Version { our $VERSION }
+
+
+
+# given a comment, attempt to extract a person's name
+sub _extract_name
+{   # This function can be called as method as well
+    my $self = @_ && ref $_[0] ? shift : undef;
+
+    local $_ = shift
+        or return '';
+
+    # Using encodings, too hard. See Mail::Message::Field::Full.
+    return '' if m/\=\?.*?\?\=/;
+
+    # trim whitespace
+    s/^\s+//;
+    s/\s+$//;
+    s/\s+/ /;
+
+    # Disregard numeric names (e.g. 123456.1234@compuserve.com)
+    return "" if /^[\d ]+$/;
+
+    s/^\((.*)\)$/$1/; # remove outermost parenthesis
+    s/^"(.*)"$/$1/;   # remove outer quotation marks
+    s/\(.*?\)//g;     # remove minimal embedded comments
+    s/\\//g;          # remove all escapes
+    s/^"(.*)"$/$1/;   # remove internal quotation marks
+    s/^([^\s]+) ?, ?(.*)$/$2 $1/; # reverse "Last, First M." if applicable
+    s/,.*//;
+
+    # Change casing only when the name contains only upper or only
+    # lower cased characters.
+    unless( m/[A-Z]/ && m/[a-z]/ )
+    {   # Set the case of the name to first char upper rest lower
+        s/\b(\w+)/\L\u$1/igo;  # Upcase first letter on name
+        s/\bMc(\w)/Mc\u$1/igo; # Scottish names such as 'McLeod'
+        s/\bo'(\w)/O'\u$1/igo; # Irish names such as 'O'Malley, O'Reilly'
+        s/\b(x*(ix)?v*(iv)?i*)\b/\U$1/igo; # Roman numerals, eg 'Level III Support'
+    }
+
+    # some cleanup
+    s/\[[^\]]*\]//g;
+    s/(^[\s'"]+|[\s'"]+$)//g;
+    s/\s{2,}/ /g;
+
+    $_;
+}
+
+sub _tokenise
+{   local $_ = join ',', @_;
+    my (@words,$snippet,$field);
+
+    s/\A\s+//;
+    s/[\r\n]+/ /g;
+
+    while ($_ ne '')
+    {   $field = '';
+        if(s/^\s*\(/(/ )    # (...)
+        {   my $depth = 0;
+
+     PAREN: while(s/^(\(([^\(\)\\]|\\.)*)//)
+            {   $field .= $1;
+                $depth++;
+                while(s/^(([^\(\)\\]|\\.)*\)\s*)//)
+                {   $field .= $1;
+                    last PAREN unless --$depth;
+	            $field .= $1 if s/^(([^\(\)\\]|\\.)+)//;
+                }
+            }
+
+            carp "Unmatched () '$field' '$_'"
+                if $depth;
+
+            $field =~ s/\s+\Z//;
+            push @words, $field;
+
+            next;
+        }
+
+        if( s/^("(?:[^"\\]+|\\.)*")\s*//       # "..."
+         || s/^(\[(?:[^\]\\]+|\\.)*\])\s*//    # [...]
+         || s/^([^\s()<>\@,;:\\".[\]]+)\s*//
+         || s/^([()<>\@,;:\\".[\]])\s*//
+          )
+        {   push @words, $1;
+            next;
+        }
+
+        croak "Unrecognised line: $_";
+    }
+
+    push @words, ",";
+    \@words;
+}
+
+sub _find_next
+{   my ($idx, $tokens, $len) = @_;
+
+    while($idx < $len)
+    {   my $c = $tokens->[$idx];
+        return $c if $c eq ',' || $c eq ';' || $c eq '<';
+        $idx++;
+    }
+
+    "";
+}
+
+sub _complete
+{   my ($class, $phrase, $address, $comment) = @_;
+
+    @$phrase || @$comment || @$address
+       or return undef;
+
+    my $o = $class->new(join(" ",@$phrase), join("",@$address), join(" ",@$comment));
+    @$phrase = @$address = @$comment = ();
+    $o;
+}
+
+#------------
+
+sub new(@)
+{   my $class = shift;
+    bless [@_], $class;
+}
+
+
+sub parse(@)
+{   my $class = shift;
+    my @line  = grep {defined} @_;
+    my $line  = join '', @line;
+
+    my (@phrase, @comment, @address, @objs);
+    my ($depth, $idx) = (0, 0);
+
+    my $tokens  = _tokenise @line;
+    my $len     = @$tokens;
+    my $next    = _find_next $idx, $tokens, $len;
+
+    local $_;
+    for(my $idx = 0; $idx < $len; $idx++)
+    {   $_ = $tokens->[$idx];
+
+        if(substr($_,0,1) eq '(') { push @comment, $_ }
+        elsif($_ eq '<')    { $depth++ }
+        elsif($_ eq '>')    { $depth-- if $depth }
+        elsif($_ eq ',' || $_ eq ';')
+        {   warn "Unmatched '<>' in $line" if $depth;
+            my $o = $class->_complete(\@phrase, \@address, \@comment);
+            push @objs, $o if defined $o;
+            $depth = 0;
+            $next = _find_next $idx+1, $tokens, $len;
+        }
+        elsif($depth)       { push @address, $_ }
+        elsif($next eq '<') { push @phrase,  $_ }
+        elsif( /^[.\@:;]$/ || !@address || $address[-1] =~ /^[.\@:;]$/ )
+        {   push @address, $_ }
+        else
+        {   warn "Unmatched '<>' in $line" if $depth;
+            my $o = $class->_complete(\@phrase, \@address, \@comment);
+            push @objs, $o if defined $o;
+            $depth = 0;
+            push @address, $_;
+        }
+    }
+    @objs;
+}
+
+#------------
+
+sub phrase  { shift->set_or_get(0, @_) }
+sub address { shift->set_or_get(1, @_) }
+sub comment { shift->set_or_get(2, @_) }
+
+sub set_or_get($)
+{   my ($self, $i) = (shift, shift);
+    @_ or return $self->[$i];
+
+    my $val = $self->[$i];
+    $self->[$i] = shift if @_;
+    $val;
+}
+
+
+my $atext = '[\-\w !#$%&\'*+/=?^`{|}~]';
+sub format
+{   my @addrs;
+
+    foreach (@_)
+    {   my ($phrase, $email, $comment) = @$_;
+        my @addr;
+
+        if(defined $phrase && length $phrase)
+        {   push @addr
+              , $phrase =~ /^(?:\s*$atext\s*)+$/o ? $phrase
+              : $phrase =~ /(?<!\\)"/             ? $phrase
+              :                                    qq("$phrase");
+
+            push @addr, "<$email>"
+                if defined $email && length $email;
+        }
+        elsif(defined $email && length $email)
+        {   push @addr, $email;
+        }
+
+        if(defined $comment && $comment =~ /\S/)
+        {   $comment =~ s/^\s*\(?/(/;
+            $comment =~ s/\)?\s*$/)/;
+        }
+
+        push @addr, $comment
+            if defined $comment && length $comment;
+
+        push @addrs, join(" ", @addr)
+            if @addr;
+    }
+
+    join ", ", @addrs;
+}
+
+#------------
+
+sub name
+{   my $self   = shift;
+    my $phrase = $self->phrase;
+    my $addr   = $self->address;
+
+    $phrase    = $self->comment
+        unless defined $phrase && length $phrase;
+
+    my $name   = $self->_extract_name($phrase);
+
+    # first.last@domain address
+    if($name eq '' && $addr =~ /([^\%\.\@_]+([\._][^\%\.\@_]+)+)[\@\%]/)
+    {   ($name  = $1) =~ s/[\._]+/ /g;
+	$name   = _extract_name $name;
+    }
+
+    if($name eq '' && $addr =~ m#/g=#i)    # X400 style address
+    {   my ($f) = $addr =~ m#g=([^/]*)#i;
+	my ($l) = $addr =~ m#s=([^/]*)#i;
+	$name   = _extract_name "$f $l";
+    }
+
+    length $name ? $name : undef;
+}
+
+
+sub host
+{   my $addr = shift->address || '';
+    my $i    = rindex $addr, '@';
+    $i >= 0 ? substr($addr, $i+1) : undef;
+}
+
+
+sub user
+{   my $addr = shift->address || '';
+    my $i    = rindex $addr, '@';
+    $i >= 0 ? substr($addr,0,$i) : $addr;
+}
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/MailTools.pm
+SHA-256: 168e6f17f11da7f249904a03422f43c9db0b05970d4c2f604816b43d56176c41
+
+# Copyrights 1995-2024 by [Mark Overmeer <markov@cpan.org>].
+#  For other contributors see ChangeLog.
+# See the manual pages for details on the licensing terms.
+# Pod stripped from pm file by OODoc 2.03.
+# This code is part of the bundle MailTools.  Meta-POD processed with
+# OODoc into POD and HTML manual-pages.  See README.md for Copyright.
+# Licensed under the same terms as Perl itself.
+
+package MailTools;{
+our $VERSION = '2.22';
+}
+
+
+
+1;
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/lib/MailTools.pod
+SHA-256: ce8d16850ffada94f086243f585f0a0cf1f2506d4accc0b95e4fbd6429fc17e0
+
+=encoding utf8
+
+=head1 NAME
+
+MailTools - bundle of ancient email modules
+
+=head1 SYNOPSIS
+
+ # This is a place-holder for the distribution
+
+=head1 DESCRIPTION
+
+MailTools is a bundle: an ancient form of combining packages into one
+distribution.  Gladly, it can be distributed as if it is a normal
+distribution as well.
+
+B<Be warned:> The code you find here is very old.  It works for simple
+emails, but when you start with new code then please use more
+sofisticated libraries.  The main reason that you still find this code
+on CPAN, is because many books use it as example.
+
+=head2 Component
+
+In this distribution, you find
+
+=over 4
+
+=item Mail::Address
+
+Parse email address from a header line.
+
+=item Mail::Cap
+
+Interpret mailcap files: mappings of file-types to applications as used
+by many command-line email programs.
+
+=item Mail::Field
+
+Simplifies access to (some) email header fields.  Used by L<Mail::Header|Mail::Header>.
+
+=item Mail::Filter
+
+Process L<Mail::Internet|Mail::Internet> messages.
+
+=item Mail::Header
+
+Collection of L<Mail::Field|Mail::Field> objects, representing the header of a
+L<Mail::Internet|Mail::Internet> object.
+
+=item Mail::Internet
+
+Represents a single email message, with header and body.
+
+=item Mail::Mailer
+
+Send L<Mail::Internet|Mail::Internet> emails via direct smtp or local MTA's.
+
+=item Mail::Send
+
+Build a L<Mail::Internet|Mail::Internet> object, and then send it out using
+L<Mail::Mailer|Mail::Mailer>.
+
+=item Mail::Util
+
+"Smart functions" you should not depend on.
+
+=back
+
+=head1 SEE ALSO
+
+This module is part of the MailTools distribution,
+F<http://perl.overmeer.net/mailtools/>.
+
+=head1 AUTHORS
+
+The MailTools bundle was developed by Graham Barr.  Later, Mark
+Overmeer took over maintenance without commitment to further development.
+
+Mail::Cap by Gisle Aas E<lt>aas@oslonett.noE<gt>.
+Mail::Field::AddrList by Peter Orbaek E<lt>poe@cit.dkE<gt>.
+Mail::Mailer and Mail::Send by Tim Bunce E<lt>Tim.Bunce@ig.co.ukE<gt>.
+For other contributors see ChangeLog.
+
+=head1 LICENSE
+
+Copyrights 1995-2000 Graham Barr E<lt>gbarr@pobox.comE<gt> and
+2001-2024 Mark Overmeer E<lt>perl@overmeer.netE<gt>.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See F<http://www.perl.com/perl/misc/Artistic.html>
+
+
+
+========================================================================
+Origin: perl-mailtools-2.22-2.src.tar.zst!perl-mailtools/MailTools-2.22.tar.gz!MailTools-2.22/README.md
+SHA-256: 1d59d08e0e3ff2d59d3884afb93ba1d9d9a212a8447754ded74d73b680b0cc3a
+
+# MailTools
+
+  * My extended documentation: <http://perl.overmeer.net/CPAN/>
+  * Development via GitHub: <https://github.com/markov2/perl5-MailTools>
+  * Download from CPAN: <ftp://ftp.cpan.org/pub/CPAN/authors/id/M/MA/MARKOV/>
+  * Indexed from CPAN: <https://metacpan.org/release/MailTools>
+
+MailTools is one of the oldest modules on CPAN.  It started off in 1995,
+the year Perl 5.0 got released!  That's just in the beginning of the
+MIME standards.
+
+Email has become more complex over the years.  The components of
+MailTools only understand very basic emails and fairly simple mime
+headers.  Fixing some things will break existing applications.
+
+The only reason for still maintaining it, is because it is used as example
+in many books and therefore applications still use it.  Not because it
+is good.  Sometimes it is good enough, though.
+
+Later, this module got extended by the MIME::Entity modules to support
+multiparts and more smartness.  But even those modules are quite limited,
+considering modern emails.
+
+**Please note:** When you start all over, please consider Mail::Box!
+For a feature overview, take a look at the
+[MailBox overview](http://perl.overmeer.net/mailbox/html/Mail_Box-Overview/)
+and
+[MailBox features](http://perl.overmeer.net/mailbox/html/Mail_Box-Index/)
+pages.
+
+## Development &rarr; Release
+
+Important to know, is that I use an extension on POD to write the manuals.
+The "raw" unprocessed version is visible on GitHub.  It will run without
+problems, but does not contain manual-pages.
+
+Releases to CPAN are different: "raw" documentation gets removed from
+the code and translated into real POD and clean HTML.  This reformatting
+is implemented with the OODoc distribution (A name I chose before OpenOffice
+existed, sorry for the confusion)
+
+Clone from github for the "raw" version.  For instance, when you want
+to contribute a new feature.
+
+On github, you can find the processed version for each release.  But the
+better source is CPAN; to get it installed simply run:
+
+```sh
+   cpan -i MailTools
+```
+
+## Contributing
+
+When you want to contribute to this module, you do not need to provide
+a perfect patch... actually: it is nearly impossible to create a patch
+which I will merge without modification.  Usually, I need to adapt the
+style of code and documentation to my own strict rules.
+
+When you submit an extension, please contribute a set with
+
+1. code
+
+2. code documentation
+
+3. regression tests in t/
+
+**Please note:**
+When you contribute in any way, you agree to transfer the copyrights to
+Mark Overmeer (you will get the honors in the code and/or ChangeLog).
+You also automatically agree that your contribution is released under
+the same license as this project: licensed as perl itself.
+
+## Copyright and License
+
+Graham Barr wrote most of these components, since 2001 maintained by
+Mark Overmeer. Copyright is with these authors.
+
+This project is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+See <http://dev.perl.org/licenses/>
+
+

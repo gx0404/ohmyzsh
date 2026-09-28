@@ -1,0 +1,5 @@
+#!/bin/sh
+ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd -P) || exit
+FPATH="$ROOT/share/zsh/functions:$ROOT/share/zsh/site-functions"
+export FPATH
+exec "$ROOT/libexec/zsh/zsh" "$@"

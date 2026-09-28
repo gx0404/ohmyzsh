@@ -1,0 +1,74 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgbase=libffi
+pkgname=('libffi' 'libffi-devel')
+pkgver=3.8.0
+pkgrel=1
+pkgdesc="Portable, high level programming interface to various calling conventions"
+arch=('i686' 'x86_64')
+url="https://sourceware.org/libffi/"
+msys2_repository_url="https://github.com/libffi/libffi"
+msys2_references=(
+  "cpe: cpe:/a:libffi_project:libffi"
+)
+groups=('libraries')
+license=('spdx:MIT')
+depends=()
+checkdepends=('dejagnu')
+makedepends=('autotools' 'gcc')
+source=(https://github.com/libffi/libffi/releases/download/v$pkgver/libffi-$pkgver.tar.gz)
+sha256sums=('7da3e2d9a171eb0a038f592ecad3ff2bb2550f3496d87b3b29ad0cf4430c0db4')
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+
+  autoreconf -vfi
+}
+
+build() {
+  cd ${pkgname}-${pkgver}
+  # Perform the build outside of srcdir so that
+  # srcdir is not simplified to '.' as relative
+  # paths in debug information are not ideal.
+  [[ -d build ]] && rm -rf build
+  mkdir build && cd build
+  local -a extra_config
+  if check_option "debug" "y"; then
+    extra_config+=("--enable-debug")
+  fi
+  ${srcdir}/${pkgname}-${pkgver}/configure \
+    --prefix=/usr \
+    --srcdir=${srcdir}/${pkgname}-${pkgver} \
+    --build=${CHOST} \
+    --enable-static \
+    --enable-shared \
+    "${extra_config[@]}"
+  make
+  make DESTDIR="${srcdir}/dest" install
+}
+
+check() {
+  cd ${pkgname}-${pkgver}/build
+  make check
+}
+
+package_libffi() {
+  mkdir -p ${pkgdir}/usr/bin
+  cp -f ${srcdir}/dest/usr/bin/*.dll ${pkgdir}/usr/bin/
+  cp -rf ${srcdir}/dest/usr/share ${pkgdir}/usr/
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/LICENSE \
+    "${pkgdir}"/usr/share/licenses/${pkgname}/LICENSE
+}
+
+package_libffi-devel() {
+  pkgdesc="Libffi headers and libraries"
+  groups=('development')
+  if check_option "debug" "y"; then
+    options=('staticlibs' '!strip' 'debug')
+  fi
+  depends=("libffi=${pkgver}")
+
+  mkdir -p ${pkgdir}/usr
+  cp -rf ${srcdir}/dest/usr/include ${pkgdir}/usr/
+  cp -rf ${srcdir}/dest/usr/lib ${pkgdir}/usr/
+}

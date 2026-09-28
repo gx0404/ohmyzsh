@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 测试编排：语法层 → 自包含单元（lib/tests/cli.test.zsh）→ 隔离加载 smoke。
+# 测试编排：语法/单元 → 隔离加载与安装 → GX profile → 打包和发布单元。
 # 逐层真实执行并汇总裁决；任一层失败整体非零退出，不用管道吞退出码。
 set -uo pipefail
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
@@ -28,6 +28,8 @@ run_step config-shapes python3 tests/check_tool_configs.py
 run_step smoke zsh tests/smoke_load.zsh
 run_step gx-terminal python3 tests/gx_terminal.py
 run_step gx-install-smoke zsh tests/gx_install_smoke.zsh
+run_step gx-package-profile python3 tests/gx_package_profile.py
+run_step gx-package-unit python3 -m unittest discover -s tests -p 'test_gx_*.py'
 
 echo "=== summary ==="
 printf '%s\n' "${summary[@]}"
