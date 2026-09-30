@@ -6,6 +6,8 @@
 
 ## 0.2.0(TBD)
 
+- 增加本机 Zsh 历史白名单导出、通用命令精选与操作习惯说明；仅保存固定命令和
+  计数，支持手动导入历史检索，不复制原始参数或自动改写用户历史。
 - 新增 Windows x64 EXE 与 Ubuntu amd64 DEB 构建入口、依赖及对应源码/许可锁、
   manifest 和校验值；GitHub Actions 仅手动触发，默认只构建验证，不自动公开 Release。
 - 提供 `gx-zsh` 与托管 `herdr` 入口。Windows 使用私有 MSYS2，Ubuntu 使用独立

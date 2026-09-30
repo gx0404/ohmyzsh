@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-09-28T03:27:40Z",
+ "built_at": "2026-09-30T08:21:36Z",
  "corpus_files": 997,
- "corpus_hash": "c30f5143d6c20be9f8f4ef425266ca3f0956e87bbce97b150a669b17f400580d",
- "content_hash": "5696ac8aa22c151a142bc0d788c2764e4366111b712fb1fe9a2da80fb045d983",
+ "corpus_hash": "c5591cce4c48b99568ff4cd734fb7ab3b4c64e6b0ddb458eeb88e1512404e633",
+ "content_hash": "3fd622e37841fc6689745142a18203fbdcff057f31bf5845450f0043b98e9fbf",
  "chunk_count": 1673,
  "chunks": [
   {
@@ -96,11 +96,11 @@
    "layer": "doc"
   },
   {
-   "id": "66aa98c1451d",
+   "id": "5d0ca16ed670",
    "source": "CHANGELOG.md",
    "anchor": "CHANGELOG.md#0-2-0-tbd",
    "title": "0.2.0(TBD)",
-   "text": "- 新增 Windows x64 EXE 与 Ubuntu amd64 DEB 构建入口、依赖及对应源码/许可锁、\n  manifest 和校验值；GitHub Actions 仅手动触发，默认只构建验证，不自动公开 Release。\n- 提供 `gx-zsh` 与托管 `herdr` 入口。Windows 使用私有 MSYS2，Ubuntu 使用独立\n  Zsh 运行时；固定 herdr 来源包含 Windows 命名管道握手修复，不覆盖既有用户配置。\n- 修复 Zsh 5.9.2 中文启动文件、进程替换、sysopen 和 zcompile 的路径编码；\n  Linux 运行时通过 Ubuntu 20.04/24.04 用户态验证，保留源码补丁与构建记录。\n- 将 P10k 运行副本和编译缓存移到独立 profile，修复暖缓存无 TTY 初始化及\n  Windows zoxide 数据目录适配；长粘贴按长度选择逐键处理或一次字面插入。\n- 安装器遇到同秒备份/中转目标碰撞时安全拒绝，不再覆盖旧备份或删除同名残留。\n- 新增真实 PTY/ConPTY、中文路径、原生入口、打包、发布安全与生命周期测试。\n  开发候选包已在 Windows 和 WSL Ubuntu 24.04 实际安装并通过核心 TUI 验证；\n  原生包升级/卸载及完整发布验收仍未完成，不能据此宣称可正式发布。\n- 知识库构建统一文本换行并处理 Git 符号链接，避免 Windows/Linux checkout 形态\n  导致语料指纹漂移；同步 Make 入口、领域规则和发布/测试文档。",
+   "text": "- 增加本机 Zsh 历史白名单导出、通用命令精选与操作习惯说明；仅保存固定命令和\n  计数，支持手动导入历史检索，不复制原始参数或自动改写用户历史。\n- 新增 Windows x64 EXE 与 Ubuntu amd64 DEB 构建入口、依赖及对应源码/许可锁、\n  manifest 和校验值；GitHub Actions 仅手动触发，默认只构建验证，不自动公开 Release。\n- 提供 `gx-zsh` 与托管 `herdr` 入口。Windows 使用私有 MSYS2，Ubuntu 使用独立\n  Zsh 运行时；固定 herdr 来源包含 Windows 命名管道握手修复，不覆盖既有用户配置。\n- 修复 Zsh 5.9.2 中文启动文件、进程替换、sysopen 和 zcompile 的路径编码；\n  Linux 运行时通过 Ubuntu 20.04/24.04 用户态验证，保留源码补丁与构建记录。\n- 将 P10k 运行副本和编译缓存移到独立 profile，修复暖缓存无 TTY 初始化及\n  Windows zoxide 数据目录适配；长粘贴按长度选择逐键处理或一次字面插入。\n- 安装器遇到同秒备份/中转目标碰撞时安全拒绝，不再覆盖旧备份或删除同名残留。\n- 新增真实 PTY/ConPTY、中文路径、原生入口、打包、发布安全与生命周期测试。\n  开发候选包已在 Windows 和 WSL Ubuntu 24.04 实际安装并通过核心 TUI 验证；\n  原生包升级/卸载及完整发布验收仍未完成，不能据此宣称可正式发布。\n- 知识库构建统一文本换行并处理 Git 符号链接，避免 Windows/Linux checkout 形态\n  导致语料指纹漂移；同步 Make 入口、领域规则和发布/测试文档。",
    "layer": "doc"
   },
   {

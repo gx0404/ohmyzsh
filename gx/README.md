@@ -15,6 +15,7 @@ gx/
 │   ├── zshrc.local    机器差异层参照（CUDA/TensorRT、Photoneo、海康 MVS 等；
 │   │                  不入安装器部署对，换机不带走，目标机已有文件原样保留）
 │   └── p10k.zsh       Powerlevel10k Lean 精简配置
+├── history/           本机历史的白名单统计与可导入精选（不含原始历史）
 ├── omz-custom/themes/powerlevel10k/   主题提交树快照（无 .git）
 ├── bin/               linux-x86_64 二进制：gitstatusd v1.5.4、zoxide 0.9.9
 ├── fonts/JetBrainsMonoNerd/           Nerd Fonts v3.4.0 四字重 ttf
@@ -143,9 +144,12 @@ vim/Claude Code）时透传为应用内翻页，否则宿主滚动。插件缺�
 
 ## 范围外（有意不迁移）
 
-`~/.zsh_history` 与 zoxide 数据库（隐私）、nvm/cargo/bun/go 等 SDK（PATH 守卫
+完整 `~/.zsh_history` 与 zoxide 数据库（隐私）、nvm/cargo/bun/go 等 SDK（PATH 守卫
 静默跳过）、`.gitconfig`、任何 token/密钥文件。atuin 在 zshrc 中留有守卫集成，
 未安装则自动跳过。
+
+历史的通用命令精选、使用统计与操作习惯见 [history/README.md](history/README.md)。
+安装器不自动导入精选；可以在目标机的 Zsh 中手动加载，用于历史检索与建议。
 
 ## 交互性能开关（有意的取舍）
 
