@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # PreToolUse 安全门：Claude Code 与 ZCode 共用的策略真源（Codex 经包装脚本复用）。
 # 协议适配：从 stdin JSON 提取 tool_input.file_path / tool_input.command；
-# file_path 可能是绝对路径，先相对化到仓库根再判定。
+# file_path 可能是绝对路径，先相对化到组件根（本脚本上两级目录）再判定。
 # 拒绝 → stderr 输出原因并 exit 2（阻断）；放行 → 静默 exit 0。
 set -euo pipefail
 
@@ -22,11 +22,23 @@ print(json.dumps({"file_path": str(file_path), "command": str(command)}))
 ')
 [ -n "$fields" ] || exit 0
 
-file_path=$(printf '%s' "$fields" | python3 -c 'import json,sys; print(json.load(sys.stdin)["file_path"])')
 command=$(printf '%s' "$fields" | python3 -c 'import json,sys; print(json.load(sys.stdin)["command"])')
 
-repo_root=$(git rev-parse --show-toplevel 2>/dev/null || exit 0)
-rel=${file_path#"$repo_root"/}
+# 组件根取本脚本上两级目录（<组件>/.claude/hooks/），不取 git 顶层：并入单仓后顶层是
+# 单仓根，按它相对化会让 custom/ 等组件相对模式静默失配。相对化交给 pathlib（兼容
+# Windows 盘符与反斜杠）；组件根外的路径原样保留。
+rel=$(printf '%s' "$fields" | python3 -c '
+import json, sys
+from pathlib import Path
+file_path = json.load(sys.stdin)["file_path"]
+root = Path(sys.argv[1]).resolve().parents[2]
+if file_path and Path(file_path).is_absolute():
+    try:
+        file_path = Path(file_path).resolve().relative_to(root).as_posix()
+    except ValueError:
+        pass
+print(file_path)
+' "$0")
 
 # 运行时用户层与仓库内部状态：不可作为编辑目标
 case "$rel" in

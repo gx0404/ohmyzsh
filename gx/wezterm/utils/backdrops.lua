@@ -1,5 +1,6 @@
 local wezterm = require('wezterm')
 local colors = require('colors.custom')
+local gui_settings = require('utils.gui-settings')
 
 -- Seeding random numbers before generating for use
 -- Known issue with lua math library
@@ -84,7 +85,7 @@ end
 ---wallpaper 键；启动/重载时优先按它覆盖默认（只认 basename 且必须在
 ---目录内——set_default 的查找天然挡掉目录外与缺失条目）。
 function BackDrops:set_default_from_sidecar()
-   local f = io.open(wezterm.config_dir .. '/gui-settings.json', 'r')
+   local f = io.open(gui_settings.path(wezterm.config_dir, wezterm.home_dir, os.getenv), 'r')
    if not f then
       return self
    end

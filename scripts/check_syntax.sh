@@ -45,7 +45,7 @@ for file in ./lib/tests/*.zsh ./tests/*.zsh ./tools/*.sh ./scripts/*.sh ./gx/*.s
   [ -e "$file" ] || continue
   dispatch "$file"
 done
-for file in ./gx/config/*.zsh ./gx/config/zshrc ./gx/config/zshenv; do
+for file in ./gx/config/*.zsh ./gx/config/zshrc ./gx/config/zshenv ./gx/omz-custom/plugins/*/*.plugin.zsh; do
   [ -e "$file" ] || continue
   check_one "$file" zsh
 done

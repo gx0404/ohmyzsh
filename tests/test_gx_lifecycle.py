@@ -323,7 +323,7 @@ class LifecycleTests(unittest.TestCase):
             encoded = __import__("base64").b64encode((command.replace("$args[0]", "'" + str(windows).replace("'", "''") + "'")).encode("utf-16le")).decode()
             syntax = subprocess.run([str(powershell), "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded], env=env, capture_output=True)
             self.assertEqual(syntax.returncode, 0, syntax.stderr)
-            refused = subprocess.run([str(powershell), "-NoProfile", "-NonInteractive", "-File", str(windows)], env=env, capture_output=True)
+            refused = subprocess.run([str(powershell), "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", str(windows)], env=env, capture_output=True)
             self.assertEqual(refused.returncode, 2, refused.stderr)
             self.assertIn(b"REFUSED", refused.stderr)
 

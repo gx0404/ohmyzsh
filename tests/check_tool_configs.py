@@ -88,8 +88,10 @@ for py in sorted((ROOT / ".codex/hooks").glob("*.py")):
 # --- 5. 注册入口原样探针：按各工具配置里的 command 字符串原样执行 ---
 def probe(command: str, label: str) -> None:
     denied = run_gate(command, dangerous_payload())
+    protected = run_gate(command, runtime_dir_payload())
     allowed = run_gate(command, benign_payload())
     check(f"{label} 注册入口拒绝危险写入", denied == 2, f"exit={denied}")
+    check(f"{label} 注册入口拒绝写运行时目录", protected == 2, f"exit={protected}")
     check(f"{label} 注册入口放行合法写入", allowed == 0, f"exit={allowed}")
 
 
@@ -106,6 +108,12 @@ def dangerous_payload() -> str:
     return json.dumps({"tool_name": "Bash", "tool_input": {"command": force}})
 
 
+def runtime_dir_payload() -> str:
+    # 真实工具传绝对路径：门须相对化到组件根（不是单仓 git 顶层）后才命中 custom/*。
+    return json.dumps({"tool_name": "Write",
+                       "tool_input": {"file_path": str(ROOT / "custom/probe.zsh")}})
+
+
 def benign_payload() -> str:
     return json.dumps({"tool_name": "Write",
                        "tool_input": {"file_path": str(ROOT / "docs/ok.md")}})
@@ -115,6 +123,12 @@ zcode_pre = zcode["hooks"]["events"]["PreToolUse"][0]["hooks"][0]["command"]
 probe(zcode_pre, "zcode")
 codex_pre = (hooks["PreToolUse"][0]["hooks"][0]["command"])
 probe(codex_pre, "codex")
+
+# Stop 复审提醒无副作用（只写 stderr），同样按原样 command 走注册入口。
+for label, stop in (("zcode", zcode["hooks"]["events"]["Stop"][0]["hooks"][0]["command"]),
+                    ("codex", hooks["Stop"][0]["hooks"][0]["command"])):
+    code = run_gate(stop, "")
+    check(f"{label} Stop 注册入口可执行", code == 0, f"exit={code}")
 
 # --- 6. 命令位置语义：真执行必拦，文本提及（heredoc/搜索/commit message）放行 ---
 GATE = "bash .claude/hooks/pretooluse-safety-gate.sh"
@@ -144,6 +158,14 @@ for mentioned in (
 ):
     code = run_gate(GATE, bash_payload(mentioned))
     check(f"文本提及放行: {mentioned!r}", code == 0, f"exit={code}")
+
+# --- 7. 相对化锚定组件根：组件内 custom/ 必拦；组件根外（如单仓根下）的同名路径原样放行 ---
+for label, path, expected in (
+    ("组件内运行时目录拒绝", ROOT / "custom/probe.zsh", 2),
+    ("组件根外同名路径放行", ROOT.parent / "custom/probe.zsh", 0),
+):
+    code = run_gate(GATE, json.dumps({"tool_name": "Write", "tool_input": {"file_path": str(path)}}))
+    check(f"相对化锚定组件根: {label}", code == expected, f"exit={code}")
 
 print(f"config-shapes: {'FAIL ' + str(len(failures)) if failures else 'all PASS'}")
 sys.exit(1 if failures else 0)

@@ -8,7 +8,11 @@ from __future__ import annotations
 
 import subprocess
 import sys
+from pathlib import Path
 
-GATE = ["bash", ".claude/hooks/pretooluse-safety-gate.sh"]
+# 按本文件位置（<组件>/.codex/hooks/）定位共用安全门，不依赖 cwd：单仓内会话 cwd 可能是
+# 单仓根或任意子目录。as_posix 让 Windows 上的 bash 拿到正斜杠路径。
+HOOKS = Path(__file__).resolve().parents[2] / ".claude" / "hooks"
+GATE = ["bash", (HOOKS / "pretooluse-safety-gate.sh").as_posix()]
 
 sys.exit(subprocess.run(GATE, input=sys.stdin.buffer.read(), check=False).returncode)

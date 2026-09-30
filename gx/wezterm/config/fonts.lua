@@ -24,6 +24,20 @@ if unifont then
    table.insert(fallback, { family = 'Unifont' })
 end
 
+-- Windows 自带的中文与彩色 emoji 字体兜底（独立安装的 WezTerm 没有随包的 Noto CJK）；
+-- 同样只在字体文件存在时加入。
+if platform.is_win then
+   local ok, system_root = pcall(os.getenv, 'SystemRoot')
+   local fonts_dir = (ok and system_root or 'C:\\Windows') .. '\\Fonts\\'
+   for _, font in ipairs({ { 'msyh.ttc', 'Microsoft YaHei' }, { 'seguiemj.ttf', 'Segoe UI Emoji' } }) do
+      local file = io.open(fonts_dir .. font[1], 'rb')
+      if file then
+         file:close()
+         table.insert(fallback, { family = font[2] })
+      end
+   end
+end
+
 -- East Asian Ambiguous 宽度：herdr（src/ui/text.rs::display_width，
 -- UnicodeWidthStr::width 非 _cjk 版本）与 wezterm 的
 -- treat_east_asian_ambiguous_width_as_wide（未设置，走默认 false）都按窄

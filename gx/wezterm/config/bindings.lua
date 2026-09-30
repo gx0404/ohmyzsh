@@ -4,7 +4,6 @@ local backdrops = require('utils.backdrops')
 local plugins = require('config.plugins')
 local act = wezterm.action
 
-local resurrect = plugins.resurrect
 local workspace_switcher = plugins.workspace_switcher
 
 local mod = {}
@@ -12,14 +11,11 @@ local mod = {}
 if platform.is_mac then
    mod.SUPER = 'SUPER'
    mod.SUPER_REV = 'SUPER|CTRL'
-elseif platform.is_linux then
-   -- Ubuntu 常用终端功能使用 Ctrl+Shift；壁纸控制挂 leader 层（裸 Alt 会抢走
-   -- readline 的 Alt+. / Alt+b 等标准键，GX-10）。
+else
+   -- Linux 与 Windows 同一套：常用终端功能使用 Ubuntu 习惯的 Ctrl+Shift；壁纸控制
+   -- 挂 leader 层（裸 Alt 会抢走 readline 的 Alt+. / Alt+b / Alt+f 等标准键，GX-10）。
    mod.SUPER = 'CTRL|SHIFT'
    mod.SUPER_REV = 'CTRL|ALT|SHIFT'
-elseif platform.is_win then
-   mod.SUPER = 'ALT' -- to not conflict with Windows key shortcuts
-   mod.SUPER_REV = 'ALT|CTRL'
 end
 
 -- stylua: ignore
@@ -60,43 +56,15 @@ local keys = {
    },
 
    -- copy/paste --
+   -- Ctrl+C / Ctrl+V 不拦截：前者是中断，后者交给 Claude Code/Codex/OpenCode 识别图片剪贴板。
    { key = 'c',          mods = 'CTRL|SHIFT',  action = act.CopyTo('Clipboard') },
    { key = 'v',          mods = 'CTRL|SHIFT',  action = act.PasteFrom('Clipboard') },
-   -- Ctrl+V 不拦截，交给 Claude Code/Codex/OpenCode 识别图片剪贴板。
-   {
-      key = 'S',
-      mods = 'ALT|SHIFT',
-      action = wezterm.action_callback(function(window, _pane)
-         local ok = wezterm.background_child_process({ 'flameshot', 'gui', '--clipboard' })
-         if ok == false then
-            window:toast_notification('WezTerm', '无法启动 Flameshot', nil, 3000)
-         end
-      end),
-   },
-   {
-      key = 'V',
-      mods = 'ALT|SHIFT',
-      action = wezterm.action_callback(function(window, pane)
-         local success, stdout, stderr = wezterm.run_child_process({
-            wezterm.home_dir .. '/.local/bin/ai-image-paste',
-         })
-
-         if success then
-            local path = stdout:gsub('%s+$', '')
-            window:perform_action(act.SendString(path), pane)
-            window:toast_notification('图片已附加', path, nil, 2500)
-         else
-            local message = (stderr or '剪贴板中没有可用图片'):gsub('%s+$', '')
-            window:toast_notification('图片粘贴失败', message, nil, 3500)
-         end
-      end),
-   },
 
    -- tabs --
    -- tabs: spawn+close
    { key = 't',          mods = 'SHIFT|CTRL',  action = act.SpawnTab('DefaultDomain') },
    { key = 't',          mods = mod.SUPER_REV, action = act.SpawnTab('DefaultDomain') },
-   { key = 'w',          mods = mod.SUPER_REV, action = act.CloseCurrentTab({ confirm = false }) },
+   { key = 'w',          mods = mod.SUPER_REV, action = act.CloseCurrentTab({ confirm = true }) },
 
    -- tabs: navigation
    { key = '[',          mods = mod.SUPER,     action = act.ActivateTabRelative(-1) },
@@ -115,10 +83,11 @@ local keys = {
    -- window: spawn windows
    { key = 'n',          mods = mod.SUPER,     action = act.SpawnWindow },
 
-   -- window: zoom window
+   -- window: zoom window（挂 leader 层：Ctrl+Shift+- 就是 Ctrl+_，readline/zsh/emacs/nano
+   -- 的撤销；Ctrl+Shift+= 是 Ctrl++，留给字号放大）
    {
       key = '-',
-      mods = mod.SUPER,
+      mods = 'LEADER',
       action = wezterm.action_callback(function(window, _pane)
          local dimensions = window:get_dimensions()
          if dimensions.is_full_screen then
@@ -131,7 +100,7 @@ local keys = {
    },
    {
       key = '=',
-      mods = mod.SUPER,
+      mods = 'LEADER',
       action = wezterm.action_callback(function(window, _pane)
          local dimensions = window:get_dimensions()
          if dimensions.is_full_screen then
@@ -214,8 +183,8 @@ local keys = {
 
    -- panes: zoom+close pane
    { key = 'Enter', mods = mod.SUPER,     action = act.TogglePaneZoomState },
-   -- 裸 Alt+w 曾无确认销毁 pane（GX-10）；保留 Alt 组合但必须先确认。
-   { key = 'w',     mods = platform.is_linux and 'ALT' or mod.SUPER, action = act.CloseCurrentPane({ confirm = true }) },
+   -- 裸 Alt+w 曾无确认销毁 pane（GX-10）；关闭窗格与关闭标签都先确认。
+   { key = 'w',     mods = mod.SUPER,     action = act.CloseCurrentPane({ confirm = true }) },
 
    -- panes: navigation
    { key = 'k',     mods = mod.SUPER_REV, action = act.ActivatePaneDirection('Up') },
@@ -235,7 +204,7 @@ local keys = {
    -- 透传给应用；宿主 ScrollByPage 在 alt screen 下是静默空操作。
    {
       key = 'PageUp',
-      mods = platform.is_linux and 'SHIFT' or 'NONE',
+      mods = platform.is_mac and 'NONE' or 'SHIFT',
       action = wezterm.action_callback(function(window, pane)
          if pane:is_alt_screen_active() then
             window:perform_action(act.SendString('\x1b[5;2~'), pane)
@@ -246,7 +215,7 @@ local keys = {
    },
    {
       key = 'PageDown',
-      mods = platform.is_linux and 'SHIFT' or 'NONE',
+      mods = platform.is_mac and 'NONE' or 'SHIFT',
       action = wezterm.action_callback(function(window, pane)
          if pane:is_alt_screen_active() then
             window:perform_action(act.SendString('\x1b[6;2~'), pane)
@@ -291,11 +260,16 @@ local keys = {
       action = workspace_switcher and workspace_switcher.switch_workspace() or act.Nop,
    },
 
-   -- plugins: resurrect (会话保存/恢复；插件缺失时跳过)
+   -- plugins: resurrect (会话保存/恢复；按键时才加载，插件缺失时跳过)
    {
       key = 'S',
       mods = mod.SUPER_REV,
-      action = resurrect and wezterm.action_callback(function(win, _pane)
+      action = plugins.resurrect_available and wezterm.action_callback(function(win, _pane)
+         local resurrect = plugins.resurrect()
+         if not resurrect then
+            win:toast_notification('WezTerm', 'resurrect 插件加载失败，未保存', nil, 3000)
+            return
+         end
          resurrect.state_manager.save_state(resurrect.workspace_state.get_workspace_state())
          win:toast_notification('WezTerm', 'Workspace 状态已保存', nil, 2500)
       end) or act.Nop,
@@ -303,7 +277,12 @@ local keys = {
    {
       key = 'r',
       mods = mod.SUPER_REV,
-      action = resurrect and wezterm.action_callback(function(win, pane)
+      action = plugins.resurrect_available and wezterm.action_callback(function(win, pane)
+         local resurrect = plugins.resurrect()
+         if not resurrect then
+            win:toast_notification('WezTerm', 'resurrect 插件加载失败，无法恢复', nil, 3000)
+            return
+         end
          resurrect.fuzzy_loader.fuzzy_load(win, pane, function(id, _label)
             local state_type = string.match(id, '^([^/]+)')
             id = string.match(id, '([^/]+)$')
@@ -331,12 +310,47 @@ local keys = {
 }
 
 if platform.is_linux then
+   -- 截图（flameshot）与 AI 图片粘贴脚本只在 Linux 上存在；Windows 用 Win+Shift+S 截图，
+   -- 图片直接 Ctrl+V 给 Claude Code/Codex。
+   table.insert(keys, {
+      key = 'S',
+      mods = 'ALT|SHIFT',
+      action = wezterm.action_callback(function(window, _pane)
+         local ok = wezterm.background_child_process({ 'flameshot', 'gui', '--clipboard' })
+         if ok == false then
+            window:toast_notification('WezTerm', '无法启动 Flameshot', nil, 3000)
+         end
+      end),
+   })
+   table.insert(keys, {
+      key = 'V',
+      mods = 'ALT|SHIFT',
+      action = wezterm.action_callback(function(window, pane)
+         local success, stdout, stderr = wezterm.run_child_process({
+            wezterm.home_dir .. '/.local/bin/ai-image-paste',
+         })
+
+         if success then
+            local path = stdout:gsub('%s+$', '')
+            window:perform_action(act.SendString(path), pane)
+            window:toast_notification('图片已附加', path, nil, 2500)
+         else
+            local message = (stderr or '剪贴板中没有可用图片'):gsub('%s+$', '')
+            window:toast_notification('图片粘贴失败', message, nil, 3500)
+         end
+      end),
+   })
+end
+
+if not platform.is_mac then
    -- 原始 PageUp/PageDown 留给 less、vim 等程序；常用标签页与字体操作匹配 Ubuntu。
+   -- 主键盘的 Ctrl++ 实际按的是 Ctrl+Shift+=，上报为带 SHIFT 的 '+'；小键盘的不带。
    local ubuntu_keys = {
       { key = 'PageUp', mods = 'CTRL', action = act.ActivateTabRelative(-1) },
       { key = 'PageDown', mods = 'CTRL', action = act.ActivateTabRelative(1) },
       { key = '=', mods = 'CTRL', action = act.IncreaseFontSize },
       { key = '+', mods = 'CTRL', action = act.IncreaseFontSize },
+      { key = '+', mods = 'CTRL|SHIFT', action = act.IncreaseFontSize },
       { key = '-', mods = 'CTRL', action = act.DecreaseFontSize },
       { key = '0', mods = 'CTRL', action = act.ResetFontSize },
    }
@@ -347,8 +361,22 @@ if platform.is_linux then
       -- 标签直达走 leader 层，裸 Alt+数字留给 readline/应用（GX-10）。
       table.insert(keys, { key = tostring(index), mods = 'LEADER', action = act.ActivateTab(index - 1) })
    end
+
+   -- 用户键位没有 Shift 变体合成（上游 #1906）：Windows 与 X11 把 Ctrl+Shift+[ 报成 '{'，
+   -- 只绑 '[' 按不到。带 SHIFT 的标点/数字键位补一份美式布局的 Shift 字符。'-' 与 '='
+   -- 不在此列：Ctrl+_（撤销）要留给 shell，Ctrl++ 是字号放大。
+   local shifted = { ['['] = '{', [']'] = '}', ['\\'] = '|', ['0'] = ')', ['9'] = '(' }
+   local aliases = {}
+   for _, binding in ipairs(keys) do
+      if shifted[binding.key] and binding.mods and binding.mods:find('SHIFT', 1, true) then
+         table.insert(aliases, { key = shifted[binding.key], mods = binding.mods, action = binding.action })
+      end
+   end
+   for _, binding in ipairs(aliases) do
+      table.insert(keys, binding)
+   end
 else
-   -- 保留其他平台的原有光标映射。
+   -- macOS 保留原有的 Cmd+←/→/Backspace 行首、行尾、清行映射。
    table.insert(keys, { key = 'LeftArrow', mods = mod.SUPER, action = act.SendString '\u{1b}OH' })
    table.insert(keys, { key = 'RightArrow', mods = mod.SUPER, action = act.SendString '\u{1b}OF' })
    table.insert(keys, { key = 'Backspace', mods = mod.SUPER, action = act.SendString '\u{15}' })

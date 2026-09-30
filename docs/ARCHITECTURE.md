@@ -75,3 +75,39 @@ changelog.sh（从 Conventional Commits 生成变更日志）、require_tool.sh
   `scripts/agent_kb.py` 检索。
 - 图谱：`scripts/graphify.sh`（graphify --code-only；zsh 扩展名不受 AST 支持，
   覆盖 bash/python/json 面，zsh 结构检索由 KB 代码层承担）。
+
+## GX 原生启动器（scripts/gx-launcher/main.rs）
+
+- 两个变体：`gx-zsh` 以 `-il` 启动私有 Zsh；`herdr`（`--cfg gx_herdr`）启动 `lib/herdr` 下的
+  真实 herdr。资源按自身可执行文件定位，Windows 路径逐段拼接，只用 `\`。
+- `main.rs::initialize` 在 profile 锁内准备目录（Windows 另建 `.cache/oh-my-zsh/completions`、
+  `.local/share/zoxide`）、P10k 运行副本、`.zshenv`/`.zshrc` 与 herdr `config.toml`。
+  herdr 信息类参数（`--version`、`--help` 等）跳过初始化和路径转换。
+- `main.rs::package_environment` 把全部路径逐行写入一次 `cygpath -u -f -` 的标准输入（不经 MSYS2
+  命令行解析，含空格的 UNC、`{a,b}`、`'` 原样转换），行数不符或无法按行传递时逐个用参数回退；
+  profile 下的派生路径直接拼接。`TMPDIR`/`TMPPREFIX` 指向 profile，`TEMP`/`TMP` 不改；
+  Windows 下 `_ZO_DATA_DIR` 未设置时导出 profile 内的原生路径。
+- 入参环境含 `GX_PACKAGE_ROOT` 或 `GX_PROFILE_DIR` 时视为 GX 父环境：不继承 `FPATH`；
+  `ZSH_CUSTOM`、`POWERLEVEL9K_INSTALLATION_DIR` 转成 POSIX，等于包内默认值时移除；移除
+  `ZSH`、`ZSH_CACHE_DIR`、`ZSH_COMPDUMP`、`HISTFILE`、`NVM_DIR`、`GITSTATUS_AUTO_INSTALL`、
+  `P9K_TTY`、`_P9K_TTY`、`P9K_SSH`、`_P9K_SSH_TTY` 这 10 个变量，以及指向 profile 的
+  `XDG_CACHE_HOME`。其他父环境只保留 `FPATH` 里的绝对 POSIX 项。
+- herdr 变体给 server 的环境与 `gx-zsh` 相同（`ZDOTDIR`、`FPATH`、`GX_*`、`MSYSTEM`、
+  `_ZO_DATA_DIR` 等），只有 `HOME` 是原生 Windows 路径（`gx-zsh` 给的是 POSIX 形式）。默认 Shell
+  换成 pwsh、cmd 等时窗格仍继承这些变量；这是有意保留的，运行中的 server 切回 GX Zsh 后新窗格
+  才能直接用。
+- herdr `config.toml` 由标记行 `# gx-shell: manages ...` 声明 GX 管理 `[terminal]` 的
+  `default_shell`、`shell_mode`。GX 创建或收编该文件时在旁边写 `.gx-config-adopted`。
+  无标记且没有这个印记时，`default_shell` 是旧版生成值、`shell_mode = "login"` 才收编一次：
+  Windows 的旧值是 0.1.0/OhMyZshGX 的混合分隔符路径（`…\runtime/msys64/usr/bin/zsh.exe`）；
+  Linux 的旧值与现值相同（`/usr/lib/ohmyzsh-gx/libexec/zsh/zsh`），只靠印记区分。
+  用户删掉标记行后永不再收编。
+- 以下情况都不动文件：`HERDR_CONFIG_PATH` 指向托管文件以外的位置（指向托管文件本身不算，
+  Windows 比较不区分大小写）；`config.toml` 是链接、目录等非普通文件；`[terminal]` 以带引号、
+  点号子表或数组表等形式出现。启动时只修复旧版值与已不存在的路径；写入先写临时文件，rename 前
+  复读，内容被 herdr 改过就重读重判；替换的两行保留缩进与行尾注释，其余内容与 CRLF 不变。
+- `herdr --gx-set-default-shell <绝对路径>`（仅 herdr 变体）写入托管配置；会话（默认
+  `ohmyzsh-gx`）的 server 已在运行时再执行 `server reload-config`，从不启动 server，并解析
+  其报告：`failed` 按错误返回并在 stderr 给出诊断（配置保持已写入），`partial` 的诊断作为警告。
+  退出码：0 成功；3 配置不归 GX 管理（stderr 含 `custom configuration`）；其他为错误。
+- Windows 的 `gx-zsh` 启动 Zsh 前清除继承的「忽略 Ctrl+C」标志；herdr 变体维持原状。

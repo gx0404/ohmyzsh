@@ -20,6 +20,107 @@
   原生包升级/卸载及完整发布验收仍未完成，不能据此宣称可正式发布。
 - 知识库构建统一文本换行并处理 Git 符号链接，避免 Windows/Linux checkout 形态
   导致语料指纹漂移；同步 Make 入口、领域规则和发布/测试文档。
+- 并入 `gx0404/gx_shell` 单仓：herdr 改为从同一提交的 `herdr/` 子目录构建，
+  锁只声明 `monorepo_path`，revision、版本和源码归档摘要由提交推导，对应源码与
+  编译输入是同一归档；herdr 以包身份编译，二进制内关闭自更新。打包脚本的脏检查与
+  CHANGELOG 读取限定在本目录，herdr 构建器接受 gx_shell 的 GitHub 托管 runner。
+- AI 工具安全门在单仓中按本组件根（脚本自身位置）相对化路径，注册命令指向
+  `ohmyzsh/` 下的脚本；修复并入单仓后 `custom/` 等保护规则静默失效，以及 Windows
+  反斜杠路径从未命中的问题，注册入口探针补充绝对路径与 Stop 钩子用例。
+- herdr 探针在 Windows 上改为经 Win32（OpenProcess + K32EnumProcessModulesEx）
+  直接枚举自有 herdr server 的已加载模块来证明 app-local ConPTY，不再启动
+  PowerShell：托管 windows-2025 runner 上 PowerShell 冷启动超过 20 秒，导致单仓
+  冒烟在该步超时。模块表刚启动时可能不完整，限时 10 秒重试；失败时报告所见模块
+  或 Win32 错误。Ctrl+C 后先等新提示符出现（至多 20 秒）再输入下一条命令：MSYS2
+  Zsh 处理中断时会丢弃提前到达的键入，原先该步成败取决于时序。探针自有 server
+  停止后删除隔离 TMP，证据目录不再带 herdr 放入的 Codex 垫片（herdr 本体的
+  硬链接、副本或符号链接，Windows 证据因此多出约 37 MB）。
+  server 就绪改以 `herdr status server --json` 的 running 为准，提前退出时报错附 server.log 末 20 行。
+- **破坏性变化**：Windows 私有 MSYS2 运行时改为随包提供上游的 `etc/fstab`，盘符路径由
+  `/cygdrive/c/…` 变为 `/c/…`（与 Git Bash 一致），`/cygdrive` 不再存在。写在 `~/.zshrc.local`、
+  脚本或历史命令里的 `/cygdrive/c/…` 要改成 `/c/…` 或 `C:/…`；GX 自带的 OSC 7 上报与 zoxide
+  钩子两种写法都认。升级后第一次启动会按新路径重建一次补全缓存。
+- 修复在 GX Zsh 里运行 herdr（或再启动一层 `gx-zsh`）时新窗格报
+  `(anon):source:27: no such file or directory: …/powerlevel10k/internal/p10k.zsh`、提示符退化成
+  `GX%`：MSYS2 把 `ZSH_CUSTOM` 等路径转成 `C:/…` 交给原生程序，`package.zsh` 又把它当成相对路径
+  拼到当前目录后面。启动器现在丢弃从上一层 GX 进程继承的内部变量、按安装布局重新计算；
+  `package.zsh` 把盘符/UNC 形式的 `ZSH_CUSTOM`、`POWERLEVEL9K_INSTALLATION_DIR` 转回 POSIX 路径，
+  清掉混进 FPATH 的 Windows 路径碎片，补全缓存不再每次启动都重建。
+- 修复运行 winget、应用商店版 pwsh/python 等「应用执行别名」后 GX Zsh 永久挂死、Ctrl+C 也无法
+  恢复：私有运行时的 msys2-runtime 由 3.6.10-5 升级到修复该回归的 3.6.10-6（上游
+  msys2/msys2-runtime#372）。`gx-zsh` 启动 Zsh 前还会清除从父进程继承的「忽略 Ctrl+C」标志，
+  Zsh 及其前台程序不再沿用它。
+- Windows 新增 PowerShell 桥接，`irm https://…/install.ps1 | iex` 这类安装命令可直接在 GX Zsh 里
+  运行：`iex`/`Invoke-Expression` 与新命令 `gx-pwsh '脚本'`（或 `… | gx-pwsh`）把脚本原样写入带
+  BOM 的临时 `.ps1` 交给 PowerShell 7（没有时用 5.1，`GX_POWERSHELL` 可指定），以 `param()` 开头的
+  安装脚本照常可用，退出码与 `pwsh -File` 一致；`irm`/`iwr`/`Invoke-RestMethod`/`Invoke-WebRequest`
+  拼成一条 PowerShell 命令，参数名以外的参数一律按字面量传递（含中文与各种单引号）。PowerShell
+  里的 tar、find、sort、curl、cmd 优先用 Windows 自带版本；脚本结束后重新读取注册表 PATH，刚装好
+  的命令当场可用。已有同名命令、函数或别名时不覆盖。
+- 桥接的出错处理：`irm` 请求失败时返回 1，随后的 `| iex` 收到空脚本时不启动 PowerShell、提示后
+  返回 1；`iwr` 没写 `-UseBasicParsing` 时自动补上（Windows PowerShell 5.1 不带它会报错或卡住），
+  输出进管道时只输出正文，`iwr … | iex` 同样可用。
+- Windows 上找不到命令时只给提示、从不代为执行：`Get-ChildItem` 这类 PowerShell 命令提示可原样
+  复制运行的 `gx-pwsh …` 写法，`man` 提示改用 `--help`，`tmux`/`screen` 提示随附的 herdr，rg、fd、
+  htop 等给出 winget 包名。另补 `open`/`xdg-open`、`pbcopy`/`pbpaste`，有 vim 没有 vi 时 `vi` 调用
+  vim，运行时没有 `unzip` 时转交 `bsdunzip`。
+- 启动提速：启动器把全部路径经标准输入一次交给 `cygpath`（此前每条路径各起一次进程，用户目录
+  含 `'`、花括号时还会转错），`gx-zsh -f -c exit` 约 580 ms → 123 ms，`herdr --version` 等信息类
+  命令不再做路径转换（571 ms → 38 ms）；配置侧省掉 `uname`、`mkdir`、`who -m` 等外部进程，fzf 与
+  zoxide（Windows 上还有 `dircolors`）的初始化输出缓存到 `$ZSH_CACHE_DIR` 并 zcompile，Windows
+  热启动到第一个提示符约 2.65 s → 1.87 s；herdr 补全改为打包时生成，新 profile 不再连续两次
+  重建补全缓存。
+- Windows 上 `cd` 不再等待 zoxide：原生 zoxide 的目录记录改为纯 zsh 换算盘符路径并放到后台，
+  每次 `cd` 约 200 ms 以上 → 约 62 ms，`z`/`zi` 用法不变。
+- Windows 上输入不再卡顿：zsh-autosuggestions 在 zsh ≥ 5.0.8 上默认异步取建议，每击键 fork 一个
+  子 shell，MSYS2 上每次约 30 ms，整行输入时 ZLE 跟不上；MSYS/Cygwin 改为进程内同步查历史，每击键
+  约 0.8 ms（zprof 实测），执行 `true` 回车到下一个提示符的中位数约 195 → 33 ms。Linux 不变。
+- 私有运行时有了 `/tmp`（0.1.0 没有），指向 Windows 用户临时目录；从 GX Zsh 启动的原生程序不再
+  被改写 `TEMP`/`TMP`（此前指向 profile 内的目录）。ssh、scp 等取 home 时先看 `HOME`（GX Zsh 里即
+  `%USERPROFILE%`），与 Windows OpenSSH 共用 `%USERPROFILE%\.ssh` 的配置、密钥与 known_hosts，
+  只有 Windows OpenSSH 认识的配置项可能在这里告警。
+- 私有运行时新增 diffutils、patch、unzip、zip、tree、bc、procps-ng（top、pgrep、pkill、watch、
+  free 等）、vim（含 xxd）、rsync、jq 及其依赖，附对应源码与许可再分发材料。
+- WezTerm/herdr 新开的标签与分屏沿用当前目录：MSYS 上盘符目录的 OSC 7 上报改为 `file:///C:/…`
+  （此前的 `/cygdrive/c/…` 原生程序用不了），运行时内部的非盘符目录不上报。
+- Windows 上不再加载 `sudo` 插件（系统 sudo.exe 提升不了 MSYS 命令的权限，双击 Esc 补 sudo 的
+  快捷键随之取消）；没有 `man` 时不加载 `colored-man-pages`；Windows 包模式把 `SHELL` 设为正在
+  运行的 zsh，fzf 等经 `$SHELL` 起子进程的程序不再落到 cmd。
+- herdr 配置改由 GX 托管：`config.toml` 里的 `# gx-shell: manages …` 标记行声明 GX 只管 `[terminal]`
+  的 `default_shell` 与 `shell_mode`。0.1.0 生成的旧配置（Windows 上是 `…\runtime/msys64/…` 这种
+  混合分隔符路径）在首次启动时收编一次；用户改过的配置、链接或目录形式的 `config.toml`、指向别处的
+  `HERDR_CONFIG_PATH` 都保持不动，删掉标记行后不再被改回。
+- 新增 `herdr --gx-set-default-shell <Shell 可执行文件的绝对路径>`：WezTerm 设置页切换默认 Shell
+  时用它让 herdr 新窗格跟随，正在运行的 herdr server 随即重新加载配置（不会为此启动 server）；
+  重载失败时报错并给出诊断（配置已写入），部分生效时输出警告，配置不归 GX 管时返回 3。
+- 启动器的其他修正：Windows 上路径统一使用 `\`，预建补全与 zoxide 目录并直接给出 zoxide 的原生
+  数据目录 `_ZO_DATA_DIR`；profile 目录校验失败时错误信息给出具体路径。
+- `gx/wezterm/` 与 WezTerm GX 的 `dotfiles/wezterm-config/` 重新逐字节一致：默认 Shell 设置、
+  Windows 与 Linux 统一的 `Ctrl+Shift` 键位（Windows 不再用 `Alt` 组合；关闭窗格改为
+  `Ctrl+Shift+W`，仍先确认；调整窗口大小改为 `Leader -`/`Leader =`；Windows 翻页滚动改为
+  `Shift+PageUp/PageDown`）、配置求值与状态栏提速，以及等比缩小的壁纸；`gx/README.md` 同步
+  键位、默认 Shell、`/c/` 盘符和新附带工具的说明。
+- 打包：只有 herdr 构建记录（receipt）写 `builder=github-actions` 的 stage 可以发布。设
+  `GX_LOCAL_BUILD_ROOT` 可在本机完整构建 herdr（记 `builder=local`），这类 stage 恒为不可发布，
+  `verify --require-release` 拒绝；Windows 目标的 herdr 与启动器编译显式使用
+  `1.96.1-x86_64-pc-windows-msvc` 工具链，缺少时直接失败，不自动下载安装。
+- 打包：stage 时用包内 herdr 在隔离环境生成 `_herdr` 补全（说明文字固定为 zh-CN，超时即报错），
+  放进 GX 的 herdr 插件覆盖目录 `gx/omz-custom/plugins/herdr`（与上游插件只差「已有 `_herdr` 时
+  不再后台生成」）；`gx/config/windows.zsh` 纳入打包资源；stage manifest 记录 MSYS2 覆盖文件，
+  `verify-stage` 核对载荷与记录一致。
+- 依赖工具：签名包可用 `upgrades_base` 整体替换 base 快照里的旧版本（先按 pacman 文件清单与 mtree
+  摘要核对全部旧文件），依赖 manifest 记录替换、`verify-bundle` 复核；新增 MSYS2 覆盖层，GX 改过的
+  包内文件（`etc/fstab`、`etc/nsswitch.conf`）钉住原/新摘要、作为对应源码随再分发材料发布，上游
+  原文件变了就组装失败；再分发锁里 herdr 组件的版本必须与 herdr 实际版本一致。
+- herdr 许可收集：没有自带许可文本、license 表达式又与 herdr 根 crate 相同的 workspace 成员
+  （上游新增的 `crates/ghostty-vt`）沿用根目录 `LICENSE` 并在清单里记录来源；表达式不同仍拒绝。
+- herdr 探针在 Windows 上新增原生 `PING.EXE`，以及 WezTerm win32-input-mode 按键记录形式的
+  Ctrl+C 中断用例，每例都要求退出码 130。
+- 测试：新增 `tests/gx_windows.py`，在强制 MSYS 的 Zsh 里用 PowerShell/cygpath 替身验证 Windows 层
+  （接入 `make test`）；`gx_package_profile.py`、`gx_launcher.py` 覆盖本轮修复，单仓发版流程在
+  Ubuntu 24.04 上运行这三组测试、在 Windows runner 上运行启动器测试（Linux 结果与两平台安装冒烟
+  以该流程为准）；`check_syntax.sh` 覆盖 `gx/omz-custom/plugins` 下的覆盖插件；`test_gx_lifecycle`
+  调用 PowerShell 时加 `-ExecutionPolicy Bypass`。
 
 ## 0.1.0(2026-09-21)
 

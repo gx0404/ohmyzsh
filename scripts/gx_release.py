@@ -19,6 +19,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
 REPOSITORY = "gx0404/ohmyzsh"
+MONOREPO_REPOSITORY = "gx0404/gx_shell"
 HERDR_REVISION = "4f441b0c23304c7a641d978c9e11aabf07f6d8c4"
 TARGETS = {"windows-x64": "x86_64-pc-windows-msvc", "ubuntu-amd64": "x86_64-unknown-linux-musl"}
 ARCHITECTURES = {"windows-x64": "x86_64", "ubuntu-amd64": "amd64"}
@@ -105,17 +106,34 @@ def changelog_version(text: str) -> str:
     return ".".join(map(str, max(tuple(map(int, value)) for value in values)))
 
 
+def dependencies_module():
+    # gx_release 常以 `python -I` 运行（sys.path 不含脚本目录）；单仓 herdr 的
+    # 锁解析与生产者共用 gx_dependencies 的同一实现，保证 lock_digest 一致。
+    scripts = str(Path(__file__).resolve().parent)
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    import gx_dependencies
+    return gx_dependencies
+
+
 def load_lock(repo: Path) -> dict:
     path = repo / "scripts/packaging/dependencies.json"
     lock = read_json(path)
     check_fields(lock, {"schema_version": 1}, "dependency lock")
-    check_fields(lock.get("herdr"), {
-        "repository": "https://github.com/gx0404/herdr", "branch_provenance": "feature/gx_herdr",
-        "revision": HERDR_REVISION, "rust": "1.96.1", "zig": "0.16.0", "targets": TARGETS,
-        "build_argv": ["cargo", "build", "--release", "--locked", "--target", "{target}"],
-    }, "herdr lock")
-    require(is_hash(lock["herdr"]["source"]["sha256"]), "herdr source checksum missing")
-    require(lock["herdr"]["source"]["url"] == f"https://github.com/gx0404/herdr/archive/{HERDR_REVISION}.zip", "herdr source must name the pinned commit")
+    herdr = lock.get("herdr")
+    build = {"rust": "1.96.1", "zig": "0.16.0", "targets": TARGETS,
+             "build_argv": ["cargo", "build", "--release", "--locked", "--target", "{target}"]}
+    monorepo = isinstance(herdr, dict) and isinstance(herdr.get("source"), dict) and "monorepo_path" in herdr["source"]
+    if monorepo:
+        check_fields(herdr, {"repository": "https://github.com/" + MONOREPO_REPOSITORY, **build}, "herdr lock")
+        require(herdr["source"].get("monorepo_path") == "herdr", "monorepo herdr must be the gx_shell herdr/ subtree")
+    else:
+        check_fields(herdr, {
+            "repository": "https://github.com/gx0404/herdr", "branch_provenance": "feature/gx_herdr",
+            "revision": HERDR_REVISION, **build,
+        }, "herdr lock")
+        require(is_hash(lock["herdr"]["source"]["sha256"]), "herdr source checksum missing")
+        require(lock["herdr"]["source"]["url"] == f"https://github.com/gx0404/herdr/archive/{HERDR_REVISION}.zip", "herdr source must name the pinned commit")
     msys = lock["msys2"]
     data = read_json(path.parent / relative_name(msys["file"], basename=True))
     require(canonical_digest(data) == msys["canonical_sha256"], "MSYS2 lock checksum mismatch")
@@ -141,6 +159,13 @@ def load_lock(repo: Path) -> dict:
         check_fields(pinned, {"schema_version": 1, "version": "5.9.2+gx-metafied-paths"}, "Zsh runtime lock")
         require(canonical_digest(pinned) == zsh["canonical_sha256"], "Zsh runtime source lock checksum mismatch")
         lock["zsh_data"] = pinned
+    if monorepo:
+        deps = dependencies_module()
+        try:
+            lock["herdr"] = deps.monorepo_herdr(path.parent, herdr)
+            deps.bind_monorepo_sources(lock)
+        except deps.DependencyError as error:
+            raise ReleaseError(str(error)) from error
     lock["lock_digest"] = canonical_digest({k: v for k, v in lock.items() if k != "lock_digest"})
     return lock
 
@@ -162,8 +187,8 @@ def prepare(repo: Path, ref: str, version: str | None, publish: bool = False) ->
     require(bool(ref) and not ref.startswith("-") and not any(ord(c) < 32 for c in ref), "invalid Git ref")
     sha = git(repo, "rev-parse", "--verify", ref + "^{commit}")
     require(is_hash(sha, 40) and sha == git(repo, "rev-parse", "HEAD"), "prepare requires the selected commit checked out at HEAD")
-    require(not git(repo, "status", "--porcelain", "--untracked-files=all"), "release preparation requires a clean source checkout")
-    actual = changelog_version(git(repo, "show", sha + ":CHANGELOG.md"))
+    require(not git(repo, "status", "--porcelain", "--untracked-files=all", "--", "."), "release preparation requires a clean source checkout")
+    actual = changelog_version(git(repo, "show", sha + ":./CHANGELOG.md"))
     require(not version or version == actual, "version differs from CHANGELOG.md")
     lock = load_lock(repo)
     if publish:
@@ -261,7 +286,10 @@ def dependency_inventory(lock: dict, platform: str) -> list[dict]:
     for item in entries:
         name = relative_name(item["filename"], basename=True)
         require(is_hash(item.get("sha256")), "dependency must have a locked checksum")
-        if "repository_path" in item:
+        if "monorepo_path" in item:
+            require(item["monorepo_path"] == "herdr" and is_hash(item.get("commit"), 40) and "url" not in item,
+                    "monorepo dependency must be the herdr/ subtree of a full commit without a URL")
+        elif "repository_path" in item:
             location = relative_name(item["repository_path"])
             require(location.startswith(("notices/", "patches/zsh/")) and "url" not in item,
                     "repository dependency must be a locked packaging notice or Zsh patch without a URL")
@@ -277,7 +305,7 @@ def dependency_inventory(lock: dict, platform: str) -> list[dict]:
 
 def verify_herdr_metadata(build: dict, platform: str, lock: dict) -> None:
     check_fields(build, {
-        "schema_version": 1, "platform": platform, "revision": HERDR_REVISION,
+        "schema_version": 1, "platform": platform, "revision": lock["herdr"]["revision"],
         "version": lock["herdr"]["version"], "source_sha256": lock["herdr"]["source"]["sha256"],
         "rust": "1.96.1", "zig": "0.16.0", "target": TARGETS[platform], "locked": True,
         "release": True, "cargo_vendor_complete": True,
@@ -787,7 +815,7 @@ def main(argv=None) -> int:
             print(json.dumps(verify_herdr_directory(args.herdr_build, args.platform, load_lock(args.repo)), indent=2))
             return 0
         require(is_hash(args.sha, 40), "--sha requires a complete source SHA")
-        version = changelog_version(git(args.repo, "show", args.sha + ":CHANGELOG.md"))
+        version = changelog_version(git(args.repo, "show", args.sha + ":./CHANGELOG.md"))
         require(not args.version or args.version == version, "version differs from selected CHANGELOG.md")
         lock = load_lock(args.repo)
         if args.action == "publish":

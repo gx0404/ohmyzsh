@@ -27,16 +27,27 @@ ZIG_ARCHIVES = {
 }
 
 
-def ci_boundary(paths: list[Path], platform: str) -> None:
-    release.require(os.environ.get("GITHUB_ACTIONS") == "true"
-                    and os.environ.get("RUNNER_ENVIRONMENT") == "github-hosted"
-                    and os.environ.get("GITHUB_REPOSITORY") == release.REPOSITORY,
-                    "herdr CI builder requires a disposable GitHub-hosted gx0404/ohmyzsh runner")
+def ci_boundary(paths: list[Path], platform: str) -> str:
+    # GX_LOCAL_BUILD_ROOT 是本机构建入口：隔离根换成该目录，receipt 记 builder=local，
+    # 打包链据此把 stage 标为不可发布；CI runner 上不接受，避免发布链混入本机产物。
+    local = os.environ.get("GX_LOCAL_BUILD_ROOT")
+    if local:
+        release.require(os.environ.get("GITHUB_ACTIONS") != "true", "GX_LOCAL_BUILD_ROOT is for local builds; unset it on CI runners")
+        root = Path(local).resolve()
+        release.require(root.is_dir(), "GX_LOCAL_BUILD_ROOT must be an existing directory")
+    else:
+        release.require(os.environ.get("GITHUB_ACTIONS") == "true"
+                        and os.environ.get("RUNNER_ENVIRONMENT") == "github-hosted"
+                        and os.environ.get("GITHUB_REPOSITORY") in {release.REPOSITORY, release.MONOREPO_REPOSITORY},
+                        "herdr CI builder requires a disposable GitHub-hosted gx0404/ohmyzsh or gx0404/gx_shell runner; "
+                        "set GX_LOCAL_BUILD_ROOT for a non-publishable local build")
+        root = Path(os.environ["RUNNER_TEMP"]).resolve()
     release.require((os.name == "nt") == (platform == "windows-x64"), "builder OS and target platform differ")
-    root = Path(os.environ["RUNNER_TEMP"]).resolve()
     for path in paths:
-        release.require(path.resolve() != root and path.resolve().is_relative_to(root), "build/cache/output must be isolated under RUNNER_TEMP")
+        release.require(path.resolve() != root and path.resolve().is_relative_to(root),
+                        "build/cache/output must be isolated under " + ("GX_LOCAL_BUILD_ROOT" if local else "RUNNER_TEMP"))
     release.require(not os.environ.get("GITHUB_TOKEN") and not os.environ.get("GH_TOKEN"), "do not expose API tokens to dependency build scripts")
+    return "local" if local else "github-actions"
 
 
 def run(argv: list[str], cwd: Path, env: dict, *, capture: bool = False) -> str:
@@ -64,7 +75,9 @@ def record(path: Path, root: Path) -> dict:
 def load_supplements(repo: Path) -> dict:
     path = repo / "scripts/packaging/herdr-license-supplements.json"
     data = release.read_json(path)
-    release.check_fields(data, {"schema_version": 1, "herdr_revision": release.HERDR_REVISION}, "herdr license supplements")
+    release.check_fields(data, {"schema_version": 1}, "herdr license supplements")
+    # 补充许可按 crate 名/版本/校验和逐条核对，herdr_revision 只记录审计时的基线。
+    release.require(release.is_hash(data.get("herdr_revision"), 40), "herdr license supplements need an audited herdr revision")
     root = path.parent / "notices/herdr-build"
     for item in data["texts"].values():
         notice = deps.inside(root, item["notice"])
@@ -191,6 +204,20 @@ def copy_licenses(root: Path, paths: list[Path], output: Path, ecosystem: str, p
     return {"ecosystem": ecosystem, "package": package, "source_identity": source_identity, "licenses": records}
 
 
+def workspace_license(source: Path, root: Path, package: dict, workspace: dict, members: set[str],
+                      original_names: set[str], allowed: set[str]) -> tuple[list[tuple[Path, str]], dict]:
+    # 没有任何自带许可文本的 workspace 成员（如上游新增的 crates/ghostty-vt）只在 license 表达式与根
+    # crate 完全相同时沿用根目录许可文本，并在清单里记录来源；表达式不同或不是成员仍按缺许可拒绝。
+    if (root == source or package.get("id") not in members or package.get("license_file")
+            or not package.get("license") or package["license"] != workspace.get("license")
+            or license_paths(root, allowed=allowed, require_primary=False)):
+        return [], {}
+    texts = license_paths(source, allowed={name for name in original_names if "/" not in name})
+    names = [path.relative_to(source).as_posix() for path in texts]
+    return ([(path, "workspace-root/" + name) for path, name in zip(texts, names)],
+            {"license_inherited_from": {"package": workspace["name"], "license": workspace["license"], "texts": names}})
+
+
 def cargo_licenses(vendor: Path, source: Path, metadata: dict, original: list[dict], output: Path, source_hash: str,
                    supplements: dict | None = None) -> list[dict]:
     by_root = {}
@@ -204,12 +231,15 @@ def cargo_licenses(vendor: Path, source: Path, metadata: dict, original: list[di
     release.require(any(p["name"] == "herdr" for p in by_root.values()), "missing herdr metadata")
     release.require({p.resolve() for p in vendor.iterdir() if p.is_dir()} <= set(by_root), "cargo vendor contains packages absent from locked metadata")
     original_names = {r["path"] for r in original}
+    workspace = by_root.get(source.resolve(), {})
+    members = set(metadata.get("workspace_members", []))
     result = []
     for root, package in sorted(by_root.items()):
         remote = package["source"] is not None
         relative = root.relative_to(source.resolve()).as_posix() if not remote else root.name
         allowed = None if remote else {p.relative_to(root).as_posix() for name in original_names if (p := source / name).is_relative_to(root)}
-        extra, origin = cargo_supplement(root, package, by_root, supplements) if remote else ([], {})
+        extra, origin = (cargo_supplement(root, package, by_root, supplements) if remote
+                         else workspace_license(source.resolve(), root, package, workspace, members, original_names, allowed))
         paths = license_paths(root, allowed=allowed, declared=package.get("license_file"), require_primary=not extra)
         identity = {"name": package["name"], "version": package["version"], "cargo_source": package["source"],
                     "root": relative, "manifest_sha256": deps.sha256_file(root / "Cargo.toml"), **origin}
@@ -277,7 +307,7 @@ def zig_licenses(source: Path, original: list[dict], cache: Path, zig_root: Path
 
 
 def build(repo: Path, platform: str, work: Path, cache: Path, output: Path) -> dict:
-    ci_boundary([work, cache, output], platform)
+    builder = ci_boundary([work, cache, output], platform)
     release.require(not work.exists() and not output.exists(), "build/output directory exists; never reuse unverified build state")
     release.require(not any(a.resolve().is_relative_to(b.resolve()) for a in (work, cache, output) for b in (work, cache, output) if a != b), "build/cache/output directories must not overlap")
     pinned = release.load_lock(repo)["herdr"]
@@ -293,17 +323,24 @@ def build(repo: Path, platform: str, work: Path, cache: Path, output: Path) -> d
     zig.chmod(0o755)
     cargo = shutil.which("cargo")
     rustc = shutil.which("rustc")
-    release.require(bool(cargo) and bool(rustc), "install the pinned Rust toolchain on the disposable runner first")
+    release.require(bool(cargo) and bool(rustc), "install the pinned Rust toolchain first")
     env = os.environ.copy()
     for name in ("RUSTC_WRAPPER", "RUSTC_WORKSPACE_WRAPPER", "CARGO_ENCODED_RUSTFLAGS", "HERDR_BUILD_CHANNEL", "HERDR_BUILD_ID", "LIBGHOSTTY_VT_WINDOWS_LIBC", "LIBGHOSTTY_VT_ZIG_SYSTEM_DIR"):
         env.pop(name, None)
+    target = pinned["targets"][platform]
     env.update({
-        "RUSTUP_TOOLCHAIN": pinned["rust"], "CARGO_HOME": str(work / "cargo-home"),
+        # 本机 rustup 的默认 host 可能是 GNU：Windows 目标显式选 MSVC 工具链；CI runner 上两者等价。
+        # 钉住的工具链缺失时直接失败：不让 rustup 自动下载安装，构建不改动本机工具链。
+        "RUSTUP_TOOLCHAIN": pinned["rust"] + ("-" + target if platform == "windows-x64" else ""),
+        "RUSTUP_AUTO_INSTALL": "0",
+        "CARGO_HOME": str(work / "cargo-home"),
         "CARGO_TARGET_DIR": str(work / "target"), "CARGO_INCREMENTAL": "0",
         "RUSTFLAGS": "-C target-feature=+crt-static", "ZIG": str(zig),
         "ZIG_GLOBAL_CACHE_DIR": str(work / "zig-global-cache"), "ZIG_LOCAL_CACHE_DIR": str(work / "zig-local-cache"),
         "LIBGHOSTTY_VT_OPTIMIZE": "ReleaseFast", "LIBGHOSTTY_VT_SIMD": "true",
         "HERDR_BUILD_COMMIT": pinned["revision"],
+        # 包身份编译进 herdr：关闭自更新/渠道切换，--version 显示 gx 包标识。
+        "HERDR_PACKAGE_MANAGER": "windows-installer" if platform == "windows-x64" else "deb",
     })
     rust_version = run([rustc, "--version"], source, env, capture=True)
     cargo_version = run([cargo, "--version"], source, env, capture=True)
@@ -318,7 +355,6 @@ def build(repo: Path, platform: str, work: Path, cache: Path, output: Path) -> d
     metadata = json.loads(run(cargo_prefix + ["metadata", "--offline", "--locked", "--format-version", "1"], source, env, capture=True))
     own = [p for p in metadata["packages"] if p["name"] == "herdr" and p["source"] is None]
     release.require(len(own) == 1 and own[0]["version"] == pinned["version"], "herdr Cargo version differs from lock")
-    target = pinned["targets"][platform]
     run(cargo_prefix + ["build", "--release", "--locked", "--offline", "--target", target], source, env)
     deps.verify_tree(vendor, vendor_before)
     binary = work / "target" / target / "release" / ("herdr.exe" if platform == "windows-x64" else "herdr")
@@ -361,7 +397,7 @@ def build(repo: Path, platform: str, work: Path, cache: Path, output: Path) -> d
         "source": pinned["source"], "rust": rust_version, "cargo": cargo_version, "zig": ZIG_ARCHIVES[platform],
         "zig_checksum_source": "https://ziglang.org/download/index.json", "target": target,
         "argv": ["cargo", "--config", "vendor.toml", "build", "--release", "--locked", "--offline", "--target", target],
-        "environment": {k: env[k] for k in ("RUSTFLAGS", "LIBGHOSTTY_VT_OPTIMIZE", "LIBGHOSTTY_VT_SIMD", "HERDR_BUILD_COMMIT")},
+        "environment": {k: env[k] for k in ("RUSTFLAGS", "LIBGHOSTTY_VT_OPTIMIZE", "LIBGHOSTTY_VT_SIMD", "HERDR_BUILD_COMMIT", "HERDR_PACKAGE_MANAGER")},
         "rebuild": ["Extract the pinned herdr source ZIP and cargo-vendor.tar.xz into separate directories.",
                     "Configure [source.crates-io] replace-with='vendored-sources'; [source.vendored-sources] directory='<extracted cargo vendor>'.",
                     "Install the recorded Rust target and verified Zig archive; set ZIG to that executable.",
@@ -371,9 +407,9 @@ def build(repo: Path, platform: str, work: Path, cache: Path, output: Path) -> d
     receipt = {
         "schema_version": 1, "repository": pinned["repository"], "branch_provenance": pinned["branch_provenance"],
         "revision": pinned["revision"], "version": pinned["version"], "platform": platform, "target": target,
-        "source_sha256": pinned["source"]["sha256"], "rust": pinned["rust"], "zig": pinned["zig"],
+        "builder": builder, "source_sha256": pinned["source"]["sha256"], "rust": pinned["rust"], "zig": pinned["zig"],
         "locked": True, "release": True, "cargo_vendor_complete": True, "conpty_verified": platform == "windows-x64",
-        "rustflags": env["RUSTFLAGS"], "effective_crt_static": True,
+        "rustflags": env["RUSTFLAGS"], "effective_crt_static": True, "package_manager": env["HERDR_PACKAGE_MANAGER"],
         "libghostty_vt_optimize": "ReleaseFast", "libghostty_vt_simd": True,
         "files": deps.tree_manifest(payload), "toolchains": {"rust": rust_version, "cargo": cargo_version, "zig": ZIG_ARCHIVES[platform]},
         "source_artifacts": [record(p, output) for p in sorted(redistribution.iterdir()) if p.is_file()],
@@ -385,7 +421,8 @@ def build(repo: Path, platform: str, work: Path, cache: Path, output: Path) -> d
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="CI-only, fixed-source herdr build. Never modifies a local user toolchain or publishes.")
+    parser = argparse.ArgumentParser(description="Fixed-source herdr build on a disposable CI runner, or a non-publishable local build "
+                                                 "under GX_LOCAL_BUILD_ROOT. Never modifies a local user toolchain or publishes.")
     parser.add_argument("--repo", type=Path, default=release.ROOT)
     parser.add_argument("--platform", choices=tuple(release.TARGETS), required=True)
     parser.add_argument("--work", type=Path, required=True)

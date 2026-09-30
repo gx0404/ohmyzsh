@@ -32,6 +32,14 @@
     },
     {
       "build_instructions": [],
+      "id": "msys2-bc",
+      "license_expression": "GPL",
+      "licenses": [],
+      "sources": [],
+      "version": "1.08.2-1"
+    },
+    {
+      "build_instructions": [],
       "id": "msys2-brotli",
       "license_expression": "MIT",
       "licenses": [],
@@ -93,6 +101,14 @@
       "licenses": [],
       "sources": [],
       "version": "6.2.32-6"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-diffutils",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "3.12-1"
     },
     {
       "build_instructions": [],
@@ -229,6 +245,14 @@
       "licenses": [],
       "sources": [],
       "version": "7.2-3"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-jq",
+      "license_expression": "spdx:MIT",
+      "licenses": [],
+      "sources": [],
+      "version": "1.8.2-1"
     },
     {
       "build_instructions": [],
@@ -560,6 +584,14 @@
     },
     {
       "build_instructions": [],
+      "id": "msys2-libxxhash",
+      "license_expression": "spdx:BSD-2-Clause",
+      "licenses": [],
+      "sources": [],
+      "version": "0.8.4-1"
+    },
+    {
+      "build_instructions": [],
       "id": "msys2-libzstd",
       "license_expression": "BSD",
       "licenses": [],
@@ -620,7 +652,7 @@
       "license_expression": "spdx:GPL-3.0-or-later",
       "licenses": [],
       "sources": [],
-      "version": "3.6.10-5"
+      "version": "3.6.10-6"
     },
     {
       "build_instructions": [],
@@ -645,6 +677,14 @@
       "licenses": [],
       "sources": [],
       "version": "4.0-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-oniguruma",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "6.9.10-1"
     },
     {
       "build_instructions": [],
@@ -693,6 +733,14 @@
       "licenses": [],
       "sources": [],
       "version": "20260129-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-patch",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.8-2"
     },
     {
       "build_instructions": [],
@@ -944,11 +992,35 @@
     },
     {
       "build_instructions": [],
+      "id": "msys2-popt",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "1.19-1"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-procps-ng",
+      "license_expression": "GPL AND LGPL",
+      "licenses": [],
+      "sources": [],
+      "version": "4.0.5-1"
+    },
+    {
+      "build_instructions": [],
       "id": "msys2-rebase",
       "license_expression": "custom",
       "licenses": [],
       "sources": [],
       "version": "4.5.0-5"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-rsync",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "3.5.1-1"
     },
     {
       "build_instructions": [],
@@ -976,6 +1048,14 @@
     },
     {
       "build_instructions": [],
+      "id": "msys2-tree",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [],
+      "sources": [],
+      "version": "2.3.2-1"
+    },
+    {
+      "build_instructions": [],
       "id": "msys2-tzcode",
       "license_expression": "spdx:LicenseRef-tz",
       "licenses": [],
@@ -984,11 +1064,27 @@
     },
     {
       "build_instructions": [],
+      "id": "msys2-unzip",
+      "license_expression": "custom",
+      "licenses": [],
+      "sources": [],
+      "version": "6.0-3"
+    },
+    {
+      "build_instructions": [],
       "id": "msys2-util-linux",
       "license_expression": "spdx:GPL-2.0-or-later",
       "licenses": [],
       "sources": [],
       "version": "2.40.2-2"
+    },
+    {
+      "build_instructions": [],
+      "id": "msys2-vim",
+      "license_expression": "spdx:Vim",
+      "licenses": [],
+      "sources": [],
+      "version": "9.2.1054-1"
     },
     {
       "build_instructions": [],
@@ -1016,6 +1112,14 @@
     },
     {
       "build_instructions": [],
+      "id": "msys2-zip",
+      "license_expression": "BSD",
+      "licenses": [],
+      "sources": [],
+      "version": "3.0-5"
+    },
+    {
+      "build_instructions": [],
       "id": "msys2-zlib",
       "license_expression": "custom",
       "licenses": [],
@@ -1037,6 +1141,22 @@
       "licenses": [],
       "sources": [],
       "version": "1.5.7-1"
+    }
+  ],
+  "overlay": [
+    {
+      "component": "msys2-filesystem",
+      "filename": "GX-msys2-etc-fstab",
+      "old_sha256": "387ca1e86c1a18a143eb077ca194ad44c0a2faf98795a0d437f2d210d5a6df18",
+      "path": "etc/fstab",
+      "sha256": "4a2fbbed4817e50ff601b98d28cd4c7016fd52d88295d3fdaf04c6f3b29767b2"
+    },
+    {
+      "component": "msys2-filesystem",
+      "filename": "GX-msys2-etc-nsswitch.conf",
+      "old_sha256": "91f1f918cf13deab0124082086e990786113b0e710dbda4678d8fc14905ad94d",
+      "path": "etc/nsswitch.conf",
+      "sha256": "4ca7f71580a5bd948ae9e44e46f967608587a9d7e37884287b79273c1773ccff"
     }
   ],
   "packages": [
@@ -1126,6 +1246,25 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/bash-completion",
       "url": "https://repo.msys2.org/msys/x86_64/bash-completion-2.18.0-1-any.pkg.tar.zst",
       "version": "2.18.0-1"
+    },
+    {
+      "base": "bc",
+      "dependencies": [
+        "libreadline",
+        "ncurses"
+      ],
+      "filename": "bc-1.08.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL"
+      ],
+      "name": "bc",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "99fd4875fd51cfe4bfa9737d0cd0993092977f50fdba5e6012a04de47316af11",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/bc-1.08.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/bc",
+      "url": "https://repo.msys2.org/msys/x86_64/bc-1.08.2-1-x86_64.pkg.tar.zst",
+      "version": "1.08.2-1"
     },
     {
       "base": "brotli",
@@ -1297,6 +1436,26 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/db",
       "url": "https://repo.msys2.org/msys/x86_64/db-6.2.32-6-x86_64.pkg.tar.zst",
       "version": "6.2.32-6"
+    },
+    {
+      "base": "diffutils",
+      "dependencies": [
+        "sh",
+        "libiconv",
+        "libintl"
+      ],
+      "filename": "diffutils-3.12-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "diffutils",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "7902c8ce3d4dd69a0f5e98dc9d5c83c17b23314ba486169db57ef6e2835ce3b6",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/diffutils-3.12-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/diffutils",
+      "url": "https://repo.msys2.org/msys/x86_64/diffutils-3.12-1-x86_64.pkg.tar.zst",
+      "version": "3.12-1"
     },
     {
       "base": "file",
@@ -1658,6 +1817,25 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/texinfo",
       "url": "https://repo.msys2.org/msys/x86_64/info-7.2-3-x86_64.pkg.tar.zst",
       "version": "7.2-3"
+    },
+    {
+      "base": "jq",
+      "dependencies": [
+        "gcc-libs",
+        "oniguruma"
+      ],
+      "filename": "jq-1.8.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:MIT"
+      ],
+      "name": "jq",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "7098e1aaad9e714af62e0db9ffdd835d039a172c5759f879f19e2eb4d4f5b3ba",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/jq-1.8.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/jq",
+      "url": "https://repo.msys2.org/msys/x86_64/jq-1.8.2-1-x86_64.pkg.tar.zst",
+      "version": "1.8.2-1"
     },
     {
       "base": "less",
@@ -2433,6 +2611,22 @@
       "version": "4.5.2-1"
     },
     {
+      "base": "xxhash",
+      "dependencies": [],
+      "filename": "libxxhash-0.8.4-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:BSD-2-Clause"
+      ],
+      "name": "libxxhash",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "ba784ad117626401cd5d3ec0cf70399f9de72a63755f96c28fa2032303f9c330",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/libxxhash-0.8.4-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/xxhash",
+      "url": "https://repo.msys2.org/msys/x86_64/libxxhash-0.8.4-1-x86_64.pkg.tar.zst",
+      "version": "0.8.4-1"
+    },
+    {
       "base": "zstd",
       "dependencies": [
         "gcc-libs"
@@ -2558,18 +2752,19 @@
     {
       "base": "msys2-runtime",
       "dependencies": [],
-      "filename": "msys2-runtime-3.6.10-5-x86_64.pkg.tar.zst",
+      "filename": "msys2-runtime-3.6.10-6-x86_64.pkg.tar.zst",
       "licenses": [
         "spdx:GPL-3.0-or-later"
       ],
       "name": "msys2-runtime",
-      "origin": "signed-base",
+      "origin": "signed-package",
       "provides": [],
-      "sha256": "46f04552f02c0db6942ee3fdcb908c3b9b91f0bd064f86dd78a354c80b1925c0",
-      "signature_url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.6.10-5-x86_64.pkg.tar.zst.sig",
+      "sha256": "b2db5bae3826f15cacb536f4c7c6c7e31d3fabec00aac8f127473aba7e994d22",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.6.10-6-x86_64.pkg.tar.zst.sig",
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/msys2-runtime",
-      "url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.6.10-5-x86_64.pkg.tar.zst",
-      "version": "3.6.10-5"
+      "upgrades_base": "3.6.10-5",
+      "url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-3.6.10-6-x86_64.pkg.tar.zst",
+      "version": "3.6.10-6"
     },
     {
       "base": "nano",
@@ -2627,6 +2822,22 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/nettle",
       "url": "https://repo.msys2.org/msys/x86_64/nettle-4.0-1-x86_64.pkg.tar.zst",
       "version": "4.0-1"
+    },
+    {
+      "base": "oniguruma",
+      "dependencies": [],
+      "filename": "oniguruma-6.9.10-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "oniguruma",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "989f2b0a616948fe16d85b322f7ca415f66f85fce05b53f5ff85d65d3eb9fd31",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/oniguruma-6.9.10-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/oniguruma",
+      "url": "https://repo.msys2.org/msys/x86_64/oniguruma-6.9.10-1-x86_64.pkg.tar.zst",
+      "version": "6.9.10-1"
     },
     {
       "base": "openssh",
@@ -2747,6 +2958,22 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/pacman-mirrors",
       "url": "https://repo.msys2.org/msys/x86_64/pacman-mirrors-20260129-1-any.pkg.tar.zst",
       "version": "20260129-1"
+    },
+    {
+      "base": "patch",
+      "dependencies": [],
+      "filename": "patch-2.8-2-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "patch",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "df34ebf345d607cabf0b2cbad60f562f775f07985647b84035b40702f62ee9b1",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/patch-2.8-2-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/patch",
+      "url": "https://repo.msys2.org/msys/x86_64/patch-2.8-2-x86_64.pkg.tar.zst",
+      "version": "2.8-2"
     },
     {
       "base": "perl",
@@ -3550,6 +3777,47 @@
       "version": "1.3.3-1"
     },
     {
+      "base": "popt",
+      "dependencies": [
+        "libiconv",
+        "libintl"
+      ],
+      "filename": "popt-1.19-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "popt",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "b402bd1d03815c5e28b7ab415d8e20f487eff2460ae0271a99674eeb0d77194f",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/popt-1.19-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/popt",
+      "url": "https://repo.msys2.org/msys/x86_64/popt-1.19-1-x86_64.pkg.tar.zst",
+      "version": "1.19-1"
+    },
+    {
+      "base": "procps-ng",
+      "dependencies": [
+        "ncurses",
+        "libintl"
+      ],
+      "filename": "procps-ng-4.0.5-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "GPL",
+        "LGPL"
+      ],
+      "name": "procps-ng",
+      "origin": "signed-package",
+      "provides": [
+        "procps"
+      ],
+      "sha256": "ce092fd0a2cc952a29f80b6eee207e6391891f4eefbfd737cc1b912b5bc49fe3",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/procps-ng-4.0.5-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/procps-ng",
+      "url": "https://repo.msys2.org/msys/x86_64/procps-ng-4.0.5-1-x86_64.pkg.tar.zst",
+      "version": "4.0.5-1"
+    },
+    {
       "base": "rebase",
       "dependencies": [
         "dash"
@@ -3566,6 +3834,30 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/rebase",
       "url": "https://repo.msys2.org/msys/x86_64/rebase-4.5.0-5-x86_64.pkg.tar.zst",
       "version": "4.5.0-5"
+    },
+    {
+      "base": "rsync",
+      "dependencies": [
+        "libiconv",
+        "liblz4",
+        "libopenssl",
+        "libxxhash",
+        "libzstd",
+        "popt",
+        "libidn2"
+      ],
+      "filename": "rsync-3.5.1-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-3.0-or-later"
+      ],
+      "name": "rsync",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "7bbbfdcbcb1e3f701fbb72a8566aed409c9184229d56ea483225e3bc8f1b4d04",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/rsync-3.5.1-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/rsync",
+      "url": "https://repo.msys2.org/msys/x86_64/rsync-3.5.1-1-x86_64.pkg.tar.zst",
+      "version": "3.5.1-1"
     },
     {
       "base": "sed",
@@ -3623,6 +3915,22 @@
       "version": "1.10-1"
     },
     {
+      "base": "tree",
+      "dependencies": [],
+      "filename": "tree-2.3.2-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:GPL-2.0-or-later"
+      ],
+      "name": "tree",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "edc3011c0f0d6e42f0c5fb2769990c80318289148e720b142fd8884aa893f333",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/tree-2.3.2-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/tree",
+      "url": "https://repo.msys2.org/msys/x86_64/tree-2.3.2-1-x86_64.pkg.tar.zst",
+      "version": "2.3.2-1"
+    },
+    {
       "base": "tzcode",
       "dependencies": [
         "coreutils",
@@ -3641,6 +3949,25 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/tzcode",
       "url": "https://repo.msys2.org/msys/x86_64/tzcode-2026d-1-x86_64.pkg.tar.zst",
       "version": "2026d-1"
+    },
+    {
+      "base": "unzip",
+      "dependencies": [
+        "libbz2",
+        "bash"
+      ],
+      "filename": "unzip-6.0-3-x86_64.pkg.tar.zst",
+      "licenses": [
+        "custom"
+      ],
+      "name": "unzip",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "c98ebac31ea92a63cf61c6190ed3e8284ccc0c29c43973f1b2c0de2874e5acfe",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/unzip-6.0-3-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/unzip",
+      "url": "https://repo.msys2.org/msys/x86_64/unzip-6.0-3-x86_64.pkg.tar.zst",
+      "version": "6.0-3"
     },
     {
       "base": "util-linux",
@@ -3665,6 +3992,27 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/util-linux",
       "url": "https://repo.msys2.org/msys/x86_64/util-linux-2.40.2-2-x86_64.pkg.tar.zst",
       "version": "2.40.2-2"
+    },
+    {
+      "base": "vim",
+      "dependencies": [
+        "libiconv",
+        "libintl",
+        "libxcrypt",
+        "ncurses"
+      ],
+      "filename": "vim-9.2.1054-1-x86_64.pkg.tar.zst",
+      "licenses": [
+        "spdx:Vim"
+      ],
+      "name": "vim",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "8e129bdc8162befa7d4d3b6e03ba738bffb24fcee7d88c41cd641ccfb1ac5052",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/vim-9.2.1054-1-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/vim",
+      "url": "https://repo.msys2.org/msys/x86_64/vim-9.2.1054-1-x86_64.pkg.tar.zst",
+      "version": "9.2.1054-1"
     },
     {
       "base": "wget",
@@ -3729,6 +4077,24 @@
       "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/xz",
       "url": "https://repo.msys2.org/msys/x86_64/xz-5.8.4-1-x86_64.pkg.tar.zst",
       "version": "5.8.4-1"
+    },
+    {
+      "base": "zip",
+      "dependencies": [
+        "libbz2"
+      ],
+      "filename": "zip-3.0-5-x86_64.pkg.tar.zst",
+      "licenses": [
+        "BSD"
+      ],
+      "name": "zip",
+      "origin": "signed-package",
+      "provides": [],
+      "sha256": "874e20bf625fbe577949444faf30ab9a725dbd4886ec9bff26459152da7f831c",
+      "signature_url": "https://repo.msys2.org/msys/x86_64/zip-3.0-5-x86_64.pkg.tar.zst.sig",
+      "source_recipe_discovery_only": "https://github.com/msys2/MSYS2-packages/tree/master/zip",
+      "url": "https://repo.msys2.org/msys/x86_64/zip-3.0-5-x86_64.pkg.tar.zst",
+      "version": "3.0-5"
     },
     {
       "base": "zlib",
@@ -3801,6 +4167,28 @@
       "database_sha256": "f1dc820401f69f8f41c825fbe348ab02ecdebb67fd54da1bfb0347ffda0ee30f",
       "repository": "ucrt64",
       "signature_sha256": "33e667af56014a69757846d471bc61363a28e92939549db5dd11c397713e2f6a",
+      "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
+    },
+    {
+      "database_sha256": "906c1ddc9390ab99bedd486daa5eba838c366ebcf56faa25d8922b444f8d2970",
+      "packages": [
+        "bc",
+        "diffutils",
+        "jq",
+        "libxxhash",
+        "msys2-runtime",
+        "oniguruma",
+        "patch",
+        "popt",
+        "procps-ng",
+        "rsync",
+        "tree",
+        "unzip",
+        "vim",
+        "zip"
+      ],
+      "repository": "msys",
+      "signature_sha256": "99fbfaa8e61962ead2d6e666b00ceec65adc3bd337318c06920ae1124b27ed6f",
       "signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57"
     }
   ],

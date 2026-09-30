@@ -8,6 +8,24 @@ local last_status_by_window = {}
 -- 局部表清空，而窗口的 config overrides 跨重载保留，两者会失配。
 local HERDR_TAB_BAR_GLOBAL_KEY = 'herdr_app_mode_tab_bar'
 
+-- update-status 在 GUI 线程上跑，且标题变化（agent spinner）时远比 2 秒频繁：
+-- 前台进程探测在 Windows 上要全量快照进程树，每窗口至多每 2 秒一次；
+-- battery_info 每次都枚举电池设备，缓存 60 秒。
+local PROBE_INTERVAL_S = 2
+local BATTERY_TTL_S = 60
+local probe_by_window = {}
+local battery_cache = nil
+
+---缓存是否仍在有效期内；时钟被往回拨（age 为负）按过期处理。
+---@param at integer
+---@param now integer
+---@param ttl integer
+---@return boolean
+local function still_fresh(at, now, ttl)
+   local age = now - at
+   return age >= 0 and age < ttl
+end
+
 local colors = {
    surface = '#181825',
    text = '#cdd6f4',
@@ -26,17 +44,24 @@ local function segment(icon, text, color)
    }
 end
 
-local function battery_segment()
+---@param now integer os.time()
+local function battery_segment(now)
+   if battery_cache and still_fresh(battery_cache.at, now, BATTERY_TTL_S) then
+      return battery_cache.items
+   end
+   local items = {}
    for _, battery in ipairs(wezterm.battery_info()) do
       local percent = math.floor(battery.state_of_charge * 100 + 0.5)
       local icon = battery.state == 'Charging' and wezterm.nerdfonts.md_battery_charging
          or wezterm.nerdfonts.md_battery
-      return segment(icon, string.format('%d%%', percent), colors.yellow)
+      items = segment(icon, string.format('%d%%', percent), colors.yellow)
+      break
    end
-   return {}
+   battery_cache = { at = now, items = items }
+   return items
 end
 
-local function render_status(window, date_format)
+local function render_status(window, date_format, now)
    local left = {}
    local workspace = window:active_workspace()
    local key_table = window:active_key_table()
@@ -55,7 +80,10 @@ local function render_status(window, date_format)
       end
    end
 
-   local right = battery_segment()
+   local right = {}
+   for _, item in ipairs(battery_segment(now)) do
+      table.insert(right, item)
+   end
    for _, item in ipairs(segment(wezterm.nerdfonts.fa_clock_o, wezterm.strftime(date_format), colors.peach)) do
       table.insert(right, item)
    end
@@ -146,16 +174,33 @@ local function store_tab_bar_state(key, state)
    wezterm.GLOBAL[HERDR_TAB_BAR_GLOBAL_KEY][key] = state
 end
 
+---窗口前台进程名（已清洗），同一窗口 PROBE_INTERVAL_S 秒内复用上次结果。
+---@param key string tostring(window_id)
+---@param pane any WezTerm Pane
+---@param now integer os.time()
+---@return string
+local function foreground_process_name(key, pane, now)
+   local cached = probe_by_window[key]
+   if cached and still_fresh(cached.at, now, PROBE_INTERVAL_S) then
+      return cached.name
+   end
+   local name = tab_title.clean_process_name(pane:get_foreground_process_name() or '')
+   probe_by_window[key] = { at = now, name = name }
+   return name
+end
+
 ---按 herdr 应用模式决定是否隐藏 tab bar；状态转移见 next_tab_bar_state。
+---只在单 tab（隐藏的前提）时探测前台进程。
 ---@param window any WezTerm GuiWindow
 ---@param pane any? WezTerm Pane，可能为 nil（窗口刚创建等边界情况）
 ---@param herdr_app_mode boolean
-local function apply_herdr_app_mode(window, pane, herdr_app_mode)
+---@param now? integer os.time()，缺省取当前时间
+local function apply_herdr_app_mode(window, pane, herdr_app_mode, now)
    local key = tostring(window:window_id())
    local tab_count = #window:mux_window():tabs()
    local process_name = ''
-   if pane then
-      process_name = tab_title.clean_process_name(pane:get_foreground_process_name() or '')
+   if pane and herdr_app_mode and tab_count == 1 then
+      process_name = foreground_process_name(key, pane, now or os.time())
    end
 
    local hide = should_hide_tab_bar(herdr_app_mode, tab_count, process_name)
@@ -184,7 +229,8 @@ M.setup = function(opts)
    end
 
    wezterm.on('update-status', function(window, pane)
-      local left, right = render_status(window, date_format)
+      local now = os.time()
+      local left, right = render_status(window, date_format, now)
       local window_id = window:window_id()
       local previous = last_status_by_window[window_id]
 
@@ -197,7 +243,7 @@ M.setup = function(opts)
 
       last_status_by_window[window_id] = { left = left, right = right }
 
-      apply_herdr_app_mode(window, pane, herdr_app_mode)
+      apply_herdr_app_mode(window, pane, herdr_app_mode, now)
    end)
 end
 

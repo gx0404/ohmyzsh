@@ -28,12 +28,17 @@ fi
 typeset -U path PATH
 if [[ -n ${GX_PACKAGE_ROOT:-} ]]; then
   # 包工具优先；保留用户可执行工具目录，不 source 其机器配置或改写登录状态。
-  for _gx_user_bin in "$HOME/.local/bin" "$HOME/.opencode/bin" "$HOME/.kimi-code/bin" \
-                      "$HOME/.local/go/bin" "$HOME/go/bin" "$HOME/.cargo/bin" \
-                      "${BUN_INSTALL:-$HOME/.bun}/bin"; do
-    [[ -d $_gx_user_bin && -x $_gx_user_bin ]] && path+=("$_gx_user_bin")
-  done
-  unset _gx_user_bin
+  # windows.zsh 在 PowerShell 安装器退出后再调用一次，新装的命令不必重开终端。
+  _gx_add_user_bins() {
+    local dir
+    for dir in "$HOME/.local/bin" "$HOME/.opencode/bin" "$HOME/.kimi-code/bin" \
+               "$HOME/.local/go/bin" "$HOME/go/bin" "$HOME/.cargo/bin" \
+               "${BUN_INSTALL:-$HOME/.bun}/bin"; do
+      [[ -d $dir && -x $dir ]] && path+=("$dir")
+    done
+    return 0
+  }
+  _gx_add_user_bins
 else
   path=(
     "$HOME/.local/bin"
@@ -43,11 +48,63 @@ else
 fi
 export PATH
 
+# 外部程序生成的初始化脚本缓存在 $ZSH_CACHE_DIR：首行记录生成命令、二进制路径/mtime/大小与
+# GX 包身份，全部一致时直接 source 已 zcompile 的缓存，省掉每次启动的进程（Windows 上各约 50 ms）。
+# 文件名带首行的 FNV-1a 短哈希：键不同的并发 shell 各写各的文件，脚本和 .zwc 不会来自不同的键。
+# 用法：_gx_init_cache 名称 二进制 生成命令 [附加键...] && eval "$REPLY"；缓存写不进去时
+# REPLY 就是生成的脚本本身。
+_gx_init_cache() {
+  emulate -L zsh
+  local dir=${ZSH_CACHE_DIR:-${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh} stamp output file tmp stale char
+  local -A info
+  local -i hash=2166136261
+  if ! { zmodload -F zsh/stat b:zstat && zstat -H info -- $2 } 2>/dev/null; then
+    REPLY=$(eval $3 2>/dev/null) && [[ -n $REPLY ]]
+    return
+  fi
+  stamp="#gx-init v2 ${(j: :)${(q)@[2,-1]}} $info[mtime] $info[size] ${(q)_gx_package_id}"
+  # 算术里的 #name 只取变量的首字符，必须先把首行拆成单个字符再逐个取码。
+  for char in ${(s::)stamp}; do
+    (( hash = ((hash ^ #char) * 16777619) & 0xffffffff ))
+  done
+  file=$dir/gx-init-$1-${(l:8::0:)$(( [##16] hash ))}.zsh
+  if [[ -r $file ]]; then
+    output=$(<$file)
+    if [[ ${output%%$'\n'*} == "$stamp" ]]; then
+      REPLY="builtin source ${(q)file}"
+      return 0
+    fi
+  fi
+  output=$(eval $3 2>/dev/null) && [[ -n $output ]] || return 1
+  REPLY=$output
+  zmodload -F zsh/files b:zf_mv b:zf_rm 2>/dev/null || return 0
+  tmp=$file.$$.tmp
+  if { print -r -- "$stamp"$'\n'"$output" >| $tmp } 2>/dev/null && zf_rm -f -- $file.zwc &&
+     zf_mv -f -- $tmp $file; then
+    REPLY="builtin source ${(q)file}"
+    zcompile -UR -- $tmp.zwc $file 2>/dev/null && zf_mv -f -- $tmp.zwc $file.zwc
+    # 换键留下的旧文件超过一天才清理，不删并发 shell 刚校验过、正要 source 的那份；只认 8 位哈希，
+    # 不会误删名称以本名称开头的其他缓存（如 fzf 与 fzf-zsh）。
+    for stale in $dir/gx-init-$1-????????.zsh(N.mh+24); do
+      [[ $stale == "$file" ]] || zf_rm -f -- $stale $stale.zwc
+    done
+  fi
+  zf_rm -f -- $tmp $tmp.zwc 2>/dev/null
+  return 0
+}
+_gx_package_id=
+if [[ -n ${GX_PACKAGE_ROOT:-} && -r $GX_PACKAGE_ROOT/package-origin.json ]]; then
+  _gx_package_id=$(<$GX_PACKAGE_ROOT/package-origin.json)
+fi
+
 ZSH_THEME="powerlevel10k/powerlevel10k"
 zstyle ':omz:update' mode disabled
 zstyle ':omz:plugins:nvm' lazy yes
 zstyle ':omz:plugins:nvm' lazy-cmd eslint prettier pnpm yarn codex
 plugins=(git sudo extract colored-man-pages nvm herdr)
+# Windows 的 sudo 是系统 sudo.exe，提不了 MSYS 命令的权限；没有 man 时也不包装它。
+[[ $OSTYPE == (cygwin|msys)* ]] && plugins=(${plugins:#sudo})
+[[ -f ${commands[man]:-} ]] || plugins=(${plugins:#colored-man-pages})
 
 # P10k 负责 OSC 133 提示符边界，避免再叠加一套 PS1 包装。
 if [[ $TERM_PROGRAM == WezTerm || ${HERDR_ENV:-} == 1 ]]; then
@@ -57,6 +114,18 @@ fi
 if [[ -z ${TTY:-} ]]; then
   ZSH_THEME=""
   typeset -g POWERLEVEL9K_DISABLE_GITSTATUS=true
+fi
+if [[ -n ${GX_PACKAGE_ROOT:-} && $OSTYPE == (cygwin|msys)* ]]; then
+  # MSYS 上没有 SSH 登录后切换用户的场景：无 SSH 变量时预置 p10k 的判定，省掉 `who -m`。
+  if [[ -n ${TTY:-} && -z ${SSH_CLIENT:-}${SSH_TTY:-}${SSH_CONNECTION:-} ]]; then
+    typeset -gix P9K_SSH=0
+    typeset -gx _P9K_SSH_TTY=$TTY
+  fi
+  # OMZ 在 LS_COLORS 为空时每次都 fork dircolors；预置缓存的结果后它直接跳过。
+  if [[ -z ${LS_COLORS:-} && ! -f $HOME/.dircolors ]] && (( $+commands[dircolors] )) &&
+     _gx_init_cache dircolors "$commands[dircolors]" 'command dircolors -b' "${TERM-}" "${COLORTERM-}"; then
+    eval "$REPLY"
+  fi
 fi
 source "$ZSH/oh-my-zsh.sh"
 
@@ -159,15 +228,19 @@ unset keymap
 if (( $+commands[fzf] )); then
   autoload -Uz is-at-least
   # 清空继承的选项，避免旧选项让版本探测自身失败；只取首行首字段。
-  _gx_fzf_version="$(FZF_DEFAULT_OPTS= command fzf --version 2>/dev/null)"
+  _gx_fzf_version=0
+  if _gx_init_cache fzf-version "$commands[fzf]" \
+       'v=$(FZF_DEFAULT_OPTS= command fzf --version) && print -r -- "_gx_fzf_version=${(q)v}"'; then
+    eval "$REPLY"
+  fi
   _gx_fzf_version=${_gx_fzf_version%%$'\n'*}
   _gx_fzf_version=${_gx_fzf_version%% *}
   [[ $_gx_fzf_version == <->.<->* ]] || _gx_fzf_version=0
   # completion.zsh 也安装 Tab widget 并恢复全部选项；无 ZLE 时两种脚本都不安全。
   if [[ -n ${TTY:-} && -o zle ]]; then
     if is-at-least 0.48 "$_gx_fzf_version" &&
-       _gx_fzf_init="$(FZF_DEFAULT_OPTS= command fzf --zsh 2>/dev/null)" && [[ -n $_gx_fzf_init ]]; then
-      source <(print -r -- "$_gx_fzf_init")
+       _gx_init_cache fzf-zsh "$commands[fzf]" 'FZF_DEFAULT_OPTS= command fzf --zsh'; then
+      eval "$REPLY"
     else
       if [[ -r /usr/share/doc/fzf/examples/completion.zsh ]]; then
         source /usr/share/doc/fzf/examples/completion.zsh
@@ -201,12 +274,16 @@ if (( $+commands[fzf] )); then
   elif (( $+commands[rg] )); then
     export FZF_DEFAULT_COMMAND='rg --files'
   fi
-  unset _gx_fzf_version _gx_fzf_opts _gx_fzf_init _gx_fzf_dir
+  unset _gx_fzf_version _gx_fzf_opts _gx_fzf_dir
 fi
 
-if (( $+commands[zoxide] )); then
-  eval "$(zoxide init zsh)"
+# zoxide 把 _ZO_ECHO/_ZO_RESOLVE_SYMLINKS 写进生成的脚本，一并作为缓存键。
+if (( $+commands[zoxide] )) &&
+   _gx_init_cache zoxide "$commands[zoxide]" 'command zoxide init zsh' "${_ZO_ECHO-}" "${_ZO_RESOLVE_SYMLINKS-}"; then
+  eval "$REPLY"
 fi
+unset -f _gx_init_cache
+unset _gx_package_id
 
 # 输入前缀后按上下键，只遍历以该前缀开头的历史；连续按键保持原始前缀。
 # 本块承接 wezterm 安装器曾追加到 ~/.zshrc 的「# >>> wezterm-gx >>>」cursor-mode
@@ -229,6 +306,9 @@ done
 bindkey -M emacs '^P' up-line-or-beginning-search
 bindkey -M emacs '^N' down-line-or-beginning-search
 
+# Windows（MSYS/Cygwin）专属：irm/iwr/iex 转交 PowerShell、缺失命令提示与 open/pbcopy 等常用 shim。
+[[ -r "$ZSH/gx/config/windows.zsh" ]] && source "$ZSH/gx/config/windows.zsh"
+
 # 灰色历史建议先加载，Atuin 随后注册其历史策略。
 if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6c7086,italic'
@@ -243,6 +323,9 @@ if [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
   # 只设下方 ZSH_HIGHLIGHT_MAXLENGTH 1.0 ms，两者同设 0.65 ms。
   ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=512
   source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  # 插件在 zsh ≥ 5.0.8 上自动开异步模式，每击键经进程替换 fork 一个子 shell 取建议；MSYS/Cygwin
+  # 的 fork 很贵（Windows 实测每次约 30 ms，整行输入时 ZLE 明显卡顿），改为进程内同步查历史。
+  [[ $OSTYPE == (cygwin|msys)* ]] && unset ZSH_AUTOSUGGEST_USE_ASYNC
 fi
 
 # atuin 未装则整段跳过（本机即如此，Ctrl+R 留在 fzf）；装了只接管 Ctrl+R，

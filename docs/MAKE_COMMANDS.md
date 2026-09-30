@@ -21,9 +21,9 @@
 | setup | scripts/setup_env.sh --print | 环境盘点与补装指引；绝不自动安装 |
 | dev | scripts/dev_shell.sh | 隔离 ZDOTDIR 启动交互 zsh，打印 omz version/主题/别名 |
 | build | N/A | 核心 shell 解释执行；原生发行入口在 package 阶段编译 |
-| lint | scripts/check_syntax.sh | shell 与 GX 配置语法、框架及打包 Python AST；不证明安装模板可编译 |
-| typecheck | tests/gx_launcher.py | 真实 rustc 编译并执行启动器测试；需 Rust，可用 GX_RUSTC 指定 |
-| test | scripts/run_tests.sh | 原有单元/加载/安装演练、中文 GX profile 回归、打包/发布 Python 单元 |
+| lint | scripts/check_syntax.sh | shell 与 GX 配置语法（含 gx/omz-custom/plugins 下的覆盖插件）、框架及打包 Python AST；不证明安装模板可编译 |
+| typecheck | tests/gx_launcher.py | 真实 rustc 编译并执行启动器测试；需 Rust。测试改写 HOME/USERPROFILE 后 rustup 代理找不到工具链，用 GX_RUSTC 指向工具链内的 rustc 本体 |
+| test | scripts/run_tests.sh | 原有单元/加载/安装演练、中文 GX profile 回归、Windows 层（gx_windows.py，强制 MSYS 的替身测试）、打包/发布 Python 单元 |
 | test-integration | tests/smoke_load.zsh --plugins git,docker | 多插件组合加载断言 |
 | test-heavy | scripts/gx_lifecycle_entry.py | 仅 GitHub-hosted 可丢弃环境，需 GX_PACKAGE_MANIFEST；GX_UPGRADE_INSTALLER 指定真实新版本，Linux 需 GX_LIFECYCLE_USER。缺验收项非零退出，禁止在真实宿主运行 |
 | generated-check | build_agent_kb.py --check | KB 与语料一致性（接入 ci） |
@@ -39,8 +39,9 @@
 
 普通 shell 检查需要 zsh、git、Python 3.11+（旧版 resolver 可用已装 tomli）；
 打包 Python 的版本下限以脚本/工作流为准，`.zst` 解包需要 Python 3.14 或显式 zstd。
-原生启动器检查需 Rust，正式构建按依赖锁钉定 Rust/Zig。Windows 需要 Inno Setup，
-Ubuntu 需要 dpkg-deb；入口不会替用户安装这些工具。
+原生启动器检查需 Rust，正式构建按依赖锁钉定 Rust/Zig。Windows 目标经 rustup 编译时固定使用
+`<锁定版本>-x86_64-pc-windows-msvc` 工具链并设 `RUSTUP_AUTO_INSTALL=0`，缺少即失败。Windows 需要
+Inno Setup，Ubuntu 需要 dpkg-deb；入口不会替用户安装这些工具。
 
 zunit、shellcheck、tmux、graphify 是对应能力的可选工具。缺失项必须如实报告；
 `framework-ready` 的配置完整不等于工具齐备或验收通过，PENDING 期间应保持红灯。
