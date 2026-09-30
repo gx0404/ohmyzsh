@@ -1,0 +1,72 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=unzip
+pkgver=6.0
+pkgrel=3
+pkgdesc="Unpacks .zip archives such as those made by PKZIP"
+arch=('i686' 'x86_64')
+url="http://www.info-zip.org/"
+license=('custom')
+groups=('compression')
+depends=('libbz2' 'bash')
+makedepends=('libbz2-devel' 'gcc' 'make')
+source=('https://downloads.sourceforge.net/infozip/unzip60.tar.gz'
+        unzip-6.0-attribs-overflow.patch
+        unzip-6.0-bzip2-configure.patch
+        unzip-6.0-caseinsensitive.patch
+        unzip-6.0-close.patch
+        unzip-6.0-fix-recmatch.patch
+        unzip-6.0-format-secure.patch
+        unzip-6.0-nostrip.patch
+        unzip-6.0-symlink.patch)
+sha256sums=('036d96991646d0449ed0aa952e4fbe21b476ce994abc276e49d30e686708bd37'
+            '74bc961e8013a4058687a3730590a709b7889203beb74a4a8369ba0301bef0e2'
+            '41aeebdb356cb6ffa7c0cd168aab63ece586dc03c533e1f720f98422951d79b2'
+            '357bc39af42a256084ba69a020c21ebc97429378c23bd5b8c7f22f02d0c68e63'
+            '10754a10be46ee8e7b9f84935e7f2087a99abd0a00dff77f97181c8fd71e0eef'
+            '3fc23fa7d46846a7089810c2926b3c3e2b3115d623765331876707e5e9d78041'
+            '8d9426bdd98cbba00c2d2e36c1dae17da069e6c85bf35811a434a8cbe704e6f4'
+            '654608fe9c153a5d3e0ae2ee157a14ae8c959c868e5fa3c3e34a71081468d417'
+            'fde8f9d6dbc5e9dc59f4497de8e4e313fd74318eaf5f33421acd74442fd10706')
+
+prepare() {
+  cd ${srcdir}/${pkgname}${pkgver/./}
+  patch -p1 -i ${srcdir}/unzip-6.0-bzip2-configure.patch
+  patch -p1 -i ${srcdir}/unzip-6.0-close.patch
+  patch -p1 -i ${srcdir}/unzip-6.0-attribs-overflow.patch
+  patch -p1 -i ${srcdir}/unzip-6.0-nostrip.patch
+  patch -p1 -i ${srcdir}/unzip-6.0-fix-recmatch.patch
+  patch -p1 -i ${srcdir}/unzip-6.0-symlink.patch
+  patch -p1 -i ${srcdir}/unzip-6.0-caseinsensitive.patch
+  patch -p1 -i ${srcdir}/unzip-6.0-format-secure.patch
+
+}
+
+build() {
+  cd ${srcdir}/${pkgname}${pkgver/./}
+
+  # set CFLAGS -- from Debian
+  export CFLAGS="$CFLAGS -D_FILE_OFFSET_BITS=64 -DACORN_FTYPE_NFS \
+  -DWILD_STOP_AT_DIR -DLARGE_FILE_SUPPORT -DUNICODE_SUPPORT \
+  -DUNICODE_WCHAR -DUTF8_MAYBE_NATIVE -DNO_LCHMOD -DDATE_FORMAT=DF_YMD \
+  -DUSE_BZIP2 -DNATIVE"
+
+  sed -i "/MANDIR =/s#)/#)/share/#" unix/Makefile
+
+  # make -- from Debian
+  make \
+    -f unix/Makefile generic_gcc CC=gcc LD=gcc AS=gcc \
+    CF_NOOPT="${CFLAGS} -DUNIX -I." \
+    E=".exe" CP="cp" LN="ln -s"
+}
+
+package() {
+  cd ${srcdir}/${pkgname}${pkgver/./}
+
+  # install -- from Debian
+  make -f unix/Makefile prefix=${pkgdir}/usr LN="ln -s" MANDIR=${D}/usr/share/man/man1 INSTALL_PROGRAM="install" install
+
+  # install the license file
+  install -Dm644 LICENSE ${pkgdir}/usr/share/licenses/unzip/LICENSE
+}
+

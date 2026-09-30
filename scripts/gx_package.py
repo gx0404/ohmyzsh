@@ -20,7 +20,7 @@ from gx_p10k_metadata import runtime_identity
 ROOT = Path(__file__).resolve().parent.parent
 RESOURCE_FILES = {
     "oh-my-zsh.sh", "LICENSE.txt", "gx/config/zshrc", "gx/config/zshenv",
-    "gx/config/package.zsh", "gx/config/p10k.zsh", "gx/config/terminal.zsh",
+    "gx/config/package.zsh", "gx/config/p10k.zsh", "gx/config/terminal.zsh", "gx/config/windows.zsh",
 }
 BUILD_FILES = {
     "CHANGELOG.md", "scripts/gx-launcher/main.rs", "scripts/gx_package.py", "scripts/gx_p10k_metadata.py",
@@ -31,9 +31,12 @@ BUILD_FILES = {
     "scripts/packaging/debian/postrm", "scripts/packaging/debian/preinst",
 }
 FONT_ROOT = "gx/fonts/JetBrainsMonoNerd/"
+HERDR_COMPLETION = "gx/omz-custom/plugins/herdr/_herdr"
+# gx_build_herdr 的 receipt 里唯一可发布的构建者（与之相对的是 GX_LOCAL_BUILD_ROOT 本机构建的 "local"）。
+RELEASE_BUILDER = "github-actions"
 LINUX_BINARIES = {"gx/bin/gitstatusd-linux-x86_64", "gx/bin/zoxide-linux-x86_64"}
 REQUIRED_RESOURCES = RESOURCE_FILES | {
-    "lib/cli.zsh", "lib/git.zsh", "plugins/herdr/herdr.plugin.zsh",
+    "lib/cli.zsh", "lib/git.zsh", "plugins/herdr/herdr.plugin.zsh", "gx/omz-custom/plugins/herdr/herdr.plugin.zsh",
     "gx/omz-custom/themes/powerlevel10k/powerlevel10k.zsh-theme",
     "gx/omz-custom/themes/powerlevel10k/LICENSE",
     "gx/omz-custom/themes/powerlevel10k/internal/p10k.zsh",
@@ -79,16 +82,17 @@ def clean_source(repo: Path, ref: str, allow_dirty: bool = False) -> dict:
     revision = git(repo, "rev-parse", "--verify", ref + "^{commit}").decode().strip()
     if not deps.REVISION.fullmatch(revision):
         raise PackageError("expected full Git commit SHA")
+    # `-- .` 与 `./CHANGELOG.md`：在 gx_shell 单仓里只统计/读取本目录，兄弟组件不影响脏检查。
     dirty = (
-        bool(git(repo, "diff", "--name-only", "--no-ext-diff", "HEAD", "--"))
-        or bool(git(repo, "diff", "--cached", "--name-only", "--no-ext-diff", "HEAD", "--"))
+        bool(git(repo, "diff", "--name-only", "--no-ext-diff", "HEAD", "--", "."))
+        or bool(git(repo, "diff", "--cached", "--name-only", "--no-ext-diff", "HEAD", "--", "."))
         or bool(git(repo, "ls-files", "--others", "--exclude-standard", "-z"))
     )
     if dirty and not allow_dirty:
         raise PackageError("official package requires a clean Git worktree; --allow-dirty is local development only")
     if allow_dirty and revision != git(repo, "rev-parse", "HEAD").decode().strip():
         raise PackageError("--allow-dirty can only use HEAD, not overlay an unrelated commit")
-    text = (repo / "CHANGELOG.md").read_text(encoding="utf-8") if allow_dirty else git(repo, "show", revision + ":CHANGELOG.md").decode()
+    text = (repo / "CHANGELOG.md").read_text(encoding="utf-8") if allow_dirty else git(repo, "show", revision + ":./CHANGELOG.md").decode()
     return {
         "repository": "gx0404/ohmyzsh", "revision": revision,
         "version": current_version(text), "dirty": dirty, "development": allow_dirty,
@@ -162,16 +166,21 @@ def write_snapshot(files: dict[str, tuple[bytes, int]], destination: Path) -> No
 
 
 def compile_launchers(source: Path, destination: Path, platform: str, lock: dict, rustc: str) -> None:
-    version = subprocess.run([rustc, "--version"], check=True, capture_output=True, text=True).stdout.split()
+    triple = lock["herdr"]["targets"][platform]
+    # 与 gx_build_herdr 一致：本机 rustup 默认 host 可能是 GNU，Windows 目标经 rustup 代理显式选 MSVC 工具链；
+    # 该工具链缺失时直接失败，不让 rustup 自动下载安装。
+    env = ({**os.environ, "RUSTUP_TOOLCHAIN": lock["herdr"]["rust"] + "-" + triple, "RUSTUP_AUTO_INSTALL": "0"}
+           if platform == "windows-x64" else None)
+    version = subprocess.run([rustc, "--version"], check=True, capture_output=True, text=True, env=env).stdout.split()
     if len(version) < 2 or version[1] != lock["herdr"]["rust"]:
         raise PackageError(f"launcher compiler must be Rust {lock['herdr']['rust']}")
     destination.mkdir(parents=True, exist_ok=True)
     for name in ("gx-zsh", "herdr"):
         target = destination / (name + (".exe" if platform == "windows-x64" else ""))
-        command = [rustc, str(source), "--edition=2021", "-C", "opt-level=s", "-C", "strip=symbols", "-C", "target-feature=+crt-static", "--target", lock["herdr"]["targets"][platform], "-o", str(target)]
+        command = [rustc, str(source), "--edition=2021", "-C", "opt-level=s", "-C", "strip=symbols", "-C", "target-feature=+crt-static", "--target", triple, "-o", str(target)]
         if name == "herdr":
             command.extend(["--cfg", "gx_herdr"])
-        subprocess.run(command, check=True)
+        subprocess.run(command, check=True, env=env)
         deps.check_binary(target, platform, static=platform == "ubuntu-amd64")
         target.chmod(0o755)
 
@@ -179,6 +188,28 @@ def compile_launchers(source: Path, destination: Path, platform: str, lock: dict
 def merge_tree(source: Path, destination: Path) -> None:
     for record in deps.tree_manifest(source):
         deps.install_mapping(source, destination, {"from": record["path"], "to": record["path"]})
+
+
+def herdr_completion(herdr: Path, home: Path) -> bytes:
+    # 包内 herdr 插件直接使用 stage 时生成的 _herdr，用户机器上不再后台重生成；真实 herdr 在隔离
+    # 的 HOME/配置/临时目录里运行，构建机的配置、语言与会话不会进入产物。
+    home.mkdir()
+    env = {name: str(home) for name in ("HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "XDG_CONFIG_HOME", "XDG_DATA_HOME",
+                                        "XDG_STATE_HOME", "XDG_CACHE_HOME", "XDG_RUNTIME_DIR", "TMP", "TEMP", "TMPDIR")}
+    env["HERDR_CONFIG_PATH"] = str(home / "config.toml")
+    # 补全里的说明文字随 herdr 语言变化：显式钉成 herdr 的默认语言 zh-CN，产物不取决于构建机。
+    env["HERDR_LANG"] = "zh-CN"
+    if os.name == "nt":
+        env["SYSTEMROOT"] = os.environ["SYSTEMROOT"]
+    try:
+        process = subprocess.run([str(herdr), "completion", "zsh"], env=env, cwd=home, stdin=subprocess.DEVNULL,
+                                 capture_output=True, timeout=120)
+    except subprocess.TimeoutExpired as error:
+        raise PackageError(f"staged herdr did not generate its zsh completion within {error.timeout:g} s") from error
+    if process.returncode or not process.stdout.startswith(b"#compdef herdr"):
+        detail = process.stderr.decode("utf-8", errors="replace").strip() or f"exit status {process.returncode}"
+        raise PackageError(f"staged herdr did not generate its zsh completion: {detail}")
+    return process.stdout
 
 
 def stage(repo: Path, ref: str, platform: str, dependency_bundle: Path, output: Path, *, allow_dirty: bool = False, version: str | None = None, rustc: str = "rustc") -> dict:
@@ -196,7 +227,17 @@ def stage(repo: Path, ref: str, platform: str, dependency_bundle: Path, output: 
         work = Path(temporary)
         snap = work / "snapshot"
         write_snapshot(files, snap)
-        lock = deps.load_lock(snap / "scripts/packaging/dependencies.json")
+        lock = deps.load_lock(snap / "scripts/packaging/dependencies.json", repository=repo)
+        if deps.is_monorepo_herdr(lock["herdr"]):
+            if source["revision"] != lock["herdr"]["revision"]:
+                raise PackageError("in the gx_shell monorepo the package ref must be the checked-out commit that provides herdr/")
+            source["repository"] = "gx0404/gx_shell"
+            # 快照与对应源码里写入已解析的锁，脱离 Git 工作树后仍可复核同一个 herdr 提交。
+            name = "scripts/packaging/dependencies.json"
+            resolved = json.loads(files[name][0])
+            resolved["herdr"] = lock["herdr"]
+            files[name] = ((json.dumps(resolved, indent=2, ensure_ascii=False, sort_keys=True) + "\n").encode("utf-8"), files[name][1])
+            write_snapshot({name: files[name]}, snap)
         for item in lock.get("vendored_files", []):
             name = str(deps.relative_path(item["path"]))
             if name not in files or hashlib.sha256(files[name][0]).hexdigest() != item["sha256"]:
@@ -211,6 +252,13 @@ def stage(repo: Path, ref: str, platform: str, dependency_bundle: Path, output: 
         theme_identity = runtime_identity(resources, platform, dependency["zsh"]["binary_sha256"])
         (resources / "p10k-runtime-id").write_text(theme_identity + "\n", encoding="ascii", newline="\n")
         merge_tree(dependency_bundle / "payload", prefix)
+        completion = resources / HERDR_COMPLETION
+        if completion.exists():
+            raise PackageError(f"{HERDR_COMPLETION} is generated at stage time; remove it from the source tree")
+        completion.parent.mkdir(parents=True, exist_ok=True)
+        completion.write_bytes(herdr_completion(prefix / "lib/herdr" / ("herdr.exe" if platform == "windows-x64" else "herdr"),
+                                                work / "herdr-completion"))
+        completion.chmod(0o644)
         if platform == "ubuntu-amd64":
             for name, destination in (("gx/bin/zoxide-linux-x86_64", "bin/zoxide"), ("gx/bin/gitstatusd-linux-x86_64", "lib/gitstatus/gitstatusd-linux-x86_64")):
                 if name not in files:
@@ -257,6 +305,9 @@ def stage(repo: Path, ref: str, platform: str, dependency_bundle: Path, output: 
         write_snapshot(files, result_root / "redistribution/ohmyzsh-gx")
         (result_root / "build-inputs").mkdir()
         (result_root / "build-inputs/windows.iss").write_bytes(files["scripts/packaging/windows.iss"][0])
+        # 只有 GitHub Actions 上构建的 herdr（receipt builder=github-actions）可以进入可发布的 stage；
+        # GX_LOCAL_BUILD_ROOT 本机构建（builder=local）或没有记录构建者的 receipt 都让整个 stage 不可发布。
+        publishable = source["publishable"] and dependency["herdr"].get("builder") == RELEASE_BUILDER
         manifest = {
             "schema_version": 1, "product": "ohmyzsh-gx", "platform": platform,
             "architecture": "x86_64" if platform == "windows-x64" else "amd64",
@@ -264,7 +315,8 @@ def stage(repo: Path, ref: str, platform: str, dependency_bundle: Path, output: 
             "herdr": {k: lock["herdr"][k] for k in ("repository", "revision", "version", "rust", "zig", "targets")},
             "herdr_build": dependency["herdr"],
             "zsh_build": dependency["zsh"], "zsh_overlay": dependency["zsh_overlay"],
-            "lock_digest": lock["lock_digest"], "publishable": source["publishable"],
+            "msys2_overlay": dependency["msys2_overlay"],
+            "lock_digest": lock["lock_digest"], "publishable": publishable,
             "compliance_complete": True, "dependencies": dependency["artifacts"],
             "payload": payload_manifest(payload), "redistribution": deps.tree_manifest(result_root / "redistribution"),
             "build_inputs": deps.tree_manifest(result_root / "build-inputs"),
@@ -302,12 +354,18 @@ def verify_stage(path: Path) -> dict:
         raise PackageError("invalid stage manifest")
     if manifest["payload"] != payload_manifest(path / "payload"):
         raise PackageError("staged payload changed after manifest generation")
+    staged = {item["path"]: item.get("sha256") for item in manifest["payload"]}
+    for change in manifest.get("msys2_overlay", []):
+        if staged.get(change["path"]) != change["new_sha256"]:
+            raise PackageError(f"staged MSYS2 runtime differs from its overlay record: {change['path']}")
     deps.verify_tree(path / "redistribution", manifest["redistribution"])
     deps.verify_tree(path / "build-inputs", manifest["build_inputs"])
     if not manifest.get("compliance_complete"):
         raise PackageError("stage has incomplete redistribution inputs")
     if (manifest["source"].get("development") or manifest["source"].get("dirty")) and manifest.get("publishable"):
         raise PackageError("development stage cannot be publishable")
+    if manifest.get("publishable") and manifest.get("herdr_build", {}).get("builder") != RELEASE_BUILDER:
+        raise PackageError("only a stage whose herdr was built on GitHub Actions can be publishable")
     lock = deps.load_lock(path / "redistribution/ohmyzsh-gx/scripts/packaging/dependencies.json")
     if lock["lock_digest"] != manifest["lock_digest"] or deps.compliance_errors(lock, manifest["platform"]):
         raise PackageError("stage source lock is not redistribution-complete or differs from its manifest")
@@ -386,8 +444,9 @@ def verify_release(manifest_path: Path, require_release: bool = False) -> dict:
     manifest = deps.read_json(manifest_path)
     if manifest.get("schema_version") != 1 or manifest.get("product") != "ohmyzsh-gx":
         raise PackageError("unknown release manifest")
-    if require_release and (not manifest.get("publishable") or manifest["source"].get("development") or manifest["source"].get("dirty")):
-        raise PackageError("development/dirty packages cannot be released")
+    if require_release and (not manifest.get("publishable") or manifest["source"].get("development") or manifest["source"].get("dirty")
+                            or manifest.get("herdr_build", {}).get("builder") != RELEASE_BUILDER):
+        raise PackageError("development/dirty packages or herdr not built on GitHub Actions cannot be released")
     roles = set()
     for artifact in manifest["artifacts"]:
         filename = artifact["filename"]

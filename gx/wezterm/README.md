@@ -205,26 +205,85 @@
 
 - ##### Things You Might Want to Change:
 
-  - [./config/domains.lua](./config/domains.lua) for custom SSH/WSL domains
-  - [./config/launch.lua](./config/launch.lua) for preferred shells and its paths
+  - [./config/domains.lua](./config/domains.lua) for custom SSH domains (WSL distros are listed automatically)
+  - The default shell: pick it in the Settings overlay (<kbd>LEADER</kbd>+<kbd>s</kbd>, section "Shell"),
+    see [Default Shell](#default-shell)
+
+---
+
+### Default Shell
+
+[./utils/shells.lua](./utils/shells.lua) finds the installed shells without starting any process
+(it only checks whether files exist) and [./config/launch.lua](./config/launch.lua) turns them into
+`launch_menu` entries (<kbd>F3</kbd>, right click on the `+` tab button):
+
+| Shell | `default_shell` id | Looked up in |
+| ----- | ------------------ | ------------ |
+| GX Zsh | `gx-zsh` | the GX Shell install next to `wezterm.executable_dir` |
+| PowerShell 7 | `pwsh` | `PATH` (Store app aliases included), `%ProgramFiles%\PowerShell\7` and `7-preview`, scoop |
+| Windows PowerShell 5.1 | `powershell` | `%SystemRoot%\System32\WindowsPowerShell\v1.0` |
+| Command Prompt | `cmd` | `%ComSpec%` |
+| Git Bash | `git-bash` | the Git for Windows root of `git.exe` on `PATH`, Program Files, `%LOCALAPPDATA%\Programs\Git`, scoop |
+| MSYS2 UCRT64 | `msys2-ucrt64` | `C:\msys64`, `C:\tools\msys64`, scoop, an MSYS2 `usr\bin` on `PATH` (never the GX private runtime) |
+| Nushell | `nu` | `PATH`, `%ProgramFiles%\nu\bin`, scoop |
+| WSL distros | `wsl:<Distro>` | `wezterm.default_wsl_domains()` via [./utils/wsl.lua](./utils/wsl.lua) |
+| Zsh / Bash (Linux) | `zsh` / `bash` | `PATH` |
+| Fish / Bash / Nushell / Zsh (MacOs) | `fish` / `bash` / `nu` / `zsh` | fixed list, not checked (Fish and Nushell in `/opt/homebrew/bin`) |
+
+Only Store app-execution aliases under `WindowsApps` count without opening; any other file that
+cannot be opened (a dead `PATH` entry, an empty drive) counts as missing.
+[./utils/wsl.lua](./utils/wsl.lua) is shared by `config/domains.lua` and `config/launch.lua`: once
+distros are found, `wsl.exe` runs once per GUI process; an empty or failed listing is retried by
+config evaluations after 5 minutes.
+
+The Settings overlay (<kbd>LEADER</kbd>+<kbd>s</kbd>; the menus' "Default Shell…" and the last entry of
+the `+` right-click list open its Shell section directly) stores the choice as `default_shell` in
+`gui-settings.json` next to `wezterm.lua`, or in `$XDG_CONFIG_HOME/wezterm` (default
+`~/.config/wezterm`) for a `~/.wezterm.lua` config; [./utils/gui-settings.lua](./utils/gui-settings.lua)
+resolves it the same way WezTerm does. Choosing GX Zsh removes the key. Without a valid choice the
+default falls back to GX Zsh, then PowerShell 7, then Windows PowerShell 5.1 (Linux: GX Zsh, then
+Zsh; MacOs: Fish), which is always the first shell in the launch menu, so on MacOs Fish now comes
+before Bash. A WSL choice sets `default_domain`. Every
+launch menu entry pins its own domain, and every shell entry carries `GX_SHELL_ID` (the `herdr` entry
+does not), so PowerShell opened from a WSL tab is still the local PowerShell.
+
+Inside the GX Shell install the event `gx-default-shell-changed` also runs
+`bin\herdr.exe --gx-set-default-shell <absolute shell path>` so new herdr panes follow the choice,
+unless herdr uses a custom config. herdr takes a single executable, and the toast says what that
+means: a WSL choice gives herdr the default WSL distro, MSYS2 UCRT64 gives it an MSYS-environment
+bash, and a system zsh on Linux points herdr at GX Zsh (the herdr server's zsh environment would
+load the GX profile anyway).
 
 ---
 
 ### All Key Bindings
 
-Most of the key bindings revolve around a <kbd>SUPER</kbd> and <kbd>SUPER_REV</kbd>(super reversed) keys.<br>
+Linux and Windows share one scheme built on <kbd>Ctrl</kbd>+<kbd>Shift</kbd>, the Ubuntu terminal
+convention. Bare <kbd>Alt</kbd> keys (readline/zsh <kbd>Alt</kbd>+<kbd>f</kbd>/<kbd>b</kbd>/<kbd>d</kbd>/<kbd>.</kbd>/<kbd>Backspace</kbd>)
+always reach the shell, and <kbd>Ctrl</kbd>+<kbd>C</kbd> (interrupt), <kbd>Ctrl</kbd>+<kbd>V</kbd> (image paste in
+agent CLIs), <kbd>Ctrl</kbd>+<kbd>B</kbd> (herdr prefix) and <kbd>Ctrl</kbd>+<kbd>_</kbd> (undo in readline, zsh,
+emacs and nano; typed as <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>-</kbd>) are never bound.
 
-- On MacOs:
+- On Windows and Linux
+  - <kbd>SUPER</kbd> ⇨ <kbd>Ctrl</kbd>+<kbd>Shift</kbd>
+  - <kbd>SUPER_REV</kbd> ⇨ <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>
+- On MacOs
   - <kbd>SUPER</kbd> ⇨ <kbd>Super</kbd>
   - <kbd>SUPER_REV</kbd> ⇨ <kbd>Super</kbd>+<kbd>Ctrl</kbd>
-- On Windows and Linux
-  - <kbd>SUPER</kbd> ⇨ <kbd>Alt</kbd>
-  - <kbd>SUPER_REV</kbd> ⇨ <kbd>Alt</kbd>+<kbd>Ctrl</kbd>
+- On all platforms: <kbd>LEADER</kbd> ⇨ <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Space</kbd> <sub>(1 second)</sub>
 
-> To avoid confusion when switching between different OS and to avoid conflicting<br>
-> with OS's built-in keyboard shortcuts.
+On MacOs the tables below apply with these differences: the page scroll keys are plain
+<kbd>PageUp</kbd>/<kbd>PageDown</kbd>, the <kbd>SUPER</kbd>+<kbd>LeftArrow</kbd>/<kbd>RightArrow</kbd>/<kbd>Backspace</kbd>
+line keys stay, and there is no <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>/<kbd>PageDown</kbd>, no
+<kbd>Ctrl</kbd>+<kbd>=</kbd>/<kbd>+</kbd>/<kbd>-</kbd>/<kbd>0</kbd> and no <kbd>LEADER</kbd>+<kbd>1</kbd>…<kbd>9</kbd>.
+Three changes of GX Shell 0.2.0 apply to MacOs as well: <kbd>SUPER_REV</kbd>+<kbd>w</kbd> asks before
+closing a tab, the window size keys moved from <kbd>SUPER</kbd>+<kbd>=</kbd>/<kbd>-</kbd> to
+<kbd>LEADER</kbd>+<kbd>=</kbd>/<kbd>-</kbd>, and <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>/<kbd>V</kbd> (screenshot,
+image paste) are bound on Linux only. The launch menu order changed too, see [Default Shell](#default-shell).
 
-- On all platforms: <kbd>LEADER</kbd> ⇨ <kbd>SUPER_REV</kbd>+<kbd>Space</kbd>
+> WezTerm reports <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>[</kbd> as `{` on Windows and X11, so on those
+> platforms every <kbd>SUPER</kbd>/<kbd>SUPER_REV</kbd> binding on `[ ] \ 0 9` is also bound to its US-layout
+> shifted character (`{ } | ) (`).
 
 #### Miscellaneous/Useful
 
@@ -235,10 +294,14 @@ Most of the key bindings revolve around a <kbd>SUPER</kbd> and <kbd>SUPER_REV</k
 | <kbd>F3</kbd>                     | `ShowLauncher`                              |
 | <kbd>F4</kbd>                     | `ShowLauncher` <sub>(tabs only)</sub>       |
 | <kbd>F5</kbd>                     | `ShowLauncher` <sub>(workspaces only)</sub> |
+| <kbd>F8</kbd>                     | Send <kbd>Ctrl</kbd>+<kbd>R</kbd> (Atuin history) |
 | <kbd>F11</kbd>                    | `ToggleFullScreen`                          |
 | <kbd>F12</kbd>                    | `ShowDebugOverlay`                          |
 | <kbd>SUPER</kbd>+<kbd>f</kbd>     | Search Text                                 |
 | <kbd>SUPER_REV</kbd>+<kbd>u</kbd> | Open URL                                    |
+| <kbd>LEADER</kbd>+<kbd>m</kbd>    | `ShowMainMenu`                              |
+| <kbd>LEADER</kbd>+<kbd>s</kbd>    | `OpenSettings` <sub>(default shell, theme, font)</sub> |
+| <kbd>LEADER</kbd>+<kbd>k</kbd>    | `ShowKeybinds`                              |
 
 &nbsp;
 
@@ -249,9 +312,13 @@ Most of the key bindings revolve around a <kbd>SUPER</kbd> and <kbd>SUPER_REV</k
 | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>c</kbd> | Copy to Clipboard    |
 | <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>v</kbd> | Paste from Clipboard |
 
+Linux only: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd> takes a Flameshot screenshot and
+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>V</kbd> pastes the path of the clipboard image saved by
+`~/.local/bin/ai-image-paste`.
+
 &nbsp;
 
-#### Cursor Movements
+#### Cursor Movements (MacOs only)
 
 | Keys                                   | Action                                                     |
 | -------------------------------------- | ---------------------------------------------------------- |
@@ -265,20 +332,23 @@ Most of the key bindings revolve around a <kbd>SUPER</kbd> and <kbd>SUPER_REV</k
 
 ##### Tabs: Spawn+Close
 
-| Keys                              | Action                                |
-| --------------------------------- | ------------------------------------- |
-| <kbd>SUPER</kbd>+<kbd>t</kbd>     | `SpawnTab` <sub>(DefaultDomain)</sub> |
-| <kbd>SUPER_REV</kbd>+<kbd>t</kbd> | `SpawnTab` <sub>(WSL:Ubuntu)</sub>    |
-| <kbd>SUPER_REV</kbd>+<kbd>w</kbd> | `CloseCurrentTab`                     |
+| Keys                              | Action                                            |
+| --------------------------------- | ------------------------------------------------- |
+| <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>t</kbd> | `SpawnTab` <sub>(DefaultDomain, default shell)</sub> |
+| <kbd>SUPER_REV</kbd>+<kbd>t</kbd> | `SpawnTab` <sub>(DefaultDomain)</sub>             |
+| <kbd>SUPER_REV</kbd>+<kbd>w</kbd> | `CloseCurrentTab` <sub>(asks first)</sub>         |
 
 ##### Tabs: Navigation
 
-| Keys                              | Action         |
-| --------------------------------- | -------------- |
-| <kbd>SUPER</kbd>+<kbd>[</kbd>     | Next Tab       |
-| <kbd>SUPER</kbd>+<kbd>]</kbd>     | Previous Tab   |
-| <kbd>SUPER_REV</kbd>+<kbd>[</kbd> | Move Tab Left  |
-| <kbd>SUPER_REV</kbd>+<kbd>]</kbd> | Move Tab Right |
+| Keys                                                   | Action               |
+| ------------------------------------------------------ | -------------------- |
+| <kbd>SUPER</kbd>+<kbd>[</kbd> / <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>   | Previous Tab |
+| <kbd>SUPER</kbd>+<kbd>]</kbd> / <kbd>Ctrl</kbd>+<kbd>PageDown</kbd> | Next Tab     |
+| <kbd>SUPER_REV</kbd>+<kbd>[</kbd>                      | Move Tab Left        |
+| <kbd>SUPER_REV</kbd>+<kbd>]</kbd>                      | Move Tab Right       |
+| <kbd>LEADER</kbd>+<kbd>1</kbd>…<kbd>9</kbd>             | Go to Tab 1…9        |
+
+<sub>Windows and Linux only: <kbd>Ctrl</kbd>+<kbd>PageUp</kbd>/<kbd>PageDown</kbd> and <kbd>LEADER</kbd>+<kbd>1</kbd>…<kbd>9</kbd>.</sub>
 
 ##### Tabs: Toggle Tab-bar
 
@@ -297,11 +367,30 @@ Most of the key bindings revolve around a <kbd>SUPER</kbd> and <kbd>SUPER_REV</k
 
 #### Windows
 
-| Keys                          | Action               |
-| ----------------------------- | -------------------- |
-| <kbd>SUPER</kbd>+<kbd>n</kbd> | `SpawnWindow`        |
-| <kbd>SUPER</kbd>+<kbd>=</kbd> | Increase Window Size |
-| <kbd>SUPER</kbd>+<kbd>-</kbd> | Decrease Window Size |
+| Keys                                  | Action               |
+| ------------------------------------- | -------------------- |
+| <kbd>SUPER</kbd>+<kbd>n</kbd>         | `SpawnWindow`        |
+| <kbd>LEADER</kbd>+<kbd>=</kbd>        | Increase Window Size |
+| <kbd>LEADER</kbd>+<kbd>-</kbd>        | Decrease Window Size |
+| <kbd>SUPER_REV</kbd>+<kbd>Enter</kbd> | Maximize Window      |
+
+<sub>The window size keys sit on the leader layer because <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>-</kbd> is the shell's
+undo key and <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>=</kbd> is <kbd>Ctrl</kbd>+<kbd>+</kbd>.</sub>
+
+&nbsp;
+
+#### Font Size
+
+| Keys                                                         | Action             |
+| ------------------------------------------------------------ | ------------------ |
+| <kbd>Ctrl</kbd>+<kbd>=</kbd> / <kbd>Ctrl</kbd>+<kbd>+</kbd> | `IncreaseFontSize` |
+| <kbd>Ctrl</kbd>+<kbd>-</kbd>                                 | `DecreaseFontSize` |
+| <kbd>Ctrl</kbd>+<kbd>0</kbd>                                 | `ResetFontSize`    |
+| <kbd>Ctrl</kbd>+Mouse Wheel                                  | Increase/Decrease  |
+
+<sub><kbd>Ctrl</kbd>+<kbd>+</kbd> is <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>=</kbd> on the main keyboard or
+<kbd>Ctrl</kbd> with the keypad <kbd>+</kbd>. The <kbd>Ctrl</kbd> keyboard keys are Windows and Linux only;
+<kbd>Ctrl</kbd>+Mouse Wheel and <kbd>LEADER</kbd>+<kbd>f</kbd> work everywhere.</sub>
 
 &nbsp;
 
@@ -316,10 +405,15 @@ Most of the key bindings revolve around a <kbd>SUPER</kbd> and <kbd>SUPER_REV</k
 
 ##### Panes: Zoom+Close Pane
 
-| Keys                              | Action                |
-| --------------------------------- | --------------------- |
-| <kbd>SUPER</kbd>+<kbd>Enter</kbd> | `TogglePaneZoomState` |
-| <kbd>SUPER</kbd>+<kbd>w</kbd>     | `CloseCurrentPane`    |
+| Keys                              | Action                                     |
+| --------------------------------- | ------------------------------------------ |
+| <kbd>SUPER</kbd>+<kbd>Enter</kbd> | `TogglePaneZoomState`                      |
+| <kbd>SUPER</kbd>+<kbd>w</kbd>     | `CloseCurrentPane` <sub>(asks first)</sub> |
+
+<sub>Closing a pane or tab does not ask while only an idle shell runs in it
+(`skip_close_confirmation_for_processes_named`; on Windows the list also has `zsh.exe`, `bash.exe` and
+the other `.exe` shell names, MSYS2's `env.exe` and GX Zsh's gitstatusd). herdr and other programs
+still ask.</sub>
 
 ##### Panes: Navigation
 
@@ -333,24 +427,41 @@ Most of the key bindings revolve around a <kbd>SUPER</kbd> and <kbd>SUPER_REV</k
 
 ##### Panes: Scroll Pane
 
-| Keys                          | Action                               |
-| ----------------------------- | ------------------------------------ |
-| <kbd>SUPER</kbd>+<kbd>u</kbd> | Scroll Lines up <sub>5 lines</sub>   |
-| <kbd>SUPER</kbd>+<kbd>d</kbd> | Scroll Lines down <sub>5 lines</sub> |
-| <kbd>PageUp</kbd>             | Scroll Page up                       |
-| <kbd>PageDown</kbd>           | Scroll Page down                     |
+| Keys                                                 | Action                               |
+| ---------------------------------------------------- | ------------------------------------ |
+| <kbd>SUPER</kbd>+<kbd>u</kbd>                        | Scroll Lines up <sub>5 lines</sub>   |
+| <kbd>SUPER</kbd>+<kbd>d</kbd>                        | Scroll Lines down <sub>5 lines</sub> |
+| <kbd>Shift</kbd>+<kbd>PageUp</kbd>                   | Scroll Page up                       |
+| <kbd>Shift</kbd>+<kbd>PageDown</kbd>                 | Scroll Page down                     |
+
+<sub>In alt-screen applications (herdr, vim, Claude Code) the page keys are passed through as
+<kbd>Shift</kbd>+<kbd>PageUp</kbd>/<kbd>PageDown</kbd>. On Windows and Linux plain <kbd>PageUp</kbd>/<kbd>PageDown</kbd>
+always go to the application; on MacOs plain <kbd>PageUp</kbd>/<kbd>PageDown</kbd> are the page scroll keys.</sub>
+
+&nbsp;
+
+#### Plugins
+
+| Keys                              | Action                                                  |
+| --------------------------------- | ------------------------------------------------------- |
+| <kbd>SUPER</kbd>+<kbd>s</kbd>     | smart_workspace_switcher: switch workspace              |
+| <kbd>SUPER_REV</kbd>+<kbd>S</kbd> | resurrect: save the workspace <sub>(loaded on first use)</sub> |
+| <kbd>SUPER_REV</kbd>+<kbd>r</kbd> | resurrect: restore a saved state                        |
+
+<sub>Plugins load only from WezTerm's data dir (pre-seeded by the installers); when one is missing its keys do nothing.</sub>
 
 &nbsp;
 
 #### Background Images
 
-| Keys                              | Action                       |
-| --------------------------------- | ---------------------------- |
-| <kbd>SUPER</kbd>+<kbd>/</kbd>     | Select Random Image          |
-| <kbd>SUPER</kbd>+<kbd>,</kbd>     | Cycle to next Image          |
-| <kbd>SUPER</kbd>+<kbd>.</kbd>     | Cycle to previous Image      |
-| <kbd>SUPER_REV</kbd>+<kbd>/</kbd> | Fuzzy select Image           |
-| <kbd>SUPER</kbd>+<kbd>b</kbd>     | Toggle background focus mode |
+| Keys                           | Action                       |
+| ------------------------------ | ---------------------------- |
+| <kbd>LEADER</kbd>+<kbd>/</kbd> | Select Random Image          |
+| <kbd>LEADER</kbd>+<kbd>.</kbd> | Cycle to next Image          |
+| <kbd>LEADER</kbd>+<kbd>,</kbd> | Cycle to previous Image      |
+| <kbd>LEADER</kbd>+<kbd>i</kbd> | Fuzzy select Image           |
+| <kbd>LEADER</kbd>+<kbd>b</kbd> | Toggle background focus mode |
+| <kbd>LEADER</kbd>+<kbd>w</kbd> | Wallpaper manager overlay    |
 
 &nbsp;
 

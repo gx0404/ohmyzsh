@@ -1,16 +1,22 @@
+local platform = require('utils.platform')
 local backdrops = require('utils.backdrops')
 local colors = require('colors.custom')
 
+-- 各平台的渲染后端只在这里调整。GNOME X11 下优先稳定性；Windows 未经实机 A/B
+-- （paint 日志）前同样保持 OpenGL。WebGPU 仅在隔离配置中做 A/B 测试。
+---@type table<PlatformType, 'WebGpu' | 'OpenGL' | 'Software'>
+local front_end = { linux = 'OpenGL', windows = 'OpenGL', mac = 'OpenGL' }
+
 return {
    max_fps = 60,
-   -- GNOME X11 下优先稳定性；WebGPU 仅在隔离配置中做 A/B 测试。
-   front_end = 'OpenGL', ---@type 'WebGpu' | 'OpenGL' | 'Software'
+   front_end = front_end[platform.os],
    underline_thickness = '1.5pt',
 
-   -- cursor
-   animation_fps = 30,
-   cursor_blink_ease_in = 'EaseOut',
-   cursor_blink_ease_out = 'EaseOut',
+   -- cursor：非 Constant 的闪烁缓动会让空闲窗口按 animation_fps 持续重绘，
+   -- Constant 只在亮灭切换时各画一帧。
+   animation_fps = 10,
+   cursor_blink_ease_in = 'Constant',
+   cursor_blink_ease_out = 'Constant',
    default_cursor_style = 'BlinkingBlock',
    cursor_blink_rate = 650,
 

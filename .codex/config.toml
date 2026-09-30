@@ -24,12 +24,12 @@ matcher = "^Bash$"
 
 [[hooks.PreToolUse.hooks]]
 type = "command"
-command = 'python3 "$(git rev-parse --show-toplevel)/.codex/hooks/pre_tool_use_policy.py"'
+command = 'python3 "$(git rev-parse --show-toplevel)/ohmyzsh/.codex/hooks/pre_tool_use_policy.py"'
 timeout = 30
 
 [[hooks.Stop]]
 
 [[hooks.Stop.hooks]]
 type = "command"
-command = 'python3 "$(git rev-parse --show-toplevel)/.codex/hooks/stop_review_signal.py"'
+command = 'python3 "$(git rev-parse --show-toplevel)/ohmyzsh/.codex/hooks/stop_review_signal.py"'
 timeout = 10

@@ -5,7 +5,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "herdr",
@@ -32,19 +32,17 @@
       },
       "sources": [
         {
-          "filename": "herdr-4f441b0c23304c7a641d978c9e11aabf07f6d8c4.zip",
-          "sha256": "cd1d27ba1c543126adf897f56aed9382e9d33d9be4b5af6d826a124f31773dde",
-          "url": "https://github.com/gx0404/herdr/archive/4f441b0c23304c7a641d978c9e11aabf07f6d8c4.zip"
+          "monorepo_path": "herdr"
         }
       ],
-      "version": "0.9.1"
+      "version": "0.9.2"
     },
     {
       "build_instructions": [
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "powerlevel10k",
@@ -78,7 +76,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "zoxide",
@@ -724,7 +722,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         },
         {
           "filename": "nerd-fonts-JetBrainsMono-README.txt",
@@ -778,7 +776,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "gitstatus-linux",
@@ -815,7 +813,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "gitstatus-msys",
@@ -852,7 +850,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "zsh-autosuggestions",
@@ -884,7 +882,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "zsh-syntax-highlighting",
@@ -916,7 +914,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "conpty",
@@ -950,7 +948,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-base",
@@ -1014,7 +1012,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-bash",
@@ -1262,7 +1260,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-bash-completion",
@@ -1319,6 +1317,70 @@
     {
       "build_instructions": [
         {
+          "filename": "bc-1.08.2-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/bc-1.08.2-1-PKGBUILD.txt",
+          "sha256": "a1f7d80ae3e0a0bbc2ab04f00e994f5ccd3fb13e28895496efab29687c1a77f1"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-bc",
+      "license_expression": "GPL",
+      "licenses": [
+        {
+          "filename": "bc-1.08.2-1-LICENSES.txt",
+          "repository_path": "notices/msys2/bc-1.08.2-1-LICENSES.txt",
+          "sha256": "df761cba9480b2402f3714b038775e63b13da515fda57066e1f6708e85ad2388"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "GPL"
+          ],
+          "name": "bc",
+          "version": "1.08.2-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "bc-1.08.2-1.src.tar.zst",
+          "sha256": "1b82a02db2b6c3b741fe049a5cd4baa326456cd0efc3ae41157b6ae7e9a513b4",
+          "url": "https://repo.msys2.org/msys/sources/bc-1.08.2-1.src.tar.zst"
+        },
+        {
+          "filename": "bc-1.08.2-1.src.tar.zst.sig",
+          "sha256": "0b5745f64a846e0eb71e6c33e0675030b39e20170e8ce0a06437384dfbec5265",
+          "url": "https://repo.msys2.org/msys/sources/bc-1.08.2-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "bc/bc-1.08.2.tar.gz",
+            "source": "https://ftp.gnu.org/gnu/bc/bc-1.08.2.tar.gz"
+          }
+        ],
+        "srcinfo_sha256": "bb57014a247fe2c6fb6ee178e7cf8ee143a301efe661d83a79ed090922fa16ad",
+        "vcs_sources": []
+      },
+      "version": "1.08.2-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "brotli-1.2.0-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/brotli-1.2.0-1-PKGBUILD.txt",
           "sha256": "abe94b22e7df77907fdff0ca3f0acde5264cc52effa38d3a49b116290ac97b05"
@@ -1326,7 +1388,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-brotli",
@@ -1390,7 +1452,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-bzip2",
@@ -1469,7 +1531,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-ca-certificates",
@@ -1545,7 +1607,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-coreutils",
@@ -1629,7 +1691,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-curl",
@@ -1708,7 +1770,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-dash",
@@ -1772,7 +1834,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-db",
@@ -1836,6 +1898,74 @@
     {
       "build_instructions": [
         {
+          "filename": "diffutils-3.12-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/diffutils-3.12-1-PKGBUILD.txt",
+          "sha256": "1e23b99903475f289ec3cf75c4e5d11a415d871f54601c25d1d8196c8b6e6375"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-diffutils",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [
+        {
+          "filename": "diffutils-3.12-1-LICENSES.txt",
+          "repository_path": "notices/msys2/diffutils-3.12-1-LICENSES.txt",
+          "sha256": "6e055303ee7203c3cf5f1c73cfb1dc985cb66fd91506faafd133efc5f85848f6"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "spdx:GPL-3.0-or-later"
+          ],
+          "name": "diffutils",
+          "version": "3.12-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "diffutils-3.12-1.src.tar.zst",
+          "sha256": "474c4a3528a2afbb8d9608c65ad1bdbbd81ff42c143a438d7d56272a61b1bfac",
+          "url": "https://repo.msys2.org/msys/sources/diffutils-3.12-1.src.tar.zst"
+        },
+        {
+          "filename": "diffutils-3.12-1.src.tar.zst.sig",
+          "sha256": "03ba37a35ef6bac44cd03944fc474623c93b10549c4be72ac85bcdf1ec16395c",
+          "url": "https://repo.msys2.org/msys/sources/diffutils-3.12-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "diffutils/diffutils-3.12.tar.xz",
+            "source": "https://ftp.gnu.org/gnu/diffutils/diffutils-3.12.tar.xz"
+          },
+          {
+            "member": "diffutils/diffutils-3.12.tar.xz.sig",
+            "source": "https://ftp.gnu.org/gnu/diffutils/diffutils-3.12.tar.xz.sig"
+          }
+        ],
+        "srcinfo_sha256": "0073ab5fa30a99c0f17f2892c6e90e7cf702a3b4a298cc1bf63691a5b5d2b787",
+        "vcs_sources": []
+      },
+      "version": "3.12-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "expat-2.8.5-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/expat-2.8.5-1-PKGBUILD.txt",
           "sha256": "44c921f3a60d5bf97557ff54c35059e2c495e3478ff822ba36f922fb0f11e28d"
@@ -1843,7 +1973,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-expat",
@@ -1911,7 +2041,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-file",
@@ -1979,7 +2109,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-filesystem",
@@ -2018,6 +2148,16 @@
           "filename": "filesystem-2026.03.06-1.src.tar.zst.sig",
           "sha256": "ad2225fa88601933f052efcd6e762ca1b4b4ab024c51950c6b61da1234019437",
           "url": "https://repo.msys2.org/msys/sources/filesystem-2026.03.06-1.src.tar.zst.sig"
+        },
+        {
+          "filename": "GX-msys2-etc-fstab",
+          "repository_path": "notices/msys2-overlay/etc/fstab",
+          "sha256": "4a2fbbed4817e50ff601b98d28cd4c7016fd52d88295d3fdaf04c6f3b29767b2"
+        },
+        {
+          "filename": "GX-msys2-etc-nsswitch.conf",
+          "repository_path": "notices/msys2-overlay/etc/nsswitch.conf",
+          "sha256": "4ca7f71580a5bd948ae9e44e46f967608587a9d7e37884287b79273c1773ccff"
         }
       ],
       "verification": {
@@ -2187,7 +2327,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-findutils",
@@ -2255,7 +2395,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gawk",
@@ -2323,7 +2463,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gcc",
@@ -2467,7 +2607,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gdbm",
@@ -2550,7 +2690,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-getent",
@@ -2618,7 +2758,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gettext",
@@ -2775,7 +2915,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-git",
@@ -2867,7 +3007,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gmp",
@@ -2939,7 +3079,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gnupg",
@@ -3147,7 +3287,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gnutls",
@@ -3220,7 +3360,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-grep",
@@ -3292,7 +3432,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-gzip",
@@ -3360,7 +3500,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-heimdal",
@@ -3471,7 +3611,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-inetutils",
@@ -3544,6 +3684,70 @@
     {
       "build_instructions": [
         {
+          "filename": "jq-1.8.2-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/jq-1.8.2-1-PKGBUILD.txt",
+          "sha256": "636f331800bd5e0b84c8eb83220202f5d02d47418395d3ab83090c0813e804aa"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-jq",
+      "license_expression": "spdx:MIT",
+      "licenses": [
+        {
+          "filename": "jq-1.8.2-1-LICENSES.txt",
+          "repository_path": "notices/msys2/jq-1.8.2-1-LICENSES.txt",
+          "sha256": "d8db62cfb0338a15abf5ef2bc5cf3ed5388a22e85053b386e804c6971bb828b6"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "spdx:MIT"
+          ],
+          "name": "jq",
+          "version": "1.8.2-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "jq-1.8.2-1.src.tar.zst",
+          "sha256": "8d5f6215a9315557c7f06147d980c676187781ce958acf8c1b71516ddf9fe64c",
+          "url": "https://repo.msys2.org/msys/sources/jq-1.8.2-1.src.tar.zst"
+        },
+        {
+          "filename": "jq-1.8.2-1.src.tar.zst.sig",
+          "sha256": "7016eacec229b72a2a364de8798016ac03622f7cf0a21aa4663e668e51470d78",
+          "url": "https://repo.msys2.org/msys/sources/jq-1.8.2-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "jq/jq-1.8.2.tar.gz",
+            "source": "https://github.com/jqlang/jq/releases/download/jq-1.8.2/jq-1.8.2.tar.gz"
+          }
+        ],
+        "srcinfo_sha256": "309c3b8cb9ff1502aefc690119527f72f745711dead0fd0af77f34c403404f95",
+        "vcs_sources": []
+      },
+      "version": "1.8.2-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "less-710-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/less-710-1-PKGBUILD.txt",
           "sha256": "66655dd7c669093689e734aa3c2fd94f97568f8fc361e913e69331ffb4779102"
@@ -3551,7 +3755,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-less",
@@ -3615,7 +3819,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libarchive",
@@ -3683,7 +3887,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libargp",
@@ -3764,7 +3968,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libassuan",
@@ -3840,7 +4044,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libcbor",
@@ -3904,7 +4108,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libedit",
@@ -3976,7 +4180,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libffi",
@@ -4040,7 +4244,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libfido2",
@@ -4112,7 +4316,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libgcrypt",
@@ -4180,7 +4384,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libgpg-error",
@@ -4256,7 +4460,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libiconv",
@@ -4340,7 +4544,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libidn2",
@@ -4409,7 +4613,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libksba",
@@ -4477,7 +4681,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libpsl",
@@ -4549,7 +4753,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libssh2",
@@ -4621,7 +4825,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libtasn1",
@@ -4690,7 +4894,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libunistring",
@@ -4762,7 +4966,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-libxcrypt",
@@ -4834,7 +5038,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-lz4",
@@ -4898,7 +5102,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-make",
@@ -4970,7 +5174,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-mintty",
@@ -5038,7 +5242,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-mpfr",
@@ -5106,7 +5310,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-msys2-keyring",
@@ -5170,7 +5374,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-msys2-launcher",
@@ -5227,23 +5431,23 @@
     {
       "build_instructions": [
         {
-          "filename": "msys2-runtime-3.6.10-5-PKGBUILD.txt",
-          "repository_path": "notices/msys2/msys2-runtime-3.6.10-5-PKGBUILD.txt",
-          "sha256": "5992789cd713d2c41b36327957547b1c69a803c13cf885eba31a3d9b03559d06"
+          "filename": "msys2-runtime-3.6.10-6-PKGBUILD.txt",
+          "repository_path": "notices/msys2/msys2-runtime-3.6.10-6-PKGBUILD.txt",
+          "sha256": "0124a5335124d07dab810bf03b25143c130922fc08cce7107d7ecb5e0fac9552"
         },
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-msys2-runtime",
       "license_expression": "spdx:GPL-3.0-or-later",
       "licenses": [
         {
-          "filename": "msys2-runtime-3.6.10-5-LICENSES.txt",
-          "repository_path": "notices/msys2/msys2-runtime-3.6.10-5-LICENSES.txt",
-          "sha256": "34fab1da90fcdcd2517d23d8ae6c76fbeef89368967b231b630aa468f6bf9487"
+          "filename": "msys2-runtime-3.6.10-6-LICENSES.txt",
+          "repository_path": "notices/msys2/msys2-runtime-3.6.10-6-LICENSES.txt",
+          "sha256": "cc5089a2175480da341f1011722c238c9036f037bfcc1fa9df5337a591d3221f"
         },
         {
           "filename": "MSYS2-packages-LICENSE.txt",
@@ -5257,7 +5461,7 @@
             "spdx:GPL-3.0-or-later"
           ],
           "name": "msys2-runtime",
-          "version": "3.6.10-5"
+          "version": "3.6.10-6"
         }
       ],
       "source_policy": {
@@ -5265,14 +5469,14 @@
       },
       "sources": [
         {
-          "filename": "msys2-runtime-3.6.10-5.src.tar.zst",
-          "sha256": "c05a1d70e1e1c94b02f294071ae53f05280ec94ae4d41873d2af3898beae782a",
-          "url": "https://repo.msys2.org/msys/sources/msys2-runtime-3.6.10-5.src.tar.zst"
+          "filename": "msys2-runtime-3.6.10-6.src.tar.zst",
+          "sha256": "1d06b1482199ca8adaea770c4b596ec3adb2749345ef81a5d111cb792f0f1643",
+          "url": "https://repo.msys2.org/msys/sources/msys2-runtime-3.6.10-6.src.tar.zst"
         },
         {
-          "filename": "msys2-runtime-3.6.10-5.src.tar.zst.sig",
-          "sha256": "208e75f5f7a826d2f0d009934b4c1ce2030091d7385a2808da50e3e9f7ce5237",
-          "url": "https://repo.msys2.org/msys/sources/msys2-runtime-3.6.10-5.src.tar.zst.sig"
+          "filename": "msys2-runtime-3.6.10-6.src.tar.zst.sig",
+          "sha256": "1c9a7c2d21ad4aa7603b24c044b0809ce5da14b131c97b0c0106484c782f8191",
+          "url": "https://repo.msys2.org/msys/sources/msys2-runtime-3.6.10-6.src.tar.zst.sig"
         }
       ],
       "verification": {
@@ -5461,9 +5665,13 @@
           {
             "member": "msys2-runtime/0044-Cygwin-console-Abort-setting-disable_master_thread-w.patch",
             "source": "0044-Cygwin-console-Abort-setting-disable_master_thread-w.patch"
+          },
+          {
+            "member": "msys2-runtime/0045-Cygwin-console-Avoid-deadlock-with-app-execution-ali.patch",
+            "source": "0045-Cygwin-console-Avoid-deadlock-with-app-execution-ali.patch"
           }
         ],
-        "srcinfo_sha256": "c65e8713c90b6161d2c1b5851f13893f8d714121fbdfc80e11f13b1b581d84cc",
+        "srcinfo_sha256": "9ee6c76f3a7d46e73fc8cfca41728f1ebc7de5dfd1a3421f09eead0bc575d2b7",
         "vcs_sources": [
           {
             "revision": "b11613e477c006b2ce0332463ed07f1118260e79",
@@ -5471,7 +5679,7 @@
           }
         ]
       },
-      "version": "3.6.10-5"
+      "version": "3.6.10-6"
     },
     {
       "build_instructions": [
@@ -5483,7 +5691,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-nano",
@@ -5551,7 +5759,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-ncurses",
@@ -5627,7 +5835,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-nettle",
@@ -5713,7 +5921,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-nghttp2",
@@ -5777,7 +5985,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-nghttp3",
@@ -5845,7 +6053,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-ngtcp2",
@@ -5913,7 +6121,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-npth",
@@ -5974,6 +6182,70 @@
     {
       "build_instructions": [
         {
+          "filename": "oniguruma-6.9.10-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/oniguruma-6.9.10-1-PKGBUILD.txt",
+          "sha256": "ec302fdc93163489a65425604375086ff067869c6df7a46309306c2808b2dd62"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-oniguruma",
+      "license_expression": "BSD",
+      "licenses": [
+        {
+          "filename": "oniguruma-6.9.10-1-LICENSES.txt",
+          "repository_path": "notices/msys2/oniguruma-6.9.10-1-LICENSES.txt",
+          "sha256": "1ca2cc5d37c655705fae9ad273ca990421df62ad43148a03b53e6f8826b1eebf"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "BSD"
+          ],
+          "name": "oniguruma",
+          "version": "6.9.10-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "oniguruma-6.9.10-1.src.tar.zst",
+          "sha256": "859dee8f23d9a4cc23b83b736ee9142406e1bb81f885846696a65106f9b4d460",
+          "url": "https://repo.msys2.org/msys/sources/oniguruma-6.9.10-1.src.tar.zst"
+        },
+        {
+          "filename": "oniguruma-6.9.10-1.src.tar.zst.sig",
+          "sha256": "17aee3a9785187d620932e5b6bd193e414a17f005d86f0bd73159596b99e58e5",
+          "url": "https://repo.msys2.org/msys/sources/oniguruma-6.9.10-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "oniguruma/onig-6.9.10.tar.gz",
+            "source": "https://github.com/kkos/oniguruma/releases/download/v6.9.10/onig-6.9.10.tar.gz"
+          }
+        ],
+        "srcinfo_sha256": "1895df4b6659c8f113b593e31aa1e5ff6de98e6272e3b8c88edeb460de8ed0db",
+        "vcs_sources": []
+      },
+      "version": "6.9.10-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "openssh-10.5p1-2-PKGBUILD.txt",
           "repository_path": "notices/msys2/openssh-10.5p1-2-PKGBUILD.txt",
           "sha256": "e59ee1214c70522a633c5dbf2cc91fbc7d361dd55f12784eafa180f828842802"
@@ -5981,7 +6253,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-openssh",
@@ -6061,7 +6333,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-openssl",
@@ -6148,7 +6420,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-p11-kit",
@@ -6227,7 +6499,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-pacman",
@@ -6472,7 +6744,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-pacman-contrib",
@@ -6540,7 +6812,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-pacman-mirrors",
@@ -6601,6 +6873,78 @@
     {
       "build_instructions": [
         {
+          "filename": "patch-2.8-2-PKGBUILD.txt",
+          "repository_path": "notices/msys2/patch-2.8-2-PKGBUILD.txt",
+          "sha256": "32c10dae0b5a3c06be9448f35975758fa9c4550f8f5c9569e46c2e8bdfc46445"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-patch",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [
+        {
+          "filename": "patch-2.8-2-LICENSES.txt",
+          "repository_path": "notices/msys2/patch-2.8-2-LICENSES.txt",
+          "sha256": "506c70343231d596f3c1f5a8b67eab2e6a9834d1b915cd02d97dc4f9ee5e33fb"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "spdx:GPL-3.0-or-later"
+          ],
+          "name": "patch",
+          "version": "2.8-2"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "patch-2.8-2.src.tar.zst",
+          "sha256": "bc69f8c3ddd1f6e6849d5351f32a540e2dd14d19970cf24373de6c67e63a3cd9",
+          "url": "https://repo.msys2.org/msys/sources/patch-2.8-2.src.tar.zst"
+        },
+        {
+          "filename": "patch-2.8-2.src.tar.zst.sig",
+          "sha256": "afc313426f6d15d4730b5901944467ca05dfb36ab25d6aeb3706945917642474",
+          "url": "https://repo.msys2.org/msys/sources/patch-2.8-2.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "patch/patch-2.8.tar.xz",
+            "source": "https://ftp.gnu.org/gnu/patch/patch-2.8.tar.xz"
+          },
+          {
+            "member": "patch/patch-2.8.tar.xz.sig",
+            "source": "https://ftp.gnu.org/gnu/patch/patch-2.8.tar.xz.sig"
+          },
+          {
+            "member": "patch/msys2-patch-2.7.1.patch",
+            "source": "msys2-patch-2.7.1.patch"
+          }
+        ],
+        "srcinfo_sha256": "4c02a52931c7e9faabc26622f72f3c3fb13af1d8ca4428c18f9316c4bafe9852",
+        "vcs_sources": []
+      },
+      "version": "2.8-2"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "pcre-8.45-5-PKGBUILD.txt",
           "repository_path": "notices/msys2/pcre-8.45-5-PKGBUILD.txt",
           "sha256": "6d24aa11bfc711b8ecbd4329f4b4b20cda4c1b33868b63a205a6a14b86fffc38"
@@ -6608,7 +6952,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-pcre",
@@ -6680,7 +7024,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-pcre2",
@@ -6748,7 +7092,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl",
@@ -6868,7 +7212,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-authen-sasl",
@@ -6932,7 +7276,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-clone",
@@ -6997,7 +7341,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-convert-binhex",
@@ -7061,7 +7405,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-encode-locale",
@@ -7125,7 +7469,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-error",
@@ -7189,7 +7533,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-file-listing",
@@ -7254,7 +7598,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-html-parser",
@@ -7319,7 +7663,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-html-tagset",
@@ -7383,7 +7727,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-http-cookiejar",
@@ -7447,7 +7791,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-http-cookies",
@@ -7511,7 +7855,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-http-daemon",
@@ -7576,7 +7920,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-http-date",
@@ -7640,7 +7984,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-http-message",
@@ -7704,7 +8048,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-http-negotiate",
@@ -7768,7 +8112,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-io-html",
@@ -7832,7 +8176,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-io-socket-ssl",
@@ -7896,7 +8240,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-io-stringy",
@@ -7960,7 +8304,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-libwww",
@@ -8025,7 +8369,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-lwp-mediatypes",
@@ -8089,7 +8433,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-mailtools",
@@ -8153,7 +8497,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-mime-tools",
@@ -8218,7 +8562,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-net-http",
@@ -8282,7 +8626,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-net-smtp-ssl",
@@ -8346,7 +8690,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-net-ssleay",
@@ -8410,7 +8754,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-termreadkey",
@@ -8474,7 +8818,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-timedate",
@@ -8538,7 +8882,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-try-tiny",
@@ -8602,7 +8946,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-uri",
@@ -8666,7 +9010,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-perl-www-robotrules",
@@ -8735,7 +9079,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-pinentry",
@@ -8804,6 +9148,159 @@
     {
       "build_instructions": [
         {
+          "filename": "popt-1.19-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/popt-1.19-1-PKGBUILD.txt",
+          "sha256": "eec1e4e23b820792e7cd6bee0a539a29545c259bea48df29e58495055e26a32a"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-popt",
+      "license_expression": "custom",
+      "licenses": [
+        {
+          "filename": "popt-1.19-1-LICENSES.txt",
+          "repository_path": "notices/msys2/popt-1.19-1-LICENSES.txt",
+          "sha256": "987e52a01025275d7b72d922bca8aa65f5e817aebe93f7f7baec8fb128c7265c"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "custom"
+          ],
+          "name": "popt",
+          "version": "1.19-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "popt-1.19-1.src.tar.zst",
+          "sha256": "36b9dded9118d8468f4e68aabdfb08a15751271d1aee313c5722daea8e5267a3",
+          "url": "https://repo.msys2.org/msys/sources/popt-1.19-1.src.tar.zst"
+        },
+        {
+          "filename": "popt-1.19-1.src.tar.zst.sig",
+          "sha256": "26873cb56ade7e5678ab3022c4e2be41fbdfb3c48b89dc62924637a51e7f618f",
+          "url": "https://repo.msys2.org/msys/sources/popt-1.19-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "popt/popt-1.19.tar.gz",
+            "source": "http://ftp.rpm.org/popt/releases/popt-1.x/popt-1.19.tar.gz"
+          }
+        ],
+        "srcinfo_sha256": "e52185b80aafa281de4342fbdfd0be4b70da8141ffae8c8d7af52cc768beadec",
+        "vcs_sources": []
+      },
+      "version": "1.19-1"
+    },
+    {
+      "build_instructions": [
+        {
+          "filename": "procps-ng-4.0.5-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/procps-ng-4.0.5-1-PKGBUILD.txt",
+          "sha256": "38677a6acddaa572b09dbfb45120f0e44314bc30b31c8a59f5634e8159f2b950"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-procps-ng",
+      "license_expression": "GPL AND LGPL",
+      "licenses": [
+        {
+          "filename": "procps-ng-4.0.5-1-LICENSES.txt",
+          "repository_path": "notices/msys2/procps-ng-4.0.5-1-LICENSES.txt",
+          "sha256": "0379cf7cb2631582a96ca83192c0b6f51caad32351336ff6ddcdd10a6f8673a9"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "GPL",
+            "LGPL"
+          ],
+          "name": "procps-ng",
+          "version": "4.0.5-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "procps-ng-4.0.5-1.src.tar.zst",
+          "sha256": "82b0c3ce9bb083f0a38ed9837902b50d88ba0fb0db18390297d936d12babfb27",
+          "url": "https://repo.msys2.org/msys/sources/procps-ng-4.0.5-1.src.tar.zst"
+        },
+        {
+          "filename": "procps-ng-4.0.5-1.src.tar.zst.sig",
+          "sha256": "b345988ed47437d3d5fc8ab586ede3ba920cc2e245064c75e69ed3576c68332d",
+          "url": "https://repo.msys2.org/msys/sources/procps-ng-4.0.5-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "procps-ng/procps-ng-4.0.5.tar.xz",
+            "source": "https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.5.tar.xz"
+          },
+          {
+            "member": "procps-ng/procps-ng-4.0.5.tar.xz.asc",
+            "source": "https://downloads.sourceforge.net/project/procps-ng/Production/procps-ng-4.0.5.tar.xz.asc"
+          },
+          {
+            "member": "procps-ng/procps-ng-4.0.4-manpage.patch",
+            "source": "procps-ng-4.0.4-manpage.patch"
+          },
+          {
+            "member": "procps-ng/procps-ng-4.0.4-wchan.patch",
+            "source": "procps-ng-4.0.4-wchan.patch"
+          },
+          {
+            "member": "procps-ng/procps-ng-4.0.4-LDADD.patch",
+            "source": "procps-ng-4.0.4-LDADD.patch"
+          },
+          {
+            "member": "procps-ng/0001-duplicate-signal-build-error.patch",
+            "source": "0001-duplicate-signal-build-error.patch"
+          },
+          {
+            "member": "procps-ng/0002-no-hugetlb.patch",
+            "source": "0002-no-hugetlb.patch"
+          }
+        ],
+        "srcinfo_sha256": "5338b29ef93937b1277383d820679f32e61480e895a30cab39162fcb7217c6e9",
+        "vcs_sources": []
+      },
+      "version": "4.0.5-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "readline-8.3.006-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/readline-8.3.006-1-PKGBUILD.txt",
           "sha256": "5408ac3afbe75946dcbcb88d20f1807f5e32208819af92adb9d1ab289ddc1572"
@@ -8811,7 +9308,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-readline",
@@ -8947,7 +9444,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-rebase",
@@ -9037,6 +9534,70 @@
     {
       "build_instructions": [
         {
+          "filename": "rsync-3.5.1-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/rsync-3.5.1-1-PKGBUILD.txt",
+          "sha256": "73e1eb34a2b7cda145a96c0abc516c8227f6bfcad6061f461e0d69d3f0f84b4a"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-rsync",
+      "license_expression": "spdx:GPL-3.0-or-later",
+      "licenses": [
+        {
+          "filename": "rsync-3.5.1-1-LICENSES.txt",
+          "repository_path": "notices/msys2/rsync-3.5.1-1-LICENSES.txt",
+          "sha256": "400ece6262ad1401eeac2c56426ff874231b0662ccc553e187db165caf07c0ee"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "spdx:GPL-3.0-or-later"
+          ],
+          "name": "rsync",
+          "version": "3.5.1-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "rsync-3.5.1-1.src.tar.zst",
+          "sha256": "0143ce527f1dd31e42b733290f799b291861527243a6388952cc6e1210f1c46e",
+          "url": "https://repo.msys2.org/msys/sources/rsync-3.5.1-1.src.tar.zst"
+        },
+        {
+          "filename": "rsync-3.5.1-1.src.tar.zst.sig",
+          "sha256": "bb90f0629767d8aeea79524c5bbd280211dbbc5545574db03fc9006116dc8d64",
+          "url": "https://repo.msys2.org/msys/sources/rsync-3.5.1-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "rsync/rsync-3.5.1.tar.gz",
+            "source": "https://download.samba.org/pub/rsync/src/rsync-3.5.1.tar.gz"
+          }
+        ],
+        "srcinfo_sha256": "a178a16efbe3eede2cc4a4fe681906037176f820d3c99bb0a220d1457b70b63b",
+        "vcs_sources": []
+      },
+      "version": "3.5.1-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "sed-4.9-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/sed-4.9-1-PKGBUILD.txt",
           "sha256": "09eef7095c96746eb2037e9ef109b43f9feb6412a51a04650ae32fbe7e8a3d9c"
@@ -9044,7 +9605,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-sed",
@@ -9120,7 +9681,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-sqlite",
@@ -9212,7 +9773,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-tar",
@@ -9296,7 +9857,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-texinfo",
@@ -9388,7 +9949,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-time",
@@ -9445,6 +10006,74 @@
     {
       "build_instructions": [
         {
+          "filename": "tree-2.3.2-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/tree-2.3.2-1-PKGBUILD.txt",
+          "sha256": "d1bef133a0f640b8d498c69688f60520520298e2c4f160ee6bad91ce0d4563f2"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-tree",
+      "license_expression": "spdx:GPL-2.0-or-later",
+      "licenses": [
+        {
+          "filename": "tree-2.3.2-1-LICENSES.txt",
+          "repository_path": "notices/msys2/tree-2.3.2-1-LICENSES.txt",
+          "sha256": "bc91418f49f9412c298e55b9745988c6dd51f3118521f5d97e4f353f10ade19e"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "spdx:GPL-2.0-or-later"
+          ],
+          "name": "tree",
+          "version": "2.3.2-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "tree-2.3.2-1.src.tar.zst",
+          "sha256": "0ae3d9a9acf485a2c81a9813aaf43316d40b2c4ca5f99f5ce9b909bdde0c988d",
+          "url": "https://repo.msys2.org/msys/sources/tree-2.3.2-1.src.tar.zst"
+        },
+        {
+          "filename": "tree-2.3.2-1.src.tar.zst.sig",
+          "sha256": "ccdb6cd472c32bf1d1c0abb3300c9f656a208eb71d54427019f755ca016e59ef",
+          "url": "https://repo.msys2.org/msys/sources/tree-2.3.2-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "tree/unix-tree-2.3.2.tar.gz",
+            "source": "https://gitlab.com/OldManProgrammer/unix-tree/-/archive/2.3.2/unix-tree-2.3.2.tar.gz"
+          },
+          {
+            "member": "tree/Makefile-Uncomment-for-Cygwin.patch",
+            "source": "Makefile-Uncomment-for-Cygwin.patch"
+          }
+        ],
+        "srcinfo_sha256": "6df7a98f077568a0b768fb76a51211c2c31e7e517a06f7885da40f60e0343e3a",
+        "vcs_sources": []
+      },
+      "version": "2.3.2-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "tzcode-2026d-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/tzcode-2026d-1-PKGBUILD.txt",
           "sha256": "14c50bd624be6e87518c0e12bd8c8ef9cd966ae952f169f61d176dfd3e08f427"
@@ -9452,7 +10081,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-tzcode",
@@ -9529,6 +10158,102 @@
     {
       "build_instructions": [
         {
+          "filename": "unzip-6.0-3-PKGBUILD.txt",
+          "repository_path": "notices/msys2/unzip-6.0-3-PKGBUILD.txt",
+          "sha256": "d975dddb5187416f8ad9672d86b0ecfef46995928b1de4030895cebdae78df06"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-unzip",
+      "license_expression": "custom",
+      "licenses": [
+        {
+          "filename": "unzip-6.0-3-LICENSES.txt",
+          "repository_path": "notices/msys2/unzip-6.0-3-LICENSES.txt",
+          "sha256": "6a437bf9381f7b9734784c7227de99c69c41ea2781fdb9848caad1b1d5a29cb1"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "custom"
+          ],
+          "name": "unzip",
+          "version": "6.0-3"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "unzip-6.0-3.src.tar.zst",
+          "sha256": "cac4880eed19117a26ee8827619e6a22110adf2ba18f4ca0d94ba5dd5d4d1453",
+          "url": "https://repo.msys2.org/msys/sources/unzip-6.0-3.src.tar.zst"
+        },
+        {
+          "filename": "unzip-6.0-3.src.tar.zst.sig",
+          "sha256": "2f390800848b56703d69a9e60e52a0763c775b49166a7141fbefebadd976c04a",
+          "url": "https://repo.msys2.org/msys/sources/unzip-6.0-3.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "unzip/unzip60.tar.gz",
+            "source": "https://downloads.sourceforge.net/infozip/unzip60.tar.gz"
+          },
+          {
+            "member": "unzip/unzip-6.0-attribs-overflow.patch",
+            "source": "unzip-6.0-attribs-overflow.patch"
+          },
+          {
+            "member": "unzip/unzip-6.0-bzip2-configure.patch",
+            "source": "unzip-6.0-bzip2-configure.patch"
+          },
+          {
+            "member": "unzip/unzip-6.0-caseinsensitive.patch",
+            "source": "unzip-6.0-caseinsensitive.patch"
+          },
+          {
+            "member": "unzip/unzip-6.0-close.patch",
+            "source": "unzip-6.0-close.patch"
+          },
+          {
+            "member": "unzip/unzip-6.0-fix-recmatch.patch",
+            "source": "unzip-6.0-fix-recmatch.patch"
+          },
+          {
+            "member": "unzip/unzip-6.0-format-secure.patch",
+            "source": "unzip-6.0-format-secure.patch"
+          },
+          {
+            "member": "unzip/unzip-6.0-nostrip.patch",
+            "source": "unzip-6.0-nostrip.patch"
+          },
+          {
+            "member": "unzip/unzip-6.0-symlink.patch",
+            "source": "unzip-6.0-symlink.patch"
+          }
+        ],
+        "srcinfo_sha256": "83286e68d1c193be2ed7916e2353b4c557a3f86535e0ba176d1c0eae6c69fe0d",
+        "vcs_sources": []
+      },
+      "version": "6.0-3"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "util-linux-2.40.2-2-PKGBUILD.txt",
           "repository_path": "notices/msys2/util-linux-2.40.2-2-PKGBUILD.txt",
           "sha256": "e0a0c5ff155efa5339673145ba8bc1035c74407684e598788a44f44f15512012"
@@ -9536,7 +10261,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-util-linux",
@@ -9660,6 +10385,98 @@
     {
       "build_instructions": [
         {
+          "filename": "vim-9.2.1054-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/vim-9.2.1054-1-PKGBUILD.txt",
+          "sha256": "692a44179b9fc4ee43b4a00919f838ecd4943812b9536076e38d65ab32c242d1"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-vim",
+      "license_expression": "spdx:Vim",
+      "licenses": [
+        {
+          "filename": "vim-9.2.1054-1-LICENSES.txt",
+          "repository_path": "notices/msys2/vim-9.2.1054-1-LICENSES.txt",
+          "sha256": "a23ad0f662ec25e9e66852a45b652ed3f521992f1ad08ef6899b09ce6fbfcbe2"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "spdx:Vim"
+          ],
+          "name": "vim",
+          "version": "9.2.1054-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "vim-9.2.1054-1.src.tar.zst",
+          "sha256": "5e7454c7c9ff3ea8b27d1a97dacb134809b7e0605b380b993ea054ba981c165a",
+          "url": "https://repo.msys2.org/msys/sources/vim-9.2.1054-1.src.tar.zst"
+        },
+        {
+          "filename": "vim-9.2.1054-1.src.tar.zst.sig",
+          "sha256": "f65df670dae76fffa45df80e18e6a8d4d2f157a79470be903547c2bc0c260bde",
+          "url": "https://repo.msys2.org/msys/sources/vim-9.2.1054-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "vim/vim-9.2.1054.tar.gz",
+            "source": "vim-9.2.1054.tar.gz::https://github.com/vim/vim/archive/v9.2.1054/vim-9.2.1054.tar.gz"
+          },
+          {
+            "member": "vim/dot.vimrc",
+            "source": "dot.vimrc"
+          },
+          {
+            "member": "vim/7.3-cygwin-mouse.patch",
+            "source": "7.3-cygwin-mouse.patch"
+          },
+          {
+            "member": "vim/7.3-virc.patch",
+            "source": "7.3-virc.patch"
+          },
+          {
+            "member": "vim/7.3-cygwin-python-dyn.patch",
+            "source": "7.3-cygwin-python-dyn.patch"
+          },
+          {
+            "member": "vim/pretend-cygwin-msys.patch",
+            "source": "pretend-cygwin-msys.patch"
+          },
+          {
+            "member": "vim/accept-crlf.patch",
+            "source": "accept-crlf.patch"
+          },
+          {
+            "member": "vim/vim-completion",
+            "source": "vim-completion"
+          }
+        ],
+        "srcinfo_sha256": "9af4e22404772b7bb7b1651909f3b6615909ed9f0bbc6b26cf418898fdd423dd",
+        "vcs_sources": []
+      },
+      "version": "9.2.1054-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "wget-1.25.0-4-PKGBUILD.txt",
           "repository_path": "notices/msys2/wget-1.25.0-4-PKGBUILD.txt",
           "sha256": "b9e850dbf8a43977e418814f042134d06b5317e765742248633873c8ecb12669"
@@ -9667,7 +10484,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-wget",
@@ -9743,7 +10560,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-which",
@@ -9804,6 +10621,70 @@
     {
       "build_instructions": [
         {
+          "filename": "xxhash-0.8.4-1-PKGBUILD.txt",
+          "repository_path": "notices/msys2/xxhash-0.8.4-1-PKGBUILD.txt",
+          "sha256": "4b4ef42d6f6416e650061a8ea8e1d2fe264542c18195190c9edf236b21d4fdd1"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-xxhash",
+      "license_expression": "spdx:BSD-2-Clause",
+      "licenses": [
+        {
+          "filename": "xxhash-0.8.4-1-LICENSES.txt",
+          "repository_path": "notices/msys2/xxhash-0.8.4-1-LICENSES.txt",
+          "sha256": "fa468f36503aecb7cd3d3bdc1291c42626bdb4466882ee56337da3309e017bf0"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "spdx:BSD-2-Clause"
+          ],
+          "name": "libxxhash",
+          "version": "0.8.4-1"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "xxhash-0.8.4-1.src.tar.zst",
+          "sha256": "20c33c4f890bf35c69ab67bdd4adabee8f25017c5347d64dc273c7ad40f1e9bc",
+          "url": "https://repo.msys2.org/msys/sources/xxhash-0.8.4-1.src.tar.zst"
+        },
+        {
+          "filename": "xxhash-0.8.4-1.src.tar.zst.sig",
+          "sha256": "b29591338592608cc9dcfea70d693f9e0feff4089b430d6afdc1dd72c4bde11e",
+          "url": "https://repo.msys2.org/msys/sources/xxhash-0.8.4-1.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "xxhash/-0.8.4.tar.gz",
+            "source": "https://github.com/Cyan4973/xxHash/archive/v0.8.4/-0.8.4.tar.gz"
+          }
+        ],
+        "srcinfo_sha256": "64212cda27cc1e23b75a3aa24e6f3c24a523935a64dda6aa33f00dbfef4829e4",
+        "vcs_sources": []
+      },
+      "version": "0.8.4-1"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "xz-5.8.4-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/xz-5.8.4-1-PKGBUILD.txt",
           "sha256": "c2ada17ce55e35e17139c605fd14466e7dcbdaf5a438f36c2afcad88e86f3d4d"
@@ -9811,7 +10692,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-xz",
@@ -9875,6 +10756,82 @@
     {
       "build_instructions": [
         {
+          "filename": "zip-3.0-5-PKGBUILD.txt",
+          "repository_path": "notices/msys2/zip-3.0-5-PKGBUILD.txt",
+          "sha256": "fd0ebc40c93ef3972acf8498770ad23a4aa2f17fcaaf09819678c60844313d7f"
+        },
+        {
+          "filename": "GX-DEPENDENCY-BUILD.txt",
+          "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
+        }
+      ],
+      "id": "msys2-zip",
+      "license_expression": "BSD",
+      "licenses": [
+        {
+          "filename": "zip-3.0-5-LICENSES.txt",
+          "repository_path": "notices/msys2/zip-3.0-5-LICENSES.txt",
+          "sha256": "aec63eb8d30ca87ff3c5e4d23d43029942fe966caaec77b189ab5c723bc9e5d4"
+        },
+        {
+          "filename": "MSYS2-packages-LICENSE.txt",
+          "sha256": "e08ac31ef517ea449b7f402ab7940c750127c1de0566458d8e80635be9fa4055",
+          "url": "https://raw.githubusercontent.com/msys2/MSYS2-packages/66128f79a10b0f1a41adbb0e657f2f523214247c/LICENSE"
+        }
+      ],
+      "runtime_packages": [
+        {
+          "license_expressions": [
+            "BSD"
+          ],
+          "name": "zip",
+          "version": "3.0-5"
+        }
+      ],
+      "source_policy": {
+        "kind": "required"
+      },
+      "sources": [
+        {
+          "filename": "zip-3.0-5.src.tar.zst",
+          "sha256": "62a89b2cf72e16da0e809e0be03e7c93d6476dd9448c1aaefaed23388790aea4",
+          "url": "https://repo.msys2.org/msys/sources/zip-3.0-5.src.tar.zst"
+        },
+        {
+          "filename": "zip-3.0-5.src.tar.zst.sig",
+          "sha256": "2c192e2669a57cb659a05991457a89dea425911c2513585819539d8c4dff4b9c",
+          "url": "https://repo.msys2.org/msys/sources/zip-3.0-5.src.tar.zst.sig"
+        }
+      ],
+      "verification": {
+        "signature_signer": "5F944B027F7FE2091985AA2EFA11531AA0AA7F57",
+        "source_members": [
+          {
+            "member": "zip/zip30.tar.gz",
+            "source": "https://downloads.sourceforge.net/infozip/zip30.tar.gz"
+          },
+          {
+            "member": "zip/zip-3.0-11.src.patch",
+            "source": "zip-3.0-11.src.patch"
+          },
+          {
+            "member": "zip/zip-3.0-build.patch",
+            "source": "zip-3.0-build.patch"
+          },
+          {
+            "member": "zip/0001-zip-Fixes-building-with-gcc-15.patch",
+            "source": "0001-zip-Fixes-building-with-gcc-15.patch"
+          }
+        ],
+        "srcinfo_sha256": "7a7f06b2414a83268505d315e5953cc84586ad10d754cc70ab66f33802dfa761",
+        "vcs_sources": []
+      },
+      "version": "3.0-5"
+    },
+    {
+      "build_instructions": [
+        {
           "filename": "zlib-1.3.2-1-PKGBUILD.txt",
           "repository_path": "notices/msys2/zlib-1.3.2-1-PKGBUILD.txt",
           "sha256": "0ab99943ae177d4f959d637c349ad5e77841bf679e88eda4bf511d6e89bde7aa"
@@ -9882,7 +10839,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-zlib",
@@ -9958,7 +10915,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-zsh",
@@ -10066,7 +11023,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-zstd",
@@ -10141,7 +11098,7 @@
         {
           "filename": "GX-DEPENDENCY-BUILD.txt",
           "repository_path": "notices/GX-DEPENDENCY-BUILD.txt",
-          "sha256": "e1237e1744d2db7a665aa50802f86524f5ae6a793300e3c46f35562ede2d44f6"
+          "sha256": "e795a9ffca14a077274be242fe6764321d8a2799bef4be47e87d099bc297ba6f"
         }
       ],
       "id": "msys2-mingw-w64-fzf",

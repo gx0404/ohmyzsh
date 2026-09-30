@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import gzip
 import hashlib
 import io
 import json
@@ -26,12 +27,14 @@ DEFAULT_LOCK = ROOT / "scripts/packaging/dependencies.json"
 PLATFORMS = ("windows-x64", "ubuntu-amd64")
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 REVISION = re.compile(r"[0-9a-f]{40}\Z")
+MONOREPO = "https://github.com/gx0404/gx_shell"
 PRIVATE_PARTS = {".git", ".ssh", ".gnupg", "node_modules", "__pycache__"}
 RUNTIME_EXCLUDES = (
     "home", "tmp", "var/cache", "var/log", "var/tmp", "etc/pacman.d/gnupg",
-    "etc/ssh", "etc/passwd", "etc/group", "etc/fstab", "etc/mtab", "etc/post-install",
+    "etc/ssh", "etc/passwd", "etc/group", "etc/mtab", "etc/post-install",
     "dev", "proc",
 )
+PACKAGE_METADATA = {".PKGINFO", ".BUILDINFO", ".MTREE", ".INSTALL"}
 
 
 class DependencyError(ValueError):
@@ -88,7 +91,11 @@ def artifact_shape(item: dict) -> None:
     name = item.get("filename", "")
     if relative_path(name).name != name:
         raise DependencyError(f"artifact filename must be a basename: {name}")
-    if "repository_path" in item:
+    if "monorepo_path" in item:
+        relative_path(item["monorepo_path"])
+        if "url" in item or "repository_path" in item or not REVISION.fullmatch(item.get("commit", "")):
+            raise DependencyError(f"monorepo artifact must name a full commit and no URL: {name}")
+    elif "repository_path" in item:
         location = relative_path(item["repository_path"])
         if not location.parts or not (location.parts[0] == "notices" or location.parts[:2] == ("patches", "zsh")) or "url" in item:
             raise DependencyError(f"repository artifact must be under packaging/notices or patches/zsh with no URL: {name}")
@@ -118,7 +125,9 @@ def fetch_artifact(item: dict, cache: Path, repository_root: Path | None = None)
     with tempfile.NamedTemporaryFile(dir=cache, prefix=".download-", delete=False) as stream:
         temporary = Path(stream.name)
         try:
-            if "repository_path" in item:
+            if "monorepo_path" in item:
+                stream.write(monorepo_archive(repository_root or DEFAULT_LOCK.parent, item["commit"], item["monorepo_path"]))
+            elif "repository_path" in item:
                 source = inside(repository_root or DEFAULT_LOCK.parent, item["repository_path"])
                 if source.is_symlink() or not source.is_file():
                     raise DependencyError(f"missing repository notice: {source}")
@@ -207,6 +216,10 @@ def excluded_runtime(name: str) -> bool:
     return any(name == prefix or name.startswith(prefix + "/") for prefix in RUNTIME_EXCLUDES)
 
 
+def runtime_skipped(name: str) -> bool:
+    return "__pycache__" in PurePosixPath(name).parts or name in PACKAGE_METADATA or excluded_runtime(name)
+
+
 @contextlib.contextmanager
 def open_tar(path: Path, zstd: str | None = None):
     try:
@@ -237,7 +250,7 @@ def extract_archive(path: Path, destination: Path, *, strip: int = 0, runtime: b
         if not parts:
             return None
         result = PurePosixPath(*parts).as_posix()
-        if result in {".PKGINFO", ".BUILDINFO", ".MTREE", ".INSTALL"} or (runtime and excluded_runtime(result)):
+        if result in PACKAGE_METADATA or (runtime and runtime_skipped(result)):
             return None
         return result
 
@@ -311,14 +324,83 @@ def extract_archive(path: Path, destination: Path, *, strip: int = 0, runtime: b
         links = pending
 
 
-def load_lock(path: Path = DEFAULT_LOCK) -> dict:
+def git_output(anchor: Path, *args: str) -> bytes:
+    process = subprocess.run(["git", "-C", str(anchor), *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if process.returncode:
+        detail = process.stderr.decode("utf-8", errors="replace").strip()
+        raise DependencyError(f"git {args[0]} failed: {detail}")
+    return process.stdout
+
+
+def monorepo_archive(anchor: Path, commit: str, subtree: str) -> bytes:
+    # 以提交而非 tree 归档：mtime 取提交时间，同一 git 版本重复生成字节一致，
+    # 锁加载时算出的 SHA-256 与 fetch 落盘的归档才能对上。
+    top = Path(git_output(anchor, "rev-parse", "--show-toplevel").decode("utf-8").strip())
+    return git_output(top, "archive", "--format=zip", commit, "--", str(relative_path(subtree)))
+
+
+_MONOREPO_PINS: dict[tuple[str, str, str], dict] = {}
+
+
+def is_monorepo_herdr(herdr: object) -> bool:
+    return isinstance(herdr, dict) and isinstance(herdr.get("source"), dict) and "monorepo_path" in herdr["source"]
+
+
+def monorepo_herdr(anchor: Path, herdr: dict) -> dict:
+    # gx_shell 单仓：herdr 源码就是当前检出提交里的子目录，不再钉外部仓库的
+    # 固定 revision；revision/版本/源码归档摘要都由该提交推导，保证与编译输入一致。
+    # 已解析的锁（打包快照内）直接校验形状，不再依赖 Git 工作树。
+    if herdr.get("repository") != MONOREPO:
+        raise DependencyError("monorepo herdr must come from gx0404/gx_shell")
+    source = herdr["source"]
+    if "commit" in source:
+        artifact_shape(source)
+        commit = source["commit"]
+        if (herdr.get("revision") != commit or source["filename"] != f"herdr-{commit}.zip"
+                or not re.fullmatch(r"\d+\.\d+\.\d+", str(herdr.get("version", "")))):
+            raise DependencyError("resolved monorepo herdr lock is inconsistent")
+        return herdr
+    if set(source) != {"monorepo_path"}:
+        raise DependencyError("monorepo herdr source must only name its gx0404/gx_shell subtree")
+    subtree = str(relative_path(source["monorepo_path"]))
+    commit = git_output(anchor, "rev-parse", "HEAD").decode("utf-8").strip()
+    if not REVISION.fullmatch(commit):
+        raise DependencyError("monorepo herdr requires a full Git commit")
+    key = (str(anchor.resolve()), commit, subtree)
+    if key not in _MONOREPO_PINS:
+        import tomllib
+        manifest = tomllib.loads(git_output(anchor, "show", f"{commit}:{subtree}/Cargo.toml").decode("utf-8"))
+        version = manifest.get("package", {}).get("version")
+        if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
+            raise DependencyError(f"{subtree}/Cargo.toml has no X.Y.Z package version")
+        data = monorepo_archive(anchor, commit, subtree)
+        _MONOREPO_PINS[key] = {"version": version, "sha256": hashlib.sha256(data).hexdigest()}
+    pin = _MONOREPO_PINS[key]
+    return {**herdr, "revision": commit, "version": pin["version"],
+            "source": {"filename": f"herdr-{commit}.zip", "sha256": pin["sha256"],
+                       "monorepo_path": subtree, "commit": commit}}
+
+
+def bind_monorepo_sources(lock: dict) -> None:
+    # 再分发锁里 herdr 组件的对应源码与编译输入是同一个单仓归档。
+    source = lock["herdr"]["source"]
+    for component in lock.get("components", []):
+        if component.get("id") == "herdr":
+            if component.get("sources") != [{"monorepo_path": source["monorepo_path"]}]:
+                raise DependencyError("herdr redistribution sources must reference the same monorepo subtree")
+            component["sources"] = [dict(source)]
+
+
+def load_lock(path: Path = DEFAULT_LOCK, repository: Path | None = None) -> dict:
     lock = read_json(path)
     if lock.get("schema_version") != 1:
         raise DependencyError("unsupported dependency lock schema")
     herdr = lock.get("herdr", {})
-    if not REVISION.fullmatch(herdr.get("revision", "")) or herdr.get("repository") != "https://github.com/gx0404/herdr":
-        raise DependencyError("herdr must be pinned to a full revision in gx0404/herdr")
-    artifact_shape(herdr["source"])
+    monorepo = is_monorepo_herdr(herdr)
+    if not monorepo:
+        if not REVISION.fullmatch(herdr.get("revision", "")) or herdr.get("repository") != "https://github.com/gx0404/herdr":
+            raise DependencyError("herdr must be pinned to a full revision in gx0404/herdr")
+        artifact_shape(herdr["source"])
     for item in lock.get("assets", []):
         artifact_shape(item)
         if not set(item.get("platforms", [])) <= set(PLATFORMS):
@@ -346,12 +428,21 @@ def load_lock(path: Path = DEFAULT_LOCK) -> dict:
         if sorted(packaged) != sorted(expected) or len(packaged) != len(set(packaged)):
             raise DependencyError("corresponding source inventory does not cover every locked MSYS2 package exactly once")
         lock["msys2_data"]["components"] = components
+    if msys:
+        msys_overlay(lock["msys2_data"])
     zsh = lock.get("zsh_runtime")
     if zsh:
         import gx_build_zsh
         lock["zsh_data"] = gx_build_zsh.load_lock(inside(path.parent, zsh["file"]))
         if canonical_digest(lock["zsh_data"]) != zsh["canonical_sha256"]:
             raise DependencyError("Zsh runtime source lock checksum mismatch")
+    if monorepo:
+        lock["herdr"] = monorepo_herdr(repository or path.parent, herdr)
+        artifact_shape(lock["herdr"]["source"])
+        bind_monorepo_sources(lock)
+    for component in lock.get("components", []):
+        if component.get("id") == "herdr" and component.get("version") != lock["herdr"].get("version"):
+            raise DependencyError(f"redistribution herdr version {component.get('version')} differs from the locked herdr {lock['herdr'].get('version')}")
     lock["lock_digest"] = canonical_digest({k: v for k, v in lock.items() if k != "lock_digest"})
     return lock
 
@@ -367,6 +458,8 @@ def validate_msys(msys: dict) -> None:
         artifact_shape(entry)
         if entry.get("origin") not in {"signed-base", "signed-package"}:
             raise DependencyError("unverified MSYS2 package origin")
+        if "upgrades_base" in entry and (entry["origin"] != "signed-package" or not re.fullmatch(r"[\w.+~:-]+", str(entry["upgrades_base"]))):
+            raise DependencyError(f"only a signed package can upgrade a base package version: {entry['name']}")
         for dependency in entry["dependencies"]:
             if re.split(r"[<>=]", dependency, maxsplit=1)[0] not in provided:
                 raise DependencyError(f"MSYS2 dependency closure incomplete: {entry['name']} -> {dependency}")
@@ -491,6 +584,120 @@ def install_mapping(extracted: Path, output: Path, mapping: dict) -> None:
             destination.chmod(0o755)
 
 
+def msys_overlay(msys: dict) -> list[tuple[dict, dict]]:
+    # GX 改过的 MSYS2 包内文件（如 etc/fstab）：新内容作为所属组件的对应源码随再分发材料
+    # 发布，锁里钉住原文件摘要；上游改动原文件时 assemble 失败，必须人工复核后再更新。
+    sources = {c["id"]: c.get("sources", []) for c in msys.get("components", [])}
+    entries = []
+    seen = set()
+    for entry in msys.get("overlay", []):
+        name = str(relative_path(entry["path"]))
+        matches = [a for a in sources.get(entry["component"], []) if a["filename"] == entry["filename"]]
+        if (name in seen or excluded_runtime(name) or not isinstance(entry.get("old_sha256"), str)
+                or not SHA256.fullmatch(entry["old_sha256"]) or len(matches) != 1 or matches[0]["sha256"] != entry["sha256"]):
+            raise DependencyError(f"MSYS2 overlay entry must replace one locked file with a component source: {name}")
+        seen.add(name)
+        entries.append((entry, matches[0]))
+    return entries
+
+
+def msys_overlay_changes(msys: dict) -> list[dict]:
+    return [{"path": "runtime/msys64/" + entry["path"], "old_sha256": entry["old_sha256"], "new_sha256": entry["sha256"], "action": "replaced"}
+            for entry, _ in msys_overlay(msys)]
+
+
+def merge_msys_overlay(msys: dict, cache: Path, runtime: Path) -> list[dict]:
+    for entry, artifact in msys_overlay(msys):
+        target = inside(runtime, entry["path"])
+        if not target.is_file() or target.is_symlink() or sha256_file(target) != entry["old_sha256"]:
+            raise DependencyError(f"original MSYS2 file differs before GX overlay: {entry['path']}")
+        shutil.copyfile(verify_artifact(artifact, cache), target)
+    return msys_overlay_changes(msys)
+
+
+def mtree_records(text: str) -> dict[str, dict]:
+    # mtree 按字节做 \ooo 八进制转义（空格、中文等文件名）：先还原成字节再按 UTF-8 解码。
+    def unescape(value: str) -> str:
+        return re.sub(rb"\\([0-7]{3})", lambda m: bytes([int(m.group(1), 8)]), value.encode("utf-8")).decode("utf-8")
+    records = {}
+    defaults = {}
+    for line in text.splitlines():
+        fields = line.split()
+        values = {key: unescape(value) for key, _, value in (f.partition("=") for f in fields[1:])}
+        if fields[:1] == ["/set"]:
+            defaults.update(values)
+        elif fields and fields[0].startswith("./"):
+            records[unescape(fields[0][2:])] = {**defaults, **values}
+    return records
+
+
+def remove_base_package(runtime: Path, name: str, version: str) -> int:
+    # 锁定的新签名包整体替换 base 快照里的旧版本（如 msys2-runtime 修复挂死的补丁版）：先按 pacman 本地库
+    # 的文件清单与 mtree 摘要核对全部旧文件，全部一致后才删除，并删掉该条目，不留新旧混装或错误的版本记录。
+    entry = inside(runtime, f"var/lib/pacman/local/{name}-{version}")
+    if not (entry / "files").is_file() or not (entry / "mtree").is_file():
+        raise DependencyError(f"base snapshot does not contain {name} {version} to upgrade")
+    files = (entry / "files").read_text(encoding="utf-8")
+    if "%FILES%\n" not in files:
+        raise DependencyError(f"pacman record of {name} {version} lists no files")
+    records = mtree_records(gzip.decompress((entry / "mtree").read_bytes()).decode("utf-8"))
+    doomed = []
+    for old in files.split("%FILES%\n", 1)[1].split("\n\n", 1)[0].splitlines():
+        if not old or old.endswith("/") or runtime_skipped(old):
+            continue
+        record = records.get(old, {})
+        expected = record.get("sha256digest")
+        if record.get("type") == "link":
+            link = record.get("link", "")
+            source = link.lstrip("/") if link.startswith("/") else posixpath.normpath(posixpath.join(posixpath.dirname(old), link))
+            expected = records.get(source, {}).get("sha256digest")
+        target = inside(runtime, old)
+        if not expected or not target.is_file() or target.is_symlink() or sha256_file(target) != expected:
+            raise DependencyError(f"base file differs from its pacman record before upgrade: {old}")
+        doomed.append(target)
+    for target in doomed:
+        target.unlink()
+    shutil.rmtree(entry)
+    return len(doomed)
+
+
+def assemble_msys_runtime(msys: dict, cache: Path, runtime: Path, work: Path, zstd: str | None = None) -> tuple[list[dict], list[dict]]:
+    extract_archive(verify_artifact(msys["base"], cache), runtime, strip=1, runtime=True, zstd=zstd)
+    upgrades = []
+    for index, package in enumerate(msys["packages"]):
+        if package["origin"] == "signed-package":
+            if "upgrades_base" in package:
+                removed = remove_base_package(runtime, package["name"], package["upgrades_base"])
+                upgrades.append({"name": package["name"], "old_version": package["upgrades_base"], "new_version": package["version"], "removed_files": removed})
+            unpacked = work / f"package-{index}"
+            extract_archive(verify_artifact(package, cache), unpacked, runtime=True, zstd=zstd)
+            for item in tree_manifest(unpacked):
+                install_mapping(unpacked, runtime, {"from": item["path"], "to": item["path"]})
+    for path in runtime.rglob("*"):
+        if excluded_runtime(path.relative_to(runtime).as_posix()) and path.is_file():
+            raise DependencyError(f"runtime state leaked: {path}")
+    return upgrades, merge_msys_overlay(msys, cache, runtime)
+
+
+def verify_msys_runtime(msys: dict, manifest: dict, payload: Path) -> None:
+    upgrades = [(p["name"], p["upgrades_base"], p["version"]) for p in msys.get("packages", []) if "upgrades_base" in p]
+    recorded = manifest.get("msys2_upgrades")
+    if (not isinstance(recorded, list) or not all(isinstance(r, dict) for r in recorded)
+            or [(r.get("name"), r.get("old_version"), r.get("new_version")) for r in recorded] != upgrades
+            or any(type(r.get("removed_files")) is not int or r["removed_files"] < 1 for r in recorded)):
+        raise DependencyError("MSYS2 base upgrade provenance does not match the lock")
+    for name, old, _ in upgrades:
+        if inside(payload, f"runtime/msys64/var/lib/pacman/local/{name}-{old}").exists():
+            raise DependencyError(f"replaced base package record leaked into the payload: {name} {old}")
+    changes = msys_overlay_changes(msys)
+    if manifest.get("msys2_overlay") != changes:
+        raise DependencyError("MSYS2 overlay provenance does not match the lock")
+    for record in changes:
+        path = inside(payload, record["path"])
+        if not path.is_file() or sha256_file(path) != record["new_sha256"]:
+            raise DependencyError(f"GX-modified MSYS2 file differs from the lock: {record['path']}")
+
+
 def merge_zsh_overlay(pinned: dict, platform: str, source: Path, payload: Path, receipt: dict) -> list[dict]:
     changes = []
     replacements = set()
@@ -539,19 +746,9 @@ def assemble(lock: dict, platform: str, cache: Path, output: Path, herdr_build: 
         bundle = work / "bundle"
         payload = bundle / "payload"
         payload.mkdir(parents=True)
+        msys_upgrades, msys_changes = [], []
         if platform == "windows-x64":
-            msys = lock["msys2_data"]
-            runtime = payload / "runtime/msys64"
-            extract_archive(verify_artifact(msys["base"], cache), runtime, strip=1, runtime=True, zstd=zstd)
-            for index, package in enumerate(msys["packages"]):
-                if package["origin"] == "signed-package":
-                    unpacked = work / f"package-{index}"
-                    extract_archive(verify_artifact(package, cache), unpacked, runtime=True, zstd=zstd)
-                    for item in tree_manifest(unpacked):
-                        install_mapping(unpacked, runtime, {"from": item["path"], "to": item["path"]})
-            for path in runtime.rglob("*"):
-                if excluded_runtime(path.relative_to(runtime).as_posix()) and path.is_file():
-                    raise DependencyError(f"runtime state leaked: {path}")
+            msys_upgrades, msys_changes = assemble_msys_runtime(lock["msys2_data"], cache, payload / "runtime/msys64", work, zstd)
         for index, asset in enumerate(lock["assets"]):
             if platform not in asset["platforms"]:
                 continue
@@ -588,6 +785,7 @@ def assemble(lock: dict, platform: str, cache: Path, output: Path, herdr_build: 
         result = {
             "schema_version": 1, "platform": platform, "lock_digest": lock["lock_digest"],
             "herdr": receipt, "zsh": zsh_receipt, "zsh_overlay": zsh_changes,
+            "msys2_upgrades": msys_upgrades, "msys2_overlay": msys_changes,
             "components": platform_components(lock, platform),
             "artifacts": [{k: a[k] for k in ("filename", "sha256", "url", "repository_path") if k in a} for a in artifacts],
             "payload": tree_manifest(payload), "redistribution": tree_manifest(bundle / "redistribution"),
@@ -636,6 +834,7 @@ def verify_bundle(lock: dict, platform: str, bundle: Path) -> dict:
             expected_changes.append(record)
     if manifest.get("zsh_overlay") != expected_changes:
         raise DependencyError("Zsh overlay source provenance does not match the locked original MSYS package")
+    verify_msys_runtime(lock["msys2_data"] if platform == "windows-x64" else {}, manifest, bundle / "payload")
     return manifest
 
 

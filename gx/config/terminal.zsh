@@ -23,19 +23,28 @@ typeset -g GX_TERMINAL_CWD_INSTALLED=1
 _gx_terminal_report_cwd() {
   local exit_code=$?
   [[ ${_GX_TERMINAL_LAST_CWD:-} == $PWD ]] && return $exit_code
-  local LC_ALL=C ch encoded='' hex
+  typeset -g _GX_TERMINAL_LAST_CWD=$PWD
+  local LC_ALL=C ch encoded='' hex drive= dir=$PWD
   local -i index
-  for (( index=1; index<=${#PWD}; ++index )); do
-    ch=$PWD[index]
+  # MSYS/Cygwin 的盘符目录（/c/… 或 /cygdrive/c/…）报成 file:///C:/…，WezTerm 与 herdr 新开的
+  # 标签/分屏才能沿用；运行时根下等非盘符目录对原生程序没有意义，不上报。
+  if [[ $OSTYPE == (cygwin|msys)* ]]; then
+    dir=${dir#/cygdrive}
+    [[ $dir == /[a-zA-Z] || $dir == /[a-zA-Z]/* ]] || return $exit_code
+    drive=/${(U)dir[2]}:
+    dir=${dir[3,-1]:-/}
+  fi
+  for (( index=1; index<=${#dir}; ++index )); do
+    ch=$dir[index]
     case $ch in
       [a-zA-Z0-9/._~-]) encoded+=$ch ;;
       *) printf -v hex '%%%02X' "'$ch"; encoded+=$hex ;;
     esac
   done
-  # 主机名字段留空（file:///path）：herdr 的 parse_file_uri_cwd 只接受空或
-  # localhost，WezTerm 同样接受空主机；带主机名会让 herdr 直接丢弃该上报。
-  builtin printf '\e]7;file://%s\e\\' "$encoded"
-  typeset -g _GX_TERMINAL_LAST_CWD=$PWD
+  # 主机名字段留空（file:///path）：WezTerm 与 herdr 的 parse_file_uri_cwd 都把空主机当本机（herdr
+  # 另外只认 localhost 与它自己取到的主机名）。留空不必读 $HOST，也不会因两边主机名写法不同
+  # （大小写、FQDN）被 herdr 当成远端上报丢弃。
+  builtin printf '\e]7;file://%s\e\\' "$drive$encoded"
   return $exit_code
 }
 add-zsh-hook precmd _gx_terminal_report_cwd

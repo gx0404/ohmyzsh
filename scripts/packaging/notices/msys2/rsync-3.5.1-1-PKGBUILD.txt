@@ -1,0 +1,57 @@
+# Maintainer: Alexey Pavlov <alexpux@gmail.com>
+
+pkgname=rsync
+pkgver=3.5.1
+pkgrel=1
+pkgdesc="A file transfer program to keep remote files in sync"
+arch=('i686' 'x86_64')
+url="https://rsync.samba.org"
+msys2_repository_url='https://github.com/RsyncProject/rsync'
+msys2_references=(
+  "anitya: 4217"
+  "cpe: cpe:2.3:a:andrew_tridgell:rsync"
+  "cpe: cpe:2.3:a:gnu:rsync"
+  "cpe: cpe:2.3:a:redhat:rsync"
+  "cpe: cpe:2.3:a:rsync:rsync"
+  "cpe: cpe:2.3:a:samba:rsync"
+)
+groups=('net-utils')
+license=('spdx:GPL-3.0-or-later')
+depends=('libiconv' 'liblz4' 'libopenssl' 'libxxhash' 'libzstd' 'popt' 'libidn2')
+optdepends=('python: for rrsync')
+makedepends=('libiconv-devel' 'liblz4-devel' 'libxxhash-devel' 'libzstd-devel' 'openssl-devel' 'popt-devel' 'autotools' 'gcc' 'libidn2-devel')
+conflicts=('rsync2')
+replaces=('rsync2')
+source=("https://download.samba.org/pub/rsync/src/${pkgname}-${pkgver}.tar.gz")
+sha256sums=('c55f9c9dc10fb8bec397b399a0fdded53cc9a2d8e30891bb0d63724d25c37bef')
+noextract=("${pkgname}-${pkgver}.tar.gz")
+
+prepare() {
+  tar zxf "${pkgname}-${pkgver}.tar.gz" || tar zxf "${pkgname}-${pkgver}.tar.gz"
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  autoreconf -fiv
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+  ./configure \
+    --build=${CHOST} \
+    --prefix=/usr
+
+  make reconfigure
+  make man all
+}
+
+check() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make test
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -Dm755 support/rrsync "${pkgdir}/usr/lib/rsync/rrsync"
+
+  install -Dm644 ${srcdir}/${pkgname}-${pkgver}/COPYING ${pkgdir}/usr/share/licenses/${pkgname}/COPYING
+}

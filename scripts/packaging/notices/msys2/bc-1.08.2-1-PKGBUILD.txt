@@ -1,0 +1,46 @@
+# Maintainer: Sundaram Ramaswamy <legends2k@yahoo.com>
+
+pkgname=bc
+pkgver=1.08.2
+pkgrel=1
+pkgdesc="An arbitrary precision calculator language"
+arch=('i686' 'x86_64')
+url="https://www.gnu.org/software/bc"
+msys2_references=(
+  "anitya: 170"
+  "cpe: cpe:2.3:a:gnu:bc"
+)
+license=('GPL')
+depends=('libreadline' 'ncurses')
+makedepends=('ed' 'gcc' 'libreadline-devel' 'ncurses-devel' 'autotools')
+source=(https://ftp.gnu.org/gnu/${pkgname}/${pkgname}-${pkgver}.tar.gz)
+sha256sums=('ae470fec429775653e042015edc928d07c8c3b2fc59765172a330d3d87785f86')
+
+prepare () {
+  cd "${srcdir}"/${pkgname}-${pkgver}
+  # patch -p1 -i "${srcdir}"/0001-Fix-readline-prototype.patch
+  return 0
+}
+
+build () {
+  [[ -d ${srcdir}/build-${CHOST} ]] && rm -rf ${srcdir}/build-${CHOST}
+  mkdir ${srcdir}/build-${CHOST} && cd ${srcdir}/build-${CHOST}
+  
+  ../${pkgname}-${pkgver}/configure \
+    --prefix=/usr \
+    --build=${CHOST} \
+    --host=${CHOST} \
+    --with-readline
+
+  make
+}
+
+check () {
+  cd build-${CHOST}
+  echo "quit" | ./bc/bc -l "${srcdir}"/${pkgname}-${pkgver}/Test/checklib.b # 10 failures
+}
+
+package () {
+  cd build-${CHOST}
+  make prefix="${pkgdir}/usr" install
+}

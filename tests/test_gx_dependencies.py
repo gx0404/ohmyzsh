@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import gzip
 import hashlib
 import io
 import json
@@ -132,19 +133,173 @@ class DependencyTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
 
-    def test_real_lock_has_authenticated_129_package_closure(self):
+    def test_real_lock_has_authenticated_142_package_closure(self):
         lock = deps.load_lock()
         packages = lock["msys2_data"]["packages"]
-        self.assertEqual(len(packages), 129)
-        self.assertEqual(sum(p["origin"] == "signed-base" for p in packages), 85)
-        self.assertEqual(sum(p["origin"] == "signed-package" for p in packages), 44)
-        self.assertEqual(lock["herdr"]["version"], "0.9.1")
+        self.assertEqual(len(packages), 142)
+        self.assertEqual(sum(p["origin"] == "signed-base" for p in packages), 84)
+        self.assertEqual(sum(p["origin"] == "signed-package" for p in packages), 58)
+        self.assertEqual(lock["herdr"]["version"], "0.9.2")
+
+    def test_msys_runtime_is_the_hang_fixed_release_over_the_base_snapshot(self):
+        lock = deps.load_lock()
+        runtime = next(p for p in lock["msys2_data"]["packages"] if p["name"] == "msys2-runtime")
+        self.assertEqual((runtime["version"], runtime["origin"], runtime["upgrades_base"]), ("3.6.10-6", "signed-package", "3.6.10-5"))
+        component = next(c for c in lock["msys2_data"]["components"] if c["id"] == "msys2-msys2-runtime")
+        self.assertEqual(component["sources"][0]["filename"], "msys2-runtime-3.6.10-6.src.tar.zst")
+        devel = next(p for p in lock["zsh_data"]["windows_toolchain"]["packages"] if p["name"] == "msys2-runtime-devel")
+        self.assertEqual(devel["version"], runtime["version"])
+
+    def test_linux_learner_tools_are_signed_packages_with_corresponding_sources(self):
+        msys = deps.load_lock()["msys2_data"]
+        packages = {p["name"]: p for p in msys["packages"]}
+        owners = {p["name"]: c for c in msys["components"] for p in c["runtime_packages"]}
+        added = {"diffutils", "patch", "unzip", "zip", "tree", "bc", "procps-ng", "vim", "rsync", "jq", "libxxhash", "popt", "oniguruma"}
+        database = [d for d in msys["signed_databases"] if d.get("packages")]
+        self.assertEqual(len(database), 1)
+        self.assertEqual(set(database[0]["packages"]), added | {"msys2-runtime"})
+        for name in sorted(added):
+            with self.subTest(package=name):
+                package, component = packages[name], owners[name]
+                self.assertEqual(package["origin"], "signed-package")
+                self.assertTrue(package["url"].startswith("https://repo.msys2.org/msys/x86_64/"))
+                self.assertEqual(package["signature_url"], package["url"] + ".sig")
+                self.assertEqual(component["id"], "msys2-" + package["base"])
+                self.assertEqual(component["version"], package["version"])
+                self.assertEqual([s["filename"] for s in component["sources"]],
+                                 [f"{package['base']}-{package['version']}.src.tar.zst", f"{package['base']}-{package['version']}.src.tar.zst.sig"])
+                self.assertEqual(component["licenses"][0]["repository_path"], f"notices/msys2/{package['base']}-{package['version']}-LICENSES.txt")
+                self.assertTrue(component["verification"]["source_members"])
+
+    def test_runtime_overlay_mounts_tmp_and_takes_home_from_environment(self):
+        msys = deps.load_lock()["msys2_data"]
+        overlay = {entry["path"]: artifact for entry, artifact in deps.msys_overlay(msys)}
+        self.assertEqual(set(overlay), {"etc/fstab", "etc/nsswitch.conf"})
+        text = {name: deps.inside(deps.DEFAULT_LOCK.parent, item["repository_path"]).read_text(encoding="utf-8").splitlines()
+                for name, item in overlay.items()}
+        self.assertIn("none / cygdrive binary,posix=0,noacl,user 0 0", text["etc/fstab"])
+        self.assertIn("none /tmp usertemp binary,posix=0,noacl 0 0", text["etc/fstab"])
+        self.assertEqual([line for line in text["etc/nsswitch.conf"] if line.startswith("db_home:")], ["db_home: env windows cygwin desc"])
+        self.assertFalse(deps.excluded_runtime("etc/fstab"))
+        self.assertEqual({c["path"] for c in deps.msys_overlay_changes(msys)}, {"runtime/msys64/etc/fstab", "runtime/msys64/etc/nsswitch.conf"})
+
+    def msys_overlay_fixture(self, original: bytes) -> dict:
+        cache = self.root / "cache"
+        base = artifact(cache, "base.tar.gz", tar_bytes({"msys64/etc/fstab": original, "msys64/usr/bin/msys-2.0.dll": pe_binary(), "msys64/tmp/state": b"state"}))
+        package = {**artifact(cache, "tool.pkg.tar.gz", tar_bytes({"usr/bin/tool.exe": pe_binary()})), "origin": "signed-package"}
+        modified = artifact(cache, "GX-msys2-etc-fstab", b"none / cygdrive binary 0 0\nnone /tmp usertemp binary 0 0\n")
+        return {"base": base, "packages": [package], "components": [{"id": "msys2-filesystem", "sources": [modified]}],
+                "overlay": [{"component": "msys2-filesystem", "filename": modified["filename"], "old_sha256": digest(b"stock fstab\n"),
+                             "path": "etc/fstab", "sha256": modified["sha256"]}]}
+
+    def test_assembled_runtime_carries_overlay_only_over_the_pinned_original(self):
+        msys = self.msys_overlay_fixture(b"stock fstab\n")
+        runtime = self.root / "runtime"
+        (self.root / "work").mkdir()
+        upgrades, changes = deps.assemble_msys_runtime(msys, self.root / "cache", runtime, self.root / "work")
+        self.assertEqual(upgrades, [])
+        self.assertEqual((runtime / "etc/fstab").read_bytes(), b"none / cygdrive binary 0 0\nnone /tmp usertemp binary 0 0\n")
+        self.assertEqual(changes, [{"path": "runtime/msys64/etc/fstab", "old_sha256": digest(b"stock fstab\n"),
+                                    "new_sha256": msys["overlay"][0]["sha256"], "action": "replaced"}])
+        self.assertTrue((runtime / "usr/bin/tool.exe").is_file())
+        self.assertFalse((runtime / "tmp").exists())
+        msys = self.msys_overlay_fixture(b"upstream changed fstab\n")
+        (self.root / "work-changed").mkdir()
+        with self.assertRaisesRegex(deps.DependencyError, "differs before GX overlay"):
+            deps.assemble_msys_runtime(msys, self.root / "cache", self.root / "changed", self.root / "work-changed")
+
+    def test_overlay_entry_must_replace_one_file_with_a_locked_component_source(self):
+        msys = self.msys_overlay_fixture(b"stock fstab\n")
+        entry = msys["overlay"][0]
+        for broken in ({**entry, "sha256": "0" * 64}, {**entry, "filename": "missing"}, {**entry, "component": "msys2-other"},
+                       {**entry, "old_sha256": None}, {**entry, "path": "etc/passwd"}, {**entry, "path": "../fstab"}):
+            with self.subTest(broken=broken), self.assertRaises(deps.DependencyError):
+                deps.msys_overlay({**msys, "overlay": [broken]})
+        with self.assertRaisesRegex(deps.DependencyError, "etc/fstab"):
+            deps.msys_overlay({**msys, "overlay": [entry, entry]})
+
+    def base_upgrade_fixture(self, doc: bytes = b"old doc", upgrades: str | None = "1.0-1") -> dict:
+        # 旧版登记三个文件（含空格和中文名、一个符号链接），另列两个解包时本就跳过的路径。
+        cache = self.root / "cache"
+        local = "msys64/var/lib/pacman/local/msys2-runtime-1.0-1/"
+        listed = ["usr/", "usr/bin/", "usr/bin/msys-2.0.dll", "usr/share/doc/a b中.txt", "usr/bin/alias.exe", "etc/passwd", "usr/lib/py/__pycache__/m.pyc"]
+        mtree = ["#mtree", "/set type=file mode=644", f"./.PKGINFO size=1 sha256digest={digest(b'x')}", "./usr/bin time=1 type=dir",
+                 f"./usr/bin/msys-2.0.dll sha256digest={digest(b'old dll')}", f"./usr/share/doc/a\\040b\\344\\270\\255.txt sha256digest={digest(b'old doc')}",
+                 "./usr/bin/alias.exe type=link link=msys-2.0.dll", f"./etc/passwd sha256digest={digest(b'p')}"]
+        base = artifact(cache, "base.tar.gz", tar_bytes(
+            {"msys64/usr/bin/msys-2.0.dll": b"old dll", "msys64/usr/share/doc/a b中.txt": doc, local + "desc": b"%NAME%\nmsys2-runtime\n",
+             local + "files": ("%FILES%\n" + "\n".join(listed) + "\n\n").encode(), local + "mtree": gzip.compress(("\n".join(mtree) + "\n").encode())},
+            {"msys64/usr/bin/alias.exe": "msys-2.0.dll"}))
+        package = {**artifact(cache, "msys2-runtime-1.0-2.pkg.tar.gz", tar_bytes({"usr/bin/msys-2.0.dll": b"new dll", "usr/share/doc/a b中.txt": b"new doc"},
+                                                                                 {"usr/bin/alias.exe": "msys-2.0.dll"})),
+                   "name": "msys2-runtime", "origin": "signed-package", "version": "1.0-2"}
+        if upgrades:
+            package["upgrades_base"] = upgrades
+        return {"base": base, "packages": [package], "components": []}
+
+    def test_signed_package_replaces_its_recorded_base_version_only(self):
+        def assemble(name: str, msys: dict) -> tuple[Path, list]:
+            (self.root / f"work-{name}").mkdir()
+            upgrades, _ = deps.assemble_msys_runtime(msys, self.root / "cache", self.root / name, self.root / f"work-{name}")
+            return self.root / name, upgrades
+        runtime, upgrades = assemble("upgraded", self.base_upgrade_fixture())
+        self.assertEqual(upgrades, [{"name": "msys2-runtime", "old_version": "1.0-1", "new_version": "1.0-2", "removed_files": 3}])
+        for name, content in (("usr/bin/msys-2.0.dll", b"new dll"), ("usr/share/doc/a b中.txt", b"new doc"), ("usr/bin/alias.exe", b"new dll")):
+            self.assertEqual((runtime / name).read_bytes(), content)
+        self.assertFalse((runtime / "var/lib/pacman/local/msys2-runtime-1.0-1").exists())
+        for name, doc, upgrades, error in (("tampered", b"changed doc", "1.0-1", "differs from its pacman record before upgrade: usr/share/doc/a b中.txt"),
+                                           ("plain", b"old doc", None, "install collision"),
+                                           ("absent", b"old doc", "9.9-9", "does not contain msys2-runtime 9.9-9")):
+            with self.subTest(name=name), self.assertRaisesRegex(deps.DependencyError, error):
+                assemble(name, self.base_upgrade_fixture(doc, upgrades))
+        self.assertEqual((self.root / "tampered/usr/bin/msys-2.0.dll").read_bytes(), b"old dll")
+        msys = copy.deepcopy(deps.load_lock()["msys2_data"])
+        next(p for p in msys["packages"] if p["origin"] == "signed-base")["upgrades_base"] = "1.0-1"
+        with self.assertRaisesRegex(deps.DependencyError, "only a signed package"):
+            deps.validate_msys(msys)
+
+    def test_mtree_paths_are_byte_escapes_decoded_as_utf8(self):
+        records = deps.mtree_records("/set type=file\n./a\\040b\\344\\270\\255.txt sha256digest=aa\n./l type=link link=x\\040y\n")
+        self.assertEqual(records, {"a b中.txt": {"type": "file", "sha256digest": "aa"}, "l": {"type": "link", "link": "x y"}})
+
+    def test_windows_bundle_check_rejects_changed_msys_overlay_or_upgrade_record(self):
+        msys = self.msys_overlay_fixture(b"stock fstab\n")
+        msys["packages"][0].update(name="msys2-runtime", version="1.0-2", upgrades_base="1.0-1")
+        payload = self.root / "payload"
+        (payload / "runtime/msys64/etc").mkdir(parents=True)
+        (payload / "runtime/msys64/etc/fstab").write_bytes(b"none / cygdrive binary 0 0\nnone /tmp usertemp binary 0 0\n")
+        manifest = {"msys2_upgrades": [{"name": "msys2-runtime", "old_version": "1.0-1", "new_version": "1.0-2", "removed_files": 162}],
+                    "msys2_overlay": deps.msys_overlay_changes(msys)}
+        deps.verify_msys_runtime(msys, manifest, payload)
+        upgrade = manifest["msys2_upgrades"][0]
+        for broken, error in (({**manifest, "msys2_upgrades": []}, "base upgrade provenance"),
+                              ({**manifest, "msys2_upgrades": [{**upgrade, "removed_files": 0}]}, "base upgrade provenance"),
+                              ({**manifest, "msys2_upgrades": [{**upgrade, "old_version": "1.0-0"}]}, "base upgrade provenance"),
+                              ({**manifest, "msys2_overlay": []}, "overlay provenance")):
+            with self.subTest(error=error, broken=broken), self.assertRaisesRegex(deps.DependencyError, error):
+                deps.verify_msys_runtime(msys, broken, payload)
+        leftover = payload / "runtime/msys64/var/lib/pacman/local/msys2-runtime-1.0-1"
+        leftover.mkdir(parents=True)
+        with self.assertRaisesRegex(deps.DependencyError, "record leaked"):
+            deps.verify_msys_runtime(msys, manifest, payload)
+        leftover.rmdir()
+        (payload / "runtime/msys64/etc/fstab").write_bytes(b"none / cygdrive binary 0 0\n")
+        with self.assertRaisesRegex(deps.DependencyError, "differs from the lock: runtime/msys64/etc/fstab"):
+            deps.verify_msys_runtime(msys, manifest, payload)
+
+    def test_redistribution_herdr_version_must_match_the_locked_herdr(self):
+        fixture(self.root)
+        lock = deps.read_json(self.root / "dependencies.json")
+        lock["components"][0]["version"] = "0.9.0"
+        deps.write_json(self.root / "dependencies.json", lock)
+        with self.assertRaisesRegex(deps.DependencyError, "redistribution herdr version 0.9.0 differs from the locked herdr 0.9.1"):
+            deps.load_lock(self.root / "dependencies.json")
 
     def test_production_redistribution_complete_and_missing_sources_fail_closed(self):
         lock = deps.load_lock()
         self.assertEqual(deps.compliance_errors(lock, "windows-x64"), [])
         self.assertEqual(deps.compliance_errors(lock, "ubuntu-amd64"), [])
-        self.assertEqual(len(lock["msys2_data"]["components"]), 114)
+        self.assertEqual(len(lock["msys2_data"]["components"]), 127)
         lock["components"][0]["sources"] = []
         with self.assertRaisesRegex(deps.DependencyError, "release inputs incomplete"):
             deps.verify_inputs(lock, "windows-x64", self.root)
@@ -278,7 +433,38 @@ class DependencyTests(unittest.TestCase):
         for name in ("dependencies.json", "msys2-lock.json", "redistribution-lock.json", "zsh-runtime-lock.json"):
             data = (deps.DEFAULT_LOCK.parent / name).read_bytes().replace(b"\r\n", b"\n")
             (self.root / name).write_bytes(data.replace(b"\n", b"\r\n"))
-        self.assertEqual(deps.load_lock(self.root / "dependencies.json")["lock_digest"], expected["lock_digest"])
+        self.assertEqual(deps.load_lock(self.root / "dependencies.json", repository=deps.ROOT)["lock_digest"], expected["lock_digest"])
+
+    def monorepo_source(self) -> dict:
+        commit = "a" * 40
+        return {"filename": f"herdr-{commit}.zip", "sha256": "b" * 64, "monorepo_path": "herdr", "commit": commit}
+
+    def test_monorepo_artifact_names_a_full_commit_without_url(self):
+        item = self.monorepo_source()
+        deps.artifact_shape(item)
+        for broken in ({**item, "url": "https://example.org/herdr.zip"}, {**item, "commit": "a" * 39},
+                       {**item, "monorepo_path": "../herdr"}, {**item, "repository_path": "notices/x"}):
+            with self.subTest(broken=broken), self.assertRaises(deps.DependencyError):
+                deps.artifact_shape(broken)
+
+    def test_resolved_monorepo_lock_needs_no_git_and_must_be_consistent(self):
+        source = self.monorepo_source()
+        resolved = {"repository": deps.MONOREPO, "revision": source["commit"], "version": "1.2.3", "source": source}
+        self.assertEqual(deps.monorepo_herdr(self.root, resolved), resolved)
+        for broken in ({**resolved, "revision": "c" * 40}, {**resolved, "version": "next"},
+                       {**resolved, "repository": "https://github.com/gx0404/herdr"},
+                       {**resolved, "source": {**source, "filename": "herdr.zip"}}):
+            with self.subTest(broken=broken), self.assertRaises(deps.DependencyError):
+                deps.monorepo_herdr(self.root, broken)
+
+    def test_monorepo_redistribution_source_must_be_the_same_subtree(self):
+        source = self.monorepo_source()
+        lock = {"herdr": {"source": source}, "components": [{"id": "herdr", "sources": [{"monorepo_path": "herdr"}]}]}
+        deps.bind_monorepo_sources(lock)
+        self.assertEqual(lock["components"][0]["sources"], [source])
+        lock["components"][0]["sources"] = [{"monorepo_path": "other"}]
+        with self.assertRaisesRegex(deps.DependencyError, "same monorepo subtree"):
+            deps.bind_monorepo_sources(lock)
 
     def test_reserved_windows_paths_are_rejected(self):
         for name in ("a/NUL", "a/COM1.txt", "file.", "file "):
@@ -323,7 +509,7 @@ class DependencyTests(unittest.TestCase):
         components = lock["msys2_data"]["components"]
         covered = [(p["name"], p["version"]) for c in components for p in c["runtime_packages"]]
         self.assertEqual(len(covered), len(set(covered)))
-        self.assertEqual(len(covered), 129)
+        self.assertEqual(len(covered), 142)
         for component in components:
             self.assertEqual(component["verification"]["signature_signer"], "5F944B027F7FE2091985AA2EFA11531AA0AA7F57")
             self.assertTrue(component["sources"][0]["filename"].endswith(".src.tar.zst"))
@@ -337,6 +523,17 @@ class DependencyTests(unittest.TestCase):
         manifest["artifacts"] = []
         deps.write_json(bundle / "dependencies-manifest.json", manifest)
         with self.assertRaisesRegex(deps.DependencyError, "complete locked input set"):
+            deps.verify_bundle(lock, "ubuntu-amd64", bundle)
+
+    def test_manifest_cannot_claim_an_unlocked_msys_overlay(self):
+        lock, cache, build = fixture(self.root)
+        bundle = self.root / "bundle"
+        deps.assemble(lock, "ubuntu-amd64", cache, bundle, build, zsh_build=build.parent / "zsh-build")
+        manifest = deps.read_json(bundle / "dependencies-manifest.json")
+        self.assertEqual(manifest["msys2_overlay"], [])
+        manifest["msys2_overlay"] = [{"path": "runtime/msys64/etc/fstab", "old_sha256": "0" * 64, "new_sha256": "1" * 64, "action": "replaced"}]
+        deps.write_json(bundle / "dependencies-manifest.json", manifest)
+        with self.assertRaisesRegex(deps.DependencyError, "MSYS2 overlay provenance"):
             deps.verify_bundle(lock, "ubuntu-amd64", bundle)
 
     def test_windows_conpty_seven_file_contract_and_signature_receipt(self):

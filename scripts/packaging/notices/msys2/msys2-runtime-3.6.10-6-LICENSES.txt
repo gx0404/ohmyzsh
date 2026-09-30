@@ -1,9 +1,9 @@
 MSYS2 exact source-package license and copyright notices
-Source: https://repo.msys2.org/msys/sources/msys2-runtime-3.6.10-5.src.tar.zst
-Source SHA-256: c05a1d70e1e1c94b02f294071ae53f05280ec94ae4d41873d2af3898beae782a
+Source: https://repo.msys2.org/msys/sources/msys2-runtime-3.6.10-6.src.tar.zst
+Source SHA-256: 1d06b1482199ca8adaea770c4b596ec3adb2749345ef81a5d111cb792f0f1643
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING
 SHA-256: 231f7edcc7352d7734a96eef0b8030f77982678c516876fcb81e25b32d68564c
 
 		    GNU GENERAL PUBLIC LICENSE
@@ -349,7 +349,7 @@ Public License instead of this License.
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING.LIB
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING.LIB
 SHA-256: a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861
 
 
@@ -865,7 +865,7 @@ That's all there is to it!
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING.LIBGLOSS
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING.LIBGLOSS
 SHA-256: bdaffd5fff30cb5fc7a239a4fa0b95f703590f7b3813ca7f4e76ff46437aeb81
 
 The libgloss subdirectory is a collection of software from several sources.
@@ -1370,7 +1370,7 @@ they apply.
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING.NEWLIB
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:COPYING.NEWLIB
 SHA-256: fcfb5ec69b6ab52676dcc4dab7cf4338c8000ef97812dadd35b8592a640a8419
 
 The newlib subdirectory is a collection of software from several sources.
@@ -2948,7 +2948,7 @@ Software.
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:newlib/libc/posix/COPYRIGHT
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:newlib/libc/posix/COPYRIGHT
 SHA-256: b4f217294d6910b752eb4d85c1bf1540c475911efaf4b6f86227149d2bc69efe
 
 Copyright 1992, 1993, 1994 Henry Spencer.  All rights reserved.
@@ -3006,7 +3006,7 @@ to the following restrictions:
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/COPYING
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/COPYING
 SHA-256: 8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903
 
                     GNU GENERAL PUBLIC LICENSE
@@ -3686,7 +3686,7 @@ Public License instead of this License.  But first, please read
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/COPYING.LIB
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/COPYING.LIB
 SHA-256: da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768
 
                    GNU LESSER GENERAL PUBLIC LICENSE
@@ -3857,7 +3857,7 @@ Library.
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/cygwin/include/sys/copying.dj
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/cygwin/include/sys/copying.dj
 SHA-256: 3a4ef55b77484d8789ebde243a5a7b259bb8d824e1a30aa4f33b11e2e6b08170
 
 This is the file "copying.dj".  It does not apply to any sources
@@ -3904,7 +3904,7 @@ was obtained, or by writing:
 
 
 ========================================================================
-Origin: msys2-runtime-3.6.10-5.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/cygwin/regex/COPYRIGHT
+Origin: msys2-runtime-3.6.10-6.src.tar.zst!msys2-runtime/msys2-runtime@b11613e477c006b2ce0332463ed07f1118260e79:winsup/cygwin/regex/COPYRIGHT
 SHA-256: 3be175b44ed4ee963d61a34296b3ec8517d82322e9ee77bf365d29d454a497d4
 
 Copyright 1992, 1993, 1994 Henry Spencer.  All rights reserved.

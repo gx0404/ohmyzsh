@@ -29,6 +29,7 @@ run_step smoke zsh tests/smoke_load.zsh
 run_step gx-terminal python3 tests/gx_terminal.py
 run_step gx-install-smoke zsh tests/gx_install_smoke.zsh
 run_step gx-package-profile python3 tests/gx_package_profile.py
+run_step gx-windows python3 tests/gx_windows.py
 run_step gx-package-unit python3 -m unittest discover -s tests -p 'test_gx_*.py'
 
 echo "=== summary ==="

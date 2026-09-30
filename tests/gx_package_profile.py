@@ -60,7 +60,7 @@ class PackageProfile(unittest.TestCase):
             shutil.copytree(REPO / "plugins" / name, cls.resources / "plugins" / name)
         (cls.resources / "custom").mkdir()
         (cls.resources / "gx/config").mkdir(parents=True)
-        for name in ("zshrc", "zshenv", "package.zsh", "p10k.zsh", "terminal.zsh"):
+        for name in ("zshrc", "zshenv", "package.zsh", "p10k.zsh", "terminal.zsh", "windows.zsh"):
             shutil.copy2(REPO / "gx/config" / name, cls.resources / "gx/config" / name)
         shutil.copy2(REPO / "gx/install.sh", cls.resources / "gx/install.sh")
         shutil.copytree(
@@ -68,6 +68,7 @@ class PackageProfile(unittest.TestCase):
             cls.resources / "gx/omz-custom/themes/powerlevel10k",
             ignore=shutil.ignore_patterns("*.zwc", "*.tmp.*", ".git"),
         )
+        shutil.copytree(REPO / "gx/omz-custom/plugins", cls.resources / "gx/omz-custom/plugins")
         (cls.resources / "gx/bin").mkdir()
         for name in ("gitstatusd-linux-x86_64", "zoxide-linux-x86_64"):
             shutil.copy2(REPO / "gx/bin" / name, cls.resources / "gx/bin" / name)
@@ -82,7 +83,7 @@ class PackageProfile(unittest.TestCase):
                                        + cls.zsh).encode("utf-8")).hexdigest()
         cls.system_path = cls.sandbox / "system-bin"
         cls.system_path.mkdir()
-        hidden = {"herdr", "fzf", "zoxide", "atuin", "fd", "fdfind", "rg", "zsh"}
+        hidden = {"herdr", "fzf", "zoxide", "atuin", "fd", "fdfind", "rg", "zsh", "cygpath"}
         for directory in (pathlib.Path("/usr/bin"), pathlib.Path("/bin")):
             for binary in directory.iterdir():
                 target = cls.system_path / binary.name
@@ -91,6 +92,12 @@ class PackageProfile(unittest.TestCase):
         shell = cls.system_path / "zsh"
         shell.write_text('#!/bin/sh\nexec "$GX_TEST_SELECTED_ZSH" "$@"\n')
         shell.chmod(0o755)
+        # zshrc 只在 man 真实存在时加载 colored-man-pages；MSYS/Cygwin 上不加载 sudo。
+        ostype = subprocess.run([cls.zsh, "-fc", "print -r -- $OSTYPE"], capture_output=True, text=True,
+                                timeout=15).stdout.strip()
+        cls.plugins = [name for name in PLUGINS
+                       if (name != "colored-man-pages" or (cls.system_path / "man").is_file())
+                       and (name != "sudo" or not ostype.startswith(("cygwin", "msys")))]
 
     @classmethod
     def cleanup_sandbox(cls):
@@ -196,20 +203,35 @@ class PackageProfile(unittest.TestCase):
 
     def msys_zoxide_env(self):
         self.shim("zoxide", "exit 0")
-        self.shim("uname", "printf 'MSYS_NT-10.0-26100\\n'")
+        self.shim("uname", 'printf "called\\n" >> "$GX_PROFILE_DIR/uname-called"; printf "MSYS_NT-10.0-26100\\n"')
         return dict(self.env, GX_PACKAGE_BIN=str(self.bin), MODULE=str(self.resources / "gx/config/package.zsh"))
 
     def test_msys_zoxide_default_uses_native_profile_directory(self):
         env = self.msys_zoxide_env()
         self.shim("cygpath", 'printf "%s\\n" "$@" > "$GX_PROFILE_DIR/cygpath-args"\n'
                             'printf "%s\\n" \'C:\\profile 中文\\.local\\share\\zoxide\'')
-        out = self.run_zsh('OSTYPE=cygwin; source "$MODULE" || exit; print -r -- "$_ZO_DATA_DIR"',
-                           env=env, interactive=False)
-        self.assertEqual(out, "C:\\profile 中文\\.local\\share\\zoxide\n")
-        data = self.profile / ".local/share/zoxide"
-        self.assertTrue(data.is_dir())
-        self.assertEqual((self.profile / "cygpath-args").read_text().splitlines(), ["-w", "--", str(data)])
+        for ostype in ("cygwin", "msys"):
+            with self.subTest(ostype=ostype):
+                shutil.rmtree(self.profile / ".local", ignore_errors=True)
+                out = self.run_zsh(f'OSTYPE={ostype}; source "$MODULE" || exit; print -r -- "$_ZO_DATA_DIR"',
+                                   env=env, interactive=False)
+                self.assertEqual(out, "C:\\profile 中文\\.local\\share\\zoxide\n")
+                data = self.profile / ".local/share/zoxide"
+                self.assertTrue(data.is_dir())
+                self.assertEqual((self.profile / "cygpath-args").read_text().splitlines(), ["-w", "--", str(data)])
+        self.assertFalse((self.profile / "uname-called").exists(), "平台判定只看 $OSTYPE，不再 fork uname")
         self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_launcher_zoxide_data_dir_skips_cygpath_and_uname(self):
+        env = self.msys_zoxide_env()
+        self.shim("cygpath", 'printf "called\\n" >> "$GX_PROFILE_DIR/cygpath-called"; exit 7')
+        native = "C:\\Users\\用户\\AppData\\Local\\ohmyzsh-gx\\profile\\.local\\share\\zoxide"
+        env["_ZO_DATA_DIR"] = native
+        out = self.run_zsh('OSTYPE=msys; source "$MODULE" || exit; print -r -- "$_ZO_DATA_DIR"', env=env, interactive=False)
+        self.assertEqual(out, native + "\n")
+        self.assertFalse((self.profile / "cygpath-called").exists())
+        self.assertFalse((self.profile / "uname-called").exists())
+        self.assertFalse((self.profile / ".local").exists(), "启动器负责创建数据目录")
 
     def test_msys_zoxide_explicit_directory_is_preserved(self):
         env = self.msys_zoxide_env()
@@ -236,19 +258,112 @@ class PackageProfile(unittest.TestCase):
         self.assertIn("stay inside GX_PROFILE_DIR", result.stderr)
         self.assertEqual(list(self.home.iterdir()), [])
 
-    def test_non_msys_zoxide_keeps_standard_data_directory_semantics(self):
+    def test_linux_zoxide_keeps_standard_data_directory_semantics(self):
         self.shim("zoxide", "exit 0")
-        for ostype, kernel in (("linux-gnu", "Linux"), ("cygwin", "CYGWIN_NT-10.0")):
-            self.shim("uname", f"printf '{kernel}\\n'")
-            for value in (None, "", "/explicit/用户 database"):
-                with self.subTest(ostype=ostype, value=value):
-                    env = dict(self.env, MODULE=str(self.resources / "gx/config/package.zsh"), GX_TEST_OSTYPE=ostype)
-                    if value is not None:
-                        env["_ZO_DATA_DIR"] = value
-                    out = self.run_zsh('OSTYPE=$GX_TEST_OSTYPE; source "$MODULE" || exit; '
-                                       'print -r -- "${_ZO_DATA_DIR-unset}"', env=env, interactive=False)
-                    self.assertEqual(out, ("unset" if value is None else value) + "\n")
-                    self.assertFalse((self.profile / ".local").exists())
+        for value in (None, "", "/explicit/用户 database"):
+            with self.subTest(value=value):
+                env = dict(self.env, MODULE=str(self.resources / "gx/config/package.zsh"), GX_TEST_OSTYPE="linux-gnu")
+                if value is not None:
+                    env["_ZO_DATA_DIR"] = value
+                out = self.run_zsh('OSTYPE=$GX_TEST_OSTYPE; source "$MODULE" || exit; '
+                                   'print -r -- "${_ZO_DATA_DIR-unset}"', env=env, interactive=False)
+                self.assertEqual(out, ("unset" if value is None else value) + "\n")
+                self.assertFalse((self.profile / ".local").exists())
+
+    def test_drive_letter_custom_paths_convert_with_one_cygpath_call(self):
+        # herdr 窗格与嵌套 gx-zsh 继承到的是 MSYS 转成 C:/… 的值；两个变量合并成一次 cygpath -u。
+        self.shim("cygpath", 'printf "call\\n" >> "$GX_PROFILE_DIR/cygpath-calls"\n'
+                             'printf "%s\\n" "$@" > "$GX_PROFILE_DIR/cygpath-args"\n'
+                             'cat "$GX_PROFILE_DIR/cygpath-out"')
+        custom = self.resources / "gx/omz-custom"
+        (self.profile / "cygpath-out").write_text(f"{custom}\n{custom / 'themes/powerlevel10k'}\n", encoding="utf-8")
+        env = dict(self.env, MODULE=str(self.resources / "gx/config/package.zsh"), GX_PACKAGE_BIN=str(self.bin),
+                   ZSH_CUSTOM="C:\\盘符 资源\\gx\\omz-custom", POWERLEVEL9K_INSTALLATION_DIR="C:/盘符 资源/p10k")
+        out = self.run_zsh('OSTYPE=msys; source "$MODULE" || exit; '
+                           'print -rl -- "$ZSH_CUSTOM" "$POWERLEVEL9K_INSTALLATION_DIR" "${parameters[ZSH_CUSTOM]}"',
+                           env=env, interactive=False)
+        self.assertEqual(out.splitlines(), [str(custom), str(self.runtime), "scalar-export"])
+        self.assertEqual((self.profile / "cygpath-calls").read_text(), "call\n")
+        self.assertEqual((self.profile / "cygpath-args").read_text(encoding="utf-8").splitlines(),
+                         ["-u", "--", "C:\\盘符 资源\\gx\\omz-custom", "C:/盘符 资源/p10k"])
+
+    def test_non_absolute_custom_paths_are_ignored_with_one_warning(self):
+        # 盘符值只在 cygpath 转换成功时采用；这里的 cygpath 总是失败。
+        self.shim("cygpath", "exit 1")
+        cases = (("msys", "ZSH_CUSTOM", "C:/转换失败/custom"), ("linux-gnu", "ZSH_CUSTOM", "relative/custom"),
+                 ("msys", "POWERLEVEL9K_INSTALLATION_DIR", "relative p10k"),
+                 ("linux-gnu", "POWERLEVEL9K_INSTALLATION_DIR", "C:\\p10k"))
+        for ostype, name, value in cases:
+            with self.subTest(ostype=ostype, name=name):
+                env = dict(self.env, MODULE=str(self.resources / "gx/config/package.zsh"), GX_TEST_OSTYPE=ostype,
+                           GX_PACKAGE_BIN=str(self.bin))
+                env[name] = value
+                result = subprocess.run(
+                    [self.zsh, "-f", "-c", 'OSTYPE=$GX_TEST_OSTYPE; source "$MODULE" || exit; '
+                     'print -rl -- "$ZSH_CUSTOM" "${POWERLEVEL9K_INSTALLATION_DIR-unset}"'],
+                    env=env, cwd=self.home, capture_output=True, text=True, start_new_session=True, timeout=15)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stderr, f"gx package: ignoring non-absolute {name}\n")
+                self.assertEqual(result.stdout.splitlines(), [str(self.resources / "gx/omz-custom"), str(self.runtime)])
+
+    def test_theme_anywhere_under_resources_requires_runtime(self):
+        copy = self.root / "资源副本"
+        shutil.copytree(self.resources, copy)
+        extra = copy / "gx/extra custom"
+        shutil.copytree(self.resources / "gx/omz-custom/themes/powerlevel10k", extra / "themes/powerlevel10k")
+        env = dict(self.env, GX_PACKAGE_ROOT=str(copy), ZSH_CUSTOM=str(extra), MODULE=str(copy / "gx/config/package.zsh"))
+        out = self.run_zsh('source "$MODULE" || exit; print -rl -- "$ZSH_CUSTOM" "$POWERLEVEL9K_INSTALLATION_DIR"',
+                           env=env, interactive=False)
+        self.assertEqual(out.splitlines(), [str(extra), str(self.runtime)])
+        env.pop("GX_P10K_RUNTIME_DIR")
+        result = subprocess.run([self.zsh, "-f", "-c", 'source "$MODULE"'], env=env, cwd=self.home,
+                                capture_output=True, text=True, start_new_session=True, timeout=15)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("GX_P10K_RUNTIME_DIR", result.stderr)
+        self.assertFalse(list(copy.rglob("*.zwc")))
+
+    def test_windows_resource_paths_compare_case_insensitively(self):
+        folded = str(self.resources / "gx/omz-custom/themes/powerlevel10k").upper()
+        env = dict(self.env, MODULE=str(self.resources / "gx/config/package.zsh"), POWERLEVEL9K_INSTALLATION_DIR=folded)
+        for ostype, expected in (("msys", str(self.runtime)), ("cygwin", str(self.runtime)), ("linux-gnu", folded)):
+            with self.subTest(ostype=ostype):
+                out = self.run_zsh(f'OSTYPE={ostype}; source "$MODULE" || exit; print -r -- "$POWERLEVEL9K_INSTALLATION_DIR"',
+                                   env=env, interactive=False)
+                self.assertEqual(out, expected + "\n")
+
+    def test_polluted_fpath_is_cleaned_and_keeps_compdump(self):
+        one, two = self.root / "fn one", self.root / "fn two"
+        one.mkdir()
+        two.mkdir()
+        env = dict(self.env, MODULE=str(self.resources / "gx/config/package.zsh"),
+                   FPATH=f"{one}:C:\\Users\\x;C:\\y:relative:{one}:C:/gx-missing/z:/gx-missing:{two}")
+        out = self.run_zsh('source "$MODULE" || exit; print -rl -- $fpath', env=env, interactive=False)
+        self.assertEqual(out.splitlines(), [str(one), str(two)])
+        default = self.run_zsh('print -r -- "$FPATH"', interactive=False).strip()
+        self.run_zsh("true")
+        dump = next(self.profile.glob(".zcompdump-*[0-9]"))
+        before = (dump.read_bytes(), dump.stat().st_mtime_ns)
+        polluted = f"{default}:C:\\Users\\x;C:\\y:relative:{default.split(':')[0]}"
+        self.run_zsh("true", env=dict(self.env, FPATH=polluted))
+        self.assertEqual((dump.read_bytes(), dump.stat().st_mtime_ns), before, "被污染的 FPATH 不应让 compdump 重建")
+
+    def test_shell_points_at_the_running_zsh_only_on_windows(self):
+        # MSYS/Cygwin 没有登录 shell 设定 SHELL，指向正在运行的 zsh；Linux 保持登录环境给的值。
+        env = dict(self.env, MODULE=str(self.resources / "gx/config/package.zsh"), SHELL="/bin/false-login-shell")
+        for ostype in ("msys", "cygwin", "linux-gnu"):
+            with self.subTest(ostype=ostype):
+                out = self.run_zsh(f'OSTYPE={ostype}; source "$MODULE" || exit; '
+                                   'print -rl -- "$SHELL" "${parameters[SHELL]}" "$ZSH_VERSION"',
+                                   env=env, interactive=False)
+                shell, kind, version = out.splitlines()
+                self.assertEqual(kind, "scalar-export")
+                if ostype == "linux-gnu":
+                    self.assertEqual(shell, "/bin/false-login-shell")
+                    continue
+                self.assertTrue(os.path.isabs(shell) and os.access(shell, os.X_OK), shell)
+                probe = subprocess.run([shell, "-fc", 'print -r -- "$ZSH_VERSION"'], capture_output=True, text=True,
+                                       timeout=15)
+                self.assertEqual(probe.stdout.strip(), version)
 
     def test_host_xdg_locations_and_home_are_preserved(self):
         locations = {
@@ -291,7 +406,7 @@ class PackageProfile(unittest.TestCase):
         out = self.run_zsh('source "$MODULE" || exit; print -r -- "${ZDOTDIR-unset}"', env=env, interactive=False)
         self.assertEqual(out, "unset\n")
 
-    def test_package_bin_is_available_before_mkdir(self):
+    def test_package_bin_is_available_and_profile_cache_needs_no_external_mkdir(self):
         package_bin = self.root / "工具 bin ' $(touch injected) [x]"
         package_bin.mkdir()
         mkdir = package_bin / "mkdir"
@@ -305,7 +420,7 @@ class PackageProfile(unittest.TestCase):
         out = self.run_zsh('path=(/no/inherited/tools); source "$MODULE" || exit; print -r -- "$path[1]"; '
                            'command gx-package-agent ready', env=env, interactive=False)
         self.assertEqual(out, f"{package_bin}\nagent:ready\n")
-        self.assertEqual((self.profile / "package-mkdir.log").read_text(), "called\n")
+        self.assertFalse((self.profile / "package-mkdir.log").exists(), "profile 缓存目录应由内建 zf_mkdir 创建")
         self.assertTrue((self.profile / ".cache/oh-my-zsh/completions").is_dir())
         self.assertEqual(list(self.home.iterdir()), [])
 
@@ -586,7 +701,7 @@ class PackageProfile(unittest.TestCase):
         self.assertTrue(values[4].startswith(str(self.profile / ".zcompdump-")))
         self.assertEqual(values[5:11], [str(self.profile / ".zsh_history"), str(self.profile / ".cache"),
                                        str(self.root / "launcher-gitstatus"), "0", "1:0", "nerdfont-v3"])
-        self.assertEqual(values[11], ",".join(PLUGINS))
+        self.assertEqual(values[11], ",".join(self.plugins))
         self.assertTrue(pathlib.Path(values[4]).is_file())
         self.assertTrue((self.profile / ".cache/oh-my-zsh/completions").is_dir())
         self.assertIn("GX_PACKAGE_HISTORY", (self.profile / ".zsh_history").read_text())
@@ -629,6 +744,162 @@ class PackageProfile(unittest.TestCase):
         self.assertEqual(out, "herdr|1|_herdr\n")
         self.assertIn("#compdef herdr", (self.profile / ".cache/oh-my-zsh/completions/_herdr").read_text())
         self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_herdr_override_keeps_upstream_plugin_outside_completion(self):
+        upstream = (REPO / "plugins/herdr/herdr.plugin.zsh").read_text(encoding="utf-8").replace("\r\n", "\n")
+        override = (REPO / "gx/omz-custom/plugins/herdr/herdr.plugin.zsh").read_text(encoding="utf-8").replace("\r\n", "\n")
+        marker = "\n# COMPLETION\n"
+        upstream_head, upstream_completion = upstream.split(marker, 1)
+        head, completion = override.split(marker, 1)
+        self.assertEqual(head, upstream_head, "上游 herdr 插件更新后同步 gx/omz-custom/plugins/herdr，补全段之外须逐字一致")
+        self.assertTrue(completion.endswith(upstream_completion), "上游补全逻辑须原样保留在 GX 守卫之后")
+        self.assertIn('[[ -f "${0:A:h}/_herdr" ]] && return\n', completion[:len(completion) - len(upstream_completion)])
+
+    def test_packaged_herdr_completion_skips_background_generation(self):
+        self.shim("herdr", 'printf "called\\n" >> "$GX_PROFILE_DIR/herdr-called"\n'
+                           'if [ "$1 $2" = "completion zsh" ]; then printf "#compdef herdr\\n_herdr() { :; }\\n"; fi')
+        custom = self.root / "packaged custom"
+        (custom / "plugins").mkdir(parents=True)
+        shutil.copytree(self.resources / "gx/omz-custom/plugins/herdr", custom / "plugins/herdr")
+        (custom / "plugins/herdr/_herdr").write_text("#compdef herdr\n_herdr() { :; }\n", encoding="utf-8")
+        (custom / "themes").symlink_to(self.resources / "gx/omz-custom/themes", target_is_directory=True)
+        out = self.run_zsh('sleep 0.5; print -r -- "${aliases[hrdr]}|${+functions[hrdrs]}|${_comps[herdr]}"',
+                           env=dict(self.env, ZSH_CUSTOM=str(custom)))
+        self.assertEqual(out, "herdr|1|_herdr\n")
+        self.assertFalse((self.profile / "herdr-called").exists(), "打包自带 _herdr 时不应再后台生成补全")
+        self.assertFalse((self.profile / ".cache/oh-my-zsh/completions/_herdr").exists())
+
+    def marked(self, text):
+        for line in text.splitlines():
+            if "GXR:" in line:
+                return line.split("GXR:", 1)[1]
+        self.fail(f"输出里没有 GXR: 标记：{text!r}")
+
+    def test_fzf_and_zoxide_init_are_cached_until_inputs_change(self):
+        calls = self.root / "init-calls"
+        self.env.update(GX_TEST_INIT_CALLS=str(calls), GX_PACKAGE_BIN=str(self.bin))
+        fzf = '''printf 'fzf %s\\n' "$1" >> "$GX_TEST_INIT_CALLS"
+case "$1" in
+  --version) printf '0.74.4 (cached)\\n' ;;
+  --zsh) printf 'typeset -g GX_TEST_FZF=cached\\n' ;;
+  *) exit 2 ;;
+esac'''
+        self.shim("fzf", fzf)
+        self.shim("zoxide", '''printf 'zoxide %s:%s\\n' "$1" "${_ZO_ECHO-}" >> "$GX_TEST_INIT_CALLS"
+[ "$1 $2" = "init zsh" ] && printf 'typeset -g GX_TEST_ZOXIDE=%s\\n' "${_ZO_ECHO:-plain}"''')
+        script = 'print -r -- "GXR:$GX_TEST_FZF|$GX_TEST_ZOXIDE|${FZF_DEFAULT_OPTS:+opts}"'
+        for _ in range(2):
+            self.assertEqual(self.marked(self.run_tty_command(script)), "cached|plain|opts")
+        self.assertEqual(calls.read_text().splitlines(), ["fzf --version", "fzf --zsh", "zoxide init:"])
+        cache = self.profile / ".cache/oh-my-zsh"
+
+        def cached(name):
+            files = sorted(path.name for path in cache.glob(f"gx-init-{name}-????????.zsh"))
+            for file in files:
+                self.assertTrue((cache / (file + ".zwc")).is_file(), file)
+            return files
+
+        self.assertEqual([len(cached(name)) for name in ("fzf-version", "fzf-zsh", "zoxide")], [1, 1, 1])
+        self.assertEqual(self.marked(self.run_tty_command(script, env=dict(self.env, _ZO_ECHO="1"))), "cached|1|opts")
+        self.assertEqual(len(cached("zoxide")), 2, "键不同各写各的缓存文件")
+        self.shim("fzf", fzf + "\n# rebuilt")
+        self.assertEqual(self.marked(self.run_tty_command(script)), "cached|plain|opts")
+        # 换回原来的 _ZO_ECHO 直接命中第一份 zoxide 缓存；fzf 换了二进制才重新生成。
+        self.assertEqual(calls.read_text().splitlines(),
+                         ["fzf --version", "fzf --zsh", "zoxide init:", "zoxide init:1", "fzf --version", "fzf --zsh"])
+        self.assertEqual([len(cached(name)) for name in ("fzf-version", "fzf-zsh", "zoxide")], [2, 2, 2])
+        self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_init_cache_helper_keys_files_by_hash_and_fails_safely(self):
+        # 直接测 zshrc 里的 _gx_init_cache：命中、换键、过期清理，以及生成失败、缓存写不进去、二进制缺失三条失败路径。
+        text = (self.resources / "gx/config/zshrc").read_text(encoding="utf-8")
+        start = text.index("_gx_init_cache() {\n")
+        helper = text[start:text.index("\n}\n", start) + 3]
+        cache = self.root / "缓存 cache"
+        cache.mkdir()
+        calls = self.root / "generator-calls"
+        tool = self.shim("gx-init-tool", "exit 0")
+        good = 'print -r -- run >> $GX_TEST_CALLS; print -r -- "typeset -g GX_TEST_VALUE=ok"'
+        script = ('eval "$GX_TEST_HELPER"; ZSH_CACHE_DIR=$GX_TEST_CACHE_DIR; _gx_package_id=pkg\n'
+                  'if _gx_init_cache tool "$GX_TEST_BINARY" "$GX_TEST_GENERATOR" ${(f)GX_TEST_KEYS}; then\n'
+                  '  print -r -- rc=0; print -r -- "$REPLY"; eval "$REPLY"; print -r -- "value=${GX_TEST_VALUE-unset}"\n'
+                  'else\n'
+                  '  print -r -- "rc=$?"\n'
+                  'fi')
+
+        def run(*keys, generator=good, cache_dir=cache, binary=tool):
+            env = dict(self.env, GX_TEST_HELPER=helper, GX_TEST_GENERATOR=generator, GX_TEST_KEYS="\n".join(keys),
+                       GX_TEST_CACHE_DIR=str(cache_dir), GX_TEST_BINARY=str(binary), GX_TEST_CALLS=str(calls))
+            return self.run_zsh(script, env=env, interactive=False).splitlines()
+
+        def scripts():
+            return sorted(path.name for path in cache.glob("gx-init-tool-*.zsh"))
+
+        def entries():
+            return sorted(path.name for path in cache.iterdir())
+
+        def runs():
+            return len(calls.read_text().splitlines()) if calls.exists() else 0
+
+        first = run("a")
+        self.assertEqual((first[0], first[2]), ("rc=0", "value=ok"), first)
+        self.assertTrue(first[1].startswith("builtin source "), first)
+        (name_a,) = scripts()
+        self.assertRegex(name_a, r"^gx-init-tool-[0-9A-F]{8}\.zsh$")
+        self.assertTrue((cache / (name_a + ".zwc")).is_file())
+        stamp = (cache / name_a).read_text(encoding="utf-8").splitlines()[0]
+        self.assertTrue(stamp.startswith("#gx-init v2 ") and stamp.endswith(" pkg"), stamp)
+        self.assertEqual(run("a"), first, "键相同直接命中缓存")
+        self.assertEqual(runs(), 1)
+        run("b")
+        self.assertEqual(runs(), 2)
+        self.assertEqual(len(scripts()), 2, "键不同各写各的文件，脚本与 .zwc 不会来自不同的键")
+        (name_b,) = set(scripts()) - {name_a}
+        self.assertTrue((cache / (name_b + ".zwc")).is_file())
+        # 超过一天的旧键缓存在下次生成时清理；名称只是以 tool 开头的其他缓存不受影响。
+        other = cache / "gx-init-tool-extra-0123ABCD.zsh"
+        other.write_text("#gx-init other\n", encoding="utf-8")
+        old = time.time() - 26 * 3600
+        for path in (cache / name_a, cache / (name_a + ".zwc"), other):
+            os.utime(path, (old, old))
+        run("c")
+        self.assertEqual(runs(), 3)
+        self.assertNotIn(name_a, scripts())
+        self.assertFalse((cache / (name_a + ".zwc")).exists())
+        self.assertIn(name_b, scripts())
+        self.assertIn(other.name, scripts())
+        self.assertEqual(len(scripts()), 3)
+        before = entries()
+        for generator in ('print -r -- run >> $GX_TEST_CALLS; print -r -- partial; exit 3',
+                          'print -r -- run >> $GX_TEST_CALLS; print -rn -- ""'):
+            with self.subTest(generator=generator):
+                self.assertEqual(run("d", generator=generator), ["rc=1"])
+                self.assertEqual(entries(), before, "生成失败或没有输出时不写缓存")
+        self.assertEqual(runs(), 5)
+        expected = ["rc=0", "typeset -g GX_TEST_VALUE=ok", "value=ok"]
+        missing = self.root / "missing" / "cache"
+        self.assertEqual(run("a", cache_dir=missing), expected, "缓存写不进去时 REPLY 就是脚本本身")
+        self.assertFalse(missing.parent.exists())
+        self.assertEqual(run("a", binary=self.root / "no-such-tool"), expected, "取不到二进制信息时不走缓存")
+        self.assertEqual(entries(), before)
+        self.assertEqual(runs(), 7)
+
+    def test_msys_chain_presets_p9k_ssh_colors_and_windows_layer(self):
+        # 在 Linux 上把整个配置链当成 MSYS：p10k 不再调用 who，sudo 插件不加载，dircolors 结果进 profile 缓存。
+        # MSYS 分支会把宿主 /usr/bin 放进 PATH：fzf/zoxide 用 shim 固定，_ZO_DATA_DIR 按启动器的形态预置。
+        self.shim("who", 'printf "called\\n" >> "$GX_PROFILE_DIR/who-called"; printf "gx pts/0 (10.0.0.1)\\n"')
+        self.shim("fzf", "exit 2")
+        self.shim("zoxide", "exit 0")
+        (self.profile / ".zshenv").write_text("skip_global_compinit=1\nOSTYPE=msys\n", encoding="utf-8")
+        env = dict(self.env, GX_PACKAGE_BIN=str(self.bin), _ZO_DATA_DIR="C:\\profile\\.local\\share\\zoxide")
+        script = ('print -r -- "GXR:$P9K_SSH:${_P9K_SSH_TTY:+tty}|${(j:,:)plugins}|${+functions[gx-pwsh]}|'
+                  '${LS_COLORS:+colors}|${+functions[p10k]}"')
+        plugins = ",".join(name for name in self.plugins if name != "sudo")
+        self.assertEqual(self.marked(self.run_tty_command(script, env=env)), f"0:tty|{plugins}|1|colors|1")
+        self.assertFalse((self.profile / "who-called").exists(), "MSYS 包模式不应再为 SSH 判定调用 who")
+        self.assertEqual(len(list((self.profile / ".cache/oh-my-zsh").glob("gx-init-dircolors-????????.zsh"))), 1)
+        ssh = dict(env, SSH_CONNECTION="10.0.0.1 50000 10.0.0.2 22")
+        self.assertEqual(self.marked(self.run_tty_command(script, env=ssh)), f"1:tty|{plugins}|1|colors|1")
 
     def embedded_fzf_shim(self):
         calls = self.root / "fzf-zsh.calls"

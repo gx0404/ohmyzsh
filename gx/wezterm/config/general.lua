@@ -1,6 +1,24 @@
+local platform = require('utils.platform')
+
+-- 空闲 shell 窗格关闭时不弹确认；窗格里的每个进程都在名单内才算空闲。Windows 进程名带
+-- .exe，上游默认名单（zsh、bash……）匹配不到，这里补上；MSYS2 的 env.exe 会作为 bash
+-- 的父进程留在窗格里；GX Zsh 的 Powerlevel10k 在 zsh 下常驻 gitstatusd（安装包
+-- lib/gitstatus 里的文件没有扩展名）。herdr 等其他进程仍需确认。
+local skip_close_confirmation = nil
+if platform.is_win then
+   skip_close_confirmation = {
+      'bash', 'sh', 'zsh', 'fish', 'tmux', 'nu', 'nu.exe', 'cmd.exe', 'pwsh.exe', 'powershell.exe',
+      'zsh.exe', 'bash.exe', 'sh.exe', 'fish.exe', 'gx-zsh.exe', 'env.exe',
+      'gitstatusd-msys_nt-10.0-x86_64', 'gitstatusd-msys_nt-10.0-x86_64.exe',
+   }
+end
+
 return {
    -- behaviours
    automatically_reload_config = true,
+   -- GX 版本随自己的安装包升级；上游更新检查只会提示上游 WezTerm 版本。
+   check_for_updates = false,
+   skip_close_confirmation_for_processes_named = skip_close_confirmation,
    -- 界面文案语言（命令面板/菜单/浮层/CLI 帮助）；WEZTERM_LANG 环境变量优先级更高
    language = 'zh-CN',
    exit_behavior = 'CloseOnCleanExit', -- if the shell program exited with a successful status

@@ -475,6 +475,40 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(release.ReleaseError, "isolated"):
                 builder.ci_boundary([self.root.parent / "outside"], platform)
 
+    def test_builder_accepts_the_gx_shell_monorepo_runner(self):
+        platform = "windows-x64" if os.name == "nt" else "ubuntu-amd64"
+        env = {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted",
+               "GITHUB_REPOSITORY": release.MONOREPO_REPOSITORY, "RUNNER_TEMP": str(self.root)}
+        with patch.dict(os.environ, env, clear=True):
+            self.assertEqual(builder.ci_boundary([self.root / "work"], platform), "github-actions")
+        with patch.dict(os.environ, {**env, "GITHUB_REPOSITORY": "attacker/gx_shell"}, clear=True):
+            with self.assertRaisesRegex(release.ReleaseError, "disposable"):
+                builder.ci_boundary([self.root / "work"], platform)
+
+    def test_builder_local_root_replaces_runner_temp_but_keeps_the_other_checks(self):
+        platform = "windows-x64" if os.name == "nt" else "ubuntu-amd64"
+        other = "ubuntu-amd64" if os.name == "nt" else "windows-x64"
+        local = {"GX_LOCAL_BUILD_ROOT": str(self.root)}
+        with patch.dict(os.environ, local, clear=True):
+            self.assertEqual(builder.ci_boundary([self.root / "work", self.root / "cache"], platform), "local")
+            with self.assertRaisesRegex(release.ReleaseError, "isolated under GX_LOCAL_BUILD_ROOT"):
+                builder.ci_boundary([self.root.parent / "outside"], platform)
+            with self.assertRaisesRegex(release.ReleaseError, "isolated"):
+                builder.ci_boundary([self.root], platform)
+            with self.assertRaisesRegex(release.ReleaseError, "platform differ"):
+                builder.ci_boundary([self.root / "work"], other)
+        with patch.dict(os.environ, {**local, "GH_TOKEN": "unit-test-not-a-real-token"}, clear=True):
+            with self.assertRaisesRegex(release.ReleaseError, "tokens"):
+                builder.ci_boundary([self.root / "work"], platform)
+        with patch.dict(os.environ, {"GX_LOCAL_BUILD_ROOT": str(self.root / "missing")}, clear=True):
+            with self.assertRaisesRegex(release.ReleaseError, "existing directory"):
+                builder.ci_boundary([self.root / "missing/work"], platform)
+        ci = {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted",
+              "GITHUB_REPOSITORY": release.MONOREPO_REPOSITORY, "RUNNER_TEMP": str(self.root)}
+        with patch.dict(os.environ, {**ci, **local}, clear=True):
+            with self.assertRaisesRegex(release.ReleaseError, "unset it on CI"):
+                builder.ci_boundary([self.root / "work"], platform)
+
     def test_builder_missing_dependency_license_fails(self):
         vendor = self.root / "vendor"
         (vendor / "crate-1").mkdir(parents=True)
@@ -494,7 +528,8 @@ class ReleaseTests(unittest.TestCase):
         self.assertTrue(all(method == "GET" for method, _, _ in server.calls))
 
     def build_fixture(self, *, wrong_rust=False, changed_source=False, missing_cargo_license=False,
-                      missing_zig_license=False, changed_zig_cache=False, unknown_zig_hash=False):
+                      missing_zig_license=False, changed_zig_cache=False, unknown_zig_hash=False, local=False,
+                      member_license=None):
         import struct
         import zipfile
 
@@ -516,6 +551,9 @@ class ReleaseTests(unittest.TestCase):
             stream.writestr("herdr-source/vendor/portable-pty/Cargo.toml", '[package]\nname="portable-pty"\nversion="1.0.0"\n')
             stream.writestr("herdr-source/vendor/libghostty-vt/LICENSE", "fixture ghostty license")
             stream.writestr("herdr-source/vendor/libghostty-vt/build.zig.zon", '.{\n .hash = "fixture-zig-hash",\n}\n')
+            if member_license:
+                stream.writestr("herdr-source/crates/ghostty-vt/Cargo.toml", '[package]\nname="ghostty-vt"\nversion="0.0.0"\n')
+                stream.writestr("herdr-source/crates/ghostty-vt/src/lib.rs", "pub fn fixture() {}\n")
         pinned["source"] = {**asset(source), "url": "https://fixture.invalid/herdr.zip"}
         zig_archive = cache / "zig.zip"
         with zipfile.ZipFile(zig_archive, "w") as stream:
@@ -543,7 +581,10 @@ class ReleaseTests(unittest.TestCase):
         def run(argv, cwd, env, *, capture=False):
             calls.append(argv)
             self.assertEqual(env["RUSTFLAGS"], "-C target-feature=+crt-static")
-            self.assertEqual(env["RUSTUP_TOOLCHAIN"], "1.96.1")
+            self.assertEqual(env["RUSTUP_TOOLCHAIN"], "1.96.1-x86_64-pc-windows-msvc" if platform == "windows-x64" else "1.96.1")
+            self.assertEqual(env["RUSTUP_AUTO_INSTALL"], "0")
+            self.assertEqual(env["HERDR_PACKAGE_MANAGER"], "windows-installer" if platform == "windows-x64" else "deb")
+            self.assertEqual(env["HERDR_BUILD_COMMIT"], pinned["revision"])
             if argv == ["rustc", "--version"]:
                 return "rustc " + ("9.9.9" if wrong_rust else "1.96.1") + " (fixture)"
             if argv == ["cargo", "--version"]:
@@ -560,11 +601,15 @@ class ReleaseTests(unittest.TestCase):
                 return '[source.crates-io]\nreplace-with="vendored-sources"\n[source.vendored-sources]\ndirectory="fixture"'
             if "metadata" in argv:
                 self.assertIn("--offline", argv)
-                return json.dumps({"packages": [
-                    {"name": "herdr", "version": "0.9.1", "source": None, "manifest_path": str(cwd / "Cargo.toml")},
+                packages = [
+                    {"id": "herdr-fixture", "name": "herdr", "version": "0.9.1", "license": "Apache-2.0", "source": None, "manifest_path": str(cwd / "Cargo.toml")},
                     {"name": "portable-pty", "version": "1.0.0", "source": None, "manifest_path": str(cwd / "vendor/portable-pty/Cargo.toml")},
                     {"name": "fixture-crate", "version": "1.0.0", "source": "registry+fixture", "manifest_path": str(cwd.parent / "cargo-vendor/fixture-crate/Cargo.toml")},
-                ]})
+                ]
+                if member_license:
+                    packages.append({"id": "ghostty-vt-fixture", "name": "ghostty-vt", "version": "0.0.0", "license": member_license,
+                                     "source": None, "manifest_path": str(cwd / "crates/ghostty-vt/Cargo.toml")})
+                return json.dumps({"packages": packages, "workspace_members": [p["id"] for p in packages if "id" in p]})
             if "build" in argv:
                 for flag in ("--release", "--locked", "--offline"):
                     self.assertIn(flag, argv)
@@ -600,6 +645,8 @@ class ReleaseTests(unittest.TestCase):
 
         env = {key: value for key, value in CI.items() if key != "GITHUB_TOKEN"}
         env.update(RUNNER_ENVIRONMENT="github-hosted", RUNNER_TEMP=str(self.root))
+        if local:
+            env = {"GX_LOCAL_BUILD_ROOT": str(self.root)}
         with patch.dict(os.environ, env, clear=True), patch.object(release, "load_lock", return_value=lock), \
                 patch.object(builder.deps, "load_lock", return_value=lock), \
                 patch.object(builder.deps, "fetch_artifact", side_effect=builder.deps.verify_artifact), \
@@ -612,7 +659,9 @@ class ReleaseTests(unittest.TestCase):
     def test_builder_mocked_command_boundaries_produce_verified_receipt(self):
         result = self.build_fixture()
         self.assertTrue(result["cargo_vendor_complete"])
+        self.assertEqual(result["builder"], "github-actions")
         self.assertEqual(result["revision"], release.HERDR_REVISION)
+        self.assertEqual(result["package_manager"], "windows-installer" if os.name == "nt" else "deb")
         self.assertTrue(result["source_artifacts"])
         self.assertTrue(result["license_artifacts"])
         self.assertTrue((self.root / "herdr-output/herdr-build.json").is_file())
@@ -649,6 +698,43 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(release.ReleaseError, "no vendored license"):
             self.build_fixture(missing_cargo_license=True)
         self.assertFalse((self.root / "herdr-output/herdr-build.json").exists())
+
+    def test_builder_local_receipt_records_the_local_builder(self):
+        receipt = self.build_fixture(local=True)
+        self.assertEqual(receipt["builder"], "local")
+        self.assertEqual(release.read_json(self.root / "herdr-output/herdr-build.json")["builder"], "local")
+
+    def test_builder_workspace_member_inherits_the_matching_root_license(self):
+        receipt = self.build_fixture(member_license="Apache-2.0")
+        entry = next(item for item in receipt["license_inventory"] if item["package"] == "ghostty-vt")
+        self.assertEqual(entry["ecosystem"], "cargo-path")
+        self.assertEqual(entry["source_identity"]["license_inherited_from"], {"package": "herdr", "license": "Apache-2.0", "texts": ["LICENSE"]})
+        self.assertEqual([item["path"] for item in entry["licenses"]], ["redistribution/licenses/cargo-path/ghostty-vt/workspace-root/LICENSE"])
+        self.assertEqual((self.root / "herdr-output" / entry["licenses"][0]["path"]).read_text(encoding="utf-8"), "fixture herdr license")
+        release.verify_herdr_license_inventory(receipt)
+
+    def test_builder_workspace_member_with_another_license_is_still_rejected(self):
+        with self.assertRaisesRegex(release.ReleaseError, "ghostty-vt: no vendored license"):
+            self.build_fixture(member_license="MIT")
+        self.assertFalse((self.root / "herdr-output/herdr-build.json").exists())
+
+    def test_workspace_license_needs_membership_and_no_text_of_its_own(self):
+        source = self.root / "workspace"
+        (source / "crates/member").mkdir(parents=True)
+        (source / "LICENSE").write_text("fixture root license", encoding="utf-8")
+        (source / "crates/member/Cargo.toml").write_text("[package]\n", encoding="utf-8")
+        source = source.resolve()
+        root = source / "crates/member"
+        names = {item["path"] for item in builder.deps.tree_manifest(source)}
+        workspace = {"name": "herdr", "license": "Apache-2.0"}
+        member = {"id": "member-id", "name": "member", "license": "Apache-2.0"}
+        extra, identity = builder.workspace_license(source, root, member, workspace, {"member-id"}, names, {"Cargo.toml"})
+        self.assertEqual(extra, [(source / "LICENSE", "workspace-root/LICENSE")])
+        self.assertEqual(identity["license_inherited_from"]["texts"], ["LICENSE"])
+        self.assertEqual(builder.workspace_license(source, root, member, workspace, set(), names, {"Cargo.toml"}), ([], {}))
+        self.assertEqual(builder.workspace_license(source, root, {**member, "license_file": "COPYING"}, workspace, {"member-id"}, names, {"Cargo.toml"}), ([], {}))
+        (root / "LICENSE").write_text("member license", encoding="utf-8")
+        self.assertEqual(builder.workspace_license(source, root, member, workspace, {"member-id"}, names, {"Cargo.toml", "LICENSE"}), ([], {}))
 
     def test_builder_zig_license_missing_cannot_claim_complete(self):
         with self.assertRaisesRegex(release.ReleaseError, "no vendored license"):
@@ -1181,19 +1267,22 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(release.ReleaseError, "unexpected runtime proof"):
             release.verify_zsh_runtime(info, lock, runtime, sources)
 
-    def test_minimal_handshake_fix_revision_and_source_are_locked_consistently(self):
+    def test_monorepo_herdr_source_is_the_checked_out_subtree(self):
         lock = release.load_lock(release.ROOT)
-        revision = "4f441b0c23304c7a641d978c9e11aabf07f6d8c4"
-        expected = {"filename": "herdr-" + revision + ".zip",
-                    "url": "https://github.com/gx0404/herdr/archive/" + revision + ".zip",
-                    "sha256": "cd1d27ba1c543126adf897f56aed9382e9d33d9be4b5af6d826a124f31773dde"}
-        self.assertEqual(release.HERDR_REVISION, revision)
-        self.assertEqual(lock["herdr"]["revision"], revision)
-        self.assertEqual(lock["herdr"]["source"], expected)
+        head = release.git(release.ROOT, "rev-parse", "HEAD")
+        source = lock["herdr"]["source"]
+        self.assertEqual(lock["herdr"]["repository"], "https://github.com/" + release.MONOREPO_REPOSITORY)
+        self.assertEqual(lock["herdr"]["revision"], head)
+        self.assertEqual({k: source[k] for k in ("filename", "monorepo_path", "commit")},
+                         {"filename": "herdr-" + head + ".zip", "monorepo_path": "herdr", "commit": head})
+        self.assertTrue(release.is_hash(source["sha256"]))
+        self.assertNotIn("url", source)
+        cargo = release.git(release.ROOT, "show", head + ":herdr/Cargo.toml")
+        self.assertIn(f'version = "{lock["herdr"]["version"]}"', cargo)
         component = next(c for c in lock["components"] if c["id"] == "herdr")
-        self.assertEqual(component["sources"], [expected])
-        self.assertEqual(builder.load_supplements(release.ROOT)["data"]["herdr_revision"], revision)
-        self.assertEqual(lock["zsh_runtime"]["canonical_sha256"], "2a76ee1ccdd4816ab0bcfeabb052403696dbf0aa18de2d4214a66024cc85397c")
+        self.assertEqual(component["sources"], [source])
+        self.assertTrue(release.is_hash(builder.load_supplements(release.ROOT)["data"]["herdr_revision"], 40))
+        self.assertEqual(lock["zsh_runtime"]["canonical_sha256"], "905e0c99a029d587429e3e99477d48770d2c22830a6a1cbf7fbabd75329371a0")
         self.assertEqual(lock["herdr"]["rust"], "1.96.1")
         self.assertEqual(lock["herdr"]["zig"], "0.16.0")
 

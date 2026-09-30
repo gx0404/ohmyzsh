@@ -281,13 +281,13 @@
         "dependencies": [
           "msys2-runtime=3.6.10"
         ],
-        "download_size": 5903163,
-        "filename": "msys2-runtime-devel-3.6.10-5-x86_64.pkg.tar.zst",
-        "installed_size": 27660051,
+        "download_size": 5904136,
+        "filename": "msys2-runtime-devel-3.6.10-6-x86_64.pkg.tar.zst",
+        "installed_size": 27660040,
         "name": "msys2-runtime-devel",
-        "sha256": "c98f0b9a067b9d70e7b74a86ab46bcdc81a77f8e1d0ebfbd7493b10110e3a25e",
-        "url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-devel-3.6.10-5-x86_64.pkg.tar.zst",
-        "version": "3.6.10-5"
+        "sha256": "d50d94d36f45da93fc8ed53c91cd1c1eae38a370da1b3e00d31d0f8760e91ca9",
+        "url": "https://repo.msys2.org/msys/x86_64/msys2-runtime-devel-3.6.10-6-x86_64.pkg.tar.zst",
+        "version": "3.6.10-6"
       },
       {
         "dependencies": [],

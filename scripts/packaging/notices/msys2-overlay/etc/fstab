@@ -1,0 +1,10 @@
+# Oh My Zsh GX: modified copy of etc/fstab from MSYS2 filesystem 2026.03.06-1.
+# GX adds the usertemp line so /tmp is the Windows user temp directory, as in
+# Git for Windows; the private runtime ships no tmp directory of its own.
+
+# For a description of the file format, see the Users Guide
+# https://cygwin.com/cygwin-ug-net/using.html#mount-table
+
+# DO NOT REMOVE NEXT LINE. It remove cygdrive prefix from path
+none / cygdrive binary,posix=0,noacl,user 0 0
+none /tmp usertemp binary,posix=0,noacl 0 0
