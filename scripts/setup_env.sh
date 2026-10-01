@@ -31,7 +31,7 @@ fi
 report "zunit"        "command -v zunit"              "可选（插件 zunit 族）：git clone https://github.com/zunit-zsh/zunit && cd zunit && ./install.zsh"
 report "shellcheck"   "shellcheck --version"          "可选（shell 静态分析增强）：sudo apt-get install shellcheck"
 report "tmux"         "tmux -V"                       "可选（终端截图捕获）：sudo apt-get install tmux"
-report "graphify"     "graphify --version"            "可选（make graph）：uv tool install graphifyy"
+report "graphify"     "graphify --version"            "可选（make graph）：uv tool install graphifyy（PyPI 包名，双 y）"
 report "rustc"        "rustc --version"               "package/typecheck/package-test 需要 Rust；发行版本见 scripts/packaging/dependencies.json，可用 GX_RUSTC 指定隔离编译器"
 report "zig"          "zig version"                   "herdr 构建需要锁定版本 Zig；只在独立构建目录配置，不替换系统工具"
 report "dpkg-deb"     "dpkg-deb --version"            "Ubuntu DEB 打包工具；Windows EXE 使用通过 GX_ISCC 指定的 Inno Setup"

@@ -12,7 +12,7 @@
 | `make ai-doctor` | 各 configured 命令的 argv[0] 存在性盘点（FOUND/MISSING；不安装不运行） |
 | `make ci-check` | ready → resolver --check → version --check → ci 列表（lint/test/generated-check） |
 | `make version` / `version-check` / `version-write` | CHANGELOG.md SemVer 读取 / 一致性 / 写镜像（当前无镜像目标） |
-| `make evidence <task>` | 分配 `.playwright-mcp/<分支>/<任务>/<批次>/` 证据目录（results/ + report/ + result.json[PENDING]） |
+| `make evidence` | 分配 `.playwright-mcp/<分支>/<任务>/<批次>/` 证据目录（results/ + report/ + result.json[PENDING]），任务名固定 ui；自定义任务用 `python3 scripts/dev_framework.py evidence <task>` |
 
 ## 业务命令
 

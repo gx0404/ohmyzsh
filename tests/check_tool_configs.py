@@ -109,7 +109,9 @@ def dangerous_payload() -> str:
 
 
 def runtime_dir_payload() -> str:
-    # 真实工具传绝对路径：门须相对化到组件根（不是单仓 git 顶层）后才命中 custom/*。
+    # 真实工具传绝对路径：门按脚本自身位置相对化到本仓根（不依赖 git 顶层）后才命中
+    # custom/*——注册命令用 git 顶层定位脚本、门用脚本位置定位仓库，两层锚定解耦，
+    # 检出形态变化也不失配。
     return json.dumps({"tool_name": "Write",
                        "tool_input": {"file_path": str(ROOT / "custom/probe.zsh")}})
 
@@ -159,7 +161,8 @@ for mentioned in (
     code = run_gate(GATE, bash_payload(mentioned))
     check(f"文本提及放行: {mentioned!r}", code == 0, f"exit={code}")
 
-# --- 7. 相对化锚定组件根：组件内 custom/ 必拦；组件根外（如单仓根下）的同名路径原样放行 ---
+# --- 7. 相对化锚定组件根：组件内 custom/ 必拦；本仓以外目录（含上级目录）的同名路径
+# 原样放行——门只按脚本自身位置推导根，仓库外的写入不归本门管辖 ---
 for label, path, expected in (
     ("组件内运行时目录拒绝", ROOT / "custom/probe.zsh", 2),
     ("组件根外同名路径放行", ROOT.parent / "custom/probe.zsh", 0),

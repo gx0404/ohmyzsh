@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-10-01T08:48:48Z",
+ "built_at": "2026-10-01T15:44:12Z",
  "corpus_files": 997,
- "corpus_hash": "8a39850929b41525fa090baae827ff08472a422e35b35583612614fd282f6953",
- "content_hash": "dd409283014c6a6c2479b301f17e1ad3db065e89894e25d4a7fcb725a2f5a589",
+ "corpus_hash": "5517c082cc9030f88e440df9e00e684ce970afc475a255c67b2f86b1bd80a28c",
+ "content_hash": "25f42c4f4032dd1b239e2deff4fffe07569f527108923f6f845042d48168bcf6",
  "chunk_count": 1677,
  "chunks": [
   {
@@ -24,11 +24,11 @@
    "layer": "doc"
   },
   {
-   "id": "75f9d6518961",
+   "id": "67ccf7c86674",
    "source": "AGENTS.md",
    "anchor": "AGENTS.md#常用命令",
    "title": "常用命令",
-   "text": "```bash\nmake help               # 全部入口\nmake framework-check    # 路由闭集校验（resolver --check）\nmake framework-ready    # 命令配置完整门\nmake ci-check           # lint + test + generated-check\nmake test               # 单元 + 隔离加载 smoke\nmake graph / kb         # 重建代码图谱 / 知识库（chunks.json 受控生成物）\nmake evidence <task>    # 分配 .playwright-mcp/<分支>/<任务>/<批次>/ 证据目录\n```",
+   "text": "```bash\nmake help               # 全部入口\nmake framework-check    # 路由闭集校验（resolver --check）\nmake framework-ready    # 命令配置完整门\nmake ci-check           # lint + test + generated-check\nmake test               # 单元 + 隔离加载 smoke\nmake graph / kb         # 重建代码图谱 / 知识库（chunks.json 受控生成物）\nmake evidence           # 分配 .playwright-mcp/<分支>/ui/<批次>/ 证据目录（自定义任务：python3 scripts/dev_framework.py evidence <task>）\n```",
    "layer": "doc"
   },
   {
@@ -96,11 +96,11 @@
    "layer": "doc"
   },
   {
-   "id": "983ada8e2c57",
+   "id": "446a2bfc2b4d",
    "source": "CHANGELOG.md",
    "anchor": "CHANGELOG.md#0-2-0-tbd",
    "title": "0.2.0(TBD)",
-   "text": "- 增加本机 Zsh 历史白名单导出、通用命令精选与操作习惯说明；仅保存固定命令和\n  计数，支持手动导入历史检索，不复制原始参数或自动改写用户历史。\n- 新增 Windows x64 EXE 与 Ubuntu amd64 DEB 构建入口、依赖及对应源码/许可锁、\n  manifest 和校验值；GitHub Actions 仅手动触发，默认只构建验证，不自动公开 Release。\n- 提供 `gx-zsh` 与托管 `herdr` 入口。Windows 使用私有 MSYS2，Ubuntu 使用独立\n  Zsh 运行时；固定 herdr 来源包含 Windows 命名管道握手修复，不覆盖既有用户配置。\n- 修复 Zsh 5.9.2 中文启动文件、进程替换、sysopen 和 zcompile 的路径编码；\n  Linux 运行时通过 Ubuntu 20.04/24.04 用户态验证，保留源码补丁与构建记录。\n- 将 P10k 运行副本和编译缓存移到独立 profile，修复暖缓存无 TTY 初始化及\n  Windows zoxide 数据目录适配；长粘贴按长度选择逐键处理或一次字面插入。\n- 安装器遇到同秒备份/中转目标碰撞时安全拒绝，不再覆盖旧备份或删除同名残留。\n- 新增真实 PTY/ConPTY、中文路径、原生入口、打包、发布安全与生命周期测试。\n  开发候选包已在 Windows 和 WSL Ubuntu 24.04 实际安装并通过核心 TUI 验证；\n  原生包升级/卸载及完整发布验收仍未完成，不能据此宣称可正式发布。\n- 知识库构建统一文本换行并处理 Git 符号链接，避免 Windows/Linux checkout 形态\n  导致语料指纹漂移；同步 Make 入口、领域规则和发布/测试文档。\n- 并入 `gx0404/gx_shell` 单仓：herdr 改为从同一提交的 `herdr/` 子目录构建，\n  锁只声明 `monorepo_path`，revision、版本和源码归档摘要由提交推导，对应源码与\n  编译输入是同一归档；herdr 以包身份编译，二进制内关闭自更新。打包脚本的脏检查与\n  CHANGELOG 读取限定在本目录，herdr 构建器接受 gx_shell 的 GitHub 托管 runner。\n- AI 工具安全门在单仓中按本组件根（脚本自身位置）相对化路径，注册命令指向\n  `ohmyzsh/` 下的脚本；修复并入单仓后 `custom/` 等保护规则静默失效，以及 Windows\n  反斜杠路径从未命中的问题，注册入口探针补充绝对路径与 Stop 钩子用例。\n- herdr 探针在 Windows 上改为经 Win32（OpenProcess + K32EnumProcessModulesEx）\n  直接枚举自有 herdr server 的已加载模块来证明 app-local ConPTY，不再启动\n  PowerShell：托管 windows-2025 runner 上 PowerShell 冷启动超过 20 秒，导致单仓\n  冒烟在该步超时。模块表刚启动时可能不完整，限时 10 秒重试；失败时报告所见模块\n  或 Win32 错误。Ctrl+C 后先等新提示符出现（至多 20 秒）再输入下一条命令：MSYS2\n  Zsh 处理中断时会丢弃提前到达的键入，原先该步成败取决于时序。探针自有 server\n  停止后删除隔离 TMP，证据目录不再带 herdr 放入的 Codex 垫片（herdr 本体的\n  硬链接、副本或符号链接，Windows 证据因此多出约 37 MB）。\n  server 就绪改以 `herdr status server --json` 的 running 为准，提前退出时报错附 server.log 末 20 行。\n- **破坏性变化**：Windows 私有 MSYS2 运行时改为随包提供上游的 `etc/fstab`，盘符路径由\n  `/cygdrive/c/…` 变为 `/c/…`（与 Git Bash 一致），`/cygdrive` 不再存在。写在 `~/.zshrc.local`、\n  脚本或历史命令里的 `/cygdrive/c/…` 要改成 `/c/…` 或 `C:/…`；GX 自带的 OSC 7 上报与 zoxide\n  钩子两种写法都认。升级后第一次启动会按新路径重建一次补全缓存。\n- 修复在 GX Zsh 里运行 herdr（或再启动一层 `gx-zsh`）时新窗格报\n  `(anon):source:27: no such file or directory: …/powerlevel10k/internal/p10k.zsh`、提示符退化成\n  `GX%`：MSYS2 把 `ZSH_CUSTOM` 等路径转成 `C:/…` 交给原生程序，`package.zsh` 又把它当成相对路径\n  拼到当前目录后面。启动器现在丢弃从上一层 GX 进程继承的内部变量、按安装布局重新计算；\n  `package.zsh` 把盘符/UNC 形式的 `ZSH_CUSTOM`、`POWERLEVEL9K_INSTALLATION_DIR` 转回 POSIX 路径，\n  清掉混进 FPATH 的 Windows 路径碎片，补全缓存不再每次启动都重建。\n- 修复运行 winget、应用商店版 pwsh/python 等「应用执行别名」后 GX Zsh 永久挂死、Ctrl+C 也无法\n  恢复：私有运行时的 msys2-runtime 由 3.6.10-5 升级到修复该回归的 3.6.10-6（上游\n  msys2/msys2-runtime#372）。`gx-zsh` 启动 Zsh 前还会清除从父进程继承的「忽略 Ctrl+C」标志，\n  Zsh 及其前台程序不再沿用它。\n- Windows 新增 PowerShell 桥接，`irm https://…/install.ps1 | iex` 这类安装命令可直接在 GX Zsh 里\n  运行：`iex`/`Invoke-Expression` 与新命令 `gx-pwsh '脚本'`（或 `… | gx-pwsh`）把脚本原样写入带\n  BOM 的临时 `.ps1` 交给 PowerShell 7（没有时用 5.1，`GX_POWERSHELL` 可指定），以 `param()` 开头的\n  安装脚本照常可用，退出码与 `pwsh -File` 一致；`irm`/`iwr`/`Invoke-RestMethod`/`Invoke-WebRequest`\n  拼成一条 PowerShell 命令，参数名以外的参数一律按字面量传递（含中文与各种单引号）。PowerShell\n  里的 tar、find、sort、curl、cmd 优先用 Windows 自带版本；脚本结束后重新读取注册表 PATH，刚装好\n  的命令当场可用。已有同名命令、函数或别名时不覆盖。\n- 桥接的出错处理：`irm` 请求失败时返回 1，随后的 `| iex` 收到空脚本时不启动 PowerShell、提示后\n  返回 1；`iwr` 没写 `-UseBasicParsing` 时自动补上（Windows PowerShell 5.1 不带它会报错或卡住），\n  输出进管道时只输出正文，`iwr … | iex` 同样可用。\n- Windows 上找不到命令时只给提示、从不代为执行：`Get-ChildItem` 这类 PowerShell 命令提示可原样\n  复制运行的 `gx-pwsh …` 写法，`man` 提示改用 `--help`，`tmux`/`screen` 提示随附的 herdr，rg、fd、\n  htop 等给出 winget 包名。另补 `open`/`xdg-open`、`pbcopy`/`pbpaste`，有 vim 没有 vi 时 `vi` 调用\n  vim，运行时没有 `unzip` 时转交 `bsdunzip`。\n- 启动提速：启动器把全部路径经标准输入一次交给 `cygpath`（此前每条路径各起一次进程，用户目录\n  含 `'`、花括号时还会转错），`gx-zsh -f -c exit` 约 580 ms → 123 ms，`herdr --version` 等信息类\n  命令不再做路径转换（571 ms → 38 ms）；配置侧省掉 `uname`、`mkdir`、`who -m` 等外部进程，fzf 与\n  zoxide（Windows 上还有 `dircolors`）的初始化输出缓存到 `$ZSH_CACHE_DIR` 并 zcompile，Windows\n  热启动到第一个提示符约 2.65 s → 1.87 s；herdr 补全改为打包时生成，新 profile 不再连续两次\n  重建补全缓存。\n- Windows 上 `cd` 不再等待 zoxide：原生 zoxide 的目录记录改为纯 zsh 换算盘符路径并放到后台，\n  每次 `cd` 约 200 ms 以上 → 约 62 ms，`z`/`zi` 用法不变。\n- Windows 上输入不再卡顿：zsh-autosuggestions 在 zsh ≥ 5.0.8 上默认异步取建议，每击键 fork 一个\n  子 shell，MSYS2 上每次约 30 ms，整行输入时 ZLE 跟不上；MSYS/Cygwin 改为进程内同步查历史，每击键\n  约 0.8 m",
+   "text": "- 增加本机 Zsh 历史白名单导出、通用命令精选与操作习惯说明；仅保存固定命令和\n  计数，支持手动导入历史检索，不复制原始参数或自动改写用户历史。\n- 新增 Windows x64 EXE 与 Ubuntu amd64 DEB 构建入口、依赖及对应源码/许可锁、\n  manifest 和校验值；GitHub Actions 仅手动触发，默认只构建验证，不自动公开 Release。\n- 提供 `gx-zsh` 与托管 `herdr` 入口。Windows 使用私有 MSYS2，Ubuntu 使用独立\n  Zsh 运行时；固定 herdr 来源包含 Windows 命名管道握手修复，不覆盖既有用户配置。\n- 修复 Zsh 5.9.2 中文启动文件、进程替换、sysopen 和 zcompile 的路径编码；\n  Linux 运行时通过 Ubuntu 20.04/24.04 用户态验证，保留源码补丁与构建记录。\n- 将 P10k 运行副本和编译缓存移到独立 profile，修复暖缓存无 TTY 初始化及\n  Windows zoxide 数据目录适配；长粘贴按长度选择逐键处理或一次字面插入。\n- 安装器遇到同秒备份/中转目标碰撞时安全拒绝，不再覆盖旧备份或删除同名残留。\n- 新增真实 PTY/ConPTY、中文路径、原生入口、打包、发布安全与生命周期测试。\n  开发候选包已在 Windows 和 WSL Ubuntu 24.04 实际安装并通过核心 TUI 验证；\n  原生包升级/卸载及完整发布验收仍未完成，不能据此宣称可正式发布。\n- 知识库构建统一文本换行并处理 Git 符号链接，避免 Windows/Linux checkout 形态\n  导致语料指纹漂移；同步 Make 入口、领域规则和发布/测试文档。\n- herdr 来源解耦为独立仓库 `gx0404/herdr`：锁回到固定 `revision` 加该提交 GitHub\n  ZIP 的 filename/prefix/sha256/size 完整记录，不再解析 `monorepo_path`，\n  branch_provenance 记来源分支 `feature/gx_herdr`；herdr 以包身份编译，二进制内\n  关闭自更新，源码摘要与许可/补充许可审计基线随提交一起锁定。`gx_build_herdr.py`\n  新增 `--herdr-source-root` 接受匹配锁定 revision 的独立 checkout，构建 runner\n  只认本仓或协调仓 `gx0404/gx_shell` 的一次性 GitHub 托管实例；Zsh 运行时构建\n  新增 `--jobs` 并行编译（默认 4，经 `GX_ZSH_JOBS` 传递）。三仓 SHA 独立：旧合并\n  SHA、父提交来源身份的回执与旧源码摘要一律不可复用，回归测试拒绝。\n- AI 工具安全门按脚本自身位置推导的组件根相对化路径，Windows 反斜杠路径同样\n  命中，`custom/` 等保护规则不因绝对路径静默失效；zcode/codex 注册命令锚定\n  `git rev-parse --show-toplevel` 仓库根（独立 checkout 下子路径形态会静默\n  失效，已被 config-shapes 门拦下），注册入口探针补充绝对路径与 Stop 钩子用例。\n- 再分发通知的 herdr 溯源文字与锁同步：`GX-DEPENDENCY-BUILD.txt` 来源分支改述\n  `feature/gx_herdr`，`conpty-LICENSES.txt` 头部锚定当前锁定 revision（Origin 保留\n  历史提取提交）；再分发锁内两文件共 137 处摘要按 LF 归一化字节重算，\n  `dependencies.json` 的 canonical_sha256 同步，依赖/发布/打包 181 项测试通过。\n- herdr 探针在 Windows 上改为经 Win32（OpenProcess + K32EnumProcessModulesEx）\n  直接枚举自有 herdr server 的已加载模块来证明 app-local ConPTY，不再启动\n  PowerShell：托管 windows-2025 runner 上 PowerShell 冷启动超过 20 秒，导致协调仓\n  冒烟在该步超时。模块表刚启动时可能不完整，限时 10 秒重试；失败时报告所见模块\n  或 Win32 错误。Ctrl+C 后先等新提示符出现（至多 20 秒）再输入下一条命令：MSYS2\n  Zsh 处理中断时会丢弃提前到达的键入，原先该步成败取决于时序。探针自有 server\n  停止后删除隔离 TMP，证据目录不再带 herdr 放入的 Codex 垫片（herdr 本体的\n  硬链接、副本或符号链接，Windows 证据因此多出约 37 MB）。\n  server 就绪改以 `herdr status server --json` 的 running 为准，提前退出时报错附 server.log 末 20 行。\n- **破坏性变化**：Windows 私有 MSYS2 运行时改为随包提供上游的 `etc/fstab`，盘符路径由\n  `/cygdrive/c/…` 变为 `/c/…`（与 Git Bash 一致），`/cygdrive` 不再存在。写在 `~/.zshrc.local`、\n  脚本或历史命令里的 `/cygdrive/c/…` 要改成 `/c/…` 或 `C:/…`；GX 自带的 OSC 7 上报与 zoxide\n  钩子两种写法都认。升级后第一次启动会按新路径重建一次补全缓存。\n- 修复在 GX Zsh 里运行 herdr（或再启动一层 `gx-zsh`）时新窗格报\n  `(anon):source:27: no such file or directory: …/powerlevel10k/internal/p10k.zsh`、提示符退化成\n  `GX%`：MSYS2 把 `ZSH_CUSTOM` 等路径转成 `C:/…` 交给原生程序，`package.zsh` 又把它当成相对路径\n  拼到当前目录后面。启动器现在丢弃从上一层 GX 进程继承的内部变量、按安装布局重新计算；\n  `package.zsh` 把盘符/UNC 形式的 `ZSH_CUSTOM`、`POWERLEVEL9K_INSTALLATION_DIR` 转回 POSIX 路径，\n  清掉混进 FPATH 的 Windows 路径碎片，补全缓存不再每次启动都重建。\n- 修复运行 winget、应用商店版 pwsh/python 等「应用执行别名」后 GX Zsh 永久挂死、Ctrl+C 也无法\n  恢复：私有运行时的 msys2-runtime 由 3.6.10-5 升级到修复该回归的 3.6.10-6（上游\n  msys2/msys2-runtime#372）。`gx-zsh` 启动 Zsh 前还会清除从父进程继承的「忽略 Ctrl+C」标志，\n  Zsh 及其前台程序不再沿用它。\n- Windows 新增 PowerShell 桥接，`irm https://…/install.ps1 | iex` 这类安装命令可直接在 GX Zsh 里\n  运行：`iex`/`Invoke-Expression` 与新命令 `gx-pwsh '脚本'`（或 `… | gx-pwsh`）把脚本原样写入带\n  BOM 的临时 `.ps1` 交给 PowerShell 7（没有时用 5.1，`GX_POWERSHELL` 可指定），以 `param()` 开头的\n  安装脚本照常可用，退出码与 `pwsh -File` 一致；`irm`/`iwr`/`Invoke-RestMethod`/`Invoke-WebRequest`\n  拼成一条 PowerShell 命令，参数名以外的参数一律按字面量传递（含中文与各种单引号）。PowerShell\n  里的 tar、find、sort、curl、cmd 优先用 Windows 自带版本；脚本结束后重新读取注册表 PATH，刚装好\n  的命令当场可用。已有同名命令、函数或别名时不覆盖。\n- 桥接的出错处理：`irm` 请求失败时返回 1，随后的 `| iex` 收到空脚本时不启动 PowerShell、提示后\n  返回 1；`iwr` 没写 `-UseBasicParsing` 时自动补上（Windows PowerShell 5.1 不带它会报错或卡住），\n  输出进管道时只输出正文，`iwr … | iex` 同样可用。\n- Windows 上找不到命令时只给提示、从不代为执行：`Get-ChildItem` 这类 PowerShell 命令提示可原样\n  复制运行的 `gx-pwsh …` 写法，`man` 提示改用 `--help`，`tmux`/`screen` 提示随附的 herdr，rg、fd、\n  htop 等给出 winget 包名。另补 `open`/`xdg-open`、`pbcopy`/`pbpaste`，有 vim 没有 vi 时 `vi` 调用\n  vim，运行时没有 `unzip` 时转交 `bsdunzip`。\n- 启动提速：启动器把全部路径经标准输入一次交给 `cygpath`（此前每条路径各起一次进程，用户目录\n  含 `'`、花括号时还会转错），`g",
    "layer": "doc"
   },
   {
@@ -760,11 +760,11 @@
    "layer": "doc"
   },
   {
-   "id": "4db19b92d209",
+   "id": "706475839caa",
    "source": "docs/AGENT_RULES/development.md",
    "anchor": "docs/AGENT_RULES/development.md#并行会话与探针纪律-skill-2026-09-增补",
    "title": "并行会话与探针纪律（skill 2026-09 增补）",
-   "text": "- **写入前复查并行信号**：untracked/修改清单短间隔增长、出现新生成目录\n  （graphify-out、kb、.playwright-mcp 之外的陌生产物）即可能是并行会话在推进\n  同一任务；检测用 ctime（`find -newerct`）或文件清单快照，不信任 mtime\n  （并行会话常以保留 mtime 的拷贝落盘）。发现并行推进**不双写**：转只读验收，\n  确需收尾只做逐项声明的外科修复，交付报告列明自己改动的文件供对账。\n- **门探针纪律**：hook/安全门探针必须用工具真实协议形状（Claude/ZCode 的\n  `file_path` 嵌在 `tool_input` 且常为绝对路径，判定前先相对化到组件根——gx_shell 单仓\n  里即 `ohmyzsh/`，由脚本自身位置推导，而非 git 顶层）；\n  探针中的危险命令字面量拆分构造（`\"git pu\" + \"sh --force\"`），防止宿主会话\n  挂着同一安全门把探针命令拦掉、表现为「无输出」而非探针失败。\n- **注册入口复验**：探针除直调 gate 脚本外，必须按各工具配置里的原样\n  command 再走一次（含适配器与解释器）；工具配置形状锁在\n  `tests/check_tool_configs.py`（已接入 `make test`），改 .zcode/.claude/.codex\n  配置后必跑。\n- 用户转述「命令没有输出」时先按产物存在性判断是否真的执行过（权限弹窗\n  卡住即此形态），不按提示文本诊断。",
+   "text": "- **写入前复查并行信号**：untracked/修改清单短间隔增长、出现新生成目录\n  （graphify-out、kb、.playwright-mcp 之外的陌生产物）即可能是并行会话在推进\n  同一任务；检测用 ctime（`find -newerct`）或文件清单快照，不信任 mtime\n  （并行会话常以保留 mtime 的拷贝落盘）。发现并行推进**不双写**：转只读验收，\n  确需收尾只做逐项声明的外科修复，交付报告列明自己改动的文件供对账。\n- **门探针纪律**：hook/安全门探针必须用工具真实协议形状（Claude/ZCode 的\n  `file_path` 嵌在 `tool_input` 且常为绝对路径，判定前先相对化到组件根——由脚本\n  自身位置推导，而非 git 顶层；本仓以协调仓形态检出在 `<root>/ohmyzsh/` 时同样\n  成立）；\n  探针中的危险命令字面量拆分构造（`\"git pu\" + \"sh --force\"`），防止宿主会话\n  挂着同一安全门把探针命令拦掉、表现为「无输出」而非探针失败。\n- **注册入口复验**：探针除直调 gate 脚本外，必须按各工具配置里的原样\n  command 再走一次（含适配器与解释器）；工具配置形状锁在\n  `tests/check_tool_configs.py`（已接入 `make test`），改 .zcode/.claude/.codex\n  配置后必跑。\n- 用户转述「命令没有输出」时先按产物存在性判断是否真的执行过（权限弹窗\n  卡住即此形态），不按提示文本诊断。",
    "layer": "doc"
   },
   {
@@ -808,11 +808,11 @@
    "layer": "doc"
   },
   {
-   "id": "69ebf747ff25",
+   "id": "733bf69d9209",
    "source": "docs/AGENT_RULES/gx-profile.md",
    "anchor": "docs/AGENT_RULES/gx-profile.md#gx-个人配置层规则-gx",
    "title": "gx 个人配置层规则（gx/）",
-   "text": "适用 scope：`gx/**`（个人 zsh 配置固化层：config/、omz-custom/、bin/、fonts/、\nwezterm/、install.sh、bundle.sh、README.md）。本层是 fork 特有的\"把一台机器的\nshell 环境复制到另一台机器\"的交付物，部署目标是用户真实 `$HOME`，属安全敏感面。",
+   "text": "适用 scope：`gx/**`（个人 zsh 配置固化层：config/、omz-custom/、bin/、fonts/、\nwezterm/、history/、install.sh、bundle.sh、README.md）。本层是 fork 特有的\"把一台机器的\nshell 环境复制到另一台机器\"的交付物，部署目标是用户真实 `$HOME`，属安全敏感面。",
    "layer": "doc"
   },
   {
@@ -832,11 +832,11 @@
    "layer": "doc"
   },
   {
-   "id": "87ef94981d96",
+   "id": "a28d867c9380",
    "source": "docs/AGENT_RULES/gx-profile.md",
    "anchor": "docs/AGENT_RULES/gx-profile.md#结构与真源",
    "title": "结构与真源",
-   "text": "- `gx/config/` 是唯一配置真源：zshrc、zshenv、zshrc.local（机器差异层：\n  CUDA/TensorRT、相机 SDK 等——**不入安装器部署对**，换机不带走；目标机已有\n  同名文件原样保留，缺失时 zshrc 的 `[[ -r ... ]]` 守卫静默跳过）、p10k.zsh。\n  在本机改了 `~/.zshrc` 等文件后必须回填 gx/config/ 并提交，否则下次安装会把\n  本机配置回退到仓库旧版。\n- `~/.zshrc` 归 gx 层真源（2026-09-21 拍板）：wezterm 安装器历史追加的\n  `# >>> wezterm-gx >>>` cursor-mode 键位块已并入 `gx/config/zshrc`（位置在全部\n  `zle -N`/bindkey 之后、autosuggestions 与 syntax-highlighting source 之前）；\n  `install.sh::deploy_configs` 备份+整体替换 .zshrc 时检测并告知剥离该块。\n- vendored 组件：`gx/omz-custom/themes/powerlevel10k/` 是 romkatv/powerlevel10k\n  的提交树快照（无 .git，版本钉在 gx/README.md 清单）；\n  `gx/bin/gitstatusd-linux-x86_64`（v1.5.4，运行期部署到\n  `${GITSTATUS_CACHE_DIR:-~/.cache}/gitstatus/`）与\n  `gx/bin/zoxide-linux-x86_64`（0.9.9）；`gx/fonts/` 是 Nerd Fonts v3.4.0\n  JetBrainsMono 四字重；`gx/wezterm/` 是 `~/.config/wezterm` 工作树快照\n  （含背景图，缺目录会破坏 backdrops.lua）。升级任一组件须同步更新\n  gx/README.md 的来源/版本/复刻命令清单。\n- 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`\n  模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。",
+   "text": "- `gx/config/` 是唯一配置真源：zshrc、zshenv、zshrc.local（机器差异层：\n  CUDA/TensorRT、相机 SDK 等——**不入安装器部署对**，换机不带走；目标机已有\n  同名文件原样保留，缺失时 zshrc 的 `[[ -r ... ]]` 守卫静默跳过）、p10k.zsh。\n  在本机改了 `~/.zshrc` 等文件后必须回填 gx/config/ 并提交，否则下次安装会把\n  本机配置回退到仓库旧版。\n- `~/.zshrc` 归 gx 层真源（2026-09-21 拍板）：wezterm 安装器历史追加的\n  `# >>> wezterm-gx >>>` cursor-mode 键位块已并入 `gx/config/zshrc`（位置在全部\n  `zle -N`/bindkey 之后、autosuggestions 与 syntax-highlighting source 之前）；\n  `install.sh::deploy_configs` 备份+整体替换 .zshrc 时检测并告知剥离该块。\n- vendored 组件：`gx/omz-custom/themes/powerlevel10k/` 是 romkatv/powerlevel10k\n  的提交树快照（无 .git，版本钉在 gx/README.md 清单）；\n  `gx/bin/gitstatusd-linux-x86_64`（v1.5.4，运行期部署到\n  `${GITSTATUS_CACHE_DIR:-~/.cache}/gitstatus/`）与\n  `gx/bin/zoxide-linux-x86_64`（0.9.9）；`gx/fonts/` 是 Nerd Fonts v3.4.0\n  JetBrainsMono 四字重；`gx/wezterm/` 是 `~/.config/wezterm` 工作树快照\n  （含背景图，缺目录会破坏 backdrops.lua）。升级任一组件须同步更新\n  gx/README.md 的来源/版本/复刻命令清单。\n- 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`\n  模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。\n- `gx/history/` 是本机 Zsh 历史的**可公开子集**生成物（`scripts/gx_history.py::summarize`\n  白名单统计与逐字符匹配精选，产出 `seed.zsh_history`/`summary.json`），不含原始参数、\n  时间戳、工作目录与自由文本；再生流程、隐私边界与回归见 `gx/history/README.md` 与\n  `tests/test_gx_history.py`，白名单扩词必须逐条确认可公开后才收录。",
    "layer": "doc"
   },
   {
@@ -896,11 +896,11 @@
    "layer": "doc"
   },
   {
-   "id": "9fcef9cdb02b",
+   "id": "d56ba3df76a6",
    "source": "docs/AGENT_RULES/testing.md",
    "anchor": "docs/AGENT_RULES/testing.md#分层与真源",
    "title": "分层与真源",
-   "text": "| 层 | 入口 | 能证明 |\n|---|---|---|\n| 语法 | `bash scripts/check_syntax.sh` | 全部 shell 文件可被解析（与上游 CI 的 zsh -n 对等） |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit（可选） | awk 插件禁用逻辑等独立单元 |\n| 加载 smoke | `zsh tests/smoke_load.zsh` | 隔离环境下主入口可加载、关键函数/别名就位、退出码 0 |\n| 集成 | `zsh tests/smoke_load.zsh --plugins a,b` | 多插件组合加载不互相破坏 |\n| 终端证据 | `make ui-smoke` + `make evidence <task>` | 主题渲染/omz 子命令的实际输出被捕获并读回 |\n\n上游 CI（.github/workflows/main.yml）只做 zsh -n 且被\n`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不会运行**。\n本地 `make ci-check` 是本仓的真实质量门；不要引用上游 CI 状态作为本 fork 的验证结论。",
+   "text": "| 层 | 入口 | 能证明 |\n|---|---|---|\n| 语法 | `bash scripts/check_syntax.sh` | 全部 shell 文件可被解析（与上游 CI 的 zsh -n 对等） |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit（可选） | awk 插件禁用逻辑等独立单元 |\n| 加载 smoke | `zsh tests/smoke_load.zsh` | 隔离环境下主入口可加载、关键函数/别名就位、退出码 0 |\n| 集成 | `zsh tests/smoke_load.zsh --plugins a,b` | 多插件组合加载不互相破坏 |\n| 终端证据 | `make ui-smoke` + `dev_framework.py evidence <task>` | 主题渲染/omz 子命令的实际输出被捕获并读回 |\n\n上游 CI（.github/workflows/main.yml）只做 zsh -n 且被\n`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不会运行**。\n本地 `make ci-check` 是本仓的真实质量门；不要引用上游 CI 状态作为本 fork 的验证结论。",
    "layer": "doc"
   },
   {
@@ -920,11 +920,11 @@
    "layer": "doc"
   },
   {
-   "id": "eb3df29c0232",
+   "id": "de721c795650",
    "source": "docs/AGENT_RULES/testing.md",
    "anchor": "docs/AGENT_RULES/testing.md#证据与截图",
    "title": "证据与截图",
-   "text": "- 证据根 `.playwright-mcp/`（gitignored）。`make evidence <task>` 分配\n  `<分支>/<任务>/<批次>/` 目录；runner 只清理自己批次的 `results/`。\n- 终端场景（主题渲染、omz 子命令输出、安装演练）以文本捕获为主\n  （`script`/tmux capture-pane），有 tmux 时补 PNG 截图。捕获后**必须读回检查**\n  内容再在 result.json 置 `images_reviewed: true`；只保存不算通过。\n- 失败批次的捕获、日志保留待修复对照；修复后另开批次复测，不覆盖旧批次。",
+   "text": "- 证据根 `.playwright-mcp/`（gitignored）。`python3 scripts/dev_framework.py\n  evidence <task>`（`make evidence` 等价于任务名 ui）分配\n  `<分支>/<任务>/<批次>/` 目录；runner 只清理自己批次的 `results/`。\n- 终端场景（主题渲染、omz 子命令输出、安装演练）以文本捕获为主\n  （`script`/tmux capture-pane），有 tmux 时补 PNG 截图。捕获后**必须读回检查**\n  内容再在 result.json 置 `images_reviewed: true`；只保存不算通过。\n- 失败批次的捕获、日志保留待修复对照；修复后另开批次复测，不覆盖旧批次。",
    "layer": "doc"
   },
   {
@@ -1000,11 +1000,11 @@
    "layer": "doc"
   },
   {
-   "id": "f77e7fc7de9f",
+   "id": "2ba5dc63b04c",
    "source": "docs/AGENT_RULES/tools-installer.md",
    "anchor": "docs/AGENT_RULES/tools-installer.md#验证",
    "title": "验证",
-   "text": "- `bash scripts/check_syntax.sh` 对 tools/*.sh 做 `sh -n`、对 zsh 脚本做 `zsh -n`。\n- install/uninstall 路径改动：在隔离 `ZDOTDIR`/`HOME`（mktemp）演练装-卸-恢复循环，\n  证据留 `make evidence installer-rehearsal` 批次目录；不得碰真实 `$HOME`。",
+   "text": "- `bash scripts/check_syntax.sh` 对 tools/*.sh 做 `sh -n`、对 zsh 脚本做 `zsh -n`。\n- install/uninstall 路径改动：在隔离 `ZDOTDIR`/`HOME`（mktemp）演练装-卸-恢复循环，\n  证据留 `python3 scripts/dev_framework.py evidence installer-rehearsal` 批次目录；\n  不得碰真实 `$HOME`。",
    "layer": "doc"
   },
   {
@@ -1016,11 +1016,11 @@
    "layer": "doc"
   },
   {
-   "id": "3d108aecb573",
+   "id": "f73e83b0c707",
    "source": "docs/AI_TOOLS.md",
    "anchor": "docs/AI_TOOLS.md#各工具配置面",
    "title": "各工具配置面",
-   "text": "| 面 | ZCode | Claude Code | Codex |\n|---|---|---|---|\n| 入口 | 根 AGENTS.md（ZCode 不展开 CLAUDE.md） | CLAUDE.md（首行 `@AGENTS.md` 薄入口） | 根 AGENTS.md（`project_doc_max_bytes=32768`） |\n| 项目配置 | .zcode/config.json | .claude/settings.json | .codex/config.toml |\n| 路由提醒 | —（按 AGENTS.md 协议手动 resolver） | .claude/rules/*.md（带 paths 的薄提醒） | — |\n| hooks | PreToolUse→安全门（毫秒 timeoutMs）；Stop→复审提醒 | 同左（秒 timeout） | 数组表 `[[hooks.PreToolUse]]` 桥接同一安全门（Python 透传） |\n| 权限 | — | allow/ask/deny 三段（deny：强推、clean、写 custom/、写 .git/） | approval=on-request、sandbox=workspace-write、环境变量排除 *KEY*/*TOKEN* |\n\n安全门策略真源：`.claude/hooks/pretooluse-safety-gate.sh`（拒绝写\ncustom/cache/log/.git 与历史重写命令；stdin JSON 宽容提取，绝对路径相对化后\n判定）。三工具各自协议适配后指向它。",
+   "text": "| 面 | ZCode | Claude Code | Codex |\n|---|---|---|---|\n| 入口 | 根 AGENTS.md（ZCode 不展开 CLAUDE.md） | CLAUDE.md（首行 `@AGENTS.md` 薄入口） | 根 AGENTS.md（`project_doc_max_bytes=32768`） |\n| 项目配置 | .zcode/config.json | .claude/settings.json | .codex/config.toml |\n| 路由提醒 | —（按 AGENTS.md 协议手动 resolver） | .claude/rules/*.md（带 paths 的薄提醒） | — |\n| hooks | PreToolUse→安全门（毫秒 timeoutMs）；Stop→复审提醒 | 同左（秒 timeout） | 数组表 `[[hooks.PreToolUse]]` 桥接同一安全门（Python 透传） |\n| 权限 | — | allow/ask/deny 三段（deny：强推、clean、写 custom/、写 cache/、写 .git/） | approval=never、sandbox=danger-full-access（2026-09 用户授权放开，破坏性操作仍由安全门真源拦截）；环境变量排除 *KEY*/*SECRET*/*TOKEN*/*PASSWORD* |\n\n安全门策略真源：`.claude/hooks/pretooluse-safety-gate.sh`（拒绝写\ncustom/cache/log/.git 与历史重写命令；stdin JSON 宽容提取，绝对路径相对化后\n判定）。三工具各自协议适配后指向它。",
    "layer": "doc"
   },
   {
@@ -1032,11 +1032,11 @@
    "layer": "doc"
   },
   {
-   "id": "d38aa900e922",
+   "id": "d1d181dc1015",
    "source": "docs/AI_TOOLS.md",
    "anchor": "docs/AI_TOOLS.md#验证状态-2026-09-16-初始化会话-同日随-skill-更新增补形状锁",
    "title": "验证状态（2026-09-16 初始化会话；同日随 skill 更新增补形状锁）",
-   "text": "| 验证项 | 状态 | 证据 |\n|---|---|---|\n| 配置文件可解析（JSON/TOML） | PASS | audit_ai_settings 0 ERROR |\n| hook 脚本语法（bash -n / ast.parse） | PASS | check_syntax.sh 覆盖；audit 复核 |\n| 配置形状回归锁 | PASS | tests/check_tool_configs.py 18 项全过（Codex 数组表 hooks、Stop 无 matcher、秒制 timeout；Zcode enabled+毫秒 timeoutMs；Claude hook 引用与 custom/ deny 防线；.py 适配器 ast 可解析） |\n| 注册入口原样探针 | PASS | 按各工具配置里的原样 command 走 bash -c 执行（含 git rev-parse 与适配器），危险写入拒（exit 2）/合法写入放行（exit 0）双向 |\n| resolver 规则加载（真实 scope 演练） | PASS | lib/git.zsh + plugins/docker + themes/agnoster --task review → 4 份规则正确返回 |\n| ZCode hooks 实际触发 | PENDING | 需新会话实际写文件观察（本会话无法自证） |\n| Claude Code / Codex 会话加载与调用 | PENDING | 未在本会话运行这两个客户端 |\n| 模型读图（终端截图解读） | PENDING | tmux 未装；文本捕获已覆盖断言 |\n\nPENDING 项不冒充 PASS；后续会话补验后更新本表。Codex 配置解析的真实 CLI 启动\n验证（`codex --strict-config --version`）待目标机有 CLI 时补做，记入上表增行。",
+   "text": "| 验证项 | 状态 | 证据 |\n|---|---|---|\n| 配置文件可解析（JSON/TOML） | PASS | audit_ai_settings 0 ERROR |\n| hook 脚本语法（bash -n / ast.parse） | PASS | check_syntax.sh 覆盖；audit 复核 |\n| 配置形状回归锁 | PASS | tests/check_tool_configs.py 全过（Codex 数组表 hooks、Stop 无 matcher、秒制 timeout；Zcode enabled+毫秒 timeoutMs；Claude hook 引用与 custom/ deny 防线；.py 适配器 ast 可解析；命令位置/文本提及区分；组件根相对化） |\n| 注册入口原样探针 | PASS | 按各工具配置里的原样 command 走 bash -c 执行（含 git rev-parse 与适配器），危险写入拒（exit 2）/合法写入放行（exit 0）双向 |\n| resolver 规则加载（真实 scope 演练） | PASS | lib/git.zsh + plugins/docker + themes/agnoster --task review → 4 份规则正确返回 |\n| ZCode hooks 实际触发 | PENDING | 需新会话实际写文件观察（本会话无法自证） |\n| Claude Code / Codex 会话加载与调用 | PENDING | 未在本会话运行这两个客户端 |\n| 模型读图（终端截图解读） | PENDING | tmux 未装；文本捕获已覆盖断言 |\n\nPENDING 项不冒充 PASS；后续会话补验后更新本表。Codex 配置解析的真实 CLI 启动\n验证（`codex --strict-config --version`）待目标机有 CLI 时补做，记入上表增行。",
    "layer": "doc"
   },
   {
@@ -1056,10 +1056,10 @@
    "layer": "doc"
   },
   {
-   "id": "8960d4ca2723",
+   "id": "8a05de484803",
    "source": "docs/ARCHITECTURE.md",
-   "anchor": "docs/ARCHITECTURE.md#lib-核心库-22-个文件",
-   "title": "lib/ 核心库（22 个文件）",
+   "anchor": "docs/ARCHITECTURE.md#lib-核心库-21-个顶层-zsh-lib-tests-另计",
+   "title": "lib/ 核心库（21 个顶层 .zsh，lib/tests/ 另计）",
    "text": "| 文件 | 职责 |\n|---|---|\n| lib/git.zsh | git prompt 引擎：`__git_prompt_git`（`GIT_OPTIONAL_LOCKS=0` 避免索引锁）、`_omz_git_prompt_info`、async 变体（`':omz:alpha:lib:git' async-prompt` 开关，zsh≥5.0.6 默认开） |\n| lib/cli.zsh | `omz` CLI：plugin/theme/update/changelog/pr/version 子命令 + `_omz` 补全；`omz version` 从 git describe/分支派生 |\n| lib/theme-and-appearance.zsh | `colors`、`prompt_subst`、`ZSH_THEME_GIT_PROMPT_*` 默认值、ls/diff 颜色 |\n| lib/prompt_info_functions.zsh | `git_prompt_info` 等主题入口 + 未加载插件的 dummy 实现 |\n| lib/compfix.zsh | 不安全补全目录检测（compinit 前置） |\n| lib/termsupport.zsh | 窗口/标签标题 precmd-preexec 钩子 |\n| lib/async_prompt.zsh | 异步 prompt 池（`_omz_register_handler`） |\n| lib/functions.zsh | `env_default`、`omz_source` 等通用函数 |\n| lib/history.zsh / completion.zsh / key-bindings.zsh / directories.zsh / clipboard.zsh / diagnostics.zsh / nvm.zsh / ... | 历史、补全样式、键绑定、cd 增强、剪贴板、诊断、惰性 nvm 等 |\n\n依赖方向：后加载者可依赖先加载者（字典序），`lib/misc.zsh` 的 setopt 组与\n`theme-and-appearance.zsh` 是后续文件的隐式前置。",
    "layer": "doc"
   },
@@ -1144,11 +1144,11 @@
    "layer": "doc"
   },
   {
-   "id": "d45c5929f9ae",
+   "id": "ae23e148cce0",
    "source": "docs/MAKE_COMMANDS.md",
    "anchor": "docs/MAKE_COMMANDS.md#框架目标",
    "title": "框架目标",
-   "text": "| 目标 | 语义 |\n|---|---|\n| `make framework-check` | 路由闭集校验（resolver --check：全仓文件零遗漏零重叠、规则体量、文档闭集） |\n| `make framework-ready` | 配置完整门（无 pending 命令、project.reviewed=true） |\n| `make ai-doctor` | 各 configured 命令的 argv[0] 存在性盘点（FOUND/MISSING；不安装不运行） |\n| `make ci-check` | ready → resolver --check → version --check → ci 列表（lint/test/generated-check） |\n| `make version` / `version-check` / `version-write` | CHANGELOG.md SemVer 读取 / 一致性 / 写镜像（当前无镜像目标） |\n| `make evidence <task>` | 分配 `.playwright-mcp/<分支>/<任务>/<批次>/` 证据目录（results/ + report/ + result.json[PENDING]） |",
+   "text": "| 目标 | 语义 |\n|---|---|\n| `make framework-check` | 路由闭集校验（resolver --check：全仓文件零遗漏零重叠、规则体量、文档闭集） |\n| `make framework-ready` | 配置完整门（无 pending 命令、project.reviewed=true） |\n| `make ai-doctor` | 各 configured 命令的 argv[0] 存在性盘点（FOUND/MISSING；不安装不运行） |\n| `make ci-check` | ready → resolver --check → version --check → ci 列表（lint/test/generated-check） |\n| `make version` / `version-check` / `version-write` | CHANGELOG.md SemVer 读取 / 一致性 / 写镜像（当前无镜像目标） |\n| `make evidence` | 分配 `.playwright-mcp/<分支>/<任务>/<批次>/` 证据目录（results/ + report/ + result.json[PENDING]），任务名固定 ui；自定义任务用 `python3 scripts/dev_framework.py evidence <task>` |",
    "layer": "doc"
   },
   {
@@ -1168,11 +1168,11 @@
    "layer": "doc"
   },
   {
-   "id": "34523a062c5b",
+   "id": "ad8608896478",
    "source": "docs/README.md",
    "anchor": "docs/README.md#ohmyzsh-fork-文档索引",
    "title": "ohmyzsh fork 文档索引",
-   "text": "本目录是 fork 侧（gx0404/ohmyzsh）的框架与工程文档；上游用户文档在根 README.md\n与各插件 README。AI 协作规则见根 `AGENTS.md` 与 `docs/AGENT_RULES/`。\n\n| 文档 | 内容 |\n|---|---|\n| [ARCHITECTURE.md](ARCHITECTURE.md) | 加载流程、custom 覆盖机制、git prompt 引擎、omz CLI |\n| [DEVELOPMENT.md](DEVELOPMENT.md) | 开发交付闭环与日常流程 |\n| [MAKE_COMMANDS.md](MAKE_COMMANDS.md) | make 目标语义与 15 个业务命令 |\n| [TESTING.md](TESTING.md) | 测试分层、证据与终端截图流程 |\n| [AI_TOOLS.md](AI_TOOLS.md) | 多工具（ZCode/Claude/Codex）配置与验证记录 |\n| [RELEASE.md](RELEASE.md) | 版本双体系与 upstream 同步流程 |\n| [kb/README.md](kb/README.md) | 知识库（chunks.json）构建与检索 |\n| [dev-framework.json](dev-framework.json) | 15 命令状态真源（机器可读） |\n| [AGENT_RULES/](AGENT_RULES/) | 领域规则闭集 + routes.toml 路由 |\n\n代码图谱：`make graph` 生成 `graphify-out/`（本地产物，不入库）；\n已知限制见 `scripts/graphify.sh` 头注释（zsh 扩展名不在 graphify AST 支持内，\nzsh 语料检索靠知识库）。",
+   "text": "本目录是 fork 侧（gx0404/ohmyzsh）的框架与工程文档；上游用户文档在根 README.md\n与各插件 README。AI 协作规则见根 `AGENTS.md` 与 `docs/AGENT_RULES/`。\n\n| 文档 | 内容 |\n|---|---|\n| [ARCHITECTURE.md](ARCHITECTURE.md) | 加载流程、custom 覆盖机制、git prompt 引擎、omz CLI |\n| [DEVELOPMENT.md](DEVELOPMENT.md) | 开发交付闭环与日常流程 |\n| [MAKE_COMMANDS.md](MAKE_COMMANDS.md) | make 目标语义与全部业务命令 |\n| [TESTING.md](TESTING.md) | 测试分层、证据与终端截图流程 |\n| [AI_TOOLS.md](AI_TOOLS.md) | 多工具（ZCode/Claude/Codex）配置与验证记录 |\n| [RELEASE.md](RELEASE.md) | 版本双体系与 upstream 同步流程 |\n| [kb/README.md](kb/README.md) | 知识库（chunks.json）构建与检索 |\n| [dev-framework.json](dev-framework.json) | 命令状态真源（机器可读） |\n| [AGENT_RULES/](AGENT_RULES/) | 领域规则闭集 + routes.toml 路由 |\n\n代码图谱：`make graph` 生成 `graphify-out/`（本地产物，不入库）；\n已知限制见 `scripts/graphify.sh` 头注释（zsh 扩展名不在 graphify AST 支持内，\nzsh 语料检索靠知识库）。",
    "layer": "doc"
   },
   {
@@ -1200,6 +1200,14 @@
    "layer": "doc"
   },
   {
+   "id": "1f81a3805d8b",
+   "source": "docs/RELEASE.md",
+   "anchor": "docs/RELEASE.md#固定输入与本地打包",
+   "title": "固定输入与本地打包",
+   "text": "```bash\npython3 scripts/gx_dependencies.py audit --platform ubuntu-amd64\npython3 scripts/gx_dependencies.py fetch --platform ubuntu-amd64 --cache /绝对路径/cache\npython3 scripts/gx_dependencies.py verify --platform ubuntu-amd64 --cache /绝对路径/cache\npython3 scripts/gx_build_zsh.py fetch --platform ubuntu-amd64 --cache /绝对路径/cache\npython3 scripts/gx_build_zsh.py build --platform ubuntu-amd64 --cache /绝对路径/cache \\\n  --work /绝对路径/新构建目录 --output /绝对路径/zsh-build\npython3 scripts/gx_dependencies.py assemble --platform ubuntu-amd64 \\\n  --cache /绝对路径/cache --herdr-build /绝对路径/herdr-build \\\n  --zsh-build /绝对路径/zsh-build --output /绝对路径/dependencies\n```\n\n`fetch` 只取锁内资产；下载成功不代表对应源码或许可材料完整。`assemble` 离线读取\n已校验资产，输出必须是新目录，不能拿包含实验 HOME/keyring/cache 的 MSYS2 工作树\n冒充发行负载。herdr build receipt 及产物必须来自真实固定版本构建和签名验证。\n\nWindows 私有运行时 = MSYS2 base 快照 + 锁内签名包（含 diffutils、patch、unzip/zip、\ntree、bc、procps-ng、vim、rsync、jq 等常用工具），不运行 pacman 或安装脚本。签名包带\n`upgrades_base` 时整体替换 base 快照里的同名旧版本：先按 pacman 本地库的文件清单与 mtree\n摘要核对全部旧文件，全部一致才删除旧文件及其本地库条目并装新包，依赖 manifest 的\n`msys2_upgrades` 记录这次替换（msys2-runtime 3.6.10-5 → 3.6.10-6，修复调用 winget、应用商店\n别名后挂死的问题，上游 msys2/msys2-runtime#372），`verify-bundle` 按锁复核该记录并拒绝载荷里残留的\n旧版本地库条目。覆盖安装时 Inno 不删除新载荷里没有的旧文件，所以每个 `upgrades_base` 都要在协调仓\n`packaging/windows/gx-shell.iss` 的 `[InstallDelete]` 里删除\n`{app}\\runtime\\msys64\\var\\lib\\pacman\\local\\<包名>-<旧版本>`（协调仓根单测\n`test_upgrades_delete_the_pacman_records_of_replaced_base_packages` 守门）。",
+   "layer": "doc"
+  },
+  {
    "id": "507b054e6a8c",
    "source": "docs/RELEASE.md",
    "anchor": "docs/RELEASE.md#固定输入与本地打包",
@@ -1208,11 +1216,11 @@
    "layer": "doc"
   },
   {
-   "id": "8354a7e9631b",
+   "id": "55c89d1148c9",
    "source": "docs/RELEASE.md",
    "anchor": "docs/RELEASE.md#固定输入与本地打包",
    "title": "固定输入与本地打包",
-   "text": "```bash\npython3 scripts/gx_dependencies.py audit --platform ubuntu-amd64\npython3 scripts/gx_dependencies.py fetch --platform ubuntu-amd64 --cache /绝对路径/cache\npython3 scripts/gx_dependencies.py verify --platform ubuntu-amd64 --cache /绝对路径/cache\npython3 scripts/gx_build_zsh.py fetch --platform ubuntu-amd64 --cache /绝对路径/cache\npython3 scripts/gx_build_zsh.py build --platform ubuntu-amd64 --cache /绝对路径/cache \\\n  --work /绝对路径/新构建目录 --output /绝对路径/zsh-build\npython3 scripts/gx_dependencies.py assemble --platform ubuntu-amd64 \\\n  --cache /绝对路径/cache --herdr-build /绝对路径/herdr-build \\\n  --zsh-build /绝对路径/zsh-build --output /绝对路径/dependencies\n```\n\n`fetch` 只取锁内资产；下载成功不代表对应源码或许可材料完整。`assemble` 离线读取\n已校验资产，输出必须是新目录，不能拿包含实验 HOME/keyring/cache 的 MSYS2 工作树\n冒充发行负载。herdr build receipt 及产物必须来自真实固定版本构建和签名验证。\n\nWindows 私有运行时 = MSYS2 base 快照 + 锁内签名包（含 diffutils、patch、unzip/zip、\ntree、bc、procps-ng、vim、rsync、jq 等常用工具），不运行 pacman 或安装脚本。签名包带\n`upgrades_base` 时整体替换 base 快照里的同名旧版本：先按 pacman 本地库的文件清单与 mtree\n摘要核对全部旧文件，全部一致才删除旧文件及其本地库条目并装新包，依赖 manifest 的\n`msys2_upgrades` 记录这次替换（msys2-runtime 3.6.10-5 → 3.6.10-6，修复调用 winget、应用商店\n别名后挂死的问题，上游 msys2/msys2-runtime#372），`verify-bundle` 按锁复核该记录并拒绝载荷里残留的\n旧版本地库条目。覆盖安装时 Inno 不删除新载荷里没有的旧文件，所以每个 `upgrades_base` 都要在单仓\n`packaging/windows/gx-shell.iss` 的 `[InstallDelete]` 里删除\n`{app}\\runtime\\msys64\\var\\lib\\pacman\\local\\<包名>-<旧版本>`（单仓根单测\n`test_upgrades_delete_the_pacman_records_of_replaced_base_packages` 守门）。",
+   "text": "herdr 包构建（`scripts/gx_build_herdr.py`）默认只在一次性 GitHub-hosted runner 上运行，receipt 记\n`builder=github-actions`；**只有 herdr receipt 为 `builder=github-actions` 的 stage 可以发布**。本机\n完整构建时设 `GX_LOCAL_BUILD_ROOT=<已存在的目录>`（GitHub Actions 上设了它会被拒绝）：工作、缓存与\n输出目录都须在该目录之内，环境里不能有 `GITHUB_TOKEN`/`GH_TOKEN`，receipt 记 `builder=local`。\nherdr 构建与 Windows 目标的启动器编译都设 `RUSTUP_AUTO_INSTALL=0`，锁定的 Rust 工具链须事先装好、\n缺少即失败；Windows 目标显式使用 `<锁定版本>-x86_64-pc-windows-msvc`，rustup 默认 host 是 GNU 时\n也不会用错。`gx_package.py stage` 只在源码干净（未用 `--allow-dirty`）且 receipt 的 builder 为\n`github-actions` 时写 `publishable: true`，`builder=local` 或缺少该字段一律不可发布；`verify-stage`\n拒绝自称可发布、builder 却不是 `github-actions` 的 stage，`verify --require-release` 拒绝 builder\n不是 `github-actions` 的包。协调仓 `gx_shell_package.py assemble` 不加 `--allow-dirty` 就拒绝这类\nstage，加了之后产物名带 `-local`，协调仓 `verify` 也只在 `--allow-dirty` 下接受它们，发版流程因此\n不会上传。协调仓 `scripts/gx_shell_stage_shell.sh` 在设了 `GX_LOCAL_BUILD_ROOT` 时以 `--allow-dirty`\nstage：未提交的 Oh My Zsh 改动会进包，herdr 仍按锁内固定 revision 构建。不要伪造 CI 环境变量绕过\nrunner 检查。",
    "layer": "doc"
   },
   {
@@ -1224,14 +1232,6 @@
    "layer": "doc"
   },
   {
-   "id": "df0f347a05d8",
-   "source": "docs/RELEASE.md",
-   "anchor": "docs/RELEASE.md#固定输入与本地打包",
-   "title": "固定输入与本地打包",
-   "text": "herdr 包构建（`scripts/gx_build_herdr.py`）默认只在一次性 GitHub-hosted runner 上运行，receipt 记\n`builder=github-actions`；**只有 herdr receipt 为 `builder=github-actions` 的 stage 可以发布**。本机\n完整构建时设 `GX_LOCAL_BUILD_ROOT=<已存在的目录>`（GitHub Actions 上设了它会被拒绝）：工作、缓存与\n输出目录都须在该目录之内，环境里不能有 `GITHUB_TOKEN`/`GH_TOKEN`，receipt 记 `builder=local`。\nherdr 构建与 Windows 目标的启动器编译都设 `RUSTUP_AUTO_INSTALL=0`，锁定的 Rust 工具链须事先装好、\n缺少即失败；Windows 目标显式使用 `<锁定版本>-x86_64-pc-windows-msvc`，rustup 默认 host 是 GNU 时\n也不会用错。`gx_package.py stage` 只在源码干净（未用 `--allow-dirty`）且 receipt 的 builder 为\n`github-actions` 时写 `publishable: true`，`builder=local` 或缺少该字段一律不可发布；`verify-stage`\n拒绝自称可发布、builder 却不是 `github-actions` 的 stage，`verify --require-release` 拒绝 builder\n不是 `github-actions` 的包。单仓 `gx_shell_package.py assemble` 不加 `--allow-dirty` 就拒绝这类\nstage，加了之后产物名带 `-local`，单仓 `verify` 也只在 `--allow-dirty` 下接受它们，发版流程因此\n不会上传。单仓 `scripts/gx_shell_stage_shell.sh` 在设了 `GX_LOCAL_BUILD_ROOT` 时以 `--allow-dirty`\nstage：未提交的 Oh My Zsh 改动会进包，herdr 仍按已提交的 HEAD 构建。不要伪造 CI 环境变量绕过\nrunner 检查。",
-   "layer": "doc"
-  },
-  {
    "id": "e0ae765120da",
    "source": "docs/RELEASE.md",
    "anchor": "docs/RELEASE.md#固定输入与本地打包",
@@ -1240,11 +1240,11 @@
    "layer": "doc"
   },
   {
-   "id": "564a42f42735",
+   "id": "f1f01b62bc28",
    "source": "docs/RELEASE.md",
    "anchor": "docs/RELEASE.md#手动-github-release",
    "title": "手动 GitHub Release",
-   "text": "本节只适用于独立的 gx0404/ohmyzsh 仓库。单仓中本目录的 workflow 不执行：GX Shell 合并安装包由单仓\n根 `.github/workflows/release.yml` 构建，在一次性 Windows runner（能下载到 0.1.0 安装包时还验证从\nGX Shell 0.1.0 升级）和 Ubuntu 20.04/24.04 容器里跑安装—使用—卸载冒烟，全部通过后才发布。\n\n`.github/workflows/gx-release.yml` 仅接受 `workflow_dispatch`，`publish` 默认 false。\n工作流必须先经人工审阅进入默认分支；本文不授权自动 commit、push、改默认分支或发包。\n\n- 两平台锁同一 ohmyzsh SHA 与 herdr SHA；构建 job 只读，checkout 不保留凭据。\n- 完整包、源码、许可、校验值和 Windows / Ubuntu 20.04 / 24.04 实际验收证据齐备后，\n  `scripts/gx_release.py::verify` 才允许进入发布。\n- 只有 publish job 临时获得 contents:write，controller 来自可信工作流 SHA；其他 ref\n  可以只读构建，不能把任意 ref 的脚本带入持写权限发布步骤。\n- 标签为 `gx-vX.Y.Z`。不移动标签，不覆盖已公开 Release；草稿必须绑定相同 SHA 和\n  资产摘要，上传完成后核对远端 size/digest 才公开。\n- 缺环境、中文运行时错误、生命周期入口或锁定材料缺失时必须失败，不以文件存在证明成功。\n\n```bash\npython3 scripts/gx_release.py prepare --ref <SHA> --version <X.Y.Z>\npython3 scripts/gx_release.py verify --sha <SHA> --version <X.Y.Z> --artifacts /绝对路径/artifacts\n```\n\n发布验证的必需检查名以 `scripts/gx_release.py::COMMON_CHECKS`、`WINDOWS_CHECKS` 和\n`LINUX_CHECKS` 为准。测试用 synthetic installer/证据只能验证消费者逻辑，不构成真实验收。",
+   "text": "本节只适用于独立的 gx0404/ohmyzsh 仓库。协调仓 gx0404/gx_shell 流程中本目录的 workflow 不执行：\nGX Shell 合并安装包由协调仓根 `.github/workflows/release.yml` 构建，在一次性 Windows runner（能\n下载到 0.1.0 安装包时还验证从 GX Shell 0.1.0 升级）和 Ubuntu 20.04/24.04 容器里跑安装—使用—\n卸载冒烟，全部通过后才发布。\n\n`.github/workflows/gx-release.yml` 仅接受 `workflow_dispatch`，`publish` 默认 false。\n工作流必须先经人工审阅进入默认分支；本文不授权自动 commit、push、改默认分支或发包。\n\n- 两平台锁同一 ohmyzsh SHA 与 herdr SHA；构建 job 只读，checkout 不保留凭据。\n- 完整包、源码、许可、校验值和 Windows / Ubuntu 20.04 / 24.04 实际验收证据齐备后，\n  `scripts/gx_release.py::verify` 才允许进入发布。\n- 只有 publish job 临时获得 contents:write，controller 来自可信工作流 SHA；其他 ref\n  可以只读构建，不能把任意 ref 的脚本带入持写权限发布步骤。\n- 标签为 `gx-vX.Y.Z`。不移动标签，不覆盖已公开 Release；草稿必须绑定相同 SHA 和\n  资产摘要，上传完成后核对远端 size/digest 才公开。\n- 缺环境、中文运行时错误、生命周期入口或锁定材料缺失时必须失败，不以文件存在证明成功。\n\n```bash\npython3 scripts/gx_release.py prepare --ref <SHA> --version <X.Y.Z>\npython3 scripts/gx_release.py verify --sha <SHA> --version <X.Y.Z> --artifacts /绝对路径/artifacts\n```\n\n发布验证的必需检查名以 `scripts/gx_release.py::COMMON_CHECKS`、`WINDOWS_CHECKS` 和\n`LINUX_CHECKS` 为准。测试用 synthetic installer/证据只能验证消费者逻辑，不构成真实验收。",
    "layer": "doc"
   },
   {
@@ -1256,19 +1256,19 @@
    "layer": "doc"
   },
   {
-   "id": "38eb8915d580",
+   "id": "72dcaf528cae",
    "source": "docs/TESTING.md",
    "anchor": "docs/TESTING.md#分层",
    "title": "分层",
-   "text": "| 层 | 入口 | 能证明 / 不能证明 |\n|---|---|---|\n| 语法 | `make lint`（check_syntax.sh） | 全部 shell 文件可解析（zsh -n / sh -n / bash -n 按 shebang 分派）+ 框架 Python 过 ast；与上游 CI 目标集一致并扩展到 tools/scripts/tests/hooks。不能证明行为正确 |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit 族（alias-finder、dotenv，本机 zunit 未装 → 可选层） | 独立单元逻辑。zunit 缺失时 ai-doctor 报 MISSING，不假绿 |\n| 配置形状 | `tests/check_tool_configs.py`（make test 的 config-shapes 步） | 三工具配置结构未漂移（Codex 数组表 hooks、ZCode 毫秒字段、适配器语言一致）+ 安全门经注册入口的允许/拒绝双向探针 |\n| 加载 smoke | `zsh tests/smoke_load.zsh [--plugins a,b]` | 隔离 ZDOTDIR/HOME 下主入口可加载、核心函数/别名就位、omz version 可用、退出码 0 |\n| 集成 | `--plugins git,docker` 变体 | 多插件组合不互相破坏（环境相关插件如 kubectl 受命令守卫约束，不纳入固定集） |\n| 终端证据 | `make ui-smoke` | 主题渲染（robbyrussell/agnoster 的分支段）、omz 子命令输出的真实捕获与断言 |\n| gx 模块单元 | `python3 tests/gx_terminal.py`（TerminalIntegration，make test 的 gx-terminal 步） | `zsh -f -i` + PTY 只加载 terminal.zsh：守卫（含 fd 重定向）、编码/缓存、上游钩子替换 |\n| gx 真实链路 | 同上（DeployedZshrc / DeployedInteractive） | install.sh 落地 mktemp HOME 后走真实 .zshenv/.zshrc（不加 -f）：fzf 版本分支、skip_global_compinit；真 PTY 起 `zsh -i` 覆盖 p10k instant prompt 形态下的 precmd 链、一次 cd 一条 `file:///` OSC 7、HERDR_ENV/TERM_PROGRAM 守卫、autosuggestions 首个提示符后不再重绑且后定义 widget 已包裹、灰色建议可见、4401 字符粘贴行每击键中位 <5 ms（高亮/建议长度上限生效）、越界后高亮停在旧帧不再重新解析（去掉 `ZSH_HIGHLIGHT_MAXLENGTH` 则会重新解析的对照）。缺 zsh/sh/PTY 或 instant prompt 缓存未生成即失败，不 skip |\n| gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、符号链接 custom 原样保留、只清无后缀与异主机/版本 compdump（含残留 `.lock` 目录）而当前一族保留且下次启动不重建、快照指纹变化时连当前 dump 一起清、无中转残留）/备份恢复/`.pre-gx-*` 按 `GX_KEEP_BACKUPS` 留「第一代 + 最新 N 份」、uninstall 后留「第一代 + N-1 份」、`all` 不回收、非法份数拒绝/自定义 ZSH 路径/`--home` 忽略环境 ZSH、环境 ZSH 越界 unattended 拒绝/上级不可写时中止且旧树不变。TMPDIR 与 fontconfig 缓存都落在沙箱 |\n| GX 包 profile | `python3 tests/gx_package_profile.py`（make test 的 gx-package-profile 步） | 只读资源与独立 profile、中文配置/缓存、herdr 补全（含打包 `_herdr` 时不后台生成、覆盖插件与上游同步）、fzf 新旧入口及真 PTY；盘符/非绝对 `ZSH_CUSTOM` 与 `POWERLEVEL9K_INSTALLATION_DIR`、资源树内任意主题须走 profile 副本、被污染的 FPATH 不重建 compdump、启动器给出的 `_ZO_DATA_DIR` 不再 fork、`SHELL` 只在 MSYS/Cygwin 指向正在运行的 zsh（Linux 保持登录值）、fzf/zoxide 初始化缓存命中与失效（键不同各留一份带哈希的缓存文件）、`_gx_init_cache` 单元（哈希文件名、命中、超过一天的同名旧键文件清理且不误删前缀相同的其他名称、生成失败或无输出返回 1 且不写文件、缓存目录不存在时直接返回脚本、二进制取不到信息时不走缓存）、强制 MSYS 时的 p10k SSH 预置/无 sudo/dircolors 缓存；当前中文运行时问题必须修复，不能跳过红项 |\n| GX Windows 层 | `python3 tests/gx_windows.py`（make test 的 gx-windows 步） | Linux 上 `windows.zsh` 不生效；强制 OSTYPE=msys/cygwin 时用 pwsh.exe/powershell.exe/cygpath shim 验证 `-NoProfile -ExecutionPolicy Bypass -Command` 外壳（脚本的 Windows 路径作单引号字面量，目录名里的 `'` 写两遍；退出码按 `-File` 语义由外壳里的 `$?`/`$LASTEXITCODE` 决定）、`MSYS2_ARG_CONV_EXCL=*`、临时脚本只有 BOM 加原文（`param(`/`[CmdletBinding()]`/`using` 开头的脚本首行不变）、退出码透传、空脚本（含 `irm` 失败后的 `\\| iex`）不启动 PowerShell 并返回 1、成功/失败/SIGINT 都删临时脚本、irm/iwr 引用（`&`、`'` 与 `‘ ’ ‚ ‛`、`-x;…`、`--%` 都成字面量，UTF-8 与 C locale）、irm/iwr 末尾的失败状态行、iwr 缺 `-UseBasicParsing` 时补上（`-useb…` 不分大小写识别，不重复）、pwsh 优先与 `GX_POWERSHELL`、无 PowerShell 返回 127、注册表 PATH 合并、提示处理器从不执行且逐参数加引号、运行时已带 unzip/vi 时不定义 shim、原生 zoxide 钩子对盘符目录不再调用 cygpath 且在后台记录（非原生 zoxide 不改）；另验 terminal.zsh 的 `file:///C:/…`。不运行真实 PowerShell；Windows 上的真实桥接只能在装好的 GX Zsh 里手测或由根冒烟覆盖 |\n| 打包与发布单元 | `python3 -m unittest discover -s tests -p 'test_gx_*.py'` | 来源/归档/摘要/权限与发布 API 契约；synthetic fixture 不代表真实安装成功 |\n| 原生启动器 | `python3 tests/gx_launcher.py` 或 `make typecheck` | 用实际 rustc 编译两个入口和 Rust 单元，执行隔离初始化/自更新拒绝、单次 `cygpath -f -` 标准输入批量转换及逐个回退、嵌套 GX 环境清理、herdr `config.toml` 迁移（只收编一次、非普通文件与托管路径的 `HERDR_CONFIG_PATH`）、`--gx-set-default-shell` 与 reload 报告（failed 退出 1、partial 告警）、Windows Ctrl+C 标志继承测试；缺编译器即失败。测试会改写 HOME/USERPROFILE，rustup 代理因此找不到工具链，用 `GX_RUSTC` 指向工具链内的 rustc 本体 |\n| 包模块聚合 | `make package-test` | Python 包单元 + 原生启动器；不安装包，不替代生命周期验收 |\n| herdr 基础 PTY | `scripts/gx_probe_herdr.py --herdr … --zsh … --output …`，Windows 另传 `--msys-root` | 唯一隔离 session 的真实 Zsh 窗格、中文输出、Ctrl+C、app-local ConPTY；Windows 另用 `send-keys ctrl+c` 与 WezTerm win32-input-mode 按键记录中断原生 `PING.EXE` 和 `sleep`，每例都要求 `$?` 为 130。不是 TUI attach/detach 或安装器测试 |\n| 原生包生命周期 | 单仓根 `re",
+   "text": "| 层 | 入口 | 能证明 / 不能证明 |\n|---|---|---|\n| 语法 | `make lint`（check_syntax.sh） | 全部 shell 文件可解析（zsh -n / sh -n / bash -n 按 shebang 分派）+ 框架 Python 过 ast；与上游 CI 目标集一致并扩展到 tools/scripts/tests/hooks。不能证明行为正确 |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit 族（alias-finder、dotenv，本机 zunit 未装 → 可选层） | 独立单元逻辑。zunit 缺失时 ai-doctor 报 MISSING，不假绿 |\n| 配置形状 | `tests/check_tool_configs.py`（make test 的 config-shapes 步） | 三工具配置结构未漂移（Codex 数组表 hooks、ZCode 毫秒字段、适配器语言一致）+ 安全门经注册入口的允许/拒绝双向探针 |\n| 加载 smoke | `zsh tests/smoke_load.zsh [--plugins a,b]` | 隔离 ZDOTDIR/HOME 下主入口可加载、核心函数/别名就位、omz version 可用、退出码 0 |\n| 集成 | `--plugins git,docker` 变体 | 多插件组合不互相破坏（环境相关插件如 kubectl 受命令守卫约束，不纳入固定集） |\n| 终端证据 | `make ui-smoke` | 主题渲染（robbyrussell/agnoster 的分支段）、omz 子命令输出的真实捕获与断言 |\n| gx 模块单元 | `python3 tests/gx_terminal.py`（TerminalIntegration，make test 的 gx-terminal 步） | `zsh -f -i` + PTY 只加载 terminal.zsh：守卫（含 fd 重定向）、编码/缓存、上游钩子替换 |\n| gx 真实链路 | 同上（DeployedZshrc / DeployedInteractive） | install.sh 落地 mktemp HOME 后走真实 .zshenv/.zshrc（不加 -f）：fzf 版本分支、skip_global_compinit；真 PTY 起 `zsh -i` 覆盖 p10k instant prompt 形态下的 precmd 链、一次 cd 一条 `file:///` OSC 7、HERDR_ENV/TERM_PROGRAM 守卫、autosuggestions 首个提示符后不再重绑且后定义 widget 已包裹、灰色建议可见、4401 字符粘贴行每击键中位 <5 ms（高亮/建议长度上限生效）、越界后高亮停在旧帧不再重新解析（去掉 `ZSH_HIGHLIGHT_MAXLENGTH` 则会重新解析的对照）。缺 zsh/sh/PTY 或 instant prompt 缓存未生成即失败，不 skip |\n| gx 安装演练 | `zsh tests/gx_install_smoke.zsh`（make test 的 gx-install-smoke 步） | 隔离 HOME 部署/加载/幂等重装（custom 层保全、同名以用户为准、符号链接 custom 原样保留、只清无后缀与异主机/版本 compdump（含残留 `.lock` 目录）而当前一族保留且下次启动不重建、快照指纹变化时连当前 dump 一起清、无中转残留）/备份恢复/`.pre-gx-*` 按 `GX_KEEP_BACKUPS` 留「第一代 + 最新 N 份」、uninstall 后留「第一代 + N-1 份」、`all` 不回收、非法份数拒绝/自定义 ZSH 路径/`--home` 忽略环境 ZSH、环境 ZSH 越界 unattended 拒绝/上级不可写时中止且旧树不变。TMPDIR 与 fontconfig 缓存都落在沙箱 |\n| GX 包 profile | `python3 tests/gx_package_profile.py`（make test 的 gx-package-profile 步） | 只读资源与独立 profile、中文配置/缓存、herdr 补全（含打包 `_herdr` 时不后台生成、覆盖插件与上游同步）、fzf 新旧入口及真 PTY；盘符/非绝对 `ZSH_CUSTOM` 与 `POWERLEVEL9K_INSTALLATION_DIR`、资源树内任意主题须走 profile 副本、被污染的 FPATH 不重建 compdump、启动器给出的 `_ZO_DATA_DIR` 不再 fork、`SHELL` 只在 MSYS/Cygwin 指向正在运行的 zsh（Linux 保持登录值）、fzf/zoxide 初始化缓存命中与失效（键不同各留一份带哈希的缓存文件）、`_gx_init_cache` 单元（哈希文件名、命中、超过一天的同名旧键文件清理且不误删前缀相同的其他名称、生成失败或无输出返回 1 且不写文件、缓存目录不存在时直接返回脚本、二进制取不到信息时不走缓存）、强制 MSYS 时的 p10k SSH 预置/无 sudo/dircolors 缓存；当前中文运行时问题必须修复，不能跳过红项 |\n| GX Windows 层 | `python3 tests/gx_windows.py`（make test 的 gx-windows 步） | Linux 上 `windows.zsh` 不生效；强制 OSTYPE=msys/cygwin 时用 pwsh.exe/powershell.exe/cygpath shim 验证 `-NoProfile -ExecutionPolicy Bypass -Command` 外壳（脚本的 Windows 路径作单引号字面量，目录名里的 `'` 写两遍；退出码按 `-File` 语义由外壳里的 `$?`/`$LASTEXITCODE` 决定）、`MSYS2_ARG_CONV_EXCL=*`、临时脚本只有 BOM 加原文（`param(`/`[CmdletBinding()]`/`using` 开头的脚本首行不变）、退出码透传、空脚本（含 `irm` 失败后的 `\\| iex`）不启动 PowerShell 并返回 1、成功/失败/SIGINT 都删临时脚本、irm/iwr 引用（`&`、`'` 与 `‘ ’ ‚ ‛`、`-x;…`、`--%` 都成字面量，UTF-8 与 C locale）、irm/iwr 末尾的失败状态行、iwr 缺 `-UseBasicParsing` 时补上（`-useb…` 不分大小写识别，不重复）、pwsh 优先与 `GX_POWERSHELL`、无 PowerShell 返回 127、注册表 PATH 合并、提示处理器从不执行且逐参数加引号、运行时已带 unzip/vi 时不定义 shim、原生 zoxide 钩子对盘符目录不再调用 cygpath 且在后台记录（非原生 zoxide 不改）；另验 terminal.zsh 的 `file:///C:/…`。不运行真实 PowerShell；Windows 上的真实桥接只能在装好的 GX Zsh 里手测或由根冒烟覆盖 |\n| 打包与发布单元 | `python3 -m unittest discover -s tests -p 'test_gx_*.py'` | 来源/归档/摘要/权限与发布 API 契约；synthetic fixture 不代表真实安装成功 |\n| 原生启动器 | `python3 tests/gx_launcher.py` 或 `make typecheck` | 用实际 rustc 编译两个入口和 Rust 单元，执行隔离初始化/自更新拒绝、单次 `cygpath -f -` 标准输入批量转换及逐个回退、嵌套 GX 环境清理、herdr `config.toml` 迁移（只收编一次、非普通文件与托管路径的 `HERDR_CONFIG_PATH`）、`--gx-set-default-shell` 与 reload 报告（failed 退出 1、partial 告警）、Windows Ctrl+C 标志继承测试；缺编译器即失败。测试会改写 HOME/USERPROFILE，rustup 代理因此找不到工具链，用 `GX_RUSTC` 指向工具链内的 rustc 本体 |\n| 包模块聚合 | `make package-test` | Python 包单元 + 原生启动器；不安装包，不替代生命周期验收 |\n| herdr 基础 PTY | `scripts/gx_probe_herdr.py --herdr … --zsh … --output …`，Windows 另传 `--msys-root` | 唯一隔离 session 的真实 Zsh 窗格、中文输出、Ctrl+C、app-local ConPTY；Windows 另用 `send-keys ctrl+c` 与 WezTerm win32-input-mode 按键记录中断原生 `PING.EXE` 和 `sleep`，每例都要求 `$?` 为 130。不是 TUI attach/detach 或安装器测试 |\n| 原生包生命周期 | 协调仓根 `r",
    "layer": "doc"
   },
   {
-   "id": "b34c680d87ad",
+   "id": "e889eec2f124",
    "source": "docs/TESTING.md",
    "anchor": "docs/TESTING.md#分层",
    "title": "分层",
-   "text": "上游 CI（.github/workflows/main.yml）只有 zsh -n 且被\n`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不运行**；\n`make ci-check` 是本仓真实质量门。CI 列表只含 lint/test/generated-check，\n未列入的层不能宣称 CI 已覆盖。单仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job\n跑 `test_gx_*.py`，`ohmyzsh-posix` job（Ubuntu 24.04，等 `shell-linux` 产出 stage 后以其中打包的\nGX Zsh 为 `GX_TEST_ZSH`——包装脚本不调外部命令、保留调用方已设的 FPATH；apt 另装 zsh 与 fzf）跑\n`gx_package_profile.py`、`gx_windows.py` 与\n`gx_launcher.py`——系统 Zsh 5.9 的 zcompile、zf_mv 会把中文路径按 metafied 字节处理，GX 补丁修复了\n这一点，用例的中文 profile 路径正依赖它；`shell-windows` job 在 Windows runner 上跑 `gx_launcher.py`；\n`gx_terminal.py`、安装演练与加载 smoke 等其余层仍只在本地 `make test` 里运行。",
+   "text": "上游 CI（.github/workflows/main.yml）只有 zsh -n 且被\n`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不运行**；\n`make ci-check` 是本仓真实质量门。CI 列表只含 lint/test/generated-check，\n未列入的层不能宣称 CI 已覆盖。协调仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job\n跑 `test_gx_*.py`，`ohmyzsh-posix` job（Ubuntu 24.04，等 `shell-linux` 产出 stage 后以其中打包的\nGX Zsh 为 `GX_TEST_ZSH`——包装脚本不调外部命令、保留调用方已设的 FPATH；apt 另装 zsh 与 fzf）跑\n`gx_package_profile.py`、`gx_windows.py` 与\n`gx_launcher.py`——系统 Zsh 5.9 的 zcompile、zf_mv 会把中文路径按 metafied 字节处理，GX 补丁修复了\n这一点，用例的中文 profile 路径正依赖它；`shell-windows` job 在 Windows runner 上跑 `gx_launcher.py`；\n`gx_terminal.py`、安装演练与加载 smoke 等其余层仍只在本地 `make test` 里运行。",
    "layer": "doc"
   },
   {
@@ -1280,11 +1280,11 @@
    "layer": "doc"
   },
   {
-   "id": "989f78ffd51c",
+   "id": "e836652d341f",
    "source": "docs/TESTING.md",
    "anchor": "docs/TESTING.md#证据与截图流程",
    "title": "证据与截图流程",
-   "text": "1. `make evidence <task>` 分配批次目录（gitignored，按\n   `<分支>/<任务>/<时间戳-uuid>/` 隔离；dev_framework.py 校验证据根确被\n   gitignore 且拒绝路径穿越）。\n2. 执行操作、捕获（文本捕获为主：重定向/`script`；有 tmux 时补\n   `capture-pane`）、断言关键内容。\n3. **读回**：人工或 agent 实际查看捕获文件内容后才在 result.json 置\n   `images_reviewed: true` 并更新 status。只保存不算通过。\n4. 失败批次保留待修复对照；修复后另开批次复测，不覆盖旧批次。\n\nrunner 只清理自己批次的 `results/`；`.playwright-mcp/` 整体不入库。",
+   "text": "1. `python3 scripts/dev_framework.py evidence <task>`（`make evidence` 等价于任务名\n   ui）分配批次目录（gitignored，按\n   `<分支>/<任务>/<时间戳-uuid>/` 隔离；dev_framework.py 校验证据根确被\n   gitignore 且拒绝路径穿越）。\n2. 执行操作、捕获（文本捕获为主：重定向/`script`；有 tmux 时补\n   `capture-pane`）、断言关键内容。\n3. **读回**：人工或 agent 实际查看捕获文件内容后才在 result.json 置\n   `images_reviewed: true` 并更新 status。只保存不算通过。\n4. 失败批次保留待修复对照；修复后另开批次复测，不覆盖旧批次。\n\nrunner 只清理自己批次的 `results/`；`.playwright-mcp/` 整体不入库。",
    "layer": "doc"
   },
   {

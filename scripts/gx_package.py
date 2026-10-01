@@ -82,7 +82,9 @@ def clean_source(repo: Path, ref: str, allow_dirty: bool = False) -> dict:
     revision = git(repo, "rev-parse", "--verify", ref + "^{commit}").decode().strip()
     if not deps.REVISION.fullmatch(revision):
         raise PackageError("expected full Git commit SHA")
-    # `-- .` 与 `./CHANGELOG.md`：在 gx_shell 单仓里只统计/读取本目录，兄弟组件不影响脏检查。
+    # `-- .` 与 `./CHANGELOG.md`：本仓可能以协调仓 `<root>/ohmyzsh/` 形态检出，git
+    # 顶层是协调仓根；脏检查与 CHANGELOG 读取必须限定本组件目录，协调仓内其他组件
+    # （各自独立锁定 SHA，herdr 来自独立仓）的改动不得影响本仓的干净判定。
     dirty = (
         bool(git(repo, "diff", "--name-only", "--no-ext-diff", "HEAD", "--", "."))
         or bool(git(repo, "diff", "--cached", "--name-only", "--no-ext-diff", "HEAD", "--", "."))

@@ -76,10 +76,10 @@ herdr 构建与 Windows 目标的启动器编译都设 `RUSTUP_AUTO_INSTALL=0`�
 也不会用错。`gx_package.py stage` 只在源码干净（未用 `--allow-dirty`）且 receipt 的 builder 为
 `github-actions` 时写 `publishable: true`，`builder=local` 或缺少该字段一律不可发布；`verify-stage`
 拒绝自称可发布、builder 却不是 `github-actions` 的 stage，`verify --require-release` 拒绝 builder
-不是 `github-actions` 的包。单仓 `gx_shell_package.py assemble` 不加 `--allow-dirty` 就拒绝这类
-stage，加了之后产物名带 `-local`，单仓 `verify` 也只在 `--allow-dirty` 下接受它们，发版流程因此
-不会上传。单仓 `scripts/gx_shell_stage_shell.sh` 在设了 `GX_LOCAL_BUILD_ROOT` 时以 `--allow-dirty`
-stage：未提交的 Oh My Zsh 改动会进包，herdr 仍按已提交的 HEAD 构建。不要伪造 CI 环境变量绕过
+不是 `github-actions` 的包。协调仓 `gx_shell_package.py assemble` 不加 `--allow-dirty` 就拒绝这类
+stage，加了之后产物名带 `-local`，协调仓 `verify` 也只在 `--allow-dirty` 下接受它们，发版流程因此
+不会上传。协调仓 `scripts/gx_shell_stage_shell.sh` 在设了 `GX_LOCAL_BUILD_ROOT` 时以 `--allow-dirty`
+stage：未提交的 Oh My Zsh 改动会进包，herdr 仍按锁内固定 revision 构建。不要伪造 CI 环境变量绕过
 runner 检查。
 
 ```bash
@@ -104,9 +104,9 @@ tree、bc、procps-ng、vim、rsync、jq 等常用工具），不运行 pacman �
 摘要核对全部旧文件，全部一致才删除旧文件及其本地库条目并装新包，依赖 manifest 的
 `msys2_upgrades` 记录这次替换（msys2-runtime 3.6.10-5 → 3.6.10-6，修复调用 winget、应用商店
 别名后挂死的问题，上游 msys2/msys2-runtime#372），`verify-bundle` 按锁复核该记录并拒绝载荷里残留的
-旧版本地库条目。覆盖安装时 Inno 不删除新载荷里没有的旧文件，所以每个 `upgrades_base` 都要在单仓
+旧版本地库条目。覆盖安装时 Inno 不删除新载荷里没有的旧文件，所以每个 `upgrades_base` 都要在协调仓
 `packaging/windows/gx-shell.iss` 的 `[InstallDelete]` 里删除
-`{app}\runtime\msys64\var\lib\pacman\local\<包名>-<旧版本>`（单仓根单测
+`{app}\runtime\msys64\var\lib\pacman\local\<包名>-<旧版本>`（协调仓根单测
 `test_upgrades_delete_the_pacman_records_of_replaced_base_packages` 守门）。
 
 运行时现在随包带上游 MSYS2 的 `etc/fstab`（此前被排除）：盘符路径从 `/cygdrive/c/...` 变为
@@ -154,9 +154,10 @@ python3 scripts/gx_package.py verify --manifest /绝对路径/artifacts/<名称>
 
 ## 手动 GitHub Release
 
-本节只适用于独立的 gx0404/ohmyzsh 仓库。单仓中本目录的 workflow 不执行：GX Shell 合并安装包由单仓
-根 `.github/workflows/release.yml` 构建，在一次性 Windows runner（能下载到 0.1.0 安装包时还验证从
-GX Shell 0.1.0 升级）和 Ubuntu 20.04/24.04 容器里跑安装—使用—卸载冒烟，全部通过后才发布。
+本节只适用于独立的 gx0404/ohmyzsh 仓库。协调仓 gx0404/gx_shell 流程中本目录的 workflow 不执行：
+GX Shell 合并安装包由协调仓根 `.github/workflows/release.yml` 构建，在一次性 Windows runner（能
+下载到 0.1.0 安装包时还验证从 GX Shell 0.1.0 升级）和 Ubuntu 20.04/24.04 容器里跑安装—使用—
+卸载冒烟，全部通过后才发布。
 
 `.github/workflows/gx-release.yml` 仅接受 `workflow_dispatch`，`publish` 默认 false。
 工作流必须先经人工审阅进入默认分支；本文不授权自动 commit、push、改默认分支或发包。

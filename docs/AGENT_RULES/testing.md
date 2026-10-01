@@ -11,7 +11,7 @@
 | 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit（可选） | awk 插件禁用逻辑等独立单元 |
 | 加载 smoke | `zsh tests/smoke_load.zsh` | 隔离环境下主入口可加载、关键函数/别名就位、退出码 0 |
 | 集成 | `zsh tests/smoke_load.zsh --plugins a,b` | 多插件组合加载不互相破坏 |
-| 终端证据 | `make ui-smoke` + `make evidence <task>` | 主题渲染/omz 子命令的实际输出被捕获并读回 |
+| 终端证据 | `make ui-smoke` + `dev_framework.py evidence <task>` | 主题渲染/omz 子命令的实际输出被捕获并读回 |
 
 上游 CI（.github/workflows/main.yml）只做 zsh -n 且被
 `if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不会运行**。
@@ -32,7 +32,8 @@
 
 ## 证据与截图
 
-- 证据根 `.playwright-mcp/`（gitignored）。`make evidence <task>` 分配
+- 证据根 `.playwright-mcp/`（gitignored）。`python3 scripts/dev_framework.py
+  evidence <task>`（`make evidence` 等价于任务名 ui）分配
   `<分支>/<任务>/<批次>/` 目录；runner 只清理自己批次的 `results/`。
 - 终端场景（主题渲染、omz 子命令输出、安装演练）以文本捕获为主
   （`script`/tmux capture-pane），有 tmux 时补 PNG 截图。捕获后**必须读回检查**

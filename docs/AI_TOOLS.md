@@ -13,7 +13,7 @@
 | 项目配置 | .zcode/config.json | .claude/settings.json | .codex/config.toml |
 | 路由提醒 | —（按 AGENTS.md 协议手动 resolver） | .claude/rules/*.md（带 paths 的薄提醒） | — |
 | hooks | PreToolUse→安全门（毫秒 timeoutMs）；Stop→复审提醒 | 同左（秒 timeout） | 数组表 `[[hooks.PreToolUse]]` 桥接同一安全门（Python 透传） |
-| 权限 | — | allow/ask/deny 三段（deny：强推、clean、写 custom/、写 .git/） | approval=on-request、sandbox=workspace-write、环境变量排除 *KEY*/*TOKEN* |
+| 权限 | — | allow/ask/deny 三段（deny：强推、clean、写 custom/、写 cache/、写 .git/） | approval=never、sandbox=danger-full-access（2026-09 用户授权放开，破坏性操作仍由安全门真源拦截）；环境变量排除 *KEY*/*SECRET*/*TOKEN*/*PASSWORD* |
 
 安全门策略真源：`.claude/hooks/pretooluse-safety-gate.sh`（拒绝写
 custom/cache/log/.git 与历史重写命令；stdin JSON 宽容提取，绝对路径相对化后
@@ -25,7 +25,7 @@ custom/cache/log/.git 与历史重写命令；stdin JSON 宽容提取，绝对�
 |---|---|---|
 | 配置文件可解析（JSON/TOML） | PASS | audit_ai_settings 0 ERROR |
 | hook 脚本语法（bash -n / ast.parse） | PASS | check_syntax.sh 覆盖；audit 复核 |
-| 配置形状回归锁 | PASS | tests/check_tool_configs.py 18 项全过（Codex 数组表 hooks、Stop 无 matcher、秒制 timeout；Zcode enabled+毫秒 timeoutMs；Claude hook 引用与 custom/ deny 防线；.py 适配器 ast 可解析） |
+| 配置形状回归锁 | PASS | tests/check_tool_configs.py 全过（Codex 数组表 hooks、Stop 无 matcher、秒制 timeout；Zcode enabled+毫秒 timeoutMs；Claude hook 引用与 custom/ deny 防线；.py 适配器 ast 可解析；命令位置/文本提及区分；组件根相对化） |
 | 注册入口原样探针 | PASS | 按各工具配置里的原样 command 走 bash -c 执行（含 git rev-parse 与适配器），危险写入拒（exit 2）/合法写入放行（exit 0）双向 |
 | resolver 规则加载（真实 scope 演练） | PASS | lib/git.zsh + plugins/docker + themes/agnoster --task review → 4 份规则正确返回 |
 | ZCode hooks 实际触发 | PENDING | 需新会话实际写文件观察（本会话无法自证） |

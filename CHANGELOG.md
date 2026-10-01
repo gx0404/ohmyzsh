@@ -22,16 +22,25 @@
   原生包升级/卸载及完整发布验收仍未完成，不能据此宣称可正式发布。
 - 知识库构建统一文本换行并处理 Git 符号链接，避免 Windows/Linux checkout 形态
   导致语料指纹漂移；同步 Make 入口、领域规则和发布/测试文档。
-- 并入 `gx0404/gx_shell` 单仓：herdr 改为从同一提交的 `herdr/` 子目录构建，
-  锁只声明 `monorepo_path`，revision、版本和源码归档摘要由提交推导，对应源码与
-  编译输入是同一归档；herdr 以包身份编译，二进制内关闭自更新。打包脚本的脏检查与
-  CHANGELOG 读取限定在本目录，herdr 构建器接受 gx_shell 的 GitHub 托管 runner。
-- AI 工具安全门在单仓中按本组件根（脚本自身位置）相对化路径，注册命令指向
-  `ohmyzsh/` 下的脚本；修复并入单仓后 `custom/` 等保护规则静默失效，以及 Windows
-  反斜杠路径从未命中的问题，注册入口探针补充绝对路径与 Stop 钩子用例。
+- herdr 来源解耦为独立仓库 `gx0404/herdr`：锁回到固定 `revision` 加该提交 GitHub
+  ZIP 的 filename/prefix/sha256/size 完整记录，不再解析 `monorepo_path`，
+  branch_provenance 记来源分支 `feature/gx_herdr`；herdr 以包身份编译，二进制内
+  关闭自更新，源码摘要与许可/补充许可审计基线随提交一起锁定。`gx_build_herdr.py`
+  新增 `--herdr-source-root` 接受匹配锁定 revision 的独立 checkout，构建 runner
+  只认本仓或协调仓 `gx0404/gx_shell` 的一次性 GitHub 托管实例；Zsh 运行时构建
+  新增 `--jobs` 并行编译（默认 4，经 `GX_ZSH_JOBS` 传递）。三仓 SHA 独立：旧合并
+  SHA、父提交来源身份的回执与旧源码摘要一律不可复用，回归测试拒绝。
+- AI 工具安全门按脚本自身位置推导的组件根相对化路径，Windows 反斜杠路径同样
+  命中，`custom/` 等保护规则不因绝对路径静默失效；zcode/codex 注册命令锚定
+  `git rev-parse --show-toplevel` 仓库根（独立 checkout 下子路径形态会静默
+  失效，已被 config-shapes 门拦下），注册入口探针补充绝对路径与 Stop 钩子用例。
+- 再分发通知的 herdr 溯源文字与锁同步：`GX-DEPENDENCY-BUILD.txt` 来源分支改述
+  `feature/gx_herdr`，`conpty-LICENSES.txt` 头部锚定当前锁定 revision（Origin 保留
+  历史提取提交）；再分发锁内两文件共 137 处摘要按 LF 归一化字节重算，
+  `dependencies.json` 的 canonical_sha256 同步，依赖/发布/打包 181 项测试通过。
 - herdr 探针在 Windows 上改为经 Win32（OpenProcess + K32EnumProcessModulesEx）
   直接枚举自有 herdr server 的已加载模块来证明 app-local ConPTY，不再启动
-  PowerShell：托管 windows-2025 runner 上 PowerShell 冷启动超过 20 秒，导致单仓
+  PowerShell：托管 windows-2025 runner 上 PowerShell 冷启动超过 20 秒，导致协调仓
   冒烟在该步超时。模块表刚启动时可能不完整，限时 10 秒重试；失败时报告所见模块
   或 Win32 错误。Ctrl+C 后先等新提示符出现（至多 20 秒）再输入下一条命令：MSYS2
   Zsh 处理中断时会丢弃提前到达的键入，原先该步成败取决于时序。探针自有 server
@@ -119,7 +128,7 @@
 - herdr 探针在 Windows 上新增原生 `PING.EXE`，以及 WezTerm win32-input-mode 按键记录形式的
   Ctrl+C 中断用例，每例都要求退出码 130。
 - 测试：新增 `tests/gx_windows.py`，在强制 MSYS 的 Zsh 里用 PowerShell/cygpath 替身验证 Windows 层
-  （接入 `make test`）；`gx_package_profile.py`、`gx_launcher.py` 覆盖本轮修复，单仓发版流程在
+  （接入 `make test`）；`gx_package_profile.py`、`gx_launcher.py` 覆盖本轮修复，协调仓发版流程在
   Ubuntu 24.04 上运行这三组测试、在 Windows runner 上运行启动器测试（Linux 结果与两平台安装冒烟
   以该流程为准）；`check_syntax.sh` 覆盖 `gx/omz-custom/plugins` 下的覆盖插件；`test_gx_lifecycle`
   调用 PowerShell 时加 `-ExecutionPolicy Bypass`。

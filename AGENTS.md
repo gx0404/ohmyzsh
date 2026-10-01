@@ -65,7 +65,7 @@ make framework-ready    # 命令配置完整门
 make ci-check           # lint + test + generated-check
 make test               # 单元 + 隔离加载 smoke
 make graph / kb         # 重建代码图谱 / 知识库（chunks.json 受控生成物）
-make evidence <task>    # 分配 .playwright-mcp/<分支>/<任务>/<批次>/ 证据目录
+make evidence           # 分配 .playwright-mcp/<分支>/ui/<批次>/ 证据目录（自定义任务：python3 scripts/dev_framework.py evidence <task>）
 ```
 
 ## 跨域硬边界

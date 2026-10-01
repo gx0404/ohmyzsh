@@ -43,4 +43,5 @@
 
 - `bash scripts/check_syntax.sh` 对 tools/*.sh 做 `sh -n`、对 zsh 脚本做 `zsh -n`。
 - install/uninstall 路径改动：在隔离 `ZDOTDIR`/`HOME`（mktemp）演练装-卸-恢复循环，
-  证据留 `make evidence installer-rehearsal` 批次目录；不得碰真实 `$HOME`。
+  证据留 `python3 scripts/dev_framework.py evidence installer-rehearsal` 批次目录；
+  不得碰真实 `$HOME`。

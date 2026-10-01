@@ -10,7 +10,7 @@
           "hooks": [
             {
               "type": "command",
-              "command": "bash \"$(git rev-parse --show-toplevel)/ohmyzsh/.claude/hooks/pretooluse-safety-gate.sh\"",
+              "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/pretooluse-safety-gate.sh\"",
               "timeoutMs": 30000
             }
           ]
@@ -21,7 +21,7 @@
           "hooks": [
             {
               "type": "command",
-              "command": "bash \"$(git rev-parse --show-toplevel)/ohmyzsh/.claude/hooks/notify_review.sh\"",
+              "command": "bash \"$(git rev-parse --show-toplevel)/.claude/hooks/notify_review.sh\"",
               "timeoutMs": 10000
             }
           ]

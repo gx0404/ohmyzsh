@@ -5,9 +5,10 @@ not a claim of bit-for-bit reproducibility or a replacement for upstream license
 The manifest identifies each archive by SHA-256. Do not substitute a moving branch.
 
 HERDR
-Source: the gx0404/herdr fork's gx branch at the complete revision recorded in the
-dependency manifest (herdr 0.9.2 when this notice was written; that commit's
-Cargo.toml is authoritative). The source is herdr-<commit>.zip, produced by
+Source: the gx0404/herdr repository's feature/gx_herdr branch at the complete
+revision recorded in the dependency manifest (herdr 0.9.2 when this notice was
+written; that commit's Cargo.toml is authoritative). The source is
+herdr-<commit>.zip, produced by
 git archive --format=zip --prefix=herdr-<commit>/ <commit> and identified by its
 SHA-256. Receipts built from any other commit or archive are not valid for the
 release, even if their revision or source digest is relabeled.

@@ -1,7 +1,7 @@
 # gx 个人配置层规则（gx/）
 
 适用 scope：`gx/**`（个人 zsh 配置固化层：config/、omz-custom/、bin/、fonts/、
-wezterm/、install.sh、bundle.sh、README.md）。本层是 fork 特有的"把一台机器的
+wezterm/、history/、install.sh、bundle.sh、README.md）。本层是 fork 特有的"把一台机器的
 shell 环境复制到另一台机器"的交付物，部署目标是用户真实 `$HOME`，属安全敏感面。
 
 ## 结构与真源
@@ -25,6 +25,10 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   gx/README.md 的来源/版本/复刻命令清单。
 - 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`
   模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。
+- `gx/history/` 是本机 Zsh 历史的**可公开子集**生成物（`scripts/gx_history.py::summarize`
+  白名单统计与逐字符匹配精选，产出 `seed.zsh_history`/`summary.json`），不含原始参数、
+  时间戳、工作目录与自由文本；再生流程、隐私边界与回归见 `gx/history/README.md` 与
+  `tests/test_gx_history.py`，白名单扩词必须逐条确认可公开后才收录。
 
 ## 原生包 profile
 

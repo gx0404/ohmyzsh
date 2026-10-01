@@ -69,7 +69,7 @@
   ],
   "redistribution": {
     "file": "redistribution-lock.json",
-    "canonical_sha256": "77514a06691c1b90c3a7c62c841730a66f0709e79adce9a0a80cf5bcb918f31b"
+    "canonical_sha256": "6d631689ed885a8594677aa40e26973841f9a432d3b4dc538cda99ea6e9b1575"
   },
   "herdr": {
     "branch_provenance": "feature/gx_herdr",

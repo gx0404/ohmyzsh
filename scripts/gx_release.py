@@ -106,7 +106,7 @@ def changelog_version(text: str) -> str:
 
 
 def dependencies_module():
-    # gx_release 常以 `python -I` 运行（sys.path 不含脚本目录）；单仓 herdr 的
+    # gx_release 常以 `python -I` 运行（sys.path 不含脚本目录）；独立仓 herdr 的
     # 锁解析与生产者共用 gx_dependencies 的同一实现，保证 lock_digest 一致。
     scripts = str(Path(__file__).resolve().parent)
     if scripts not in sys.path:

@@ -31,9 +31,10 @@ gx/
 ## 原生安装包（开发中）
 
 正在增加 Windows x64 EXE（私有 MSYS2 Zsh，非 WSL）与 Ubuntu amd64 DEB。
-原生入口为 `gx-zsh` / `herdr`，herdr 来自 `gx0404/gx_shell` 单仓同一提交的 `herdr/`
-目录。打包来源、工具版本、许可及对应源码见 `scripts/packaging/`；合并安装包
-（含 WezTerm）由单仓根目录的发版流程生成。
+原生入口为 `gx-zsh` / `herdr`，herdr 独立位于 `gx0404/herdr`（来源分支
+`feature/gx_herdr`，构建取锁内固定 revision 的 GitHub 源码归档）。打包来源、
+工具版本、许可及对应源码见 `scripts/packaging/`；合并安装包（含 WezTerm）由
+协调仓 `gx0404/gx_shell` 的发版流程生成。
 
 **完整包尚未验收，不应把下述接口当作已发布下载。** 中文 HOME/独立 profile/缓存、
 安装升级卸载与 TUI 均需真实通过后才能发布，详见 [发布手册](../docs/RELEASE.md)。

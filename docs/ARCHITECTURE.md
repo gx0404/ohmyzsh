@@ -31,7 +31,7 @@ Oh My Zsh 是纯 Zsh 框架：一个被用户 `.zshrc` source 的主入口 + 核
 - **别名回滚**：`zstyle ':omz:... aliases` 支持按插件禁用别名，`_omz_source`
   基于 grep 回查插件源实现，加载前自动卸载被禁别名。
 
-## lib/ 核心库（22 个文件）
+## lib/ 核心库（21 个顶层 .zsh，lib/tests/ 另计）
 
 | 文件 | 职责 |
 |---|---|

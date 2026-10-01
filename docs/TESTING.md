@@ -19,13 +19,13 @@
 | 原生启动器 | `python3 tests/gx_launcher.py` 或 `make typecheck` | 用实际 rustc 编译两个入口和 Rust 单元，执行隔离初始化/自更新拒绝、单次 `cygpath -f -` 标准输入批量转换及逐个回退、嵌套 GX 环境清理、herdr `config.toml` 迁移（只收编一次、非普通文件与托管路径的 `HERDR_CONFIG_PATH`）、`--gx-set-default-shell` 与 reload 报告（failed 退出 1、partial 告警）、Windows Ctrl+C 标志继承测试；缺编译器即失败。测试会改写 HOME/USERPROFILE，rustup 代理因此找不到工具链，用 `GX_RUSTC` 指向工具链内的 rustc 本体 |
 | 包模块聚合 | `make package-test` | Python 包单元 + 原生启动器；不安装包，不替代生命周期验收 |
 | herdr 基础 PTY | `scripts/gx_probe_herdr.py --herdr … --zsh … --output …`，Windows 另传 `--msys-root` | 唯一隔离 session 的真实 Zsh 窗格、中文输出、Ctrl+C、app-local ConPTY；Windows 另用 `send-keys ctrl+c` 与 WezTerm win32-input-mode 按键记录中断原生 `PING.EXE` 和 `sleep`，每例都要求 `$?` 为 130。不是 TUI attach/detach 或安装器测试 |
-| 原生包生命周期 | 单仓根 `release.yml` 的冒烟（`scripts/gx_shell_smoke_windows.ps1`、`scripts/gx_shell_smoke_linux.sh`）；独立仓库为手动 `gx-release` | 必须对真实 EXE/DEB 验证安装/升级/卸载、PATH 所有权、中文 HOME/profile、P10k/补全缓存和 TUI。单仓中冒烟只在一次性 Windows runner 与 Ubuntu 20.04/24.04 容器里跑合并安装包（Windows 能下载到 0.1.0 时含升级），本目录的 `gx-release` 不执行；未在这些环境跑过前保持 PENDING |
+| 原生包生命周期 | 协调仓根 `release.yml` 的冒烟（`scripts/gx_shell_smoke_windows.ps1`、`scripts/gx_shell_smoke_linux.sh`）；独立仓库为手动 `gx-release` | 必须对真实 EXE/DEB 验证安装/升级/卸载、PATH 所有权、中文 HOME/profile、P10k/补全缓存和 TUI。协调仓中冒烟只在一次性 Windows runner 与 Ubuntu 20.04/24.04 容器里跑合并安装包（Windows 能下载到 0.1.0 时含升级），本目录的 `gx-release` 不执行；未在这些环境跑过前保持 PENDING |
 | 生成物 | `make generated-check`（kb-check） | docs/kb/chunks.json 与语料一致 |
 
 上游 CI（.github/workflows/main.yml）只有 zsh -n 且被
 `if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不运行**；
 `make ci-check` 是本仓真实质量门。CI 列表只含 lint/test/generated-check，
-未列入的层不能宣称 CI 已覆盖。单仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job
+未列入的层不能宣称 CI 已覆盖。协调仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job
 跑 `test_gx_*.py`，`ohmyzsh-posix` job（Ubuntu 24.04，等 `shell-linux` 产出 stage 后以其中打包的
 GX Zsh 为 `GX_TEST_ZSH`——包装脚本不调外部命令、保留调用方已设的 FPATH；apt 另装 zsh 与 fzf）跑
 `gx_package_profile.py`、`gx_windows.py` 与
@@ -74,7 +74,8 @@ GX Zsh 为 `GX_TEST_ZSH`——包装脚本不调外部命令、保留调用方�
 
 ## 证据与截图流程
 
-1. `make evidence <task>` 分配批次目录（gitignored，按
+1. `python3 scripts/dev_framework.py evidence <task>`（`make evidence` 等价于任务名
+   ui）分配批次目录（gitignored，按
    `<分支>/<任务>/<时间戳-uuid>/` 隔离；dev_framework.py 校验证据根确被
    gitignore 且拒绝路径穿越）。
 2. 执行操作、捕获（文本捕获为主：重定向/`script`；有 tmux 时补
