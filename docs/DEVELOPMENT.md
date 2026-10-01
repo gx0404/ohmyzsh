@@ -25,6 +25,32 @@ make ai-doctor           # 命令入口盘点（FOUND/MISSING，不安装）
 python3 scripts/agent_kb.py search "关键词"   # 仓库知识检索
 ```
 
+## 构建边界
+
+所有编译、构建、打包与项目专用工具链环境只写 `.build/`（gitignored）——工作
+目录、缓存、输出与解包产物不得散到项目外；本地 herdr 构建的
+`GX_LOCAL_BUILD_ROOT` 指向 `.build/` 子目录。测试与 smoke 的临时数据同样落
+`.build/tmp/`（run_tests/check_syntax/dev_shell/ui_smoke 已默认重定向
+`TMPDIR`/`TEMP`/`TMP`），不留项目外残留。
+
+Windows 本机补齐 POSIX 测试层用项目内 MSYS2 宿主（bash/python3/zsh/git 同根，
+不装系统级 MSYS2/WSL）：
+
+```bash
+# 一次性搭建：msys2-base sfx 解压到 .build/msys64 → 首次 bash -l 初始化 →
+# pacman -S git diffutils mingw-w64-ucrt-x86_64-fzf
+./.build/msys64/usr/bin/bash -lc 'cd <仓库 POSIX 路径> && bash scripts/run_tests.sh'
+```
+
+外层 Git Bash 只跑 `zsh -n` 语法层时，把 `.build/msys64/usr/bin` 追加到 PATH
+**末尾**即可（前置会遮蔽 Git 自带 cygpath 等，曾导致探针误报）。
+
+经验边界（msys 宿主 ≠ 真 Linux）：本机 msys 宿主稳定覆盖 syntax / unit-cli /
+config-shapes / smoke 与 `test_gx_*` 打包单元；gx 的 Linux 部署套件
+（gx-terminal Deployed* / Wezterm、gx-install-smoke、gx-package-profile）及
+DrvFS 无 POSIX 符号链接、真 cygpath 干扰 shim 用例等差异，仍以真 Linux 宿主
+（协调仓 CI 或 WSL）为准。
+
 ## 提交纪律
 
 - Conventional Commits：`type(scope)!: subject`；scope = 插件/主题名或

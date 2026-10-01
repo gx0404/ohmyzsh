@@ -38,6 +38,14 @@
   `feature/gx_herdr`，`conpty-LICENSES.txt` 头部锚定当前锁定 revision（Origin 保留
   历史提取提交）；再分发锁内两文件共 137 处摘要按 LF 归一化字节重算，
   `dependencies.json` 的 canonical_sha256 同步，依赖/发布/打包 181 项测试通过。
+- 仓库规则新增构建边界并落到流程：所有编译、构建、打包与项目专用工具链环境只
+  写项目内 `.build/`（gitignored 标记块），工作目录、缓存、输出与解包产物不得
+  散到项目外；本地 herdr 构建的 `GX_LOCAL_BUILD_ROOT` 指向 `.build/` 子目录。
+  run_tests/check_syntax/dev_shell/ui_smoke 默认把 `TMPDIR` 与 Windows 形态
+  `TEMP`/`TMP` 重定向到 `.build/tmp/`，mktemp 与 Python tempfile 全部落项目内。
+  Windows 本机可用项目内 MSYS2 宿主（`.build/msys64`，搭建法见
+  docs/DEVELOPMENT.md，setup_env.sh 盘点入口 msys2-host）补齐 POSIX 层；
+  gx 的 Linux 部署套件仍以真 Linux 宿主为准。
 - herdr 探针在 Windows 上改为经 Win32（OpenProcess + K32EnumProcessModulesEx）
   直接枚举自有 herdr server 的已加载模块来证明 app-local ConPTY，不再启动
   PowerShell：托管 windows-2025 runner 上 PowerShell 冷启动超过 20 秒，导致协调仓

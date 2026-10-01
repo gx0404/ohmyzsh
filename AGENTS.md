@@ -77,6 +77,10 @@ make evidence           # 分配 .playwright-mcp/<分支>/ui/<批次>/ 证据目
 - **全局命名空间**：别名/函数先与全仓查重（367 插件共享一个命名空间）。
 - **生成物**：`docs/kb/chunks.json` 只由 `make kb` 再生（kb-check 守门）；
   `graphify-out/` 本地产物。生成物先判意图再写入并审 diff。
+- **构建只在项目内**：所有编译、构建、打包与项目专用工具链环境只写 `.build/`
+  （gitignored）；工作目录、缓存、输出与解包产物不得散到项目外。本地 herdr
+  构建的 `GX_LOCAL_BUILD_ROOT` 指向 `.build/` 子目录；测试/smoke 的临时数据
+  经入口脚本默认重定向到 `.build/tmp/`（详见 development.md）。
 - **测试纪律**：不因缺工具链（如 zunit）整族 skip 后报绿；验收命令不接吞退出码
   的管道；终端证据读回后才算通过。
 - **版本双体系**：fork 版本真源是 CHANGELOG.md（`## X.Y.Z(日期|TBD)`，

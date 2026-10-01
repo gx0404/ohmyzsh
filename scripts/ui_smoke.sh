@@ -12,7 +12,9 @@ cd "$repo_root" || exit 2
 evidence_dir=$(python3 scripts/dev_framework.py evidence ui-smoke) || exit 2
 echo "evidence: $evidence_dir"
 
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/omz-ui.XXXXXX")
+# 构建边界：临时数据不出项目（.build/ 已 gitignored）。
+build_tmp="$repo_root/.build/tmp"; mkdir -p "$build_tmp"
+tmp=$(mktemp -d "$build_tmp/omz-ui.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/home" "$tmp/zdotdir" "$tmp/repo"
 git -C "$tmp/repo" init -q

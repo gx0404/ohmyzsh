@@ -4,7 +4,9 @@
 set -uo pipefail
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 
-tmp=$(mktemp -d "${TMPDIR:-/tmp}/omz-dev.XXXXXX")
+# 构建边界：临时数据不出项目（.build/ 已 gitignored）。
+build_tmp="$repo_root/.build/tmp"; mkdir -p "$build_tmp"
+tmp=$(mktemp -d "$build_tmp/omz-dev.XXXXXX")
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$tmp/home" "$tmp/zdotdir"
 cat > "$tmp/zdotdir/.zshrc" <<ZRC

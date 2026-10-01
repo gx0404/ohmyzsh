@@ -28,6 +28,9 @@ log/
 graphify-out
 **/graphify-out
 test-results/
+
+# 项目内构建根：编译/打包/工具链环境（构建不出项目文件夹）
+.build/
 /dist/
 __pycache__/
 *.pyc

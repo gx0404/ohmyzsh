@@ -5,6 +5,12 @@ set -uo pipefail
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
 cd "$repo_root" || exit 2
 
+# 构建边界：测试临时数据一律留在项目内 .build/（gitignored）。
+# TMPDIR 给 shell/mktemp；TEMP/TMP 用 Windows 形态给原生 Python 与子进程。
+build_tmp="$repo_root/.build/tmp"; mkdir -p "$build_tmp"
+export TMPDIR="$build_tmp"
+command -v cygpath >/dev/null 2>&1 && export TEMP="$(cygpath -w "$build_tmp")" TMP="$(cygpath -w "$build_tmp")"
+
 overall=0
 summary=()
 

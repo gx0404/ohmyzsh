@@ -4,6 +4,9 @@
 set -uo pipefail
 
 repo_root=$(cd "$(dirname "$0")/.." && pwd)
+# 构建边界：临时数据不出项目（.build/ 已 gitignored）。
+build_tmp="$repo_root/.build/tmp"; mkdir -p "$build_tmp"
+export TMPDIR="$build_tmp"
 failed=0
 checked=0
 fail_log=$(mktemp)

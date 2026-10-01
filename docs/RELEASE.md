@@ -69,7 +69,7 @@ repository、branch_provenance、revision、source_sha256 及包身份；只有�
 
 herdr 包构建（`scripts/gx_build_herdr.py`）默认只在一次性 GitHub-hosted runner 上运行，receipt 记
 `builder=github-actions`；**只有 herdr receipt 为 `builder=github-actions` 的 stage 可以发布**。本机
-完整构建时设 `GX_LOCAL_BUILD_ROOT=<已存在的目录>`（GitHub Actions 上设了它会被拒绝）：工作、缓存与
+完整构建时设 `GX_LOCAL_BUILD_ROOT=<项目内 .build/ 下已存在的目录>`（GitHub Actions 上设了它会被拒绝）：工作、缓存与
 输出目录都须在该目录之内，环境里不能有 `GITHUB_TOKEN`/`GH_TOKEN`，receipt 记 `builder=local`。
 herdr 构建与 Windows 目标的启动器编译都设 `RUSTUP_AUTO_INSTALL=0`，锁定的 Rust 工具链须事先装好、
 缺少即失败；Windows 目标显式使用 `<锁定版本>-x86_64-pc-windows-msvc`，rustup 默认 host 是 GNU 时

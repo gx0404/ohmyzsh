@@ -47,6 +47,15 @@
 
 ## GX 原生打包与发布
 
+- **构建根唯一**：所有编译、构建、打包与项目专用工具链环境（如 MSYS2/zsh/python
+  便携环境）只写 `<repo>/.build/`（.gitignore 标记块已忽略）；工作目录、缓存、
+  输出与解包产物不得写到项目外（`$HOME`、系统目录、随意的项目外临时目录）。
+  本机完整构建 herdr 时 `GX_LOCAL_BUILD_ROOT` 指向 `.build/` 下已存在的子目录；
+  测试的 mktemp 隔离数据可用系统临时目录（用后即清），但凡会留存的产物必须落
+  `.build/`。用户级跨项目 CLI（如 uv tool 安装的 graphify）不属构建产物。
+  `run_tests.sh`、`check_syntax.sh`、`dev_shell.sh`、`ui_smoke.sh` 已默认把
+  `TMPDIR`（及 Windows 形态的 `TEMP`/`TMP`）指到 `.build/tmp/`，shell 的 mktemp
+  与原生 Python 的 tempfile 全部落在项目内；新增入口沿用同一模式。
 - `scripts/gx_dependencies.py` + `scripts/packaging/` 锁定来源、摘要、许可和对应源码；
   缺项硬失败。实验运行时里的 HOME、keyring、缓存和私钥不能进入发行负载。
 - `scripts/gx_package.py` 从干净 Git SHA 白名单读取 LF 资源；开发包显式允许 dirty
