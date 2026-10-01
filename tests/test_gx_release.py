@@ -1344,6 +1344,8 @@ class ReleaseTests(unittest.TestCase):
 
     def test_workflow_security_contract(self):
         text = (release.ROOT / ".github/workflows/gx-release.yml").read_text(encoding="utf-8")
+        ref_input = text.split("\n      ref:\n", 1)[1].split("\n      version:\n", 1)[0]
+        self.assertRegex(ref_input, r"(?m)^        default: feature/gx_ohmyzsh$")
         self.assertIn("default: false", text)
         self.assertEqual(text.count("contents: write"), 1)
         self.assertEqual(text.count("GITHUB_TOKEN:"), 1)
@@ -1352,7 +1354,13 @@ class ReleaseTests(unittest.TestCase):
             self.assertRegex(action, r"@[0-9a-f]{40}$")
         for checkout in text.split("- uses: actions/checkout@")[1:]:
             self.assertIn("persist-credentials: false", checkout.split("- uses:", 1)[0])
+        branch_guard = "github.ref == format('refs/heads/{0}', github.event.repository.default_branch)"
+        prepare_job = text.split("\n  prepare:\n", 1)[1].split("\n  build:\n", 1)[0]
+        self.assertIn(branch_guard, prepare_job)
+        self.assertIn("GX_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}", prepare_job)
         publish_job = text.split("\n  publish:\n", 1)[1]
+        self.assertIn(branch_guard, publish_job)
+        self.assertIn("needs.prepare.outputs.sha == github.workflow_sha", publish_job)
         self.assertIn("ref: ${{ github.workflow_sha }}", publish_job)
         self.assertNotIn("ref: ${{ needs.prepare.outputs.sha }}", publish_job)
         self.assertIn("python3 -I controller/scripts/gx_release.py publish", publish_job)
