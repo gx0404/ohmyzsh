@@ -1268,18 +1268,18 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(release.ReleaseError, "unexpected runtime proof"):
             release.verify_zsh_runtime(info, lock, runtime, sources)
 
-    def test_independent_herdr_source_is_locked_to_the_default_branch_fix(self):
+    def test_independent_herdr_source_is_locked_to_the_final_default_branch_fix(self):
         lock = release.load_lock(release.ROOT)
         source = lock["herdr"]["source"]
         self.assertEqual(lock["herdr"]["repository"], "https://github.com/gx0404/herdr")
         self.assertEqual(lock["herdr"]["branch_provenance"], "feature/gx_herdr")
-        self.assertEqual(lock["herdr"]["revision"], "146394347920c7116f53b5b6a6e4627d09962613")
+        self.assertEqual(lock["herdr"]["revision"], "b6a27411f73f26ca4483b6b4134e1ed694be2aa3")
         self.assertEqual(source["url"], lock["herdr"]["repository"] + "/archive/" + source["commit"] + ".zip")
         self.assertEqual(source["commit"], lock["herdr"]["revision"])
         self.assertEqual(source["filename"], "herdr-" + source["commit"] + ".zip")
         self.assertEqual(source["prefix"], "herdr-" + lock["herdr"]["revision"] + "/")
-        self.assertEqual(source["sha256"], "87d8aa3147bba9ed4facb2bccedad2df61c442d5dfaf37f96855c9fe1f0b2aa4")
-        self.assertEqual(source["size"], 15710854)
+        self.assertEqual(source["sha256"], "e76ca6304f9f5a5ed6dbd2749809b6c5f65121e1cf99e3dce6b20955bf1274ce")
+        self.assertEqual(source["size"], 15710080)
         self.assertNotIn("git_repository", source)
         component = next(c for c in lock["components"] if c["id"] == "herdr")
         self.assertEqual(component["sources"], [source])
@@ -1289,18 +1289,25 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(lock["herdr"]["rust"], "1.96.1")
         self.assertEqual(lock["herdr"]["zig"], "0.16.0")
 
-    def test_default_branch_fix_rejects_previous_merge_identity(self):
+    def test_final_default_branch_fix_rejects_previous_source_identities(self):
         lock = release.load_lock(release.ROOT)
         build = release.read_json(self.fixture.manifests["windows-x64"])["herdr_build"]
-        build.update(version=lock["herdr"]["version"],
-                     source_sha256="6cbf86177643b69bdd97b774b326fdae93eec5482cef92912e7c5b4741cb54b5")
-        for revision, error in (
-            ("fe708f3cb9fb86d11918883238aa894ad07ea92d", "revision mismatch"),
-            (lock["herdr"]["revision"], "source_sha256 mismatch"),
+        build["version"] = lock["herdr"]["version"]
+        for previous_revision, previous_sha256 in (
+            ("fe708f3cb9fb86d11918883238aa894ad07ea92d",
+             "6cbf86177643b69bdd97b774b326fdae93eec5482cef92912e7c5b4741cb54b5"),
+            ("146394347920c7116f53b5b6a6e4627d09962613",
+             "87d8aa3147bba9ed4facb2bccedad2df61c442d5dfaf37f96855c9fe1f0b2aa4"),
         ):
-            build["revision"] = revision
-            with self.subTest(revision=revision), self.assertRaisesRegex(release.ReleaseError, error):
-                release.verify_herdr_metadata(build, "windows-x64", lock)
+            build["source_sha256"] = previous_sha256
+            for revision, error in (
+                (previous_revision, "revision mismatch"),
+                (lock["herdr"]["revision"], "source_sha256 mismatch"),
+            ):
+                build["revision"] = revision
+                with self.subTest(revision=revision, source_sha256=previous_sha256), \
+                        self.assertRaisesRegex(release.ReleaseError, error):
+                    release.verify_herdr_metadata(build, "windows-x64", lock)
 
     def test_independent_archive_rejects_mismatched_commit_url_and_size(self):
         original_read = release.read_json
