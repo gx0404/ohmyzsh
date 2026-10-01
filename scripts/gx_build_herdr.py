@@ -38,8 +38,8 @@ def ci_boundary(paths: list[Path], platform: str) -> str:
     else:
         release.require(os.environ.get("GITHUB_ACTIONS") == "true"
                         and os.environ.get("RUNNER_ENVIRONMENT") == "github-hosted"
-                        and os.environ.get("GITHUB_REPOSITORY") in {release.REPOSITORY, release.MONOREPO_REPOSITORY},
-                        "herdr CI builder requires a disposable GitHub-hosted gx0404/ohmyzsh or gx0404/gx_shell runner; "
+                        and os.environ.get("GITHUB_REPOSITORY") in {release.REPOSITORY, release.INTEGRATION_REPOSITORY},
+                        "herdr CI builder requires a disposable GitHub-hosted gx0404/ohmyzsh or gx0404/gx_shell integration runner; "
                         "set GX_LOCAL_BUILD_ROOT for a non-publishable local build")
         root = Path(os.environ["RUNNER_TEMP"]).resolve()
     release.require((os.name == "nt") == (platform == "windows-x64"), "builder OS and target platform differ")
@@ -306,14 +306,18 @@ def zig_licenses(source: Path, original: list[dict], cache: Path, zig_root: Path
     return result
 
 
-def build(repo: Path, platform: str, work: Path, cache: Path, output: Path) -> dict:
+def build(repo: Path, platform: str, work: Path, cache: Path, output: Path, *, herdr_source_root: Path | None = None) -> dict:
     builder = ci_boundary([work, cache, output], platform)
     release.require(not work.exists() and not output.exists(), "build/output directory exists; never reuse unverified build state")
     release.require(not any(a.resolve().is_relative_to(b.resolve()) for a in (work, cache, output) for b in (work, cache, output) if a != b), "build/cache/output directories must not overlap")
     pinned = release.load_lock(repo)["herdr"]
+    if herdr_source_root is not None:
+        herdr_source_root = herdr_source_root.resolve()
+        release.require(herdr_source_root.is_dir(), "herdr source checkout is missing")
     work.mkdir(parents=True)
     source = work / "source"
-    source_archive = deps.fetch_artifact(pinned["source"], cache)
+    source_archive = (deps.fetch_artifact(pinned["source"], cache, repository_root=herdr_source_root)
+                      if herdr_source_root is not None else deps.fetch_artifact(pinned["source"], cache))
     deps.extract_archive(source_archive, source, strip=1)
     original = deps.tree_manifest(source)
     zig_archive = deps.fetch_artifact(ZIG_ARCHIVES[platform], cache)
@@ -428,9 +432,12 @@ def main(argv=None) -> int:
     parser.add_argument("--work", type=Path, required=True)
     parser.add_argument("--cache", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--herdr-source-root", type=Path,
+                        help="independent gx0404/herdr checkout matching the locked revision")
     args = parser.parse_args(argv)
     try:
-        receipt = build(args.repo.resolve(), args.platform, args.work.resolve(), args.cache.resolve(), args.output.resolve())
+        receipt = build(args.repo.resolve(), args.platform, args.work.resolve(), args.cache.resolve(), args.output.resolve(),
+                        herdr_source_root=args.herdr_source_root)
         print(json.dumps({"revision": receipt["revision"], "target": receipt["target"], "output": str(args.output)}))
         return 0
     except (ValueError, OSError, KeyError, IndexError, subprocess.CalledProcessError) as error:

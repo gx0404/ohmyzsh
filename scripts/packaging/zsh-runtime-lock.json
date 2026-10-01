@@ -6,7 +6,7 @@
     "package_records_digest": "8ed7d11b956be35f1b8ce41a1bb241b8dd38f3b5fdac4a813e6ebdf389544efa",
     "kit": [
       {"filename":"reproduce_focal.py","repository_path":"patches/zsh/focal/reproduce_focal.py","sha256":"3ff52bb372a74068f5fea75bccb2852671f58136b95fdd1edc7b34e0dec752d5"},
-      {"filename":"build_focal.sh","repository_path":"patches/zsh/focal/build_focal.sh","sha256":"56bd025f3caeeabccc5d343ac48c32b89352b5a4ce7e5c1d863c177ffe3481d6"},
+      {"filename":"build_focal.sh","repository_path":"patches/zsh/focal/build_focal.sh","sha256":"6f8cc7be2965984c57a070983efe50450a200fb386e7fc7f0efa80de157b6e74"},
       {"filename":"populate_rootfs.sh","repository_path":"patches/zsh/focal/populate_rootfs.sh","sha256":"a0adabb4a7c5870c31340ead2098d75f20f2d2abe56a32cd2d06aa032645b2e8"},
       {"filename":"packages-lock.json","repository_path":"patches/zsh/focal/packages-lock.json","sha256":"442b05e8dbe6dbeb0b360e28a4cae18fd6682fd819fa32f92447196381f4264f"},
       {"filename":"source-inputs-lock.json","repository_path":"patches/zsh/focal/source-inputs-lock.json","sha256":"f8795d9649e6cbfc3a303f4bd4e023b7540be0805cb4ea432fd0818b346a8a4d"},
@@ -25,12 +25,12 @@
     {
       "filename": "prototype-windows_build.sh",
       "repository_path": "patches/zsh/prototype-windows_build.sh",
-      "sha256": "f12217254ec9014eaf68030b4d28d62fb48f1a63f0bea0fd626470a2e6056c1f"
+      "sha256": "e1294a115d61cd683d2afa46eb325865aa97472dd77a4d73187e52710086f914"
     },
     {
       "filename": "prototype-linux_ext4_build.sh",
       "repository_path": "patches/zsh/prototype-linux_ext4_build.sh",
-      "sha256": "4b10ae3d699f1b470f475d171ed00639acff3918442039e5efd2b8d6210c8cde"
+      "sha256": "98aa44a7257c83983ca00bb83e8f1410bc196714583e77737d4b949e26ef2daf"
     }
   ],
   "platforms": {

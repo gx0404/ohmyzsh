@@ -510,7 +510,7 @@ make TESTNUM=D03 check
     return record_build(pinned, "windows-x64", work / "stage", cache, output, evidence)
 
 
-def build_linux(pinned: dict, cache: Path, work: Path, output: Path | None, repository_root: Path, sdk_cache: Path | None, keyring: Path, verify_only: bool = False) -> dict:
+def build_linux(pinned: dict, cache: Path, work: Path, output: Path | None, repository_root: Path, sdk_cache: Path | None, keyring: Path, jobs: int = 4, verify_only: bool = False) -> dict:
     if os.name == "nt" or sys.platform != "linux":
         raise deps.DependencyError("Focal SDK replay must run under Linux/WSL, never Windows Python")
     if work.exists() or (output is not None and output.exists()):
@@ -537,7 +537,8 @@ def build_linux(pinned: dict, cache: Path, work: Path, output: Path | None, repo
     env = {k: v for k, v in os.environ.items() if k in {"PATH", "SYSTEMROOT"}}
     (work / "home").mkdir()
     (work / "tmp").mkdir()
-    env.update(HOME=str(work / "home"), TMPDIR=str(work / "tmp"), LANG="C.UTF-8", LC_ALL="C.UTF-8", PYTHONDONTWRITEBYTECODE="1")
+    env.update(HOME=str(work / "home"), TMPDIR=str(work / "tmp"), LANG="C.UTF-8", LC_ALL="C.UTF-8",
+               PYTHONDONTWRITEBYTECODE="1", GX_ZSH_JOBS=str(jobs))
     command = [sys.executable, str(kit / "reproduce_focal.py"), "--work", str(work / "sdk"), "--keyring", str(keyring.resolve())]
     if sdk_cache:
         command += ["--cache", str(sdk_cache.resolve())]
@@ -605,14 +606,14 @@ def main(argv=None) -> int:
         elif args.command == "verify-sdk":
             if args.platform != "ubuntu-amd64":
                 raise deps.DependencyError("verify-sdk is the Ubuntu signature-chain replay gate")
-            result = build_linux(pinned, args.cache, args.work, None, args.lock.parent, args.sdk_cache, args.keyring, verify_only=True)
+            result = build_linux(pinned, args.cache, args.work, None, args.lock.parent, args.sdk_cache, args.keyring, args.jobs, verify_only=True)
         elif args.command == "build":
             if not 1 <= args.jobs <= 32:
                 raise deps.DependencyError("jobs must be between 1 and 32")
             if args.platform == "windows-x64":
                 result = build_windows(pinned, args.cache, args.work, args.output, args.jobs, args.lock.parent)
             else:
-                result = build_linux(pinned, args.cache, args.work, args.output, args.lock.parent, args.sdk_cache, args.keyring)
+                result = build_linux(pinned, args.cache, args.work, args.output, args.lock.parent, args.sdk_cache, args.keyring, args.jobs)
         elif args.command == "record":
             result = record_build(pinned, args.platform, args.stage, args.cache, args.output, deps.read_json(args.evidence))
         elif args.command == "verify":

@@ -27,7 +27,6 @@ DEFAULT_LOCK = ROOT / "scripts/packaging/dependencies.json"
 PLATFORMS = ("windows-x64", "ubuntu-amd64")
 SHA256 = re.compile(r"[0-9a-f]{64}\Z")
 REVISION = re.compile(r"[0-9a-f]{40}\Z")
-MONOREPO = "https://github.com/gx0404/gx_shell"
 PRIVATE_PARTS = {".git", ".ssh", ".gnupg", "node_modules", "__pycache__"}
 RUNTIME_EXCLUDES = (
     "home", "tmp", "var/cache", "var/log", "var/tmp", "etc/pacman.d/gnupg",
@@ -91,10 +90,15 @@ def artifact_shape(item: dict) -> None:
     name = item.get("filename", "")
     if relative_path(name).name != name:
         raise DependencyError(f"artifact filename must be a basename: {name}")
-    if "monorepo_path" in item:
-        relative_path(item["monorepo_path"])
-        if "url" in item or "repository_path" in item or not REVISION.fullmatch(item.get("commit", "")):
-            raise DependencyError(f"monorepo artifact must name a full commit and no URL: {name}")
+    if "git_repository" in item:
+        commit = item.get("commit", "")
+        if (item["git_repository"] != "https://github.com/gx0404/herdr"
+                or not isinstance(commit, str) or not REVISION.fullmatch(commit)
+                or item.get("prefix") != f"herdr-{commit}/"
+                or any(key in item for key in ("url", "repository_path", "monorepo_path"))):
+            raise DependencyError(f"Git source must name the pinned independent herdr commit: {name}")
+    elif "monorepo_path" in item:
+        raise DependencyError("monorepo sources are no longer supported; pin the independent herdr repository")
     elif "repository_path" in item:
         location = relative_path(item["repository_path"])
         if not location.parts or not (location.parts[0] == "notices" or location.parts[:2] == ("patches", "zsh")) or "url" in item:
@@ -125,8 +129,16 @@ def fetch_artifact(item: dict, cache: Path, repository_root: Path | None = None)
     with tempfile.NamedTemporaryFile(dir=cache, prefix=".download-", delete=False) as stream:
         temporary = Path(stream.name)
         try:
-            if "monorepo_path" in item:
-                stream.write(monorepo_archive(repository_root or DEFAULT_LOCK.parent, item["commit"], item["monorepo_path"]))
+            if "git_repository" in item:
+                if repository_root is None:
+                    raise DependencyError("an independent Git source requires --herdr-source-root")
+                actual = git_output(repository_root, "rev-parse", f"{item['commit']}^{{commit}}").decode().strip()
+                if actual != item["commit"]:
+                    raise DependencyError("herdr source checkout is not at the locked commit")
+                stream.write(git_output(repository_root, "archive", "--format=zip",
+                                        f"--prefix={item['prefix']}", item["commit"]))
+            elif "monorepo_path" in item:
+                raise DependencyError("monorepo source archives are no longer supported")
             elif "repository_path" in item:
                 source = inside(repository_root or DEFAULT_LOCK.parent, item["repository_path"])
                 if source.is_symlink() or not source.is_file():
@@ -332,75 +344,14 @@ def git_output(anchor: Path, *args: str) -> bytes:
     return process.stdout
 
 
-def monorepo_archive(anchor: Path, commit: str, subtree: str) -> bytes:
-    # 以提交而非 tree 归档：mtime 取提交时间，同一 git 版本重复生成字节一致，
-    # 锁加载时算出的 SHA-256 与 fetch 落盘的归档才能对上。
-    top = Path(git_output(anchor, "rev-parse", "--show-toplevel").decode("utf-8").strip())
-    return git_output(top, "archive", "--format=zip", commit, "--", str(relative_path(subtree)))
-
-
-_MONOREPO_PINS: dict[tuple[str, str, str], dict] = {}
-
-
-def is_monorepo_herdr(herdr: object) -> bool:
-    return isinstance(herdr, dict) and isinstance(herdr.get("source"), dict) and "monorepo_path" in herdr["source"]
-
-
-def monorepo_herdr(anchor: Path, herdr: dict) -> dict:
-    # gx_shell 单仓：herdr 源码就是当前检出提交里的子目录，不再钉外部仓库的
-    # 固定 revision；revision/版本/源码归档摘要都由该提交推导，保证与编译输入一致。
-    # 已解析的锁（打包快照内）直接校验形状，不再依赖 Git 工作树。
-    if herdr.get("repository") != MONOREPO:
-        raise DependencyError("monorepo herdr must come from gx0404/gx_shell")
-    source = herdr["source"]
-    if "commit" in source:
-        artifact_shape(source)
-        commit = source["commit"]
-        if (herdr.get("revision") != commit or source["filename"] != f"herdr-{commit}.zip"
-                or not re.fullmatch(r"\d+\.\d+\.\d+", str(herdr.get("version", "")))):
-            raise DependencyError("resolved monorepo herdr lock is inconsistent")
-        return herdr
-    if set(source) != {"monorepo_path"}:
-        raise DependencyError("monorepo herdr source must only name its gx0404/gx_shell subtree")
-    subtree = str(relative_path(source["monorepo_path"]))
-    commit = git_output(anchor, "rev-parse", "HEAD").decode("utf-8").strip()
-    if not REVISION.fullmatch(commit):
-        raise DependencyError("monorepo herdr requires a full Git commit")
-    key = (str(anchor.resolve()), commit, subtree)
-    if key not in _MONOREPO_PINS:
-        import tomllib
-        manifest = tomllib.loads(git_output(anchor, "show", f"{commit}:{subtree}/Cargo.toml").decode("utf-8"))
-        version = manifest.get("package", {}).get("version")
-        if not isinstance(version, str) or not re.fullmatch(r"\d+\.\d+\.\d+", version):
-            raise DependencyError(f"{subtree}/Cargo.toml has no X.Y.Z package version")
-        data = monorepo_archive(anchor, commit, subtree)
-        _MONOREPO_PINS[key] = {"version": version, "sha256": hashlib.sha256(data).hexdigest()}
-    pin = _MONOREPO_PINS[key]
-    return {**herdr, "revision": commit, "version": pin["version"],
-            "source": {"filename": f"herdr-{commit}.zip", "sha256": pin["sha256"],
-                       "monorepo_path": subtree, "commit": commit}}
-
-
-def bind_monorepo_sources(lock: dict) -> None:
-    # 再分发锁里 herdr 组件的对应源码与编译输入是同一个单仓归档。
-    source = lock["herdr"]["source"]
-    for component in lock.get("components", []):
-        if component.get("id") == "herdr":
-            if component.get("sources") != [{"monorepo_path": source["monorepo_path"]}]:
-                raise DependencyError("herdr redistribution sources must reference the same monorepo subtree")
-            component["sources"] = [dict(source)]
-
-
 def load_lock(path: Path = DEFAULT_LOCK, repository: Path | None = None) -> dict:
     lock = read_json(path)
     if lock.get("schema_version") != 1:
         raise DependencyError("unsupported dependency lock schema")
     herdr = lock.get("herdr", {})
-    monorepo = is_monorepo_herdr(herdr)
-    if not monorepo:
-        if not REVISION.fullmatch(herdr.get("revision", "")) or herdr.get("repository") != "https://github.com/gx0404/herdr":
-            raise DependencyError("herdr must be pinned to a full revision in gx0404/herdr")
-        artifact_shape(herdr["source"])
+    if not REVISION.fullmatch(herdr.get("revision", "")) or herdr.get("repository") != "https://github.com/gx0404/herdr":
+        raise DependencyError("herdr must be pinned to a full revision in gx0404/herdr")
+    artifact_shape(herdr["source"])
     for item in lock.get("assets", []):
         artifact_shape(item)
         if not set(item.get("platforms", [])) <= set(PLATFORMS):
@@ -436,10 +387,6 @@ def load_lock(path: Path = DEFAULT_LOCK, repository: Path | None = None) -> dict
         lock["zsh_data"] = gx_build_zsh.load_lock(inside(path.parent, zsh["file"]))
         if canonical_digest(lock["zsh_data"]) != zsh["canonical_sha256"]:
             raise DependencyError("Zsh runtime source lock checksum mismatch")
-    if monorepo:
-        lock["herdr"] = monorepo_herdr(repository or path.parent, herdr)
-        artifact_shape(lock["herdr"]["source"])
-        bind_monorepo_sources(lock)
     for component in lock.get("components", []):
         if component.get("id") == "herdr" and component.get("version") != lock["herdr"].get("version"):
             raise DependencyError(f"redistribution herdr version {component.get('version')} differs from the locked herdr {lock['herdr'].get('version')}")

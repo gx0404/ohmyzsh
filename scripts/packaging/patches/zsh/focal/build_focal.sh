@@ -15,7 +15,7 @@ export CFLAGS='-O2 -ffile-prefix-map=/work=.'
 /work/source/zsh-5.9.2/configure --prefix=/ --bindir=/libexec/zsh --libdir=/lib --enable-fndir=/share/zsh/functions --enable-site-fndir=/share/zsh/site-functions --disable-dynamic --disable-etcdir --enable-multibyte --with-term-lib=ncursesw
 cp /source-input/static-linux.config.modules config.modules
 make prep
-make -j4
+make -j"${GX_ZSH_JOBS:-4}"
 make DESTDIR=/work/stage-focal install.bin install.modules install.fns
 mkdir -p /work/stage-focal/share/licenses/zsh /work/stage-focal/bin
 cp /work/source/zsh-5.9.2/LICENCE /work/stage-focal/share/licenses/zsh/LICENCE

@@ -75,29 +75,6 @@ def advance(repo: Path, files: dict[str, bytes]) -> None:
     subprocess.run(["git", "-C", str(repo), "read-tree", "--reset", "-u", "HEAD"], check=True)
 
 
-def monorepo_fixture(root: Path) -> tuple[Path, Path]:
-    """gx_shell 单仓形态：ohmyzsh/ 与 herdr/ 同一提交，锁只写 monorepo_path。"""
-    _, cache, herdr = fixture(root / "deps")
-    raw = deps.read_json(root / "deps/dependencies.json")
-    raw["herdr"] = {"repository": deps.MONOREPO, "branch_provenance": "gx_shell herdr/ subtree of the release commit",
-                    "source": {"monorepo_path": "herdr"}, "rust": "1.96.1", "zig": "0.16.0",
-                    "targets": raw["herdr"]["targets"]}
-    raw["components"][0].update(sources=[{"monorepo_path": "herdr"}], version="1.2.3")
-    files = {"ohmyzsh/" + name: data for name, data in package_resources(root).items()}
-    files["ohmyzsh/scripts/packaging/dependencies.json"] = (json.dumps(raw, indent=2) + "\n").encode()
-    files["herdr/Cargo.toml"] = b'[package]\nname = "herdr"\nversion = "1.2.3"\n'
-    files["herdr/src/main.rs"] = b"fn main() {}\n"
-    repo = git_fixture(root / "mono", files) / "ohmyzsh"
-    lock = deps.load_lock(repo / "scripts/packaging/dependencies.json")
-    deps.fetch_artifact(lock["herdr"]["source"], cache, repository_root=repo)
-    receipt = deps.read_json(herdr / "herdr-build.json")
-    receipt.update(revision=lock["herdr"]["revision"], version="1.2.3", source_sha256=lock["herdr"]["source"]["sha256"])
-    deps.write_json(herdr / "herdr-build.json", receipt)
-    bundle = root / "bundle"
-    deps.assemble(lock, "ubuntu-amd64", cache, bundle, herdr, zsh_build=herdr.parent / "zsh-build")
-    return repo, bundle
-
-
 def package_resources(root: Path) -> dict[str, bytes]:
     resources = {name: b"fixture\n" for name in package.REQUIRED_RESOURCES | package.BUILD_FILES}
     resources["CHANGELOG.md"] = b"# Fixture\n\n## 1.2.3(TBD)\n"
@@ -177,12 +154,8 @@ class PackageTests(unittest.TestCase):
         source = package.clean_source(repo, "HEAD", True)
         self.assertNotIn("gx/config/zshrc.local", package.snapshot(repo, source))
 
-    def test_monorepo_sibling_changes_do_not_dirty_the_component(self):
-        mono = git_fixture(self.root / "mono", {"CHANGELOG.md": b"## 9.9.9(TBD)\n", "ohmyzsh/CHANGELOG.md": b"## 1.2.3(TBD)\n",
-                                                "ohmyzsh/gx/config/zshrc": b"safe\n", "herdr/Cargo.toml": b"fixture\n"})
-        repo = mono / "ohmyzsh"
-        (mono / "herdr/Cargo.toml").write_text("changed sibling\n", encoding="utf-8")
-        (mono / "untracked-sibling.txt").write_text("sibling\n", encoding="utf-8")
+    def test_external_checkout_uses_its_own_root(self):
+        repo = git_fixture(self.root / "repo", {"CHANGELOG.md": b"## 1.2.3(TBD)\n", "gx/config/zshrc": b"safe\n"})
         info = package.clean_source(repo, "HEAD")
         self.assertFalse(info["dirty"])
         self.assertEqual(info["version"], "1.2.3")
@@ -191,44 +164,20 @@ class PackageTests(unittest.TestCase):
         with self.assertRaisesRegex(package.PackageError, "clean Git worktree"):
             package.clean_source(repo, "HEAD")
 
-    def test_monorepo_herdr_archive_is_reproducible_from_the_commit(self):
-        mono = git_fixture(self.root / "mono", {"herdr/Cargo.toml": b'[package]\nname = "herdr"\nversion = "1.2.3"\n',
-                                                "herdr/src/main.rs": b"fn main() {}\n", "ohmyzsh/README": b"component\n"})
-        head = package.git(mono, "rev-parse", "HEAD").decode().strip()
-        marker = {"repository": deps.MONOREPO, "source": {"monorepo_path": "herdr"}, "rust": "1.96.1"}
-        resolved = deps.monorepo_herdr(mono / "ohmyzsh", marker)
-        self.assertEqual((resolved["revision"], resolved["version"]), (head, "1.2.3"))
-        self.assertEqual(resolved["source"]["filename"], f"herdr-{head}.zip")
-        archive = deps.fetch_artifact(resolved["source"], self.root / "cache", repository_root=mono / "ohmyzsh")
-        self.assertEqual(deps.sha256_file(archive), resolved["source"]["sha256"])
-        deps.extract_archive(archive, self.root / "source", strip=1)
-        self.assertEqual((self.root / "source/src/main.rs").read_bytes(), b"fn main() {}\n")
-        self.assertFalse((self.root / "source/README").exists())
-
-    def test_monorepo_stage_ref_must_be_the_commit_that_provides_herdr(self):
-        repo, bundle = monorepo_fixture(self.root)
-        built = package.git(repo, "rev-parse", "HEAD").decode().strip()
-        advance(repo.parent, {"herdr/src/main.rs": b"fn main() { changed(); }\n"})
-        with self.assertRaisesRegex(package.PackageError, "checked-out commit that provides herdr"):
-            package.stage(repo, built, "ubuntu-amd64", bundle, self.root / "stage")
-        self.assertFalse((self.root / "stage").exists())
-
-    def test_monorepo_stage_records_gx_shell_and_a_git_free_resolved_lock(self):
-        if os.name == "nt":
-            self.skipTest("deb stage creates POSIX symlinks; run on Linux (CI/WSL)")
-        repo, bundle = monorepo_fixture(self.root)
-        output = self.root / "stage"
-        with mock.patch.object(package, "compile_launchers", side_effect=fake_launchers), \
-                mock.patch.object(package, "herdr_completion", side_effect=fake_completion):
-            manifest = package.stage(repo, "HEAD", "ubuntu-amd64", bundle, output)
-        package.verify_stage(output)
+    def test_independent_herdr_archive_is_reproducible_from_the_checkout(self):
+        repo = git_fixture(self.root / "herdr", {"Cargo.toml": b'[package]\nname = "herdr"\nversion = "1.2.3"\n',
+                                                "src/main.rs": b"fn main() {}\n"})
         head = package.git(repo, "rev-parse", "HEAD").decode().strip()
-        self.assertEqual(manifest["source"]["repository"], "gx0404/gx_shell")
-        self.assertEqual((manifest["herdr"]["revision"], manifest["herdr"]["version"]), (head, "1.2.3"))
-        resolved = deps.read_json(output / "redistribution/ohmyzsh-gx/scripts/packaging/dependencies.json")
-        self.assertEqual(resolved["herdr"]["source"]["commit"], head)
-        self.assertEqual(deps.read_json(output / "payload/usr/share/ohmyzsh-gx/package-origin.json")["source"]["repository"],
-                         "gx0404/gx_shell")
+        prefix = f"herdr-{head}/"
+        archive = subprocess.run(["git", "-C", str(repo), "archive", "--format=zip", f"--prefix={prefix}", head],
+                                 check=True, capture_output=True).stdout
+        item = {"filename": f"herdr-{head}.zip", "sha256": hashlib.sha256(archive).hexdigest(),
+                "size": len(archive), "git_repository": "https://github.com/gx0404/herdr",
+                "commit": head, "prefix": prefix}
+        materialized = deps.fetch_artifact(item, self.root / "cache", repository_root=repo)
+        self.assertEqual(materialized.read_bytes(), archive)
+        deps.extract_archive(materialized, self.root / "source", strip=1)
+        self.assertEqual((self.root / "source/src/main.rs").read_bytes(), b"fn main() {}\n")
 
     def test_stage_fixture_layout_and_license_source_manifests(self):
         if os.name == "nt":

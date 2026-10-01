@@ -435,36 +435,39 @@ class DependencyTests(unittest.TestCase):
             (self.root / name).write_bytes(data.replace(b"\n", b"\r\n"))
         self.assertEqual(deps.load_lock(self.root / "dependencies.json", repository=deps.ROOT)["lock_digest"], expected["lock_digest"])
 
-    def monorepo_source(self) -> dict:
+    def independent_source(self) -> dict:
         commit = "a" * 40
-        return {"filename": f"herdr-{commit}.zip", "sha256": "b" * 64, "monorepo_path": "herdr", "commit": commit}
+        return {
+            "filename": f"herdr-{commit}.zip", "sha256": "b" * 64, "size": 1,
+            "git_repository": "https://github.com/gx0404/herdr", "commit": commit,
+            "prefix": f"herdr-{commit}/",
+        }
 
-    def test_monorepo_artifact_names_a_full_commit_without_url(self):
-        item = self.monorepo_source()
+    def test_independent_git_source_requires_a_full_commit_and_prefix(self):
+        item = self.independent_source()
         deps.artifact_shape(item)
-        for broken in ({**item, "url": "https://example.org/herdr.zip"}, {**item, "commit": "a" * 39},
-                       {**item, "monorepo_path": "../herdr"}, {**item, "repository_path": "notices/x"}):
+        for broken in (
+            {**item, "url": "https://example.org/herdr.zip"},
+            {**item, "commit": "a" * 39},
+            {**item, "prefix": "herdr/"},
+            {**item, "git_repository": "https://github.com/gx0404/gx_shell"},
+        ):
             with self.subTest(broken=broken), self.assertRaises(deps.DependencyError):
                 deps.artifact_shape(broken)
 
-    def test_resolved_monorepo_lock_needs_no_git_and_must_be_consistent(self):
-        source = self.monorepo_source()
-        resolved = {"repository": deps.MONOREPO, "revision": source["commit"], "version": "1.2.3", "source": source}
-        self.assertEqual(deps.monorepo_herdr(self.root, resolved), resolved)
-        for broken in ({**resolved, "revision": "c" * 40}, {**resolved, "version": "next"},
-                       {**resolved, "repository": "https://github.com/gx0404/herdr"},
-                       {**resolved, "source": {**source, "filename": "herdr.zip"}}):
-            with self.subTest(broken=broken), self.assertRaises(deps.DependencyError):
-                deps.monorepo_herdr(self.root, broken)
+    def test_monorepo_source_is_rejected(self):
+        commit = "a" * 40
+        item = {"filename": f"herdr-{commit}.zip", "sha256": "b" * 64,
+                "monorepo_path": "herdr", "commit": commit}
+        with self.assertRaisesRegex(deps.DependencyError, "independent"):
+            deps.artifact_shape(item)
 
-    def test_monorepo_redistribution_source_must_be_the_same_subtree(self):
-        source = self.monorepo_source()
-        lock = {"herdr": {"source": source}, "components": [{"id": "herdr", "sources": [{"monorepo_path": "herdr"}]}]}
-        deps.bind_monorepo_sources(lock)
-        self.assertEqual(lock["components"][0]["sources"], [source])
-        lock["components"][0]["sources"] = [{"monorepo_path": "other"}]
-        with self.assertRaisesRegex(deps.DependencyError, "same monorepo subtree"):
-            deps.bind_monorepo_sources(lock)
+    def test_checked_in_lock_uses_independent_herdr_source(self):
+        lock = deps.load_lock()
+        self.assertEqual(lock["herdr"]["repository"], "https://github.com/gx0404/herdr")
+        self.assertEqual(lock["herdr"]["branch_provenance"], "gx")
+        self.assertEqual(lock["herdr"]["revision"], lock["herdr"]["source"]["commit"])
+        self.assertEqual(lock["herdr"]["source"]["git_repository"], lock["herdr"]["repository"])
 
     def test_reserved_windows_paths_are_rejected(self):
         for name in ("a/NUL", "a/COM1.txt", "file.", "file "):

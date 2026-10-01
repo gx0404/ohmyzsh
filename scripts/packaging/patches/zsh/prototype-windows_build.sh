@@ -11,7 +11,7 @@ export CFLAGS="-O2 -ffile-prefix-map=$ROOT=."
 "$ROOT/windows-source-v3/zsh-5.9.2/configure" --prefix=/ --bindir=/libexec/zsh --libdir=/lib --enable-fndir=/share/zsh/functions --enable-site-fndir=/share/zsh/site-functions --disable-dynamic --disable-etcdir --enable-multibyte --with-term-lib=ncursesw --enable-pcre --disable-cap --enable-zsh-secure-free
 cp "$ROOT/static-msys.config.modules" config.modules
 make prep
-make -j4
+make -j"${GX_ZSH_JOBS:-4}"
 make DESTDIR="$ROOT/windows-stage" install.bin install.modules install.fns
 mkdir -p "$ROOT/windows-stage/share/licenses/zsh"
 cp "$ROOT/windows-source-v3/zsh-5.9.2/LICENCE" "$ROOT/windows-stage/share/licenses/zsh/LICENCE"

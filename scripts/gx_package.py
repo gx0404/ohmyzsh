@@ -228,16 +228,6 @@ def stage(repo: Path, ref: str, platform: str, dependency_bundle: Path, output: 
         snap = work / "snapshot"
         write_snapshot(files, snap)
         lock = deps.load_lock(snap / "scripts/packaging/dependencies.json", repository=repo)
-        if deps.is_monorepo_herdr(lock["herdr"]):
-            if source["revision"] != lock["herdr"]["revision"]:
-                raise PackageError("in the gx_shell monorepo the package ref must be the checked-out commit that provides herdr/")
-            source["repository"] = "gx0404/gx_shell"
-            # 快照与对应源码里写入已解析的锁，脱离 Git 工作树后仍可复核同一个 herdr 提交。
-            name = "scripts/packaging/dependencies.json"
-            resolved = json.loads(files[name][0])
-            resolved["herdr"] = lock["herdr"]
-            files[name] = ((json.dumps(resolved, indent=2, ensure_ascii=False, sort_keys=True) + "\n").encode("utf-8"), files[name][1])
-            write_snapshot({name: files[name]}, snap)
         for item in lock.get("vendored_files", []):
             name = str(deps.relative_path(item["path"]))
             if name not in files or hashlib.sha256(files[name][0]).hexdigest() != item["sha256"]:

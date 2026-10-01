@@ -21,6 +21,7 @@ import gx_release as release
 import gx_build_herdr as builder
 
 SHA = "a" * 40
+HERDR_SHA = "1a6b9d4d13d1b547fe0e21197baeb2ac4e27bef0"
 VERSION = "1.2.3"
 CI = {
     "GITHUB_ACTIONS": "true", "GITHUB_EVENT_NAME": "workflow_dispatch", "GITHUB_REPOSITORY": release.REPOSITORY,
@@ -61,8 +62,8 @@ class Fixture:
         self.root = root
         self.lock = {
             "schema_version": 1, "lock_digest": "b" * 64, "assets": [], "unresolved": [],
-            "herdr": {"repository": "https://github.com/gx0404/herdr", "branch_provenance": "feature/gx_herdr",
-                      "revision": release.HERDR_REVISION, "version": "0.9.1", "rust": "1.96.1", "zig": "0.16.0",
+            "herdr": {"repository": "https://github.com/gx0404/herdr", "branch_provenance": "gx",
+                      "revision": HERDR_SHA, "version": "0.9.1", "rust": "1.96.1", "zig": "0.16.0",
                       "targets": release.TARGETS, "source": {"sha256": "c" * 64},
                       "conpty": {"files": {name: None if name == "herdr.exe" else checksum(name.encode()) for name in (
                           "herdr.exe", "conpty/conpty.dll", "conpty/x64/OpenConsole.exe", "conpty/arm64/OpenConsole.exe",
@@ -91,7 +92,7 @@ class Fixture:
             binaries = list(self.lock["herdr"]["conpty"]["files"]) if platform == "windows-x64" else ["herdr"]
             binary_records = [record(name, name.encode()) for name in binaries]
             herdr_build = {
-                "schema_version": 1, "platform": platform, "revision": release.HERDR_REVISION, "version": "0.9.1",
+                "schema_version": 1, "platform": platform, "revision": HERDR_SHA, "version": "0.9.1",
                 "source_sha256": "c" * 64, "rust": "1.96.1", "zig": "0.16.0", "target": release.TARGETS[platform],
                 "locked": True, "release": True, "cargo_vendor_complete": True,
                 "rustflags": "-C target-feature=+crt-static", "effective_crt_static": True,
@@ -475,10 +476,10 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(release.ReleaseError, "isolated"):
                 builder.ci_boundary([self.root.parent / "outside"], platform)
 
-    def test_builder_accepts_the_gx_shell_monorepo_runner(self):
+    def test_builder_accepts_the_gx_shell_integration_runner(self):
         platform = "windows-x64" if os.name == "nt" else "ubuntu-amd64"
         env = {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted",
-               "GITHUB_REPOSITORY": release.MONOREPO_REPOSITORY, "RUNNER_TEMP": str(self.root)}
+               "GITHUB_REPOSITORY": release.INTEGRATION_REPOSITORY, "RUNNER_TEMP": str(self.root)}
         with patch.dict(os.environ, env, clear=True):
             self.assertEqual(builder.ci_boundary([self.root / "work"], platform), "github-actions")
         with patch.dict(os.environ, {**env, "GITHUB_REPOSITORY": "attacker/gx_shell"}, clear=True):
@@ -504,7 +505,7 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaisesRegex(release.ReleaseError, "existing directory"):
                 builder.ci_boundary([self.root / "missing/work"], platform)
         ci = {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted",
-              "GITHUB_REPOSITORY": release.MONOREPO_REPOSITORY, "RUNNER_TEMP": str(self.root)}
+              "GITHUB_REPOSITORY": release.INTEGRATION_REPOSITORY, "RUNNER_TEMP": str(self.root)}
         with patch.dict(os.environ, {**ci, **local}, clear=True):
             with self.assertRaisesRegex(release.ReleaseError, "unset it on CI"):
                 builder.ci_boundary([self.root / "work"], platform)
@@ -537,7 +538,7 @@ class ReleaseTests(unittest.TestCase):
         cache = self.root / "build-cache"
         cache.mkdir()
         write_json(self.root / "scripts/packaging/herdr-license-supplements.json", {
-            "schema_version": 1, "herdr_revision": release.HERDR_REVISION,
+            "schema_version": 1, "herdr_revision": HERDR_SHA,
             "texts": {}, "sources": {}, "cargo": [], "reuse": [], "donors": {}, "zig": [],
         })
         lock = copy.deepcopy(self.fixture.lock)
@@ -660,7 +661,7 @@ class ReleaseTests(unittest.TestCase):
         result = self.build_fixture()
         self.assertTrue(result["cargo_vendor_complete"])
         self.assertEqual(result["builder"], "github-actions")
-        self.assertEqual(result["revision"], release.HERDR_REVISION)
+        self.assertEqual(result["revision"], HERDR_SHA)
         self.assertEqual(result["package_manager"], "windows-installer" if os.name == "nt" else "deb")
         self.assertTrue(result["source_artifacts"])
         self.assertTrue(result["license_artifacts"])
@@ -821,7 +822,7 @@ class ReleaseTests(unittest.TestCase):
         actual = release.load_lock(release.ROOT)
         self.assertEqual(actual["lock_digest"], expected["lock_digest"])
         for platform in release.TARGETS:
-            inventory = [{k: item[k] for k in ("filename", "sha256", "url", "repository_path") if k in item}
+            inventory = [{k: item[k] for k in ("filename", "sha256", "size", "url", "repository_path", "git_repository", "commit", "prefix") if k in item}
                          for item in gx_dependencies.all_artifacts(expected, platform)]
             self.assertEqual(release.dependency_inventory(actual, platform), sorted(inventory, key=lambda item: item["filename"]))
 
@@ -1267,22 +1268,20 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(release.ReleaseError, "unexpected runtime proof"):
             release.verify_zsh_runtime(info, lock, runtime, sources)
 
-    def test_monorepo_herdr_source_is_the_checked_out_subtree(self):
+    def test_independent_herdr_source_is_locked_to_the_gx_revision(self):
         lock = release.load_lock(release.ROOT)
-        head = release.git(release.ROOT, "rev-parse", "HEAD")
         source = lock["herdr"]["source"]
-        self.assertEqual(lock["herdr"]["repository"], "https://github.com/" + release.MONOREPO_REPOSITORY)
-        self.assertEqual(lock["herdr"]["revision"], head)
-        self.assertEqual({k: source[k] for k in ("filename", "monorepo_path", "commit")},
-                         {"filename": "herdr-" + head + ".zip", "monorepo_path": "herdr", "commit": head})
+        self.assertEqual(lock["herdr"]["repository"], "https://github.com/gx0404/herdr")
+        self.assertEqual(lock["herdr"]["branch_provenance"], "gx")
+        self.assertEqual(lock["herdr"]["revision"], "1a6b9d4d13d1b547fe0e21197baeb2ac4e27bef0")
+        self.assertEqual(source["git_repository"], lock["herdr"]["repository"])
+        self.assertEqual(source["commit"], lock["herdr"]["revision"])
+        self.assertEqual(source["prefix"], "herdr-" + lock["herdr"]["revision"] + "/")
         self.assertTrue(release.is_hash(source["sha256"]))
         self.assertNotIn("url", source)
-        cargo = release.git(release.ROOT, "show", head + ":herdr/Cargo.toml")
-        self.assertIn(f'version = "{lock["herdr"]["version"]}"', cargo)
         component = next(c for c in lock["components"] if c["id"] == "herdr")
         self.assertEqual(component["sources"], [source])
-        self.assertTrue(release.is_hash(builder.load_supplements(release.ROOT)["data"]["herdr_revision"], 40))
-        self.assertEqual(lock["zsh_runtime"]["canonical_sha256"], "905e0c99a029d587429e3e99477d48770d2c22830a6a1cbf7fbabd75329371a0")
+        self.assertEqual(builder.load_supplements(release.ROOT)["data"]["herdr_revision"], lock["herdr"]["revision"])
         self.assertEqual(lock["herdr"]["rust"], "1.96.1")
         self.assertEqual(lock["herdr"]["zig"], "0.16.0")
 

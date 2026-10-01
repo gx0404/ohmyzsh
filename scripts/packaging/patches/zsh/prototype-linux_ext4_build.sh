@@ -27,7 +27,7 @@ export CFLAGS="-O2 -ffile-prefix-map=$ROOT=."
 "$ROOT/source/zsh-5.9.2/configure" --prefix=/ --bindir=/libexec/zsh --libdir=/lib --enable-fndir=/share/zsh/functions --enable-site-fndir=/share/zsh/site-functions --disable-dynamic --disable-etcdir --enable-multibyte --with-term-lib=ncursesw
 cp "$EVIDENCE/static-linux.config.modules" config.modules
 make prep
-make -j4
+make -j"${GX_ZSH_JOBS:-4}"
 make DESTDIR="$ROOT/stage" install.bin install.modules install.fns
 mkdir -p "$ROOT/stage/share/licenses/zsh"
 cp "$ROOT/source/zsh-5.9.2/LICENCE" "$ROOT/stage/share/licenses/zsh/LICENCE"

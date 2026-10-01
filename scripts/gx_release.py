@@ -19,8 +19,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
 REPOSITORY = "gx0404/ohmyzsh"
-MONOREPO_REPOSITORY = "gx0404/gx_shell"
-HERDR_REVISION = "4f441b0c23304c7a641d978c9e11aabf07f6d8c4"
+INTEGRATION_REPOSITORY = "gx0404/gx_shell"
 TARGETS = {"windows-x64": "x86_64-pc-windows-msvc", "ubuntu-amd64": "x86_64-unknown-linux-musl"}
 ARCHITECTURES = {"windows-x64": "x86_64", "ubuntu-amd64": "amd64"}
 ENVIRONMENTS = {"windows-x64": ("windows-clean",), "ubuntu-amd64": ("ubuntu-20.04", "ubuntu-24.04")}
@@ -123,17 +122,15 @@ def load_lock(repo: Path) -> dict:
     herdr = lock.get("herdr")
     build = {"rust": "1.96.1", "zig": "0.16.0", "targets": TARGETS,
              "build_argv": ["cargo", "build", "--release", "--locked", "--target", "{target}"]}
-    monorepo = isinstance(herdr, dict) and isinstance(herdr.get("source"), dict) and "monorepo_path" in herdr["source"]
-    if monorepo:
-        check_fields(herdr, {"repository": "https://github.com/" + MONOREPO_REPOSITORY, **build}, "herdr lock")
-        require(herdr["source"].get("monorepo_path") == "herdr", "monorepo herdr must be the gx_shell herdr/ subtree")
-    else:
-        check_fields(herdr, {
-            "repository": "https://github.com/gx0404/herdr", "branch_provenance": "feature/gx_herdr",
-            "revision": HERDR_REVISION, **build,
-        }, "herdr lock")
-        require(is_hash(lock["herdr"]["source"]["sha256"]), "herdr source checksum missing")
-        require(lock["herdr"]["source"]["url"] == f"https://github.com/gx0404/herdr/archive/{HERDR_REVISION}.zip", "herdr source must name the pinned commit")
+    check_fields(herdr, {
+        "repository": "https://github.com/gx0404/herdr", "branch_provenance": "gx", **build,
+    }, "herdr lock")
+    require(is_hash(herdr.get("revision"), 40), "herdr revision must be a full commit SHA")
+    source = herdr.get("source")
+    require(isinstance(source, dict) and source.get("git_repository") == herdr["repository"]
+            and source.get("commit") == herdr["revision"]
+            and source.get("prefix") == f"herdr-{herdr['revision']}/"
+            and is_hash(source.get("sha256")), "herdr source must be a pinned independent checkout archive")
     msys = lock["msys2"]
     data = read_json(path.parent / relative_name(msys["file"], basename=True))
     require(canonical_digest(data) == msys["canonical_sha256"], "MSYS2 lock checksum mismatch")
@@ -159,13 +156,6 @@ def load_lock(repo: Path) -> dict:
         check_fields(pinned, {"schema_version": 1, "version": "5.9.2+gx-metafied-paths"}, "Zsh runtime lock")
         require(canonical_digest(pinned) == zsh["canonical_sha256"], "Zsh runtime source lock checksum mismatch")
         lock["zsh_data"] = pinned
-    if monorepo:
-        deps = dependencies_module()
-        try:
-            lock["herdr"] = deps.monorepo_herdr(path.parent, herdr)
-            deps.bind_monorepo_sources(lock)
-        except deps.DependencyError as error:
-            raise ReleaseError(str(error)) from error
     lock["lock_digest"] = canonical_digest({k: v for k, v in lock.items() if k != "lock_digest"})
     return lock
 
@@ -286,9 +276,14 @@ def dependency_inventory(lock: dict, platform: str) -> list[dict]:
     for item in entries:
         name = relative_name(item["filename"], basename=True)
         require(is_hash(item.get("sha256")), "dependency must have a locked checksum")
-        if "monorepo_path" in item:
-            require(item["monorepo_path"] == "herdr" and is_hash(item.get("commit"), 40) and "url" not in item,
-                    "monorepo dependency must be the herdr/ subtree of a full commit without a URL")
+        if "git_repository" in item:
+            require(item["git_repository"] == "https://github.com/gx0404/herdr"
+                    and is_hash(item.get("commit"), 40)
+                    and item.get("prefix") == f"herdr-{item['commit']}/"
+                    and "url" not in item,
+                    "Git dependency must be a pinned independent herdr checkout without a URL")
+        elif "monorepo_path" in item:
+            raise ReleaseError("monorepo dependencies are no longer supported")
         elif "repository_path" in item:
             location = relative_name(item["repository_path"])
             require(location.startswith(("notices/", "patches/zsh/")) and "url" not in item,
@@ -297,7 +292,7 @@ def dependency_inventory(lock: dict, platform: str) -> list[dict]:
             url = urllib.parse.urlsplit(item["url"])
             require(url.scheme == "https" and bool(url.hostname) and not url.username and not url.password and not url.fragment,
                     "dependency requires a public HTTPS source")
-        entry = {key: item[key] for key in ("filename", "sha256", "url", "repository_path") if key in item}
+        entry = {key: item[key] for key in ("filename", "sha256", "size", "url", "repository_path", "git_repository", "commit", "prefix") if key in item}
         require(name not in result or result[name] == entry, "conflicting dependency inventory")
         result[name] = entry
     return sorted(result.values(), key=lambda item: item["filename"])
