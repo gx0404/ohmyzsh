@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-09-30T21:43:57Z",
+ "built_at": "2026-10-01T08:48:48Z",
  "corpus_files": 997,
- "corpus_hash": "31368187ba6d15ac0c4cce3911ddb0b31dc4a73943416a496da5ad35f88a183f",
- "content_hash": "bab8d9d2db20643712232cb90a6bd7864c3399a87770d53a2c8372dfd45b9720",
+ "corpus_hash": "8a39850929b41525fa090baae827ff08472a422e35b35583612614fd282f6953",
+ "content_hash": "dd409283014c6a6c2479b301f17e1ad3db065e89894e25d4a7fcb725a2f5a589",
  "chunk_count": 1677,
  "chunks": [
   {
@@ -56,11 +56,11 @@
    "layer": "doc"
   },
   {
-   "id": "ff9d153b3866",
+   "id": "8d8569ba4c88",
    "source": "AGENTS.md",
    "anchor": "AGENTS.md#项目模型",
    "title": "项目模型",
-   "text": "- 加载：`tools/check_for_upgrade.sh` → 插件 fpath 预注册 → `compinit`（compfix\n  安全模式）→ `lib/*.zsh`（字典序）→ `$plugins` → `custom/*.zsh` → 主题；\n  `_omz_source` 实现 `$ZSH_CUSTOM` 覆盖 `$ZSH` 的优先级。\n- git 提示符统一走 `lib/git.zsh`（`GIT_OPTIONAL_LOCKS=0`）；`omz` CLI 在 `lib/cli.zsh`。\n- GX 原生包在 `scripts/gx_package.py` / `scripts/packaging/`，原生入口在\n  `scripts/gx-launcher/main.rs`，包配置在 `gx/config/package.zsh`；Windows 使用私有\n  MSYS2，Ubuntu 使用 DEB。当前完整包验收未完成，状态与边界见 `docs/RELEASE.md`。\n- `make package-test` 验证打包单元及原生启动器（需 Rust）；`make package` 读取显式\n  `GX_DEPENDENCY_BUNDLE` 离线构建，不自动安装或发布。`gx-release` 仅手动触发，\n  只允许发布到本 fork；源码、许可、中文配置和真实生命周期证据缺项即失败。\n- 本目录已并入 `gx0404/gx_shell` 单仓（`ohmyzsh/`）：herdr 由锁中 `monorepo_path`\n  解析为同一提交的 `herdr/`；本目录 `.github/workflows/` 在单仓中不执行，不再单独\n  发版，单仓根 `.github/workflows/release.yml` 取 `gx_package.py stage` 载荷生成\n  GX Shell 合并安装包（边界见 `docs/RELEASE.md`）。\n- 架构细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；命令见\n  [docs/MAKE_COMMANDS.md](docs/MAKE_COMMANDS.md)。\n- 质量门：上游 CI 在 fork 上不运行（repository 守卫），本地 `make ci-check` 是\n  真源（zsh -n 全量语法 + 加载 smoke + KB 一致性）。",
+   "text": "- 加载：`tools/check_for_upgrade.sh` → 插件 fpath 预注册 → `compinit`（compfix\n  安全模式）→ `lib/*.zsh`（字典序）→ `$plugins` → `custom/*.zsh` → 主题；\n  `_omz_source` 实现 `$ZSH_CUSTOM` 覆盖 `$ZSH` 的优先级。\n- git 提示符统一走 `lib/git.zsh`（`GIT_OPTIONAL_LOCKS=0`）；`omz` CLI 在 `lib/cli.zsh`。\n- GX 原生包在 `scripts/gx_package.py` / `scripts/packaging/`，原生入口在\n  `scripts/gx-launcher/main.rs`，包配置在 `gx/config/package.zsh`；Windows 使用私有\n  MSYS2，Ubuntu 使用 DEB。当前完整包验收未完成，状态与边界见 `docs/RELEASE.md`。\n- `make package-test` 验证打包单元及原生启动器（需 Rust）；`make package` 读取显式\n  `GX_DEPENDENCY_BUNDLE` 离线构建，不自动安装或发布。`gx-release` 仅手动触发，\n  只允许发布到本 fork；源码、许可、中文配置和真实生命周期证据缺项即失败。\n- 本 fork 在独立默认分支 `feature/gx_ohmyzsh` 维护；herdr 的来源为\n  `gx0404/herdr` 默认分支 `feature/gx_herdr` 上的完整提交与校验过的 GitHub 源码归档。\n  三仓 SHA 独立，禁止再解析 `monorepo_path` 或复用旧提交的构建回执。协调仓\n  `gx0404/gx_shell` 的 `release.yml` 消费 `gx_package.py stage` 生成合并安装包。\n  补充许可文本按 `.gitattributes` 保留原始字节，不能让 checkout 换行转换改变锁定摘要。\n- 架构细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；命令见\n  [docs/MAKE_COMMANDS.md](docs/MAKE_COMMANDS.md)。\n- 质量门：上游 CI 在 fork 上不运行（repository 守卫），本地 `make ci-check` 是\n  真源（zsh -n 全量语法 + 加载 smoke + KB 一致性）。",
    "layer": "doc"
   },
   {
@@ -1216,14 +1216,6 @@
    "layer": "doc"
   },
   {
-   "id": "904e4a01b9de",
-   "source": "docs/RELEASE.md",
-   "anchor": "docs/RELEASE.md#固定输入与本地打包",
-   "title": "固定输入与本地打包",
-   "text": "真源：`scripts/packaging/dependencies.json`、MSYS2 子锁、CHANGELOG 和完整 Git SHA。\n本组件已并入 `gx0404/gx_shell` 单仓：锁里 herdr 只写 `\"source\": {\"monorepo_path\": \"herdr\"}`，\n加载时解析为当前检出提交的 `herdr/` 子目录——revision 即该提交 SHA，版本取自\n`herdr/Cargo.toml`，源码为该提交 `git archive` 的 zip 及其 SHA-256；再分发锁里 herdr\n组件的对应源码绑定同一归档。`gx_package.py stage` 把已解析的锁写入快照，脱离 Git\n工作树仍可复核同一提交；`--ref` 必须是提供 herdr 的已检出提交。herdr 以\n`HERDR_PACKAGE_MANAGER`（Windows `windows-installer`、Ubuntu `deb`）编译，自更新与\n渠道切换在二进制内关闭。构建工具版本、依赖摘要、对应源码及许可都必须核对。herdr 版本变化时，\n同一提交里要把 `redistribution-lock.json` 中 herdr 组件的 `version` 改成新版本并更新\n`dependencies.json` 的 `canonical_sha256`，否则加载锁即报错，audit 与打包失败。\n单仓里本组件不再单独发版，GX Shell 合并安装包由单仓根目录的发版流程生成。",
-   "layer": "doc"
-  },
-  {
    "id": "cd9b120c6fe4",
    "source": "docs/RELEASE.md",
    "anchor": "docs/RELEASE.md#固定输入与本地打包",
@@ -1237,6 +1229,14 @@
    "anchor": "docs/RELEASE.md#固定输入与本地打包",
    "title": "固定输入与本地打包",
    "text": "herdr 包构建（`scripts/gx_build_herdr.py`）默认只在一次性 GitHub-hosted runner 上运行，receipt 记\n`builder=github-actions`；**只有 herdr receipt 为 `builder=github-actions` 的 stage 可以发布**。本机\n完整构建时设 `GX_LOCAL_BUILD_ROOT=<已存在的目录>`（GitHub Actions 上设了它会被拒绝）：工作、缓存与\n输出目录都须在该目录之内，环境里不能有 `GITHUB_TOKEN`/`GH_TOKEN`，receipt 记 `builder=local`。\nherdr 构建与 Windows 目标的启动器编译都设 `RUSTUP_AUTO_INSTALL=0`，锁定的 Rust 工具链须事先装好、\n缺少即失败；Windows 目标显式使用 `<锁定版本>-x86_64-pc-windows-msvc`，rustup 默认 host 是 GNU 时\n也不会用错。`gx_package.py stage` 只在源码干净（未用 `--allow-dirty`）且 receipt 的 builder 为\n`github-actions` 时写 `publishable: true`，`builder=local` 或缺少该字段一律不可发布；`verify-stage`\n拒绝自称可发布、builder 却不是 `github-actions` 的 stage，`verify --require-release` 拒绝 builder\n不是 `github-actions` 的包。单仓 `gx_shell_package.py assemble` 不加 `--allow-dirty` 就拒绝这类\nstage，加了之后产物名带 `-local`，单仓 `verify` 也只在 `--allow-dirty` 下接受它们，发版流程因此\n不会上传。单仓 `scripts/gx_shell_stage_shell.sh` 在设了 `GX_LOCAL_BUILD_ROOT` 时以 `--allow-dirty`\nstage：未提交的 Oh My Zsh 改动会进包，herdr 仍按已提交的 HEAD 构建。不要伪造 CI 环境变量绕过\nrunner 检查。",
+   "layer": "doc"
+  },
+  {
+   "id": "e0ae765120da",
+   "source": "docs/RELEASE.md",
+   "anchor": "docs/RELEASE.md#固定输入与本地打包",
+   "title": "固定输入与本地打包",
+   "text": "真源：`scripts/packaging/dependencies.json`、MSYS2 子锁、CHANGELOG 和完整 Git SHA。\n本 fork 默认分支为 `feature/gx_ohmyzsh`。herdr 独立位于 `gx0404/herdr`，来源分支为\n`feature/gx_herdr`，构建始终取完整 `revision`，不解析移动分支或 `monorepo_path`。\n锁中 `source.commit` 与 revision 相同；`source.url` 必须是该提交的 GitHub ZIP，\n`filename/prefix/sha256/size` 绑定实际下载字节。GitHub ZIP 与本地 `git archive` 即使\n文件相同也可能字节不同，不能互换摘要。维护时通过 `gx_dependencies.fetch_artifact`\n验证下载，通过 `gx_dependencies.canonical_digest` 计算再分发子锁摘要，并分别运行\n`gx_dependencies.py audit`、`gx_release.load_lock` 与打包测试。\n\n更新 herdr 时同时更新再分发锁里的源码记录、版本及 LICENSE 的完整提交 URL，核对\n实际许可摘要；重新审计 Cargo.lock 与补充许可后更新 `herdr-license-supplements.json`\n的审计基线。补充许可文本保留 Git 原始字节，不能以换行转换改变锁定摘要。\n`dependencies.json.redistribution.canonical_sha256` 必须同步，旧源码摘要、旧 revision\n的构建回执不可复用。`gx_build_herdr.py` 从锁生成 `BUILD.json` 与 receipt 的\nrepository、branch_provenance、revision、source_sha256 及包身份；只有真实构建才能\n产生新回执，不在迁移中伪造。herdr 的 `HERDR_PACKAGE_MANAGER` 与 `HERDR_BUILD_COMMIT`\n仍关闭上游自更新。协调仓 `gx0404/gx_shell` 独立锁定三个组件 SHA，消费完整 stage；\n根 SHA、Oh My Zsh SHA 与 herdr SHA 不能再混为同一身份。",
    "layer": "doc"
   },
   {

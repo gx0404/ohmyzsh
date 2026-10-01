@@ -37,7 +37,7 @@ tasks = []
 [[rules]]
 id = "development"
 doc = "docs/AGENT_RULES/development.md"
-paths = [".github/**", ".gitignore", "CHANGELOG.md", "CONTRIBUTING.md", "Makefile", "README.md", "docs/**", "scripts/**"]
+paths = [".gitattributes", ".github/**", ".gitignore", "CHANGELOG.md", "CONTRIBUTING.md", "Makefile", "README.md", "docs/**", "scripts/**"]
 tasks = []
 
 [[rules]]

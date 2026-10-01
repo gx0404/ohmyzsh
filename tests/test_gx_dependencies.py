@@ -465,9 +465,11 @@ class DependencyTests(unittest.TestCase):
     def test_checked_in_lock_uses_independent_herdr_source(self):
         lock = deps.load_lock()
         self.assertEqual(lock["herdr"]["repository"], "https://github.com/gx0404/herdr")
-        self.assertEqual(lock["herdr"]["branch_provenance"], "gx")
+        self.assertEqual(lock["herdr"]["branch_provenance"], "feature/gx_herdr")
         self.assertEqual(lock["herdr"]["revision"], lock["herdr"]["source"]["commit"])
-        self.assertEqual(lock["herdr"]["source"]["git_repository"], lock["herdr"]["repository"])
+        self.assertEqual(lock["herdr"]["source"]["url"],
+                         lock["herdr"]["repository"] + "/archive/" + lock["herdr"]["revision"] + ".zip")
+        self.assertNotIn("git_repository", lock["herdr"]["source"])
 
     def test_reserved_windows_paths_are_rejected(self):
         for name in ("a/NUL", "a/COM1.txt", "file.", "file "):

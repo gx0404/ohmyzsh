@@ -49,16 +49,23 @@ Zsh 二进制；升级不覆盖旧指纹缓存，资源树不产生 `.zwc`。无
 ## 固定输入与本地打包
 
 真源：`scripts/packaging/dependencies.json`、MSYS2 子锁、CHANGELOG 和完整 Git SHA。
-本组件已并入 `gx0404/gx_shell` 单仓：锁里 herdr 只写 `"source": {"monorepo_path": "herdr"}`，
-加载时解析为当前检出提交的 `herdr/` 子目录——revision 即该提交 SHA，版本取自
-`herdr/Cargo.toml`，源码为该提交 `git archive` 的 zip 及其 SHA-256；再分发锁里 herdr
-组件的对应源码绑定同一归档。`gx_package.py stage` 把已解析的锁写入快照，脱离 Git
-工作树仍可复核同一提交；`--ref` 必须是提供 herdr 的已检出提交。herdr 以
-`HERDR_PACKAGE_MANAGER`（Windows `windows-installer`、Ubuntu `deb`）编译，自更新与
-渠道切换在二进制内关闭。构建工具版本、依赖摘要、对应源码及许可都必须核对。herdr 版本变化时，
-同一提交里要把 `redistribution-lock.json` 中 herdr 组件的 `version` 改成新版本并更新
-`dependencies.json` 的 `canonical_sha256`，否则加载锁即报错，audit 与打包失败。
-单仓里本组件不再单独发版，GX Shell 合并安装包由单仓根目录的发版流程生成。
+本 fork 默认分支为 `feature/gx_ohmyzsh`。herdr 独立位于 `gx0404/herdr`，来源分支为
+`feature/gx_herdr`，构建始终取完整 `revision`，不解析移动分支或 `monorepo_path`。
+锁中 `source.commit` 与 revision 相同；`source.url` 必须是该提交的 GitHub ZIP，
+`filename/prefix/sha256/size` 绑定实际下载字节。GitHub ZIP 与本地 `git archive` 即使
+文件相同也可能字节不同，不能互换摘要。维护时通过 `gx_dependencies.fetch_artifact`
+验证下载，通过 `gx_dependencies.canonical_digest` 计算再分发子锁摘要，并分别运行
+`gx_dependencies.py audit`、`gx_release.load_lock` 与打包测试。
+
+更新 herdr 时同时更新再分发锁里的源码记录、版本及 LICENSE 的完整提交 URL，核对
+实际许可摘要；重新审计 Cargo.lock 与补充许可后更新 `herdr-license-supplements.json`
+的审计基线。补充许可文本保留 Git 原始字节，不能以换行转换改变锁定摘要。
+`dependencies.json.redistribution.canonical_sha256` 必须同步，旧源码摘要、旧 revision
+的构建回执不可复用。`gx_build_herdr.py` 从锁生成 `BUILD.json` 与 receipt 的
+repository、branch_provenance、revision、source_sha256 及包身份；只有真实构建才能
+产生新回执，不在迁移中伪造。herdr 的 `HERDR_PACKAGE_MANAGER` 与 `HERDR_BUILD_COMMIT`
+仍关闭上游自更新。协调仓 `gx0404/gx_shell` 独立锁定三个组件 SHA，消费完整 stage；
+根 SHA、Oh My Zsh SHA 与 herdr SHA 不能再混为同一身份。
 
 herdr 包构建（`scripts/gx_build_herdr.py`）默认只在一次性 GitHub-hosted runner 上运行，receipt 记
 `builder=github-actions`；**只有 herdr receipt 为 `builder=github-actions` 的 stage 可以发布**。本机

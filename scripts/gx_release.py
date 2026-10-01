@@ -123,14 +123,21 @@ def load_lock(repo: Path) -> dict:
     build = {"rust": "1.96.1", "zig": "0.16.0", "targets": TARGETS,
              "build_argv": ["cargo", "build", "--release", "--locked", "--target", "{target}"]}
     check_fields(herdr, {
-        "repository": "https://github.com/gx0404/herdr", "branch_provenance": "gx", **build,
+        "repository": "https://github.com/gx0404/herdr", "branch_provenance": "feature/gx_herdr", **build,
     }, "herdr lock")
     require(is_hash(herdr.get("revision"), 40), "herdr revision must be a full commit SHA")
     source = herdr.get("source")
-    require(isinstance(source, dict) and source.get("git_repository") == herdr["repository"]
+    require(isinstance(source, dict)
             and source.get("commit") == herdr["revision"]
             and source.get("prefix") == f"herdr-{herdr['revision']}/"
-            and is_hash(source.get("sha256")), "herdr source must be a pinned independent checkout archive")
+            and is_hash(source.get("sha256"))
+            and type(source.get("size")) is int and source["size"] > 0,
+            "herdr source must be a pinned independent checkout archive")
+    require((source.get("git_repository") == herdr["repository"] and "url" not in source)
+            or ("git_repository" not in source
+                and source.get("url") == f"{herdr['repository']}/archive/{herdr['revision']}.zip"),
+            "herdr archive URL must identify the locked independent commit")
+    dependencies_module().artifact_shape(source)
     msys = lock["msys2"]
     data = read_json(path.parent / relative_name(msys["file"], basename=True))
     require(canonical_digest(data) == msys["canonical_sha256"], "MSYS2 lock checksum mismatch")
