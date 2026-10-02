@@ -1,4 +1,4 @@
-Microsoft ConPTY 1.24.260710001 notices; identical files are recorded for the locked herdr source (gx0404/herdr revision b6a27411f73f26ca4483b6b4134e1ed694be2aa3, see dependencies.json herdr.conpty.files) and also ship in the runtime seven-file bundle. The Origin URLs below record the original extraction commit e9f6c994c49410d784f0a53ea725605b78515300; the digests are unchanged and match the locked source.
+Microsoft ConPTY 1.24.260710001 notices; identical files are recorded for the locked herdr source (gx0404/herdr revision d36f1455e656cd12b20967357d12a8ddaeefaa04, see dependencies.json herdr.conpty.files) and also ship in the runtime seven-file bundle. The Origin URLs below record the original extraction commit e9f6c994c49410d784f0a53ea725605b78515300; the digests are unchanged and match the locked source.
 
 ========================================================================
 Origin: https://github.com/gx0404/herdr/archive/e9f6c994c49410d784f0a53ea725605b78515300.zip!herdr-e9f6c994c49410d784f0a53ea725605b78515300/packaging/windows/licenses/Microsoft.Windows.Console.ConPTY-LICENSE.txt

@@ -139,7 +139,7 @@ class DependencyTests(unittest.TestCase):
         self.assertEqual(len(packages), 142)
         self.assertEqual(sum(p["origin"] == "signed-base" for p in packages), 84)
         self.assertEqual(sum(p["origin"] == "signed-package" for p in packages), 58)
-        self.assertEqual(lock["herdr"]["version"], "0.9.2")
+        self.assertEqual(lock["herdr"]["version"], "0.9.3")
 
     def test_msys_runtime_is_the_hang_fixed_release_over_the_base_snapshot(self):
         lock = deps.load_lock()
