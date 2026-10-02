@@ -53,8 +53,8 @@ resolver 需 Python 3.11+ 或已装 tomli；不为检查安装依赖。
   补充许可文本按 `.gitattributes` 保留原始字节，不能让 checkout 换行转换改变锁定摘要。
 - 架构细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；命令见
   [docs/MAKE_COMMANDS.md](docs/MAKE_COMMANDS.md)。
-- 质量门：上游 CI 在 fork 上不运行（repository 守卫），本地 `make ci-check` 是
-  真源（zsh -n 全量语法 + 加载 smoke + KB 一致性）。
+- 质量门：上游 CI 在 fork 上不运行（GX 分支已归档，镜像分支有 repository 守卫），
+  本地 `make ci-check` 是真源（zsh -n 全量语法 + 加载 smoke + KB 一致性）。
 
 ## 常用命令
 
@@ -70,8 +70,11 @@ make evidence           # 分配 .playwright-mcp/<分支>/ui/<批次>/ 证据目
 
 ## 跨域硬边界
 
-- **upstream 只增不改**：框架文件全部新增；唯一可改的上游文件是 `.gitignore`
-  （仅标记块内追加）。合并 upstream 后重跑 framework-check / ci-check / kb。
+- **upstream 只增不改**：框架文件全部新增；上游文件只允许两种改动：`.gitignore`
+  仅在标记块内追加；上游 workflow 及配套目录原样 `git mv` 到
+  `.github/workflows-archive/`（只改路径不改内容），`.github/workflows/` 只留
+  `gx-release.yml`。`master` 是纯上游镜像，不提交。合并 upstream 后先归档新引入的
+  非 GX workflow，再重跑 framework-check / ci-check / kb。
 - **Conventional Commits**：`type(scope)!: subject`，scope = 插件/主题名或
   framework/ci/docs/gx；tools/changelog.sh 依赖该格式。
 - **全局命名空间**：别名/函数先与全仓查重（367 插件共享一个命名空间）。

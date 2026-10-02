@@ -1,11 +1,11 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-10-01T18:44:24Z",
+ "built_at": "2026-10-02T13:07:20Z",
  "corpus_files": 997,
- "corpus_hash": "0ee35e78058059ceb3e2d8b089e3f9af9b6e71a9c80ba5311a36e3bf05e56e16",
- "content_hash": "1f57c8b248b362eddd39ed38210a32c87091bb2523718b5e6005cd894ece504b",
- "chunk_count": 1679,
+ "corpus_hash": "9b43dee8a6f7896c1c1c363d4e8a175d42a372a74c6a9b633de9383d13515c38",
+ "content_hash": "a6bc688e5557d1b8841a92b25d407dee4a9b328c2dbf509cd7696bbef7187884",
+ "chunk_count": 1680,
  "chunks": [
   {
    "id": "fe7fa0a72292",
@@ -48,19 +48,19 @@
    "layer": "doc"
   },
   {
-   "id": "b055568fd1d9",
+   "id": "db955e93c75f",
    "source": "AGENTS.md",
    "anchor": "AGENTS.md#跨域硬边界",
    "title": "跨域硬边界",
-   "text": "- **upstream 只增不改**：框架文件全部新增；唯一可改的上游文件是 `.gitignore`\n  （仅标记块内追加）。合并 upstream 后重跑 framework-check / ci-check / kb。\n- **Conventional Commits**：`type(scope)!: subject`，scope = 插件/主题名或\n  framework/ci/docs/gx；tools/changelog.sh 依赖该格式。\n- **全局命名空间**：别名/函数先与全仓查重（367 插件共享一个命名空间）。\n- **生成物**：`docs/kb/chunks.json` 只由 `make kb` 再生（kb-check 守门）；\n  `graphify-out/` 本地产物。生成物先判意图再写入并审 diff。\n- **构建只在项目内**：所有编译、构建、打包与项目专用工具链环境只写 `.build/`\n  （gitignored）；工作目录、缓存、输出与解包产物不得散到项目外。本地 herdr\n  构建的 `GX_LOCAL_BUILD_ROOT` 指向 `.build/` 子目录；测试/smoke 的临时数据\n  经入口脚本默认重定向到 `.build/tmp/`（详见 development.md）。\n- **测试纪律**：不因缺工具链（如 zunit）整族 skip 后报绿；验收命令不接吞退出码\n  的管道；终端证据读回后才算通过。\n- **版本双体系**：fork 版本真源是 CHANGELOG.md（`## X.Y.Z(日期|TBD)`，\n  `make version-check` 守门）；上游 `omz changelog` 动态生成体系不受影响。",
+   "text": "- **upstream 只增不改**：框架文件全部新增；上游文件只允许两种改动：`.gitignore`\n  仅在标记块内追加；上游 workflow 及配套目录原样 `git mv` 到\n  `.github/workflows-archive/`（只改路径不改内容），`.github/workflows/` 只留\n  `gx-release.yml`。`master` 是纯上游镜像，不提交。合并 upstream 后先归档新引入的\n  非 GX workflow，再重跑 framework-check / ci-check / kb。\n- **Conventional Commits**：`type(scope)!: subject`，scope = 插件/主题名或\n  framework/ci/docs/gx；tools/changelog.sh 依赖该格式。\n- **全局命名空间**：别名/函数先与全仓查重（367 插件共享一个命名空间）。\n- **生成物**：`docs/kb/chunks.json` 只由 `make kb` 再生（kb-check 守门）；\n  `graphify-out/` 本地产物。生成物先判意图再写入并审 diff。\n- **构建只在项目内**：所有编译、构建、打包与项目专用工具链环境只写 `.build/`\n  （gitignored）；工作目录、缓存、输出与解包产物不得散到项目外。本地 herdr\n  构建的 `GX_LOCAL_BUILD_ROOT` 指向 `.build/` 子目录；测试/smoke 的临时数据\n  经入口脚本默认重定向到 `.build/tmp/`（详见 development.md）。\n- **测试纪律**：不因缺工具链（如 zunit）整族 skip 后报绿；验收命令不接吞退出码\n  的管道；终端证据读回后才算通过。\n- **版本双体系**：fork 版本真源是 CHANGELOG.md（`## X.Y.Z(日期|TBD)`，\n  `make version-check` 守门）；上游 `omz changelog` 动态生成体系不受影响。",
    "layer": "doc"
   },
   {
-   "id": "8d8569ba4c88",
+   "id": "8d2e19c3333b",
    "source": "AGENTS.md",
    "anchor": "AGENTS.md#项目模型",
    "title": "项目模型",
-   "text": "- 加载：`tools/check_for_upgrade.sh` → 插件 fpath 预注册 → `compinit`（compfix\n  安全模式）→ `lib/*.zsh`（字典序）→ `$plugins` → `custom/*.zsh` → 主题；\n  `_omz_source` 实现 `$ZSH_CUSTOM` 覆盖 `$ZSH` 的优先级。\n- git 提示符统一走 `lib/git.zsh`（`GIT_OPTIONAL_LOCKS=0`）；`omz` CLI 在 `lib/cli.zsh`。\n- GX 原生包在 `scripts/gx_package.py` / `scripts/packaging/`，原生入口在\n  `scripts/gx-launcher/main.rs`，包配置在 `gx/config/package.zsh`；Windows 使用私有\n  MSYS2，Ubuntu 使用 DEB。当前完整包验收未完成，状态与边界见 `docs/RELEASE.md`。\n- `make package-test` 验证打包单元及原生启动器（需 Rust）；`make package` 读取显式\n  `GX_DEPENDENCY_BUNDLE` 离线构建，不自动安装或发布。`gx-release` 仅手动触发，\n  只允许发布到本 fork；源码、许可、中文配置和真实生命周期证据缺项即失败。\n- 本 fork 在独立默认分支 `feature/gx_ohmyzsh` 维护；herdr 的来源为\n  `gx0404/herdr` 默认分支 `feature/gx_herdr` 上的完整提交与校验过的 GitHub 源码归档。\n  三仓 SHA 独立，禁止再解析 `monorepo_path` 或复用旧提交的构建回执。协调仓\n  `gx0404/gx_shell` 的 `release.yml` 消费 `gx_package.py stage` 生成合并安装包。\n  补充许可文本按 `.gitattributes` 保留原始字节，不能让 checkout 换行转换改变锁定摘要。\n- 架构细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；命令见\n  [docs/MAKE_COMMANDS.md](docs/MAKE_COMMANDS.md)。\n- 质量门：上游 CI 在 fork 上不运行（repository 守卫），本地 `make ci-check` 是\n  真源（zsh -n 全量语法 + 加载 smoke + KB 一致性）。",
+   "text": "- 加载：`tools/check_for_upgrade.sh` → 插件 fpath 预注册 → `compinit`（compfix\n  安全模式）→ `lib/*.zsh`（字典序）→ `$plugins` → `custom/*.zsh` → 主题；\n  `_omz_source` 实现 `$ZSH_CUSTOM` 覆盖 `$ZSH` 的优先级。\n- git 提示符统一走 `lib/git.zsh`（`GIT_OPTIONAL_LOCKS=0`）；`omz` CLI 在 `lib/cli.zsh`。\n- GX 原生包在 `scripts/gx_package.py` / `scripts/packaging/`，原生入口在\n  `scripts/gx-launcher/main.rs`，包配置在 `gx/config/package.zsh`；Windows 使用私有\n  MSYS2，Ubuntu 使用 DEB。当前完整包验收未完成，状态与边界见 `docs/RELEASE.md`。\n- `make package-test` 验证打包单元及原生启动器（需 Rust）；`make package` 读取显式\n  `GX_DEPENDENCY_BUNDLE` 离线构建，不自动安装或发布。`gx-release` 仅手动触发，\n  只允许发布到本 fork；源码、许可、中文配置和真实生命周期证据缺项即失败。\n- 本 fork 在独立默认分支 `feature/gx_ohmyzsh` 维护；herdr 的来源为\n  `gx0404/herdr` 默认分支 `feature/gx_herdr` 上的完整提交与校验过的 GitHub 源码归档。\n  三仓 SHA 独立，禁止再解析 `monorepo_path` 或复用旧提交的构建回执。协调仓\n  `gx0404/gx_shell` 的 `release.yml` 消费 `gx_package.py stage` 生成合并安装包。\n  补充许可文本按 `.gitattributes` 保留原始字节，不能让 checkout 换行转换改变锁定摘要。\n- 架构细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；命令见\n  [docs/MAKE_COMMANDS.md](docs/MAKE_COMMANDS.md)。\n- 质量门：上游 CI 在 fork 上不运行（GX 分支已归档，镜像分支有 repository 守卫），\n  本地 `make ci-check` 是真源（zsh -n 全量语法 + 加载 smoke + KB 一致性）。",
    "layer": "doc"
   },
   {
@@ -96,7 +96,7 @@
    "layer": "doc"
   },
   {
-   "id": "daacff11c7af",
+   "id": "419dfe4e01a6",
    "source": "CHANGELOG.md",
    "anchor": "CHANGELOG.md#0-2-0-tbd",
    "title": "0.2.0(TBD)",
@@ -752,11 +752,11 @@
    "layer": "doc"
   },
   {
-   "id": "86cebcac7961",
+   "id": "31cc91fd3b98",
    "source": "docs/AGENT_RULES/development.md",
    "anchor": "docs/AGENT_RULES/development.md#upstream-fork-合并纪律-本仓特有硬边界",
    "title": "upstream fork 合并纪律（本仓特有硬边界）",
-   "text": "- 框架对上游采取**只增不改**策略：所有框架文件（AGENTS.md、CLAUDE.md、docs/、\n  scripts/、Makefile、.zcode/、.claude/、.codex/、.agents/、tests/、CHANGELOG.md）\n  均为上游不存在的新增文件，保证 `git merge upstream/master` 干净重放。\n- 唯一允许改动的上游文件是 `.gitignore`，且只在 `# --- dev-framework (fork) ---`\n  标记块内追加。README.md、CONTRIBUTING.md、plugins/、lib/、tools/ 的定制需求\n  先评估移到 custom/ 或新插件。\n- 合并 upstream 后重跑：`make framework-check`（新上游文件可能需补路由）、\n  `make ci-check`、`make kb`（语料变化）。",
+   "text": "- 框架对上游采取**只增不改**策略：所有框架文件（AGENTS.md、CLAUDE.md、docs/、\n  scripts/、Makefile、.zcode/、.claude/、.codex/、.agents/、tests/、CHANGELOG.md）\n  均为上游不存在的新增文件，保证 `git merge upstream/master` 干净重放（归档的\n  上游 workflow 靠 Git 重命名识别合入，见下文）。\n- 上游文件只允许两种改动：`.gitignore` 只在 `# --- dev-framework (fork) ---`\n  标记块内追加；上游 workflow 按下条原样归档。README.md、CONTRIBUTING.md、\n  plugins/、lib/、tools/ 的定制需求先评估移到 custom/ 或新插件。\n- **workflow 归档**：GX 分支的 `.github/workflows/` 只保留 GX 自有的\n  `gx-release.yml`；上游 workflow 及其配套目录（如 `installer/`、`dependencies/`）\n  用 `git mv` 原样移入 `.github/workflows-archive/`，只改路径、不改内容，Actions\n  不加载归档目录。`.github/dependencies.yml`、`dependabot.yml` 等非 workflow 配置\n  留在原位。`master` 是纯上游镜像，不在其上提交；不用停用 workflow 的方式收拢\n  Actions 列表（停用后条目仍在），处理办法见 `docs/RELEASE.md` 的工作流目录一节。\n- 合并 upstream 后：确认 `.github/workflows/` 仍只有 `gx-release.yml`，把新引入的\n  非 GX workflow 及配套文件同样 `git mv` 归档；已归档文件的上游修改由 Git 重命名\n  识别合入归档路径，冲突时保留归档路径、合入上游内容，逐文件对照 `master` 原文件\n  确认内容一致。再重跑 `make framework-check`（新上游文件可能需补路由）、\n  `make ci-check`、`make kb`（语料变化）。",
    "layer": "doc"
   },
   {
@@ -896,11 +896,11 @@
    "layer": "doc"
   },
   {
-   "id": "d56ba3df76a6",
+   "id": "c87c2a471b50",
    "source": "docs/AGENT_RULES/testing.md",
    "anchor": "docs/AGENT_RULES/testing.md#分层与真源",
    "title": "分层与真源",
-   "text": "| 层 | 入口 | 能证明 |\n|---|---|---|\n| 语法 | `bash scripts/check_syntax.sh` | 全部 shell 文件可被解析（与上游 CI 的 zsh -n 对等） |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit（可选） | awk 插件禁用逻辑等独立单元 |\n| 加载 smoke | `zsh tests/smoke_load.zsh` | 隔离环境下主入口可加载、关键函数/别名就位、退出码 0 |\n| 集成 | `zsh tests/smoke_load.zsh --plugins a,b` | 多插件组合加载不互相破坏 |\n| 终端证据 | `make ui-smoke` + `dev_framework.py evidence <task>` | 主题渲染/omz 子命令的实际输出被捕获并读回 |\n\n上游 CI（.github/workflows/main.yml）只做 zsh -n 且被\n`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不会运行**。\n本地 `make ci-check` 是本仓的真实质量门；不要引用上游 CI 状态作为本 fork 的验证结论。",
+   "text": "| 层 | 入口 | 能证明 |\n|---|---|---|\n| 语法 | `bash scripts/check_syntax.sh` | 全部 shell 文件可被解析（与上游 CI 的 zsh -n 对等） |\n| 单元 | `lib/tests/cli.test.zsh`（自包含）；zunit（可选） | awk 插件禁用逻辑等独立单元 |\n| 加载 smoke | `zsh tests/smoke_load.zsh` | 隔离环境下主入口可加载、关键函数/别名就位、退出码 0 |\n| 集成 | `zsh tests/smoke_load.zsh --plugins a,b` | 多插件组合加载不互相破坏 |\n| 终端证据 | `make ui-smoke` + `dev_framework.py evidence <task>` | 主题渲染/omz 子命令的实际输出被捕获并读回 |\n\n上游 CI（`main.yml`，GX 分支已原样归档到 `.github/workflows-archive/main.yml`）只做\nzsh -n 且被 `if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不会运行**\n（镜像分支 `master` 推送时只留下 skipped 记录）。本地 `make ci-check` 是本仓的真实\n质量门；不要引用上游 CI 状态作为本 fork 的验证结论。",
    "layer": "doc"
   },
   {
@@ -968,11 +968,11 @@
    "layer": "doc"
   },
   {
-   "id": "afb31b6eff8e",
+   "id": "ea9c1b12c458",
    "source": "docs/AGENT_RULES/tools-installer.md",
    "anchor": "docs/AGENT_RULES/tools-installer.md#install-sh-604-行-posix-sh",
    "title": "install.sh（604 行，POSIX sh）",
-   "text": "- 必须保持 POSIX sh 兼容（dash 可执行）：禁用 bashism（数组、`[[ ]]`、进程替换）。\n  CI 的 installer.yml 在 ubuntu/macos 矩阵用 `sh ./tools/install.sh` 验证。\n- 环境变量契约：`ZSH`、`ZDOTDIR`、`REPO`、`REMOTE`、`BRANCH` 可覆盖安装目标；\n  参数 `--unattended`、`--keep-zshrc`、`--skip-zshrc`、`--skip-chsh`。\n  `--unattended` 下严禁任何交互提示（确认、选择、读 stdin）。\n- 备份语义：保留原 `~/.zshrc` 为 `.zshrc.pre-oh-my-zsh`；uninstall.sh 依此恢复。\n  改备份命名会破坏卸载路径，两侧必须同步。\n- 不落盘任何凭据；模板写入内容来自 templates/zshrc.zsh-template。",
+   "text": "- 必须保持 POSIX sh 兼容（dash 可执行）：禁用 bashism（数组、`[[ ]]`、进程替换）。\n  上游 installer.yml 在 ubuntu/macos 矩阵用 `sh ./tools/install.sh` 验证；它在 GX\n  分支已原样归档到 `.github/workflows-archive/installer.yml`，且有 repository 守卫，\n  fork 上不运行。本 fork 以下方「验证」的 `sh -n` 与隔离演练为准。\n- 环境变量契约：`ZSH`、`ZDOTDIR`、`REPO`、`REMOTE`、`BRANCH` 可覆盖安装目标；\n  参数 `--unattended`、`--keep-zshrc`、`--skip-zshrc`、`--skip-chsh`。\n  `--unattended` 下严禁任何交互提示（确认、选择、读 stdin）。\n- 备份语义：保留原 `~/.zshrc` 为 `.zshrc.pre-oh-my-zsh`；uninstall.sh 依此恢复。\n  改备份命名会破坏卸载路径，两侧必须同步。\n- 不落盘任何凭据；模板写入内容来自 templates/zshrc.zsh-template。",
    "layer": "doc"
   },
   {
@@ -1104,19 +1104,19 @@
    "layer": "doc"
   },
   {
-   "id": "f964332b6deb",
+   "id": "997c036df234",
    "source": "docs/DEVELOPMENT.md",
    "anchor": "docs/DEVELOPMENT.md#upstream-同步",
    "title": "upstream 同步",
-   "text": "```bash\ngit fetch upstream\ngit merge upstream/master        # 框架文件应为纯新增，无冲突预期\nmake framework-check             # 新上游文件若未路由会红 → 补 routes.toml\nmake ci-check && make kb         # 全量复验 + 语料再生\n```\n\n冲突仅可能出现在 .gitignore（标记块内合并即可）与 fork 对上游文件的定制\n（应当不存在；出现即说明违反了只增不改纪律）。",
+   "text": "```bash\ngit fetch upstream\ngit merge upstream/master        # 框架文件应为纯新增，无冲突预期\ngit ls-files .github/workflows   # 只应剩 gx-release.yml；新上游 workflow 先原样 git mv 归档\nmake framework-check             # 新上游文件若未路由会红 → 补 routes.toml\nmake ci-check && make kb         # 全量复验 + 语料再生\n```\n\n冲突仅可能出现在 .gitignore（标记块内合并即可）、已归档的上游 workflow（保留\n`.github/workflows-archive/` 路径并合入上游内容，见 RELEASE.md「工作流目录与上游同步」）\n与 fork 对上游文件的定制（应当不存在；出现即说明违反了只增不改纪律）。",
    "layer": "doc"
   },
   {
-   "id": "3dcf5acd2bff",
+   "id": "735283868a40",
    "source": "docs/DEVELOPMENT.md",
    "anchor": "docs/DEVELOPMENT.md#交付闭环-每次任务按序执行",
    "title": "交付闭环（每次任务按序执行）",
-   "text": "1. **验收点**：先明确本次改动的可观察行为与通过条件。\n2. **规则**：列本轮触及路径 → `python3 scripts/resolve_agent_rules.py <paths...>`\n   → 完整读返回的领域规则；审核任务加 `--task review`。\n3. **实现/文档**：小步可逆修改；upstream 只增不改（唯一例外 .gitignore 标记块）。\n4. **针对性检查**：`make lint`（语法层）→ `make test`（单元+smoke）；\n   插件行为改动跑 `zsh tests/smoke_load.zsh --plugins <涉及插件>`。\n5. **终端证据**（触及主题/渲染/CLI 交互时）：`make ui-smoke`，读回捕获文件后\n   在批次 result.json 置 `images_reviewed: true`。\n6. **修复复测**：失败证据批次保留；修复后另开批次。\n7. **生成物/版本**：语料变了 `make kb` 再生并审 diff；`make version-check`；\n   CHANGELOG.md 记已实现行为（fork 侧）。\n8. **复审**：独立只读轮次（`--task review`），输出 严重/中/轻/结论。",
+   "text": "1. **验收点**：先明确本次改动的可观察行为与通过条件。\n2. **规则**：列本轮触及路径 → `python3 scripts/resolve_agent_rules.py <paths...>`\n   → 完整读返回的领域规则；审核任务加 `--task review`。\n3. **实现/文档**：小步可逆修改；upstream 只增不改（例外仅 .gitignore 标记块与\n   上游 workflow 原样归档到 `.github/workflows-archive/`）。\n4. **针对性检查**：`make lint`（语法层）→ `make test`（单元+smoke）；\n   插件行为改动跑 `zsh tests/smoke_load.zsh --plugins <涉及插件>`。\n5. **终端证据**（触及主题/渲染/CLI 交互时）：`make ui-smoke`，读回捕获文件后\n   在批次 result.json 置 `images_reviewed: true`。\n6. **修复复测**：失败证据批次保留；修复后另开批次。\n7. **生成物/版本**：语料变了 `make kb` 再生并审 diff；`make version-check`；\n   CHANGELOG.md 记已实现行为（fork 侧）。\n8. **复审**：独立只读轮次（`--task review`），输出 严重/中/轻/结论。",
    "layer": "doc"
   },
   {
@@ -1200,11 +1200,11 @@
    "layer": "doc"
   },
   {
-   "id": "8506015efb68",
+   "id": "b873d8ed4900",
    "source": "docs/RELEASE.md",
    "anchor": "docs/RELEASE.md#upstream-同步-周期性维护",
    "title": "upstream 同步（周期性维护）",
-   "text": "```bash\ngit fetch upstream && git merge upstream/master\nmake framework-check   # 新文件未路由会红 → 补 routes.toml（bootstrap 闭集）\nmake ci-check          # 语法/加载/KB 全量复验\nmake kb                # 语料变化后再生 chunks.json 并审 diff\n```\n\n同步后在 CHANGELOG.md 的当前版本下补 `chore(upstream)` 条目（同步到哪个\ncommit、是否有冲突处理）。上游合并冲突只允许出现在 .gitignore 标记块；\n出现在其他文件即违反只增不改纪律，需回查定制来源。",
+   "text": "```bash\ngit fetch upstream && git merge upstream/master\ngit ls-files .github/workflows   # 只应剩 gx-release.yml；新上游工作流先原样 git mv 归档\nmake framework-check   # 新文件未路由会红 → 补 routes.toml（bootstrap 闭集）\nmake ci-check          # 语法/加载/KB 全量复验\nmake kb                # 语料变化后再生 chunks.json 并审 diff\n```\n\n同步后在 CHANGELOG.md 的当前版本下补 `chore(upstream)` 条目（同步到哪个\ncommit、是否有冲突处理）。上游合并冲突只允许出现在 .gitignore 标记块和已归档的\n工作流（按上节处理）；出现在其他文件即违反只增不改纪律，需回查定制来源。",
    "layer": "doc"
   },
   {
@@ -1256,6 +1256,14 @@
    "layer": "doc"
   },
   {
+   "id": "881c1d9ff40b",
+   "source": "docs/RELEASE.md",
+   "anchor": "docs/RELEASE.md#工作流目录与上游同步",
+   "title": "工作流目录与上游同步",
+   "text": "GX 分支的 `.github/workflows/` 只保留 `gx-release.yml`。上游的 CI（`main.yml`）、\nTest and Deploy installer（`installer.yml` 与 `installer/`）、Update dependencies\n（`dependencies.yml` 与 `dependencies/`）、Project tracking（`project.yml`）和\nScorecard supply-chain security（`scorecard.yml`）原样移入 `.github/workflows-archive/`，\nGitHub 不从归档目录加载工作流。`.github/dependencies.yml` 是归档的 `updater.py` 按原路径\n读取的依赖清单，`.github/dependabot.yml` 是 Dependabot 配置，二者都不是工作流，留在原位。\n\nActions 列表包含默认分支上的工作流文件，以及仍有运行记录的工作流。`master` 是上游镜像，\n上游工作流与提交历史保持原样，不在其上提交；推送它会触发镜像中监听 push 的上游工作流\n（CI、installer 因 repository 守卫跳过，Scorecard 会实际运行），这些运行记录会让对应条目\n重新出现在列表里。停用工作流不能隐藏条目。需要收拢时，只删除上游工作流在 `master` 上的\n运行记录，删除前归档元数据和完整日志；`gx-release` 的运行记录是验收证据，一律保留。\n\n上游同步按下节合并；Git 可通过文件重命名识别已归档流程，遇到冲突时保留归档路径并合入\n上游内容。合并后检查 `.github/workflows/`，将新引入的非 GX 工作流及其配套文件也原样\n`git mv` 到归档目录，逐文件与 `master` 原文件比对并审阅 diff。",
+   "layer": "doc"
+  },
+  {
    "id": "f1f01b62bc28",
    "source": "docs/RELEASE.md",
    "anchor": "docs/RELEASE.md#手动-github-release",
@@ -1280,11 +1288,11 @@
    "layer": "doc"
   },
   {
-   "id": "e889eec2f124",
+   "id": "9d9eddedc774",
    "source": "docs/TESTING.md",
    "anchor": "docs/TESTING.md#分层",
    "title": "分层",
-   "text": "上游 CI（.github/workflows/main.yml）只有 zsh -n 且被\n`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不运行**；\n`make ci-check` 是本仓真实质量门。CI 列表只含 lint/test/generated-check，\n未列入的层不能宣称 CI 已覆盖。协调仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job\n跑 `test_gx_*.py`，`ohmyzsh-posix` job（Ubuntu 24.04，等 `shell-linux` 产出 stage 后以其中打包的\nGX Zsh 为 `GX_TEST_ZSH`——包装脚本不调外部命令、保留调用方已设的 FPATH；apt 另装 zsh 与 fzf）跑\n`gx_package_profile.py`、`gx_windows.py` 与\n`gx_launcher.py`——系统 Zsh 5.9 的 zcompile、zf_mv 会把中文路径按 metafied 字节处理，GX 补丁修复了\n这一点，用例的中文 profile 路径正依赖它；`shell-windows` job 在 Windows runner 上跑 `gx_launcher.py`；\n`gx_terminal.py`、安装演练与加载 smoke 等其余层仍只在本地 `make test` 里运行。",
+   "text": "上游 CI（`main.yml`，GX 分支已原样归档到 `.github/workflows-archive/main.yml`）只有\nzsh -n 且被 `if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不运行**\n（镜像分支 `master` 推送时只留下 skipped 记录）；`make ci-check` 是本仓真实质量门。\nCI 列表只含 lint/test/generated-check，未列入的层不能宣称 CI 已覆盖。\n协调仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job\n跑 `test_gx_*.py`，`ohmyzsh-posix` job（Ubuntu 24.04，等 `shell-linux` 产出 stage 后以其中打包的\nGX Zsh 为 `GX_TEST_ZSH`——包装脚本不调外部命令、保留调用方已设的 FPATH；apt 另装 zsh 与 fzf）跑\n`gx_package_profile.py`、`gx_windows.py` 与\n`gx_launcher.py`——系统 Zsh 5.9 的 zcompile、zf_mv 会把中文路径按 metafied 字节处理，GX 补丁修复了\n这一点，用例的中文 profile 路径正依赖它；`shell-windows` job 在 Windows runner 上跑 `gx_launcher.py`；\n`gx_terminal.py`、安装演练与加载 smoke 等其余层仍只在本地 `make test` 里运行。",
    "layer": "doc"
   },
   {

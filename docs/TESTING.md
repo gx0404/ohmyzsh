@@ -22,10 +22,11 @@
 | 原生包生命周期 | 协调仓根 `release.yml` 的冒烟（`scripts/gx_shell_smoke_windows.ps1`、`scripts/gx_shell_smoke_linux.sh`）；独立仓库为手动 `gx-release` | 必须对真实 EXE/DEB 验证安装/升级/卸载、PATH 所有权、中文 HOME/profile、P10k/补全缓存和 TUI。协调仓中冒烟只在一次性 Windows runner 与 Ubuntu 20.04/24.04 容器里跑合并安装包（Windows 能下载到 0.1.0 时含升级），本目录的 `gx-release` 不执行；未在这些环境跑过前保持 PENDING |
 | 生成物 | `make generated-check`（kb-check） | docs/kb/chunks.json 与语料一致 |
 
-上游 CI（.github/workflows/main.yml）只有 zsh -n 且被
-`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不运行**；
-`make ci-check` 是本仓真实质量门。CI 列表只含 lint/test/generated-check，
-未列入的层不能宣称 CI 已覆盖。协调仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job
+上游 CI（`main.yml`，GX 分支已原样归档到 `.github/workflows-archive/main.yml`）只有
+zsh -n 且被 `if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不运行**
+（镜像分支 `master` 推送时只留下 skipped 记录）；`make ci-check` 是本仓真实质量门。
+CI 列表只含 lint/test/generated-check，未列入的层不能宣称 CI 已覆盖。
+协调仓根 `.github/workflows/release.yml` 只运行其中几层：prepare job
 跑 `test_gx_*.py`，`ohmyzsh-posix` job（Ubuntu 24.04，等 `shell-linux` 产出 stage 后以其中打包的
 GX Zsh 为 `GX_TEST_ZSH`——包装脚本不调外部命令、保留调用方已设的 FPATH；apt 另装 zsh 与 fzf）跑
 `gx_package_profile.py`、`gx_windows.py` 与

@@ -13,9 +13,10 @@
 | 集成 | `zsh tests/smoke_load.zsh --plugins a,b` | 多插件组合加载不互相破坏 |
 | 终端证据 | `make ui-smoke` + `dev_framework.py evidence <task>` | 主题渲染/omz 子命令的实际输出被捕获并读回 |
 
-上游 CI（.github/workflows/main.yml）只做 zsh -n 且被
-`if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不会运行**。
-本地 `make ci-check` 是本仓的真实质量门；不要引用上游 CI 状态作为本 fork 的验证结论。
+上游 CI（`main.yml`，GX 分支已原样归档到 `.github/workflows-archive/main.yml`）只做
+zsh -n 且被 `if: github.repository == 'ohmyzsh/ohmyzsh'` 守卫——**fork 上不会运行**
+（镜像分支 `master` 推送时只留下 skipped 记录）。本地 `make ci-check` 是本仓的真实
+质量门；不要引用上游 CI 状态作为本 fork 的验证结论。
 
 ## 执行纪律
 

@@ -6,7 +6,9 @@
 ## install.sh（604 行，POSIX sh）
 
 - 必须保持 POSIX sh 兼容（dash 可执行）：禁用 bashism（数组、`[[ ]]`、进程替换）。
-  CI 的 installer.yml 在 ubuntu/macos 矩阵用 `sh ./tools/install.sh` 验证。
+  上游 installer.yml 在 ubuntu/macos 矩阵用 `sh ./tools/install.sh` 验证；它在 GX
+  分支已原样归档到 `.github/workflows-archive/installer.yml`，且有 repository 守卫，
+  fork 上不运行。本 fork 以下方「验证」的 `sh -n` 与隔离演练为准。
 - 环境变量契约：`ZSH`、`ZDOTDIR`、`REPO`、`REMOTE`、`BRANCH` 可覆盖安装目标；
   参数 `--unattended`、`--keep-zshrc`、`--skip-zshrc`、`--skip-chsh`。
   `--unattended` 下严禁任何交互提示（确认、选择、读 stdin）。

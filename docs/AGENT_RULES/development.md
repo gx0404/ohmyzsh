@@ -19,11 +19,21 @@
 
 - 框架对上游采取**只增不改**策略：所有框架文件（AGENTS.md、CLAUDE.md、docs/、
   scripts/、Makefile、.zcode/、.claude/、.codex/、.agents/、tests/、CHANGELOG.md）
-  均为上游不存在的新增文件，保证 `git merge upstream/master` 干净重放。
-- 唯一允许改动的上游文件是 `.gitignore`，且只在 `# --- dev-framework (fork) ---`
-  标记块内追加。README.md、CONTRIBUTING.md、plugins/、lib/、tools/ 的定制需求
-  先评估移到 custom/ 或新插件。
-- 合并 upstream 后重跑：`make framework-check`（新上游文件可能需补路由）、
+  均为上游不存在的新增文件，保证 `git merge upstream/master` 干净重放（归档的
+  上游 workflow 靠 Git 重命名识别合入，见下文）。
+- 上游文件只允许两种改动：`.gitignore` 只在 `# --- dev-framework (fork) ---`
+  标记块内追加；上游 workflow 按下条原样归档。README.md、CONTRIBUTING.md、
+  plugins/、lib/、tools/ 的定制需求先评估移到 custom/ 或新插件。
+- **workflow 归档**：GX 分支的 `.github/workflows/` 只保留 GX 自有的
+  `gx-release.yml`；上游 workflow 及其配套目录（如 `installer/`、`dependencies/`）
+  用 `git mv` 原样移入 `.github/workflows-archive/`，只改路径、不改内容，Actions
+  不加载归档目录。`.github/dependencies.yml`、`dependabot.yml` 等非 workflow 配置
+  留在原位。`master` 是纯上游镜像，不在其上提交；不用停用 workflow 的方式收拢
+  Actions 列表（停用后条目仍在），处理办法见 `docs/RELEASE.md` 的工作流目录一节。
+- 合并 upstream 后：确认 `.github/workflows/` 仍只有 `gx-release.yml`，把新引入的
+  非 GX workflow 及配套文件同样 `git mv` 归档；已归档文件的上游修改由 Git 重命名
+  识别合入归档路径，冲突时保留归档路径、合入上游内容，逐文件对照 `master` 原文件
+  确认内容一致。再重跑 `make framework-check`（新上游文件可能需补路由）、
   `make ci-check`、`make kb`（语料变化）。
 
 ## 生成物

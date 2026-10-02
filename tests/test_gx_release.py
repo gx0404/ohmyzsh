@@ -1367,6 +1367,10 @@ class ReleaseTests(unittest.TestCase):
         self.assertNotIn("ref: ${{ needs.prepare.outputs.sha }}", publish_job)
         self.assertIn("python3 -I controller/scripts/gx_release.py publish", publish_job)
 
+    def test_default_branch_only_loads_the_gx_release_workflow(self):
+        active = sorted(path.name for path in (release.ROOT / ".github/workflows").iterdir())
+        self.assertEqual(active, ["gx-release.yml"])
+
 
 if __name__ == "__main__":
     unittest.main()

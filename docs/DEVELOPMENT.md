@@ -5,7 +5,8 @@
 1. **验收点**：先明确本次改动的可观察行为与通过条件。
 2. **规则**：列本轮触及路径 → `python3 scripts/resolve_agent_rules.py <paths...>`
    → 完整读返回的领域规则；审核任务加 `--task review`。
-3. **实现/文档**：小步可逆修改；upstream 只增不改（唯一例外 .gitignore 标记块）。
+3. **实现/文档**：小步可逆修改；upstream 只增不改（例外仅 .gitignore 标记块与
+   上游 workflow 原样归档到 `.github/workflows-archive/`）。
 4. **针对性检查**：`make lint`（语法层）→ `make test`（单元+smoke）；
    插件行为改动跑 `zsh tests/smoke_load.zsh --plugins <涉及插件>`。
 5. **终端证据**（触及主题/渲染/CLI 交互时）：`make ui-smoke`，读回捕获文件后
@@ -63,9 +64,11 @@ DrvFS 无 POSIX 符号链接、真 cygpath 干扰 shim 用例等差异，仍以�
 ```bash
 git fetch upstream
 git merge upstream/master        # 框架文件应为纯新增，无冲突预期
+git ls-files .github/workflows   # 只应剩 gx-release.yml；新上游 workflow 先原样 git mv 归档
 make framework-check             # 新上游文件若未路由会红 → 补 routes.toml
 make ci-check && make kb         # 全量复验 + 语料再生
 ```
 
-冲突仅可能出现在 .gitignore（标记块内合并即可）与 fork 对上游文件的定制
-（应当不存在；出现即说明违反了只增不改纪律）。
+冲突仅可能出现在 .gitignore（标记块内合并即可）、已归档的上游 workflow（保留
+`.github/workflows-archive/` 路径并合入上游内容，见 RELEASE.md「工作流目录与上游同步」）
+与 fork 对上游文件的定制（应当不存在；出现即说明违反了只增不改纪律）。

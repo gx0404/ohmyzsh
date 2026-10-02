@@ -179,15 +179,35 @@ python3 scripts/gx_release.py verify --sha <SHA> --version <X.Y.Z> --artifacts /
 发布验证的必需检查名以 `scripts/gx_release.py::COMMON_CHECKS`、`WINDOWS_CHECKS` 和
 `LINUX_CHECKS` 为准。测试用 synthetic installer/证据只能验证消费者逻辑，不构成真实验收。
 
+## 工作流目录与上游同步
+
+GX 分支的 `.github/workflows/` 只保留 `gx-release.yml`。上游的 CI（`main.yml`）、
+Test and Deploy installer（`installer.yml` 与 `installer/`）、Update dependencies
+（`dependencies.yml` 与 `dependencies/`）、Project tracking（`project.yml`）和
+Scorecard supply-chain security（`scorecard.yml`）原样移入 `.github/workflows-archive/`，
+GitHub 不从归档目录加载工作流。`.github/dependencies.yml` 是归档的 `updater.py` 按原路径
+读取的依赖清单，`.github/dependabot.yml` 是 Dependabot 配置，二者都不是工作流，留在原位。
+
+Actions 列表包含默认分支上的工作流文件，以及仍有运行记录的工作流。`master` 是上游镜像，
+上游工作流与提交历史保持原样，不在其上提交；推送它会触发镜像中监听 push 的上游工作流
+（CI、installer 因 repository 守卫跳过，Scorecard 会实际运行），这些运行记录会让对应条目
+重新出现在列表里。停用工作流不能隐藏条目。需要收拢时，只删除上游工作流在 `master` 上的
+运行记录，删除前归档元数据和完整日志；`gx-release` 的运行记录是验收证据，一律保留。
+
+上游同步按下节合并；Git 可通过文件重命名识别已归档流程，遇到冲突时保留归档路径并合入
+上游内容。合并后检查 `.github/workflows/`，将新引入的非 GX 工作流及其配套文件也原样
+`git mv` 到归档目录，逐文件与 `master` 原文件比对并审阅 diff。
+
 ## upstream 同步（周期性维护）
 
 ```bash
 git fetch upstream && git merge upstream/master
+git ls-files .github/workflows   # 只应剩 gx-release.yml；新上游工作流先原样 git mv 归档
 make framework-check   # 新文件未路由会红 → 补 routes.toml（bootstrap 闭集）
 make ci-check          # 语法/加载/KB 全量复验
 make kb                # 语料变化后再生 chunks.json 并审 diff
 ```
 
 同步后在 CHANGELOG.md 的当前版本下补 `chore(upstream)` 条目（同步到哪个
-commit、是否有冲突处理）。上游合并冲突只允许出现在 .gitignore 标记块；
-出现在其他文件即违反只增不改纪律，需回查定制来源。
+commit、是否有冲突处理）。上游合并冲突只允许出现在 .gitignore 标记块和已归档的
+工作流（按上节处理）；出现在其他文件即违反只增不改纪律，需回查定制来源。

@@ -140,6 +140,11 @@
   Ubuntu 24.04 上运行这三组测试、在 Windows runner 上运行启动器测试（Linux 结果与两平台安装冒烟
   以该流程为准）；`check_syntax.sh` 覆盖 `gx/omz-custom/plugins` 下的覆盖插件；`test_gx_lifecycle`
   调用 PowerShell 时加 `-ExecutionPolicy Bypass`。
+- Actions 只保留 GX 的手动 `gx-release` 入口：GX 分支把上游 CI、installer、dependencies、
+  project、scorecard 五个工作流及 `installer/`、`dependencies/` 配套目录原样移入
+  `.github/workflows-archive/`（只改路径不改内容），`.github/dependencies.yml` 等非工作流配置
+  留在原位，`master` 仍是纯上游镜像。规则与开发/发布/测试文档写明这一例外和上游合并后的
+  归档步骤，`test_gx_release` 锁定 `.github/workflows/` 只含 `gx-release.yml`。
 
 ## 0.1.0(2026-09-21)
 

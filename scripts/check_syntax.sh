@@ -34,7 +34,7 @@ dispatch() {
 
 cd "$repo_root" || exit 2
 
-# --- 与上游 .github/workflows/main.yml 完全一致的目标集 ---
+# --- 与上游 CI（main.yml，GX 分支归档于 .github/workflows-archive/）完全一致的目标集 ---
 for file in ./oh-my-zsh.sh ./lib/*.zsh ./plugins/*/*.plugin.zsh ./plugins/*/_* \
             ./themes/*.zsh-theme; do
   [ -e "$file" ] || continue
