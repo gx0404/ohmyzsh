@@ -1,7 +1,7 @@
 # gx 个人配置层规则（gx/）
 
 适用 scope：`gx/**`（个人 zsh 配置固化层：config/、omz-custom/、bin/、fonts/、
-wezterm/、history/、install.sh、bundle.sh、README.md）。本层是 fork 特有的"把一台机器的
+history/、install.sh、bundle.sh、README.md）。本层是 fork 特有的"把一台机器的
 shell 环境复制到另一台机器"的交付物，部署目标是用户真实 `$HOME`，属安全敏感面。
 
 ## 结构与真源
@@ -11,7 +11,7 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   同名文件原样保留，缺失时 zshrc 的 `[[ -r ... ]]` 守卫静默跳过）、p10k.zsh。
   在本机改了 `~/.zshrc` 等文件后必须回填 gx/config/ 并提交，否则下次安装会把
   本机配置回退到仓库旧版。
-- `~/.zshrc` 归 gx 层真源（2026-09-21 拍板）：wezterm 安装器历史追加的
+- `~/.zshrc` 归 gx 层真源（2026-09-21 拍板）：旧版 WezTerm GX 安装器历史追加的
   `# >>> wezterm-gx >>>` cursor-mode 键位块已并入 `gx/config/zshrc`（位置在全部
   `zle -N`/bindkey 之后、autosuggestions 与 syntax-highlighting source 之前）；
   `install.sh::deploy_configs` 备份+整体替换 .zshrc 时检测并告知剥离该块。
@@ -20,9 +20,17 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   `gx/bin/gitstatusd-linux-x86_64`（v1.5.4，运行期部署到
   `${GITSTATUS_CACHE_DIR:-~/.cache}/gitstatus/`）与
   `gx/bin/zoxide-linux-x86_64`（0.9.9）；`gx/fonts/` 是 Nerd Fonts v3.4.0
-  JetBrainsMono 四字重；`gx/wezterm/` 是 `~/.config/wezterm` 工作树快照
-  （含背景图，缺目录会破坏 backdrops.lua）。升级任一组件须同步更新
-  gx/README.md 的来源/版本/复刻命令清单。
+  JetBrainsMono 四字重。升级任一组件须同步更新 gx/README.md 的来源/版本/复刻命令清单。
+- 终端配置不属本层：GX Shell 附带的 Ghostty GX 在 `gx0404/gx_ghostty` 维护，安装器不部署
+  任何终端配置（`gx/wezterm/` 镜像已移除，`--skip-wezterm` 保留一个版本作无操作参数）。旧版
+  部署的 `~/.config/wezterm` 只在 `--uninstall` 且带 `.gx-managed` 标记时移除，无标记的属用户
+  自有，安装与卸载都不碰。
+- 终端集成真源是 `gx/config/terminal.zsh` 与 zshrc 的 p10k 段：守卫为
+  `TERM_PROGRAM == ghostty || HERDR_ENV == 1`（Ghostty 导出恰为小写）；Ghostty 自带 zsh 集成
+  在位（`(( ${+_ghostty_state} ))`）时 OSC 7/133 与光标归它，模块只摘上游
+  `omz_termsupport_cwd` 后返回，zshrc 不开 `POWERLEVEL9K_TERM_SHELL_INTEGRATION`。OSC 7 固定
+  `file://localhost/<编码路径>`（Ghostty 拒收空主机），MSYS 盘符目录报 `/C:/…`，非盘符运行时
+  目录不报；TTY、ssh/emacs 守卫不得放宽。
 - 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`
   模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。
 - `gx/history/` 是本机 Zsh 历史的**可公开子集**生成物（`scripts/gx_history.py::summarize`
@@ -84,7 +92,9 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   符号链接 custom 保留、上级不可写时中止不改旧树）、既有配置备份、`--uninstall`
   恢复、自定义 ZSH 路径改写、`--home` 与环境 `ZSH` 互锁、重装保留当前
   zcompdump 且下次启动不重建（含残留 `.lock` 目录不打断安装器、快照指纹变化时清 dump）、
-  `.pre-gx-*` 按 `GX_KEEP_BACKUPS` 回收且第一代永存（含 `--uninstall` 之后）。所有安装器
+  `.pre-gx-*` 按 `GX_KEEP_BACKUPS` 回收且第一代永存（含 `--uninstall` 之后；目录回收用外来
+  `$ZSH` 整树覆盖）、不部署终端配置（旧版带标记的 `~/.config/wezterm` 只由卸载移除、用户
+  自有的不动）、快照不含项目内 `.build/`。所有安装器
   调用经 `run_installer`（TMPDIR 指进沙箱、剥离宿主 `ZSH`/`GX_*`，需要传环境变量时写成
   `run_installer VAR=值 …` 前缀），fc-cache 缓存断言落在隔离 HOME。
 - config 改动同时运行 `python3 tests/gx_terminal.py`（已接入 `make test`）：

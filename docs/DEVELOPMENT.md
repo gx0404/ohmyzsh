@@ -48,9 +48,13 @@ Windows 本机补齐 POSIX 测试层用项目内 MSYS2 宿主（bash/python3/zsh
 
 经验边界（msys 宿主 ≠ 真 Linux）：本机 msys 宿主稳定覆盖 syntax / unit-cli /
 config-shapes / smoke 与 `test_gx_*` 打包单元；gx 的 Linux 部署套件
-（gx-terminal Deployed* / Wezterm、gx-install-smoke、gx-package-profile）及
+（gx-terminal 的 Deployed* 与 WeztermLegacyBlock、gx-install-smoke、gx-package-profile）及
 DrvFS 无 POSIX 符号链接、真 cygpath 干扰 shim 用例等差异，仍以真 Linux 宿主
-（协调仓 CI 或 WSL）为准。
+（协调仓 CI 或 WSL）为准。WSL 里在 Linux 原生目录的检出上运行（如 `git clone` 到
+`/var/tmp`；`/tmp` 会在发行版重启时清空），并把 `PATH` 限定为 Linux 目录：WSL 追加的
+Windows 路径里有不可列出的目录，`gx_terminal.py` 的影子 PATH 会因 PermissionError 报错。
+`gx_package_profile.py` 的中文 profile 用例依赖 GX 补丁版 Zsh（`GX_TEST_ZSH` 指向包内
+运行时），系统 Zsh 5.9 下的 zcompile 失败不代表回归。
 
 ## 提交纪律
 

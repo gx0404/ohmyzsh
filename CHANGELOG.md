@@ -100,8 +100,14 @@
   只有 Windows OpenSSH 认识的配置项可能在这里告警。
 - 私有运行时新增 diffutils、patch、unzip、zip、tree、bc、procps-ng（top、pgrep、pkill、watch、
   free 等）、vim（含 xxd）、rsync、jq 及其依赖，附对应源码与许可再分发材料。
-- WezTerm/herdr 新开的标签与分屏沿用当前目录：MSYS 上盘符目录的 OSC 7 上报改为 `file:///C:/…`
-  （此前的 `/cygdrive/c/…` 原生程序用不了），运行时内部的非盘符目录不上报。
+- 终端与 herdr 新开的标签与分屏沿用当前目录：OSC 7 上报改为 `file://localhost/<编码路径>`（Ghostty
+  拒收没有主机名的 OSC 7，herdr 两种都认），MSYS 上盘符目录报成 `file://localhost/C:/…`（此前的
+  `/cygdrive/c/…` 原生程序用不了），运行时内部的非盘符目录不上报。
+- GX Zsh 的终端集成改以 Ghostty GX 为目标：`gx/config/terminal.zsh` 与 zshrc 的守卫由
+  `TERM_PROGRAM=WezTerm` 改为 `TERM_PROGRAM=ghostty`（Ghostty 导出的值恰为小写）或 herdr 窗格的
+  `HERDR_ENV=1`，WezTerm 下改回上游行为。Ghostty 自带的 zsh 集成已加载时（定义 `_ghostty_state`）
+  由它负责 OSC 7/133 与光标形状：GX 不再开启 p10k 的 OSC 133、不挂工作目录上报与光标复位钩子，
+  只摘掉上游重复上报的 `omz_termsupport_cwd`，终端不会收到两套标记。ssh/emacs 与无 TTY 守卫不变。
 - Windows 上不再加载 `sudo` 插件（系统 sudo.exe 提升不了 MSYS 命令的权限，双击 Esc 补 sudo 的
   快捷键随之取消）；没有 `man` 时不加载 `colored-man-pages`；Windows 包模式把 `SHELL` 设为正在
   运行的 zsh，fzf 等经 `$SHELL` 起子进程的程序不再落到 cmd。
@@ -109,16 +115,19 @@
   的 `default_shell` 与 `shell_mode`。0.1.0 生成的旧配置（Windows 上是 `…\runtime/msys64/…` 这种
   混合分隔符路径）在首次启动时收编一次；用户改过的配置、链接或目录形式的 `config.toml`、指向别处的
   `HERDR_CONFIG_PATH` 都保持不动，删掉标记行后不再被改回。
-- 新增 `herdr --gx-set-default-shell <Shell 可执行文件的绝对路径>`：WezTerm 设置页切换默认 Shell
-  时用它让 herdr 新窗格跟随，正在运行的 herdr server 随即重新加载配置（不会为此启动 server）；
+- 新增 `herdr --gx-set-default-shell <Shell 可执行文件的绝对路径>`：供 GX Shell 的终端设置切换默认
+  Shell 时调用，让 herdr 新窗格跟随，正在运行的 herdr server 随即重新加载配置（不会为此启动 server）；
   重载失败时报错并给出诊断（配置已写入），部分生效时输出警告，配置不归 GX 管时返回 3。
 - 启动器的其他修正：Windows 上路径统一使用 `\`，预建补全与 zoxide 目录并直接给出 zoxide 的原生
   数据目录 `_ZO_DATA_DIR`；profile 目录校验失败时错误信息给出具体路径。
-- `gx/wezterm/` 与 WezTerm GX 的 `dotfiles/wezterm-config/` 重新逐字节一致：默认 Shell 设置、
-  Windows 与 Linux 统一的 `Ctrl+Shift` 键位（Windows 不再用 `Alt` 组合；关闭窗格改为
-  `Ctrl+Shift+W`，仍先确认；调整窗口大小改为 `Leader -`/`Leader =`；Windows 翻页滚动改为
-  `Shift+PageUp/PageDown`）、配置求值与状态栏提速，以及等比缩小的壁纸；`gx/README.md` 同步
-  键位、默认 Shell、`/c/` 盘符和新附带工具的说明。
+- 移除 WezTerm 配置镜像：GX Shell 改为附带 Ghostty GX，删除 `gx/wezterm/`，`gx/install.sh` 不再
+  部署 `~/.config/wezterm`，部署摘要也不再列出；`--skip-wezterm` 保留一个版本，只提示已无作用。
+  旧版部署且带 `.gx-managed` 标记的 `~/.config/wezterm` 重装时保持原样、不再更新，`--uninstall`
+  时移除；没有标记的同名目录属用户自有，安装与卸载都不碰。终端快捷键与配置改由 `gx0404/gx_ghostty`
+  维护；`gx/README.md` 同步 `/c/` 盘符与新附带工具的说明。
+- 安装器与 `gx/bundle.sh` 不再把项目内 `.build/`（构建根与测试临时数据）带进部署快照或离线包：
+  此前 `make test` 把临时目录放进 `.build/tmp` 后，安装演练的快照指纹随之漂移、重装误清当前补全
+  缓存，开发检出里的构建产物也会被部署进 `~/.oh-my-zsh`。
 - 打包：只有 herdr 构建记录（receipt）写 `builder=github-actions` 的 stage 可以发布。设
   `GX_LOCAL_BUILD_ROOT` 可在本机完整构建 herdr（记 `builder=local`），这类 stage 恒为不可发布，
   `verify --require-release` 拒绝；Windows 目标的 herdr 与启动器编译显式使用
@@ -133,7 +142,7 @@
   原文件变了就组装失败；再分发锁里 herdr 组件的版本必须与 herdr 实际版本一致。
 - herdr 许可收集：没有自带许可文本、license 表达式又与 herdr 根 crate 相同的 workspace 成员
   （上游新增的 `crates/ghostty-vt`）沿用根目录 `LICENSE` 并在清单里记录来源；表达式不同仍拒绝。
-- herdr 探针在 Windows 上新增原生 `PING.EXE`，以及 WezTerm win32-input-mode 按键记录形式的
+- herdr 探针在 Windows 上新增原生 `PING.EXE`，以及 win32-input-mode 按键记录形式的
   Ctrl+C 中断用例，每例都要求退出码 130。
 - 测试：新增 `tests/gx_windows.py`，在强制 MSYS 的 Zsh 里用 PowerShell/cygpath 替身验证 Windows 层
   （接入 `make test`）；`gx_package_profile.py`、`gx_launcher.py` 覆盖本轮修复，协调仓发版流程在
