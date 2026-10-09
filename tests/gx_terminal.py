@@ -319,6 +319,21 @@ def osc7_payloads(data):
     return [m.group(1) for m in re.finditer(rb"\x1b\]7;([^\x07\x1b]*)(?:\x07|\x1b\\)", data)]
 
 
+def background_sgr(data):
+    """Parameters of every SGR sequence that sets a background color (ANSI, bright, 256 or RGB)."""
+    found = []
+    for match in re.finditer(rb"\x1b\[([0-9;]*)m", data):
+        codes = [int(code or 0) for code in match.group(1).split(b";")]
+        index = 0
+        while index < len(codes):
+            code = codes[index]
+            if code == 48 or 40 <= code <= 47 or 100 <= code <= 107:
+                found.append(match.group(1))
+                break
+            index += (3 if codes[index + 1:index + 2] == [5] else 5) if code == 38 else 1
+    return found
+
+
 def segment(data, start, end=None):
     begin = data.index(start) + len(start)
     return data[begin:] if end is None else data[begin:data.index(end, begin)]
@@ -742,6 +757,30 @@ class DeployedInteractive(unittest.TestCase):
         data = self.session([marked("true; print -r -- RAN", 72)], TERM_PROGRAM=None, HERDR_ENV=None)
         self.assertNotIn(b"\x1b]133;C", data)
         self.assertNotIn(b"\x1b]133;D", data)
+
+    def test_lean_prompt_has_no_segment_background(self):
+        # Without the Lean basics p10k falls back to its default segment backgrounds; the dir
+        # background (palette 4) is the dir foreground #89b4fa in GX Mocha and hides the path.
+        repo = self.home / "lean repo"
+        if not repo.exists():
+            git = ["git", "-C", str(repo), "-c", "user.email=gx@test.invalid", "-c", "user.name=gx"]
+            env = isolated_env(self.home)
+            subprocess.run(["git", "init", "-q", str(repo)], env=env, check=True, timeout=30)
+            subprocess.run(git + ["symbolic-ref", "HEAD", "refs/heads/gx-lean"], env=env, check=True, timeout=30)
+            subprocess.run(git + ["commit", "-q", "--allow-empty", "-m", "seed"], env=env, check=True, timeout=30)
+        for overrides in (dict(TERM_PROGRAM="ghostty"), dict(TERM_PROGRAM=None, HERDR_ENV="1")):
+            data = self.session([
+                marked(f"cd {shlex.quote(str(repo))}; print -r -- LEAN", 76),
+                marked("print -r -- NEXT", 77),
+            ], **overrides)
+            prompt = segment(data, b":M1076", b"print -r -- NEXT")
+            self.assertEqual(background_sgr(prompt), [], (overrides, prompt))
+            for separator in ("\ue0b0", "\ue0b2"):
+                self.assertNotIn(separator.encode(), prompt, (overrides, prompt))
+            self.assertRegex(prompt, rb"\x1b\[38;2;137;180;250m[^\x1b]*~/lean repo", (overrides, prompt))
+            self.assertRegex(prompt, rb"\x1b\[38;2;166;227;161m[^\x1b]*gx-lean", (overrides, prompt))
+            self.assertIn("╭─".encode(), prompt, (overrides, prompt))
+            self.assertRegex(prompt, "╰─".encode() + rb"(?:\x1b\[[0-9;]*m)*" + "❯".encode(), (overrides, prompt))
 
 
 class WeztermLegacyBlock(unittest.TestCase):

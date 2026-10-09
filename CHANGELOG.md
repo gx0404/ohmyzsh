@@ -108,6 +108,14 @@
   `HERDR_ENV=1`，WezTerm 下改回上游行为。Ghostty 自带的 zsh 集成已加载时（定义 `_ghostty_state`）
   由它负责 OSC 7/133 与光标形状：GX 不再开启 p10k 的 OSC 133、不挂工作目录上报与光标复位钩子，
   只摘掉上游重复上报的 `omz_termsupport_cwd`，终端不会收到两套标记。ssh/emacs 与无 TTY 守卫不变。
+- 修复 GX Zsh 提示符第一行的目录只显示成一个没有文字的蓝色色块：`gx/config/p10k.zsh` 名为 Lean，
+  却没有设置 Lean 风格的基础参数，p10k 退回默认的 powerline 段背景，目录段背景是调色板 4，在 Ghostty
+  GX 默认主题 GX Mocha 里正是目录的前景色 `#89b4fa`。现按主题自带的 `config/p10k-lean.zsh` 设为
+  透明背景、无段分隔符和段两侧空白：目录、git 状态与 `❯` 直接用原有的 Catppuccin 前景色绘制，两行
+  布局与左侧 `╭─`/`╰─` 框线保留，右侧提示符的图标与左侧一样放在内容前。命令耗时、virtualenv、nvm 与
+  git 加载中/冲突状态原先只靠段背景着色，现补上 Catppuccin 前景色；vi 模式各状态的 `❯` 与插入状态同色。
+  `tests/gx_terminal.py` 新增真 PTY 用例，在 Ghostty 与 herdr 窗格两种环境下断言提示符不含背景色与
+  powerline 分隔符。
 - Windows 上不再加载 `sudo` 插件（系统 sudo.exe 提升不了 MSYS 命令的权限，双击 Esc 补 sudo 的
   快捷键随之取消）；没有 `man` 时不加载 `colored-man-pages`；Windows 包模式把 `SHELL` 设为正在
   运行的 zsh，fzf 等经 `$SHELL` 起子进程的程序不再落到 cmd。
