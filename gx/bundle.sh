@@ -12,6 +12,7 @@ out=${1:-"gx-ohmyzsh-$branch-$(date +%Y%m%d).tar.gz"}
 
 tar -czf "$out" -C "$repo" \
   --exclude=./.git \
+  --exclude=./.build \
   --exclude=./.playwright \
   --exclude=./.playwright-mcp \
   --exclude=./.graphify-memory \

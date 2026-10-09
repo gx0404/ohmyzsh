@@ -70,6 +70,8 @@ cmp -s "$repo_root/gx/config/zshrc" "$home_a/.zshrc" || fail ".zshrc differs fro
 [ -f "$home_a/.p10k.zsh" ] || fail ".p10k.zsh not deployed"
 [ -f "$zsh_a/oh-my-zsh.sh" ] || fail "omz entry not deployed"
 [ -f "$zsh_a/.gx-managed" ] || fail ".gx-managed marker missing in \$ZSH"
+# 项目内构建根不入快照（make test 把 TMPDIR 指在 .build/tmp，本沙箱就在其中）。
+[ ! -e "$zsh_a/.build" ] || fail "installer deployed the project-local .build/ into \$ZSH"
 [ -f "$zsh_a/custom/themes/powerlevel10k/powerlevel10k.zsh-theme" ] || fail "p10k theme not deployed"
 [ -x "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64" ] || fail "gitstatusd not deployed"
 [ -x "$home_a/.local/bin/zoxide" ] || fail "zoxide not deployed"

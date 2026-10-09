@@ -47,8 +47,11 @@ GX_REMOTE_DEFAULT="https://github.com/gx0404/ohmyzsh.git"
 GX_BRANCH_DEFAULT="feature/gx_ohmyzsh"
 ZOXIDE_VERSION="0.9.9"
 APT_PKGS="zsh git fzf zsh-autosuggestions zsh-syntax-highlighting"
-# 部署 $ZSH 时排除的开发态目录（git 仓库与运行时产物不入安装目标）。
+# 部署 $ZSH 时排除的开发态目录（git 仓库与运行时产物不入安装目标）。.build/ 是项目内
+# 构建根（工具链、构建输出与测试临时数据）：带进快照会把构建产物部署进 $ZSH，快照
+# 指纹也会随测试临时目录漂移。
 REPO_EXCLUDES="--exclude=./.git
+--exclude=./.build
 --exclude=./.playwright
 --exclude=./.playwright-mcp
 --exclude=./.graphify-memory
