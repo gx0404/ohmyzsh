@@ -1,7 +1,7 @@
 #!/bin/sh
 # gx/install.sh — gx 个人配置层一键安装器（fork 新增，不属于上游 tools/）。
 #
-# 把 gx/ 固化的 zsh 配置链（omz + p10k + 补全/高亮 + zoxide + 字体 + WezTerm）
+# 把 gx/ 固化的 zsh 配置链（omz + p10k + 补全/高亮 + zoxide + 字体）
 # 部署到目标机器的用户目录。双模式：脚本位于仓库内时用本地工作树（离线可用，
 # 无需 git）；curl 拉取执行或 --online 时先从 GX_REMOTE 取最新分支再本地部署。
 #
@@ -17,7 +17,7 @@
 #   --online        忽略本地仓库，强制从 GX_REMOTE 拉取
 #   --skip-apt      跳过 apt 包安装（zsh/fzf/autosuggestions/syntax-highlighting）
 #   --skip-fonts    跳过 Nerd Font 部署
-#   --skip-wezterm  跳过 WezTerm 配置部署
+#   --skip-wezterm  已无作用（安装器不再部署 WezTerm 配置），保留一个版本兼容旧调用
 #   --skip-chsh     跳过登录 shell 切换
 #   --unattended    全程无交互（stdin 非 tty 时自动生效）
 #   --uninstall     恢复 .pre-gx-<ts> 备份并移除安装器管理的产物
@@ -72,7 +72,6 @@ OPT_ZSH_GIVEN=0
 OPT_ONLINE=0
 OPT_SKIP_APT=0
 OPT_SKIP_FONTS=0
-OPT_SKIP_WEZTERM=0
 OPT_SKIP_CHSH=0
 OPT_UNATTENDED=0
 OPT_UNINSTALL=0
@@ -92,7 +91,7 @@ die()  { printf '错误: %s\n' "$1" >&2; exit "${2:-1}"; }
 # 多打一行就会把空行与 `set -eu` 也输出到 --help 里。
 usage() { sed -n '2,42p' "$0" 2>/dev/null || cat <<'EOF'
 用法: sh gx/install.sh [--home <dir>] [--zsh <dir>] [--online]
-      [--skip-apt] [--skip-fonts] [--skip-wezterm] [--skip-chsh]
+      [--skip-apt] [--skip-fonts] [--skip-chsh]
       [--unattended] [--uninstall]
 EOF
 }
@@ -106,7 +105,7 @@ while [ $# -gt 0 ]; do
     --online)      OPT_ONLINE=1; shift ;;
     --skip-apt)    OPT_SKIP_APT=1; shift ;;
     --skip-fonts)  OPT_SKIP_FONTS=1; shift ;;
-    --skip-wezterm) OPT_SKIP_WEZTERM=1; shift ;;
+    --skip-wezterm) say "--skip-wezterm 已无作用（不再部署 WezTerm 配置），可从调用中去掉"; shift ;;
     --skip-chsh)   OPT_SKIP_CHSH=1; shift ;;
     --unattended)  OPT_UNATTENDED=1; shift ;;
     --uninstall)   OPT_UNINSTALL=1; shift ;;
@@ -187,7 +186,7 @@ guard_timestamp_paths() {
     done
   else
     for _ts_path in "$ZSH" "$GX_HOME/.zshrc" "$GX_HOME/.zshenv" "$GX_HOME/.p10k.zsh" \
-                    "$ZSH/custom/themes/powerlevel10k" "$GX_HOME/.config/wezterm"; do
+                    "$ZSH/custom/themes/powerlevel10k"; do
       guard_destination "$_ts_path.pre-gx-$TS"
     done
     guard_destination "$ZSH.gx-new-$TS"
@@ -411,7 +410,7 @@ deploy_configs() {
   # 机器差异层 .zshrc.local 不在部署对里（CUDA/SDK 等路径属单机所有，换机不带走）；
   # 目标机已存在的同名文件原样保留、不再备份覆盖，缺失时 zshrc 的存在性守卫静默跳过。
   _dc_pairs="zshrc:.zshrc zshenv:.zshenv p10k.zsh:.p10k.zsh"
-  # 历史遗留：wezterm 安装器曾向 ~/.zshrc 追加「# >>> wezterm-gx >>>」cursor-mode
+  # 历史遗留：旧版 WezTerm GX 安装器曾向 ~/.zshrc 追加「# >>> wezterm-gx >>>」cursor-mode
   # 键位块，其内容已并入 gx/config/zshrc（~/.zshrc 归 gx 层真源）。下面对 .zshrc 的
   # 「备份 + 整体替换」会把该块一并剥离，原样留在 .pre-gx-<ts> 备份里可回查；
   # 这里负责检测与告知。已一致而跳过时 .zshrc 必无该块（仓库版不含标记）。
@@ -516,19 +515,6 @@ deploy_fonts() {
   fi
 }
 
-deploy_wezterm() {
-  [ "$OPT_SKIP_WEZTERM" -eq 0 ] || { say "跳过 WezTerm 配置 (--skip-wezterm)"; return 0; }
-  _wt_dst="$GX_HOME/.config/wezterm"
-  if [ -d "$_wt_dst/.git" ]; then
-    # 目标配置由用户自己的 git 仓库管理（本机即如此）：保留现场，不快照替换。
-    say "WezTerm 配置目录由 git 自管（含 .git），跳过部署"
-    return 0
-  fi
-  replace_dir "$REPO_DIR/gx/wezterm" "$_wt_dst" "$GX_KEEP_BACKUPS"
-  say "WezTerm 配置 -> $_wt_dst"
-  printf 'gx install.sh 部署的 wezterm 配置快照\n' > "$_wt_dst/.gx-managed"
-}
-
 set_login_shell() {
   [ "$OPT_SKIP_CHSH" -eq 0 ] || { say "跳过登录 shell 切换 (--skip-chsh)"; return 0; }
   [ "$GX_HOME" = "$HOME" ] || { say "非真实 HOME（--home 重定向），跳过 chsh"; return 0; }
@@ -592,7 +578,6 @@ print_summary() {
   printf '  zsh 配置链: %s/.zshrc (+ .zshenv/.p10k.zsh)\n' "$GX_HOME"
   printf '  机器差异层 .zshrc.local 不在部署对：已存在的保留原样，缺失由 zshrc 守卫跳过\n'
   printf '  p10k 主题: %s/custom/themes/powerlevel10k\n' "$ZSH"
-  [ "$OPT_SKIP_WEZTERM" -eq 0 ] && printf '  WezTerm 配置: %s/.config/wezterm\n' "$GX_HOME"
   printf '\n启动新会话生效: exec zsh\n'
   printf '回退: sh %s/gx/install.sh --uninstall（恢复 .pre-gx 备份）\n' "$ZSH"
 }
@@ -629,6 +614,8 @@ uninstall() {
       say "无备份，保留现状: $_un_f"
     fi
   done
+  # ~/.config/wezterm 是旧版安装器部署的终端配置快照：本版不再部署，但卸载仍移除带
+  # .gx-managed 标记的那份；没有标记的同名目录属用户自有，原样保留。
   for _un_d in "$GX_HOME/.config/wezterm" "$ZSH/custom/themes/powerlevel10k"; do
     if [ -e "$_un_d" ] && is_ours "$_un_d"; then
       rm -rf "$_un_d"
@@ -661,7 +648,6 @@ main() {
   deploy_p10k
   deploy_zoxide
   deploy_fonts
-  deploy_wezterm
   set_login_shell
   cleanup_zcompdump
   print_summary

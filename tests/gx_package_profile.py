@@ -1027,7 +1027,7 @@ esac''')
                 env.update(HOME=str(home), ZDOTDIR=str(home), GITSTATUS_CACHE_DIR=str(home / ".cache/gitstatus"),
                            GX_TEST_SELECTED_ZSH=self.zsh)
                 argv = ["sh", str(source / "gx/install.sh"), "--home", str(home), "--skip-apt", "--skip-fonts",
-                        "--skip-wezterm", "--skip-chsh", "--unattended"]
+                        "--skip-chsh", "--unattended"]
                 if custom:
                     argv += ["--zsh", str(target)]
                 result = subprocess.run(argv, env=env, cwd=home, capture_output=True, text=True, start_new_session=True, timeout=90)

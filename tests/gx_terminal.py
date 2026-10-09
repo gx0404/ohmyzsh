@@ -53,8 +53,8 @@ def run_installer(home, *args, **overrides):
         raise AssertionError("真实链路测试需要 zsh 与 sh，缺失即失败（不 skip）")
     overrides.setdefault("TMPDIR", str(pathlib.Path(home).parent))
     return subprocess.run(
-        ["sh", str(INSTALLER), "--home", str(home), *args, "--skip-apt", "--skip-fonts", "--skip-wezterm",
-         "--skip-chsh", "--unattended"],
+        ["sh", str(INSTALLER), "--home", str(home), *args, "--skip-apt", "--skip-fonts", "--skip-chsh",
+         "--unattended"],
         env=isolated_env(home, **overrides), capture_output=True, text=True, timeout=120)
 
 
@@ -287,7 +287,7 @@ class InstallerZshInterlock(unittest.TestCase):
         home = self.root / "home"
         home.mkdir()
         result = subprocess.run(
-            ["sh", str(INSTALLER), "--skip-apt", "--skip-fonts", "--skip-wezterm", "--skip-chsh", "--unattended"],
+            ["sh", str(INSTALLER), "--skip-apt", "--skip-fonts", "--skip-chsh", "--unattended"],
             env=isolated_env(home, GX_HOME=str(home), ZSH=str(self.foreign), TMPDIR=str(self.root)),
             capture_output=True, text=True, timeout=120)
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)

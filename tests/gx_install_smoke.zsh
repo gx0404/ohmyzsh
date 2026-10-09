@@ -75,8 +75,9 @@ cmp -s "$repo_root/gx/config/zshrc" "$home_a/.zshrc" || fail ".zshrc differs fro
 [ -f "$zsh_a/custom/themes/powerlevel10k/powerlevel10k.zsh-theme" ] || fail "p10k theme not deployed"
 [ -x "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64" ] || fail "gitstatusd not deployed"
 [ -x "$home_a/.local/bin/zoxide" ] || fail "zoxide not deployed"
-[ -f "$home_a/.config/wezterm/wezterm.lua" ] || fail "wezterm config not deployed"
-[ -f "$home_a/.config/wezterm/.gx-managed" ] || fail "wezterm marker missing"
+# 安装器不再部署终端配置；旧版部署的 ~/.config/wezterm 如何处理见场景 B/C/E。
+[ ! -e "$home_a/.config/wezterm" ] || fail "installer must no longer deploy ~/.config/wezterm"
+grep -qE 'WezTerm 配置(:| ->)' "$tmp/inst-a.out" && fail "installer still reports a WezTerm deploy step"
 fonts=("$home_a"/.local/share/fonts/JetBrainsMonoNerd/*.ttf(N))
 [ $#fonts -eq 4 ] || fail "expected 4 font files, got $#fonts"
 # --home 重定向时 fc-cache 的 per-user 缓存必须落在部署 HOME（XDG_CACHE_HOME 改写），
@@ -150,7 +151,7 @@ printf '\n' >> "$home_a/.cache/gitstatus/gitstatusd-linux-x86_64"
     -G v1.5.4 -s 1 -u 1 -d 1 -c 1 -m -1 -v FATAL -t 32 >/dev/null 2>&1 ) &
 busy_daemon=$!
 
-# 历史形态：wezterm 安装器曾向 ~/.zshrc 追加 cursor-mode 键位标记块（其内容已并入
+# 历史形态：旧版 WezTerm GX 安装器曾向 ~/.zshrc 追加 cursor-mode 键位标记块（其内容已并入
 # gx/config/zshrc）；重装走「备份 + 整体替换」，部署后的 .zshrc 不得残留该块。
 echo "# legacy config" > "$home_a/.zshrc"
 cat >> "$home_a/.zshrc" <<'EOF'
@@ -181,6 +182,11 @@ echo "# user example overrides repo" > "$zsh_a/custom/example.zsh"
 # .zcompdump-*；当前 <host>-<ver> 一族在源快照指纹未变时保留。
 echo stale > "$home_a/.zcompdump"
 echo stale > "$home_a/.zcompdump-stale-0.0"
+# 旧版安装器部署过的 ~/.config/wezterm（带 .gx-managed 标记）：本版重装不再管理它——
+# 不更新、不备份、不删除；只有 --uninstall 移除带标记的这份（场景 C）。
+mkdir -p "$home_a/.config/wezterm"
+echo "-- legacy gx snapshot" > "$home_a/.config/wezterm/wezterm.lua"
+echo "gx install.sh 部署的 wezterm 配置快照" > "$home_a/.config/wezterm/.gx-managed"
 # omz 的 zrecompile 互斥锁是**目录**（oh-my-zsh.sh 用 command mkdir 创建，异常退出即
 # 残留；真实 HOME 就有一份）。它落在同一个 .zcompdump-* glob 上，清理必须容错：
 # 回归形态是安装器在 set -eu 下被 rm 的「Is a directory」打断，且摘要不再打印。
@@ -212,6 +218,10 @@ leftover=("$zsh_a".gx-new-*(N) "$zsh_a".gx-old-*(N) "$home_a"/.gx-custom.*(N) "$
 [ $#leftover -eq 0 ] || fail "installer left intermediate dirs behind: $leftover"
 grep -q "残留" "$tmp/inst-b.err" && fail "reinstall reported leftovers on a clean tree"
 grep -q "部署完成:" "$tmp/inst-b.out" || fail "installer printed no summary (aborted before print_summary?)"
+[ "$(cat "$home_a/.config/wezterm/wezterm.lua")" = "-- legacy gx snapshot" ] \
+  || fail "reinstall touched the legacy managed wezterm dir"
+legacy_wez_bk=("$home_a"/.config/wezterm.pre-gx-*(N))
+[ $#legacy_wez_bk -eq 0 ] || fail "reinstall backed up the legacy wezterm dir: $legacy_wez_bk"
 [ ! -e "$home_a/.zcompdump" ] || fail "bare .zcompdump not cleaned by installer"
 [ ! -e "$home_a/.zcompdump-stale-0.0" ] || fail "stale .zcompdump-* not cleaned by installer"
 [ ! -e "$home_a/.zcompdump-stale-0.0.lock" ] || fail "stale zrecompile lock dir not cleaned by installer"
@@ -258,7 +268,7 @@ run_installer --home "$home_a" --skip-apt --uninstall --unattended \
   > "$tmp/inst-c.out" 2> "$tmp/inst-c.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-c.err" >&2; fail "scenario C uninstall exited non-zero"; }
 grep -q "legacy config" "$home_a/.zshrc" || fail "uninstall did not restore legacy .zshrc"
-[ ! -e "$home_a/.config/wezterm" ] || fail "uninstall left managed wezterm dir"
+[ ! -e "$home_a/.config/wezterm" ] || fail "uninstall left the legacy managed wezterm dir"
 [ ! -e "$zsh_a/custom/themes/powerlevel10k" ] || fail "uninstall left managed p10k dir"
 [ -f "$zsh_a/.gx-managed" ] || fail "uninstall should keep \$ZSH (with marker)"
 
@@ -277,31 +287,44 @@ print -r -- "GX-SMOKE-OK-CUSTOM"
 '
 grep -q "GX-SMOKE-OK-CUSTOM" "$tmp/load.out" || fail "custom-path load marker absent"
 
-# ---------------------------------------------------------------- 场景 E：wezterm 目标由 git 自管则跳过
+# ---------------------------------------------------------------- 场景 E：用户自有 ~/.config/wezterm 不受安装/卸载影响；--skip-wezterm 仅为兼容
 
+# 不带 .gx-managed 的终端配置属用户自有（这里还是用户自己的 git 仓库）：安装器既不部署
+# 也不备份它，卸载同样原样保留。--skip-wezterm 保留一个版本，只提示已无作用。
 home_e="$tmp/home-e"
 mkdir -p "$home_e/.config/wezterm/.git"
 echo "# self-managed" > "$home_e/.config/wezterm/wezterm.lua"
-run_installer --home "$home_e" --skip-apt --skip-chsh --unattended \
+user_wez_before=$(cd "$home_e/.config/wezterm" && find . | sort)
+run_installer --home "$home_e" --skip-apt --skip-wezterm --skip-chsh --unattended \
   > "$tmp/inst-e.out" 2> "$tmp/inst-e.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-e.err" >&2; fail "scenario E install exited non-zero"; }
-grep -q "# self-managed" "$home_e/.config/wezterm/wezterm.lua" \
-  || fail "git-managed wezterm was replaced"
-[ ! -f "$home_e/.config/wezterm/.gx-managed" ] || fail "git-managed wezterm got gx marker"
-grep -q "git 自管" "$tmp/inst-e.out" || fail "wezterm git-skip message absent"
+grep -q -- "--skip-wezterm 已无作用" "$tmp/inst-e.out" || fail "--skip-wezterm deprecation notice absent"
+cmp -s "$repo_root/gx/config/zshrc" "$home_e/.zshrc" && [ -f "$home_e/.oh-my-zsh/.gx-managed" ] \
+  || fail "--skip-wezterm changed the deployment"
+grep -q "# self-managed" "$home_e/.config/wezterm/wezterm.lua" || fail "user-owned wezterm config was replaced"
+[ "$(cd "$home_e/.config/wezterm" && find . | sort)" = "$user_wez_before" ] \
+  || fail "installer added or removed files in the user-owned wezterm config"
+user_wez_bk=("$home_e"/.config/wezterm.pre-gx-*(N))
+[ $#user_wez_bk -eq 0 ] || fail "installer backed up the user-owned wezterm config: $user_wez_bk"
+run_installer --home "$home_e" --skip-apt --uninstall --unattended \
+  > "$tmp/inst-e2.out" 2> "$tmp/inst-e2.err"
+[ $? -eq 0 ] || { cat "$tmp/inst-e2.err" >&2; fail "scenario E uninstall exited non-zero"; }
+grep -q "# self-managed" "$home_e/.config/wezterm/wezterm.lua" || fail "uninstall removed the user-owned wezterm config"
+[ "$(cd "$home_e/.config/wezterm" && find . | sort)" = "$user_wez_before" ] \
+  || fail "uninstall changed the user-owned wezterm config"
 
 # ---------------------------------------------------------------- 场景 F：custom 为符号链接（dotfiles 仓库）时重装原样保留
 
 home_f="$tmp/home-f"
 zsh_f="$home_f/.oh-my-zsh"
-run_installer --home "$home_f" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+run_installer --home "$home_f" --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-f.out" 2> "$tmp/inst-f.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-f.err" >&2; fail "scenario F install exited non-zero"; }
 dotfiles="$tmp/dotfiles-omz-custom"
 mv "$zsh_f/custom" "$dotfiles"
 ln -s "$dotfiles" "$zsh_f/custom"
 echo "# v1 in dotfiles" > "$dotfiles/from-dotfiles.zsh"
-run_installer --home "$home_f" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+run_installer --home "$home_f" --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-f2.out" 2> "$tmp/inst-f2.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-f2.err" >&2; fail "scenario F reinstall exited non-zero"; }
 [ -L "$zsh_f/custom" ] || fail "symlinked custom was expanded into a real directory on reinstall"
@@ -324,7 +347,7 @@ echo "# keep me" > "$foreign/custom/plugins/keep/keep.plugin.zsh"
 foreign_before=$(cd "$foreign" && find . | sort)
 home_g="$tmp/home-g"
 env ZSH="$foreign" TMPDIR="$tmp" sh "$installer" --home "$home_g" \
-  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-g.out" 2> "$tmp/inst-g.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-g.err" >&2; fail "scenario G install exited non-zero"; }
 [ -f "$home_g/.oh-my-zsh/.gx-managed" ] || fail "--home did not deploy to <home>/.oh-my-zsh when env ZSH set"
@@ -339,7 +362,7 @@ leftover=("$tmp"/.gx-custom.*(N) "$foreign".gx-new-*(N) "$foreign".gx-old-*(N))
 home_h="$tmp/home-h"
 mkdir -p "$home_h"
 env ZSH="$foreign" GX_HOME="$home_h" TMPDIR="$tmp" sh "$installer" \
-  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-h.out" 2> "$tmp/inst-h.err"
 rc_h=$?
 [ $rc_h -eq 1 ] || { cat "$tmp/inst-h.err" >&2; fail "scenario H expected exit 1 (refused), got $rc_h"; }
@@ -359,13 +382,13 @@ if [ "$(id -u)" = 0 ]; then
 else
   home_i="$tmp/home-i"
   zsh_i="$home_i/.oh-my-zsh"
-  run_installer --home "$home_i" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  run_installer --home "$home_i" --skip-apt --skip-fonts --skip-chsh --unattended \
     > "$tmp/inst-i.out" 2> "$tmp/inst-i.err"
   [ $? -eq 0 ] || { cat "$tmp/inst-i.err" >&2; fail "scenario I install exited non-zero"; }
   echo "# precious" > "$zsh_i/custom/precious.zsh"
   tree_before=$(cd "$zsh_i" && find . | sort)
   chmod a-w "$home_i"
-  run_installer --home "$home_i" --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended \
+  run_installer --home "$home_i" --skip-apt --skip-fonts --skip-chsh --unattended \
     > "$tmp/inst-i2.out" 2> "$tmp/inst-i2.err"
   rc_i=$?
   chmod u+w "$home_i"
@@ -381,14 +404,19 @@ fi
 # 真实升级路径 = 用户改过配置后重装：每次都产生一份 .zshrc.pre-gx-<ts>，此前永不回收
 # （真实 HOME 已累积 6 份）。回收策略是「时间戳最小的第一代永久保留 + 最新
 # GX_KEEP_BACKUPS 份」——第一代是唯一一份 gx 之前用户自己的配置，删掉就再也回不去；
-# --uninstall 恢复最新一份后其余同样按该策略回收；wezterm 目录备份走同一函数。
+# --uninstall 恢复最新一份后其余同样按该策略回收。目录备份走同一个 prune_backups：去掉
+# $ZSH 的 .gx-managed 标记即视为外来 Oh My Zsh，重装时整树备份，固定只留「第一代 +
+# 1 份」（不随 GX_KEEP_BACKUPS 变化，all 例外）。
 home_j="$tmp/home-j"
+zsh_j="$home_j/.oh-my-zsh"
 run_installer --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-j0.out" 2> "$tmp/inst-j0.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-j0.err" >&2; fail "scenario J install exited non-zero"; }
+# 给当前 $ZSH 记一个世代名并去掉标记：下一次重装把它当外来树整树备份。
+foreign_omz() { print -r -- "$1" > "$zsh_j/gx-smoke-generation"; rm -f "$zsh_j/.gx-managed"; }
 for i in 1 2 3 4; do
   echo "# mod $i" > "$home_j/.zshrc"
-  rm -f "$home_j/.config/wezterm/.gx-managed"   # 去掉标记 = 视为外来目录，须备份
+  foreign_omz "gen $i"
   sleep 1                                        # 备份后缀是秒级时间戳
   run_installer GX_KEEP_BACKUPS=4 --home "$home_j" \
     --skip-apt --skip-fonts --skip-chsh --unattended \
@@ -398,10 +426,14 @@ done
 zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
 [ $#zshrc_bk -eq 4 ] || fail "GX_KEEP_BACKUPS=4 should keep 4 .zshrc backups, got $#zshrc_bk"
 grep -q "mod 1" "$zshrc_bk[1]" || fail "oldest .zshrc backup should be mod 1"
-wez_bk=("$home_j"/.config/wezterm.pre-gx-*(N))
-[ $#wez_bk -eq 4 ] || fail "GX_KEEP_BACKUPS=4 should keep 4 wezterm backups, got $#wez_bk"
+omz_bk=("$zsh_j".pre-gx-*(N))
+[ $#omz_bk -eq 2 ] || fail "\$ZSH backups stay at first gen + 1 regardless of GX_KEEP_BACKUPS=4, got $#omz_bk"
+grep -q "gen 1" "$omz_bk[1]/gx-smoke-generation" || fail "first-generation \$ZSH backup must never be recycled"
+grep -q "gen 4" "$omz_bk[-1]/gx-smoke-generation" || fail "newest \$ZSH backup should be gen 4"
+grep -q "回收旧备份.*/.oh-my-zsh.pre-gx-" "$tmp/inst-j3.out" || fail "installer did not report pruning a \$ZSH backup"
 # 默认份数下重装：第一代（mod 1）+ 最新 2 份（mod 4 与本次的 mod 5），中间世代被回收。
 echo "# mod 5" > "$home_j/.zshrc"
+foreign_omz "gen 5"
 sleep 1
 run_installer --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-j5.out" 2> "$tmp/inst-j5.err"
@@ -412,24 +444,33 @@ grep -q "mod 1" "$zshrc_bk[1]" || fail "first-generation .zshrc backup must neve
 grep -q "mod 4" "$zshrc_bk[2]" || fail "second newest .zshrc backup should be mod 4"
 grep -q "mod 5" "$zshrc_bk[-1]" || fail "newest .zshrc backup is not the latest user edit"
 grep -q "回收旧备份" "$tmp/inst-j5.out" || fail "installer did not report pruned backups"
-wez_bk=("$home_j"/.config/wezterm.pre-gx-*(N))
-[ $#wez_bk -eq 3 ] || fail "default retention should keep first gen + 2 wezterm backups, got $#wez_bk"
+omz_bk=("$zsh_j".pre-gx-*(N))
+[ $#omz_bk -eq 2 ] || fail "default retention should keep first gen + 1 \$ZSH backup, got $#omz_bk"
+grep -q "gen 1" "$omz_bk[1]/gx-smoke-generation" || fail "first-generation \$ZSH backup recycled at default retention"
+grep -q "gen 5" "$omz_bk[-1]/gx-smoke-generation" || fail "newest \$ZSH backup should be gen 5"
 # GX_KEEP_BACKUPS=all 关闭回收：一轮改配置重装只加不减。
 echo "# mod all" > "$home_j/.zshrc"
+foreign_omz "gen all"
 sleep 1
 run_installer GX_KEEP_BACKUPS=all --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-ja.out" 2> "$tmp/inst-ja.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-ja.err" >&2; fail "scenario J keep-all reinstall exited non-zero"; }
 zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
 [ $#zshrc_bk -eq 4 ] || fail "GX_KEEP_BACKUPS=all should recycle nothing, got $#zshrc_bk"
+omz_bk=("$zsh_j".pre-gx-*(N))
+[ $#omz_bk -eq 3 ] || fail "GX_KEEP_BACKUPS=all should not recycle \$ZSH backups, got $#omz_bk"
 grep -q "回收旧备份" "$tmp/inst-ja.out" && fail "GX_KEEP_BACKUPS=all still recycled backups"
-# 回到默认额度：mod all 之后第一代 + 最新 2 份。
-echo "# mod 5b" > "$home_j/.zshrc"; sleep 1
+# 回到默认额度：mod all 之后第一代 + 最新 2 份；$ZSH 回到第一代 + 1 份。
+echo "# mod 5b" > "$home_j/.zshrc"; foreign_omz "gen 5b"; sleep 1
 run_installer --home "$home_j" --skip-apt --skip-fonts --skip-chsh --unattended \
   > "$tmp/inst-j5b.out" 2> "$tmp/inst-j5b.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-j5b.err" >&2; fail "scenario J reinstall 5b exited non-zero"; }
 zshrc_bk=("$home_j"/.zshrc.pre-gx-*(N))
 [ $#zshrc_bk -eq 3 ] || fail "default retention after keep-all should be first gen + 2, got $#zshrc_bk"
+omz_bk=("$zsh_j".pre-gx-*(N))
+[ $#omz_bk -eq 2 ] || fail "default retention after keep-all should keep first gen + 1 \$ZSH backup, got $#omz_bk"
+grep -q "gen 1" "$omz_bk[1]/gx-smoke-generation" || fail "first-generation \$ZSH backup must survive keep-all round trip"
+grep -q "gen 5b" "$omz_bk[-1]/gx-smoke-generation" || fail "newest \$ZSH backup should be gen 5b"
 # --uninstall 恢复最新备份（mod 5b）算作最新一代，其余留第一代 + N-1=1 份（mod all）。
 run_installer --home "$home_j" --skip-apt --uninstall --unattended \
   > "$tmp/inst-j6.out" 2> "$tmp/inst-j6.err"
@@ -474,7 +515,7 @@ home_k="$tmp/home-k"
 mkdir "$home_k"
 print -r -- '# original before gx' > "$home_k/.zshrc"
 run_installer PATH="$clock_bin:$PATH" GX_KEEP_BACKUPS=all --home "$home_k" \
-  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k0.out" 2> "$tmp/inst-k0.err"
+  --skip-apt --skip-fonts --skip-chsh --unattended > "$tmp/inst-k0.out" 2> "$tmp/inst-k0.err"
 [ $? -eq 0 ] || { cat "$tmp/inst-k0.err" >&2; fail "scenario K initial install failed"; }
 original_k="$home_k/.zshrc.pre-gx-$fixed_ts"
 [ -f "$original_k" ] || fail "scenario K missing strict 14-digit backup"
@@ -482,7 +523,7 @@ original_stat=$(stat -c '%i %y %z' "$original_k")
 for i in 1 2 3; do
   print -r -- "# dense change $i" > "$home_k/.zshrc"
   run_installer PATH="$clock_bin:$PATH" GX_KEEP_BACKUPS=all --home "$home_k" \
-    --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k$i.out" 2> "$tmp/inst-k$i.err"
+    --skip-apt --skip-fonts --skip-chsh --unattended > "$tmp/inst-k$i.out" 2> "$tmp/inst-k$i.err"
   [ $? -eq 2 ] || fail "scenario K collision $i was not refused"
   grep -q '时间戳目标已存在' "$tmp/inst-k$i.err" || fail "scenario K missing collision diagnostic"
   [ "$(cat "$original_k")" = '# original before gx' ] || fail "scenario K first generation overwritten"
@@ -498,7 +539,7 @@ for suffix in gx-new gx-old; do
   mkdir -p "$occupied"
   print -r -- 'keep occupied directory' > "$occupied/sentinel"
   run_installer PATH="$clock_bin:$PATH" --home "$occupied_home" \
-    --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k-$suffix.out" 2> "$tmp/inst-k-$suffix.err"
+    --skip-apt --skip-fonts --skip-chsh --unattended > "$tmp/inst-k-$suffix.out" 2> "$tmp/inst-k-$suffix.err"
   [ $? -eq 2 ] || fail "scenario K occupied $suffix was not refused"
   [ "$(cat "$occupied/sentinel")" = 'keep occupied directory' ] || fail "scenario K occupied directory changed"
 done
@@ -508,7 +549,7 @@ mkdir "$link_home"
 print -r -- 'keep current config' > "$link_home/.zshrc"
 ln -s missing-target "$link_home/.zshrc.pre-gx-$fixed_ts"
 run_installer PATH="$clock_bin:$PATH" --home "$link_home" \
-  --skip-apt --skip-fonts --skip-wezterm --skip-chsh --unattended > "$tmp/inst-k-link.out" 2> "$tmp/inst-k-link.err"
+  --skip-apt --skip-fonts --skip-chsh --unattended > "$tmp/inst-k-link.out" 2> "$tmp/inst-k-link.err"
 [ $? -eq 2 ] || fail "scenario K dangling backup symlink was not refused"
 [ "$(readlink "$link_home/.zshrc.pre-gx-$fixed_ts")" = missing-target ] || fail "scenario K backup symlink changed"
 [ "$(cat "$link_home/.zshrc")" = 'keep current config' ] || fail "scenario K symlink refusal changed current config"

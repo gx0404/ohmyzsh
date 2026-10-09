@@ -1,10 +1,10 @@
 {
  "schema": 1,
  "generator": "scripts/build_agent_kb.py",
- "built_at": "2026-10-09T07:26:33Z",
+ "built_at": "2026-10-09T07:27:04Z",
  "corpus_files": 997,
- "corpus_hash": "41c72b00cc0dfdc9c735b83de10ad4ad5845422f2b0056ad73350e5379fe9aac",
- "content_hash": "a6bc688e5557d1b8841a92b25d407dee4a9b328c2dbf509cd7696bbef7187884",
+ "corpus_hash": "93af35cd3b7b01a1fb3173700311dcf1f70cb79afa8a07417c3624e18e2f0d7a",
+ "content_hash": "655a6f3146015d2ea53219ad80dd58d4e806bf6ac33e3c18f4b961aeba3e2474",
  "chunk_count": 1680,
  "chunks": [
   {
@@ -13128,11 +13128,11 @@
    "layer": "code"
   },
   {
-   "id": "b67b871686bc",
+   "id": "eb5b45b5de80",
    "source": "tests/gx_install_smoke.zsh",
    "anchor": "tests/gx_install_smoke.zsh",
    "title": "符号表 tests/gx_install_smoke.zsh",
-   "text": "函数: fail, run_installer, load_check",
+   "text": "函数: fail, run_installer, load_check, foreign_omz",
    "layer": "code"
   },
   {
