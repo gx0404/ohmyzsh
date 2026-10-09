@@ -106,8 +106,9 @@ plugins=(git sudo extract colored-man-pages nvm herdr)
 [[ $OSTYPE == (cygwin|msys)* ]] && plugins=(${plugins:#sudo})
 [[ -f ${commands[man]:-} ]] || plugins=(${plugins:#colored-man-pages})
 
-# P10k 负责 OSC 133 提示符边界，避免再叠加一套 PS1 包装。
-if [[ $TERM_PROGRAM == WezTerm || ${HERDR_ENV:-} == 1 ]]; then
+# P10k 负责 OSC 133 提示符边界，避免再叠加一套 PS1 包装；Ghostty 自带的 zsh 集成已在
+# .zshenv 阶段加载（_ghostty_state 已定义）时由它发 OSC 133，P10k 不再重复。
+if [[ $TERM_PROGRAM == ghostty || ${HERDR_ENV:-} == 1 ]] && (( ! ${+_ghostty_state} )); then
   typeset -g POWERLEVEL9K_TERM_SHELL_INTEGRATION=true
 fi
 # 无控制终端时只加载 OMZ/插件和参数配置，不初始化主题或缓存中的 gitstatus 预加载。
@@ -216,8 +217,9 @@ unset keymap keyseq
 
 # herdr 的 prefix 是 ctrl+b：pane 内的 zsh 想发 ^B（backward-char）需双击 prefix
 # 透传（ctrl+b ctrl+b；help 默认在 prefix+?）。补 Alt+Ctrl+B 作单键直达——该组合
-# 在 zsh emacs/viins、WezTerm（GX-10 迁移后）与 herdr 默认键位三侧均无占用；
-# 逐字符左移也可以直接用左方向键。
+# 在 zsh emacs/viins、Ghostty GX 与 herdr 的默认键位里均无占用；逐字符左移也可以
+# 直接用左方向键。Ghostty GX 默认解绑上游用于切换标签的 alt+1..8，Alt+数字照常
+# 作为 readline 风格的 digit-argument 交给 zsh。
 for keymap in emacs viins; do
   bindkey -M "$keymap" '^[^B' backward-char
 done
@@ -286,8 +288,8 @@ unset -f _gx_init_cache
 unset _gx_package_id
 
 # 输入前缀后按上下键，只遍历以该前缀开头的历史；连续按键保持原始前缀。
-# 本块承接 wezterm 安装器曾追加到 ~/.zshrc 的「# >>> wezterm-gx >>>」cursor-mode
-# 键位块（~/.zshrc 归 gx 层真源；gx 部署时历史标记块随 .zshrc 整体替换剥离）。
+# 本块承接旧版 WezTerm GX 安装器曾追加到 ~/.zshrc 的「# >>> wezterm-gx >>>」
+# cursor-mode 键位块（~/.zshrc 归 gx 层真源；gx 部署时历史标记块随 .zshrc 整体替换剥离）。
 # 位置约束：必须在全部 zle -N/bindkey（含上方 fzf 源内绑定）之后、autosuggestions
 # 与 syntax-highlighting 的 source 之前。
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
@@ -296,7 +298,7 @@ zle -N down-line-or-beginning-search
 zstyle ':zle:up-line-or-beginning-search' leave-cursor yes
 zstyle ':zle:down-line-or-beginning-search' leave-cursor yes
 
-# WezTerm 在普通/应用光标模式下会发送两组不同序列，两组都显式覆盖。
+# 终端在普通/应用光标模式（DECCKM）下为方向键发送两组不同序列，两组都显式覆盖。
 for keymap in emacs viins; do
   bindkey -M "$keymap" '^[[A' up-line-or-beginning-search
   bindkey -M "$keymap" '^[OA' up-line-or-beginning-search

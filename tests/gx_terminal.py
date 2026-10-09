@@ -252,9 +252,14 @@ class DeployedZshrc(unittest.TestCase):
 
     def test_alt_ctrl_b_is_backward_char_alternative(self):
         # GX-20：herdr prefix ctrl+b 下 ^B 需双击 prefix 透传（ctrl+b ctrl+b）；
-        # Alt+Ctrl+B 是 zsh/WezTerm/herdr 三侧均无占用的 backward-char 单键直达。
+        # Alt+Ctrl+B 是 zsh/Ghostty GX/herdr 默认键位均无占用的 backward-char 单键直达。
         out, _err = self.run_login("bindkey -M emacs '^[^B'; bindkey -M viins '^[^B'; bindkey -M emacs '^B'")
         self.assertEqual(out.count(b"backward-char"), 3, out)
+
+    def test_alt_digits_stay_digit_argument(self):
+        # Ghostty GX 默认解绑 alt+1..8，Alt+数字直达 zsh：gx 配置不得把它们改绑。
+        out, _err = self.run_login("for d in {1..8}; do bindkey -M emacs \"^[$d\"; done")
+        self.assertEqual(out.count(b"digit-argument"), 8, out)
 
 
 
@@ -423,7 +428,7 @@ class DeployedInteractive(unittest.TestCase):
         cls.workdir = cls.home / "中文 dir"
         cls.workdir.mkdir()
         # 首个会话让 p10k 写出 instant prompt 缓存；之后的会话才处于"fd 1 被重定向"形态。
-        cls.session([marked("print -r -- warmup", 0)], TERM_PROGRAM="WezTerm")
+        cls.session([marked("print -r -- warmup", 0)], TERM_PROGRAM="ghostty")
         if not list((cls.home / ".cache").glob("p10k-instant-prompt-*.zsh")):
             raise AssertionError("预热会话未生成 p10k instant prompt 缓存，无法覆盖部署形态")
 
@@ -458,15 +463,15 @@ class DeployedInteractive(unittest.TestCase):
         self.assertIsNotNone(installed, data[-800:])
         return data, hooks.group(1).split(b","), installed.group(1)
 
-    def test_instant_prompt_session_reports_cwd_once_without_host(self):
-        data, hooks, installed = self.probe(TERM_PROGRAM="WezTerm")
+    def test_instant_prompt_session_reports_cwd_once_as_localhost(self):
+        data, hooks, installed = self.probe(TERM_PROGRAM="ghostty")
         self.assertEqual(installed, b"1")
         self.assertIn(b"_gx_terminal_report_cwd", hooks)
         self.assertNotIn(b"omz_termsupport_cwd", hooks)
         payloads = osc7_payloads(data)
         self.assertTrue(payloads, "整个会话没有任何 OSC 7")
         for uri in payloads:
-            self.assertTrue(uri.startswith(b"file:///"), uri)
+            self.assertTrue(uri.startswith(b"file://localhost/"), uri)
         # 首个提示符一条（当前目录）、cd 后一条（编码后的新目录）；未变目录的提示符不发。
         self.assertEqual(len(osc7_payloads(data[:data.index(b":M1001")])), 1)
         self.assertEqual(osc7_payloads(segment(data, b":M1001", b":M1002")), [])
@@ -480,7 +485,7 @@ class DeployedInteractive(unittest.TestCase):
         self.assertEqual(installed, b"1")
         self.assertIn(b"_gx_terminal_report_cwd", hooks)
         self.assertNotIn(b"omz_termsupport_cwd", hooks)
-        self.assertTrue(all(uri.startswith(b"file:///") for uri in osc7_payloads(data)))
+        self.assertTrue(all(uri.startswith(b"file://localhost/") for uri in osc7_payloads(data)))
 
     def test_unknown_terminal_keeps_upstream_cwd_hook(self):
         _data, hooks, installed = self.probe(TERM_PROGRAM=None, HERDR_ENV=None)
@@ -493,7 +498,7 @@ class DeployedInteractive(unittest.TestCase):
         # 已执行完；ZSH_AUTOSUGGEST_MANUAL_REBIND 只让它绑完一次后自删，去掉此后每提示符
         # 的重绑（真 PTY 原位实测 5.5 ms → 0.05 ms）。两条一起断言才同时覆盖「省了重绑」
         # 与「后定义的 widget 没绑漏」；灰色建议仍要出现。
-        shell = PtySession(self.home, TERM_PROGRAM="WezTerm")
+        shell = PtySession(self.home, TERM_PROGRAM="ghostty")
         try:
             shell.settle()
             shell.command(*marked("print -r -- PF:${(j:,:)precmd_functions}", 8))
@@ -524,7 +529,7 @@ class DeployedInteractive(unittest.TestCase):
             long_text = ("print -r -- should-not-run > " + shlex.quote(str(executed)) + "\n# "
                          + "中文 空格 '双引号\\\"' $(不执行) " * 40 + "\nprint -r -- end\n")
             cases = (("x" * 512, 512), ("x" * 513, 0), (long_text, 0))
-            shell = PtySession(self.home, timeout=90, TERM_PROGRAM="WezTerm",
+            shell = PtySession(self.home, timeout=90, TERM_PROGRAM="ghostty",
                                GX_PASTE_BUFFER_FILE=str(buffer_file), GX_PASTE_COUNT_FILE=str(count_file))
             try:
                 shell.settle()
@@ -578,7 +583,7 @@ class DeployedInteractive(unittest.TestCase):
         while sum(len(token) + 1 for token in tokens) < 4401:
             tokens.append(f"--flag{len(tokens)}=value_{len(tokens)}")
         line = ("echo " + " ".join(tokens))[:4401]
-        shell = PtySession(self.home, rows=50, cols=200, timeout=90, TERM_PROGRAM="WezTerm")
+        shell = PtySession(self.home, rows=50, cols=200, timeout=90, TERM_PROGRAM="ghostty")
         try:
             shell.settle()
             shell.command(*marked("print -r -- HL:${ZSH_HIGHLIGHT_MAXLENGTH-unset}", 13))
@@ -622,7 +627,7 @@ class DeployedInteractive(unittest.TestCase):
         log = self.home / "rh.log"
         if log.exists():
             log.unlink()
-        shell = PtySession(self.home, rows=50, cols=200, timeout=180, TERM_PROGRAM="WezTerm")
+        shell = PtySession(self.home, rows=50, cols=200, timeout=180, TERM_PROGRAM="ghostty")
         try:
             shell.settle()
             shell.command(*marked(
@@ -649,7 +654,7 @@ class DeployedInteractive(unittest.TestCase):
         data = self.session([
             marked("print -r -- FZF:${FZF_DEFAULT_OPTS-unset}", 6),
             marked("print a | fzf --filter=a >/dev/null 2>&1; print -r -- FZFRC:$?", 7),
-        ], TERM_PROGRAM="WezTerm")
+        ], TERM_PROGRAM="ghostty")
         opts = re.search(rb"FZF:([^$\r\n]*):M1006", data)
         self.assertIsNotNone(opts, data[-800:])
         opts = opts.group(1).decode()
@@ -673,7 +678,7 @@ class DeployedInteractive(unittest.TestCase):
         # GX-15 的对照面：真 PTY 里 gitstatus 照常拉起（非 tty 关闭不影响交互体验）。
         data = self.session([
             marked("print -r -- GS:${POWERLEVEL9K_DISABLE_GITSTATUS:-unset} PID:${GITSTATUS_DAEMON_PID_POWERLEVEL9K:-none}", 60),
-        ], TERM_PROGRAM="WezTerm")
+        ], TERM_PROGRAM="ghostty")
         value = captured(data, "GS", 60)
         self.assertTrue(value.startswith(b"unset PID:"), value)
         self.assertNotIn(b"none", value, "真 PTY 里 gitstatusd 未拉起")
@@ -681,8 +686,8 @@ class DeployedInteractive(unittest.TestCase):
     def test_prompt_resets_cursor_shape_every_prompt(self):
         # GX-17：TUI 用 DECSCUSR 改光标形状后异常退出会把形状遗留给 shell；
         # gx 每个提示符发 \e[0 q 复位。与 OSC 7 的 cwd 缓存不同：目录没变的
-        # 提示符也必须复位（对照 test_instant_prompt_session_reports_cwd_once_without_host）。
-        shell = PtySession(self.home, TERM_PROGRAM="WezTerm")
+        # 提示符也必须复位（对照 test_instant_prompt_session_reports_cwd_once_as_localhost）。
+        shell = PtySession(self.home, TERM_PROGRAM="ghostty")
         try:
             shell.settle()
             shell.command(*marked("printf '\\e[5 q'; print -r -- STUCK", 50))  # 模拟遗留 beam 光标
@@ -694,11 +699,38 @@ class DeployedInteractive(unittest.TestCase):
             body = segment(data, f":M{lo}".encode(), f":M{hi}".encode())
             self.assertEqual(body.count(b"\x1b[0 q"), 1, f"提示符间光标复位次数不对: {body!r}")
 
+    def test_ghostty_shell_integration_owns_osc7_and_osc133(self):
+        # Ghostty 经 ZDOTDIR 注入自带集成：其 .zshenv 先恢复用户 ZDOTDIR 并 source 用户
+        # .zshenv，再加载 ghostty-integration（定义 _ghostty_state）。这里用同形态的最小替身，
+        # 只验 gx 一侧：p10k 不开 OSC 133，terminal.zsh 不装钩子且摘掉上游 cwd 钩子，
+        # 整个会话（含 cd）没有 gx/上游发出的 OSC 7 与 133 C/D。
+        shim = self.root / "ghostty-zdotdir"
+        shim.mkdir(exist_ok=True)
+        (shim / ".zshenv").write_text(
+            'ZDOTDIR=$GHOSTTY_ZSH_ZDOTDIR; unset GHOSTTY_ZSH_ZDOTDIR\n'
+            '[[ -r $ZDOTDIR/.zshenv ]] && source $ZDOTDIR/.zshenv\n'
+            '[[ -o interactive ]] && typeset -gi _ghostty_state\n', encoding="utf-8")
+        data = self.session([
+            marked("print -r -- STATE:${+_ghostty_state}:${POWERLEVEL9K_TERM_SHELL_INTEGRATION:-unset}"
+                   ":${GX_TERMINAL_CWD_INSTALLED:-no}:${+functions[p10k]}:${ZDOTDIR:t}", 73),
+            marked("print -r -- PF:${(j:,:)precmd_functions}", 74),
+            marked(f"cd {shlex.quote(str(self.workdir))}; true; print -r -- RAN", 75),
+        ], TERM_PROGRAM="ghostty", ZDOTDIR=str(shim), GHOSTTY_ZSH_ZDOTDIR=str(self.home))
+        # p10k 已加载、ZDOTDIR 已恢复：证明替身确实走完了部署 HOME 的 .zshrc，下面的「没有」才有意义。
+        self.assertEqual(captured(data, "STATE", 73), b"1:unset:no:1:" + self.home.name.encode())
+        hooks = captured(data, "PF", 74).split(b",")
+        for hook in (b"_gx_terminal_report_cwd", b"_gx_terminal_reset_cursor", b"omz_termsupport_cwd"):
+            self.assertNotIn(hook, hooks)
+        self.assertEqual(osc7_payloads(data), [])
+        self.assertNotIn(b"\x1b]133;C", data)
+        self.assertNotIn(b"\x1b]133;D", data)
+
     def test_osc133_semantic_marks_emitted_under_gx_guard(self):
-        # WEZ-UX-02 zsh 侧核验结论：gx 守卫（TERM_PROGRAM=WezTerm 或 HERDR_ENV=1）下
-        # p10k 的 TERM_SHELL_INTEGRATION 已发全 133 A/B/C/D——zsh 侧不叠加第二套
-        # （双发会让终端看到重复标记）。这里钉住既有行为防回归；上送宿主由 herdr 轨道负责。
-        for overrides in (dict(TERM_PROGRAM="WezTerm"), dict(TERM_PROGRAM=None, HERDR_ENV="1")):
+        # WEZ-UX-02 zsh 侧核验结论：gx 守卫（TERM_PROGRAM=ghostty 或 HERDR_ENV=1）且无
+        # Ghostty 自带集成时，p10k 的 TERM_SHELL_INTEGRATION 已发全 133 A/B/C/D——zsh 侧
+        # 不叠加第二套（双发会让终端看到重复标记）。这里钉住既有行为防回归；上送宿主由
+        # herdr 轨道负责。
+        for overrides in (dict(TERM_PROGRAM="ghostty"), dict(TERM_PROGRAM=None, HERDR_ENV="1")):
             data = self.session([
                 marked("print -r -- TSI:${POWERLEVEL9K_TERM_SHELL_INTEGRATION:-unset}", 70),
                 marked("true; print -r -- RAN", 71),
@@ -713,9 +745,9 @@ class DeployedInteractive(unittest.TestCase):
 
 
 class WeztermLegacyBlock(unittest.TestCase):
-    """~/.zshrc 归属 gx 层：wezterm 安装器历史追加的「# >>> wezterm-gx >>>」cursor-mode
-    键位块已由 gx/config/zshrc 承接；部署（备份 + 整体替换）后标记块被剥离、备份原样
-    保留，双光标模式键位在真 PTY 里生效。"""
+    """~/.zshrc 归属 gx 层：旧版 WezTerm GX 安装器历史追加的「# >>> wezterm-gx >>>」
+    cursor-mode 键位块已由 gx/config/zshrc 承接；部署（备份 + 整体替换）后标记块被剥离、
+    备份原样保留，双光标模式键位在真 PTY 里生效。"""
 
     MARKER_BLOCK = """\
 # >>> wezterm-gx >>>
@@ -763,7 +795,7 @@ done
                          "备份未原样保留历史标记块")
 
     def test_cursor_keys_live_in_real_pty(self):
-        shell = PtySession(self.home, TERM_PROGRAM="WezTerm")
+        shell = PtySession(self.home, TERM_PROGRAM="ghostty")
         try:
             shell.settle()
             shell.command(*marked("print -r -- S40", 40))
@@ -790,7 +822,7 @@ class TerminalIntegration(unittest.TestCase):
         with tempfile.TemporaryDirectory(prefix="gx-terminal-") as root:
             cwd = pathlib.Path(root) / "中文 space"
             cwd.mkdir()
-            env = dict(os.environ, TERM_PROGRAM="WezTerm", TERM="xterm-256color", HOME=root, ZDOTDIR=root)
+            env = dict(os.environ, TERM_PROGRAM="ghostty", TERM="xterm-256color", HOME=root, ZDOTDIR=root)
             for key in ("GX_TERMINAL_CWD_INSTALLED", "HERDR_ENV") + REMOTE_ENV:
                 env.pop(key, None)
             for key, value in (env_overrides or {}).items():
@@ -832,11 +864,12 @@ class TerminalIntegration(unittest.TestCase):
         self.assertEqual(hooks.count(b"_gx_terminal_report_cwd"), 1, hooks)
         self.assertNotIn(b"omz_termsupport_cwd", hooks)
 
-    def test_osc7_host_field_is_empty(self):
-        # herdr 的 parse_file_uri_cwd 只接受空或 localhost 主机；wezterm 同样接受空主机。
+    def test_osc7_host_field_is_localhost(self):
+        # Ghostty 拒收没有主机名的 OSC 7；herdr 的 parse_file_uri_cwd 接受空主机与 localhost。
         data = self.run_shell("source MODULE; cd DIRECTORY; _gx_terminal_report_cwd")
         self.assertEqual(data.count(b"\x1b]7;"), 1)
-        self.assertIn(b"\x1b]7;file:///", data)
+        self.assertRegex(data, rb"\x1b\]7;file://localhost/[^\x1b]*%E4%B8%AD%E6%96%87%20space\x1b\\")
+        self.assertNotIn(b"\x1b]7;file:///", data)
         self.assertNotIn(("file://" + os.uname().nodename).encode(), data)
 
     def test_guard_survives_instant_prompt_fd_redirect(self):
@@ -862,9 +895,19 @@ class TerminalIntegration(unittest.TestCase):
         data = self.run_shell("source MODULE; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no}", env_overrides={"TERM_PROGRAM": None, "HERDR_ENV": "1"})
         self.assertIn(b"INSTALLED:1", data)
 
+    def test_only_exact_ghostty_term_program_takes_over(self):
+        # Ghostty 导出的 TERM_PROGRAM 恰为小写 ghostty；其他终端（含 WezTerm）保留上游钩子。
+        for value in ("WezTerm", "Ghostty"):
+            data = self.run_shell(UPSTREAM_HOOK + "source MODULE; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no} PF:${(j:,:)precmd_functions}:END",
+                                  env_overrides={"TERM_PROGRAM": value})
+            self.assertIn(b"INSTALLED:no", data, value)
+            hooks = data.split(b"PF:", 1)[1].split(b":END", 1)[0].split(b",")
+            self.assertIn(b"omz_termsupport_cwd", hooks, value)
+            self.assertNotIn(b"_gx_terminal_report_cwd", hooks, value)
+
     def test_remote_sessions_keep_upstream_behaviour(self):
         # ssh / emacs 里的 cwd 对本地终端没有意义：即使 TERM_PROGRAM/HERDR_ENV 被
-        # SendEnv 带过去，模块也不接管、不摘上游钩子、不发 file:///。
+        # SendEnv 带过去，模块也不接管、不摘上游钩子、不发 OSC 7。
         for marker in ({"SSH_TTY": "/dev/pts/9"}, {"SSH_CLIENT": "10.0.0.2 51000 22"},
                        {"SSH_CONNECTION": "10.0.0.2 51000 10.0.0.1 22"}, {"INSIDE_EMACS": "1"}):
             data = self.run_shell(UPSTREAM_HOOK + "source MODULE; cd DIRECTORY; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no} PF:${(j:,:)precmd_functions}:END",
@@ -873,12 +916,21 @@ class TerminalIntegration(unittest.TestCase):
             hooks = data.split(b"PF:", 1)[1].split(b":END", 1)[0].split(b",")
             self.assertIn(b"omz_termsupport_cwd", hooks, marker)
             self.assertNotIn(b"_gx_terminal_report_cwd", hooks, marker)
-            self.assertNotIn(b"\x1b]7;file:///", data, marker)
+            self.assertNotIn(b"\x1b]7;", data, marker)
 
-    def test_existing_wezterm_integration_remains_owner(self):
-        data = self.run_shell("__wezterm_osc7() { :; }; source MODULE; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no}")
-        self.assertIn(b"INSTALLED:no", data)
+    def test_ghostty_shell_integration_remains_owner(self):
+        # Ghostty 自带集成（_ghostty_state 已定义）负责 OSC 7/133 与光标：模块只摘掉上游
+        # omz_termsupport_cwd 以免与 Ghostty 的 OSC 7 双发，自身不装钩子、不发任何序列；
+        # 重复 source（如 `source ~/.zshrc` 让上游重新挂钩）后同样如此。
+        data = self.run_shell("typeset -gi _ghostty_state; " + UPSTREAM_HOOK + "source MODULE; "
+                              + UPSTREAM_HOOK + "source MODULE; cd DIRECTORY; "
+                              "print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no} "
+                              "FN:${+functions[_gx_terminal_report_cwd]}${+functions[_gx_terminal_reset_cursor]} "
+                              "PF:${(j:,:)precmd_functions}:END")
+        self.assertIn(b"INSTALLED:no FN:00", data)
+        self.assertEqual(data.split(b"PF:", 1)[1].split(b":END", 1)[0], b"")
         self.assertNotIn(b"\x1b]7;", data)
+        self.assertNotIn(b"\x1b[0 q", data)
 
     def test_noninteractive_shell_does_not_emit_control_sequences(self):
         data = self.run_shell("source MODULE; print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no}", interactive=False)

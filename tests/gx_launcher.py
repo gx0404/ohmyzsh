@@ -280,7 +280,7 @@ class NativeLauncher(unittest.TestCase):
             after = log.read_text(encoding="utf-8").splitlines() if log.exists() else []
             return result, after[len(before):]
 
-        # 从 GX Shell 里启动的 WezTerm 会继承启动器导出的托管路径，这不算自定义配置。
+        # 从 GX Shell 里启动的终端（Ghostty GX）会继承启动器导出的托管路径，这不算自定义配置。
         managed = str(config).replace("\\", "/") if os.name == "nt" else str(config)
         result, calls = set_shell(str(shell), HERDR_CONFIG_PATH=managed)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)

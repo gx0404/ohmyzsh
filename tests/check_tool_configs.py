@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """工具配置形状回归锁 + 安全门注册入口原样探针。
 
-背景（update-ai-settings skill 2026-09 更新，wezterm 落地沉淀）：
+背景（update-ai-settings skill 2026-09 更新，跨仓落地沉淀）：
 - Codex hooks 必须是数组表（[[hooks.<Event>]]，命令嵌套 .hooks），写成单表会让
   Codex 启动闪退；形状探针拦不住这类错误，必须锁进回归测试防漂移。
 - 适配器语言必须与注册调用方式一致：python3 调的 .py 必须是真 Python。

@@ -479,7 +479,7 @@ class WindowsModule(unittest.TestCase):
 
 
 class TerminalCwd(unittest.TestCase):
-    """terminal.zsh 在 MSYS/Cygwin 上把盘符目录报成 file:///C:/…，非盘符目录不上报。"""
+    """terminal.zsh 在 MSYS/Cygwin 上把盘符目录报成 file://localhost/C:/…，非盘符目录不上报。"""
 
     @classmethod
     def setUpClass(cls):
@@ -490,7 +490,7 @@ class TerminalCwd(unittest.TestCase):
             raise AssertionError("缺少真实 Zsh，不支持整族 skip")
 
     def report(self, ostype, directories):
-        script = ('TTY=/dev/gx-test; TERM_PROGRAM=WezTerm; unset SSH_CONNECTION SSH_CLIENT SSH_TTY INSIDE_EMACS; '
+        script = ('TTY=/dev/gx-test; TERM_PROGRAM=ghostty; unset SSH_CONNECTION SSH_CLIENT SSH_TTY INSIDE_EMACS; '
                   'source "$TERMINAL" || exit 99; OSTYPE=$GX_TEST_OSTYPE; '
                   'for dir in "${(@f)GX_TEST_DIRS}"; do PWD=$dir; _GX_TERMINAL_LAST_CWD=; '
                   'print -rn -- "<"; _gx_terminal_report_cwd; print -r -- ">"; done')
@@ -505,15 +505,16 @@ class TerminalCwd(unittest.TestCase):
     def test_drive_paths_become_windows_file_uris(self):
         directories = ["/c/Users/中文 dir", "/cygdrive/d/a%b", "/c", "/cygdrive/e", "/usr/bin", "/", "/cygdrive",
                        "/cygdriveX/y", "/tmp"]
-        expected = ["<\x1b]7;file:///C:/Users/%E4%B8%AD%E6%96%87%20dir\x1b\\>", "<\x1b]7;file:///D:/a%25b\x1b\\>",
-                    "<\x1b]7;file:///C:/\x1b\\>", "<\x1b]7;file:///E:/\x1b\\>", "<>", "<>", "<>", "<>", "<>"]
+        expected = ["<\x1b]7;file://localhost/C:/Users/%E4%B8%AD%E6%96%87%20dir\x1b\\>",
+                    "<\x1b]7;file://localhost/D:/a%25b\x1b\\>", "<\x1b]7;file://localhost/C:/\x1b\\>",
+                    "<\x1b]7;file://localhost/E:/\x1b\\>", "<>", "<>", "<>", "<>", "<>"]
         for ostype in ("msys", "cygwin"):
             with self.subTest(ostype=ostype):
                 self.assertEqual(self.report(ostype, directories), expected)
 
     def test_linux_paths_are_reported_verbatim(self):
         self.assertEqual(self.report("linux-gnu", ["/c/Users", "/usr/bin"]),
-                         ["<\x1b]7;file:///c/Users\x1b\\>", "<\x1b]7;file:///usr/bin\x1b\\>"])
+                         ["<\x1b]7;file://localhost/c/Users\x1b\\>", "<\x1b]7;file://localhost/usr/bin\x1b\\>"])
 
 
 if __name__ == "__main__":
