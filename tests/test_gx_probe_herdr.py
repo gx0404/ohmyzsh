@@ -405,7 +405,7 @@ class HerdrProbeWindowsBranch(unittest.TestCase):
         for name in ("SLEEP", "PING", "RECORD", "NATIVE-RECORD"):
             self.assertTrue(any(re.fullmatch(f"GX-{name}-EXIT-[0-9a-f]{{32}}:130", line) for line in pane.lines), name)
 
-    def test_the_win32_input_record_is_the_wezterm_ctrl_c_key_down_and_up(self):
+    def test_the_win32_input_mode_record_is_the_ctrl_c_key_down_and_up(self):
         self.assertEqual(probe.WIN32_CTRL_C, "\x1b[67;46;3;1;8;1_\x1b[67;46;3;0;8;1_")
 
 

@@ -12,7 +12,7 @@ import sys
 import time
 import uuid
 
-# WezTerm/Windows Terminal 在 win32-input-mode 下为 Ctrl+C 发送的按下/抬起记录（Vk=67 'C'、Sc=46、Uc=3、
+# 终端在 win32-input-mode 下为 Ctrl+C 发送的按下/抬起记录（Vk=67 'C'、Sc=46、Uc=3、
 # LEFT_CTRL_PRESSED）；herdr 客户端原样转发这类记录，经 pane send-text 注入即走同一条链路。
 WIN32_CTRL_C = "\x1b[67;46;3;1;8;1_\x1b[67;46;3;0;8;1_"
 
