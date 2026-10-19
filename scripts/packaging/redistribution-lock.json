@@ -14,7 +14,7 @@
         {
           "filename": "herdr-LICENSE.txt",
           "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
-          "url": "https://raw.githubusercontent.com/gx0404/herdr/fe54d5ff3050f503815a99140384c1e18a95fbbb/LICENSE"
+          "url": "https://raw.githubusercontent.com/gx0404/herdr/9ca0e563da93e12810cf5492753a18b958cdab24/LICENSE"
         }
       ],
       "platforms": [
@@ -32,15 +32,15 @@
       },
       "sources": [
         {
-          "filename": "herdr-fe54d5ff3050f503815a99140384c1e18a95fbbb.zip",
-          "url": "https://github.com/gx0404/herdr/archive/fe54d5ff3050f503815a99140384c1e18a95fbbb.zip",
-          "commit": "fe54d5ff3050f503815a99140384c1e18a95fbbb",
-          "prefix": "herdr-fe54d5ff3050f503815a99140384c1e18a95fbbb/",
-          "sha256": "01b42adaf84137a76427fde3c8989c02a4ce768702acfb25490013c013d93257",
-          "size": 16535969
+          "filename": "herdr-9ca0e563da93e12810cf5492753a18b958cdab24.zip",
+          "url": "https://github.com/gx0404/herdr/archive/9ca0e563da93e12810cf5492753a18b958cdab24.zip",
+          "commit": "9ca0e563da93e12810cf5492753a18b958cdab24",
+          "prefix": "herdr-9ca0e563da93e12810cf5492753a18b958cdab24/",
+          "sha256": "6b70cb6bad92101b8df9b761a1289183b22c9a3d80638b5091fa5544be35a0f6",
+          "size": 17394962
         }
       ],
-      "version": "0.9.3"
+      "version": "0.9.5"
     },
     {
       "build_instructions": [
@@ -928,7 +928,7 @@
         {
           "filename": "conpty-LICENSES.txt",
           "repository_path": "notices/conpty-LICENSES.txt",
-          "sha256": "8783eed6102e6600689e02585e2ea8363653582fa20744612261e3a69ea26a12"
+          "sha256": "77dd44a6088ac201fa4c6f54129c9ef6b0a8676284a0be5f9bc742e99b4bcb6e"
         }
       ],
       "platforms": [

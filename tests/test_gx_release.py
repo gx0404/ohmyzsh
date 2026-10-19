@@ -1268,18 +1268,19 @@ class ReleaseTests(unittest.TestCase):
         with self.assertRaisesRegex(release.ReleaseError, "unexpected runtime proof"):
             release.verify_zsh_runtime(info, lock, runtime, sources)
 
-    def test_independent_herdr_source_is_locked_to_the_0_9_3_default_branch_head(self):
+    def test_independent_herdr_source_is_locked_to_the_0_9_5_default_branch_head(self):
         lock = release.load_lock(release.ROOT)
         source = lock["herdr"]["source"]
         self.assertEqual(lock["herdr"]["repository"], "https://github.com/gx0404/herdr")
         self.assertEqual(lock["herdr"]["branch_provenance"], "feature/gx_herdr")
-        self.assertEqual(lock["herdr"]["revision"], "fe54d5ff3050f503815a99140384c1e18a95fbbb")
+        self.assertEqual(lock["herdr"]["revision"], "9ca0e563da93e12810cf5492753a18b958cdab24")
+        self.assertEqual(lock["herdr"]["version"], "0.9.5")
         self.assertEqual(source["url"], lock["herdr"]["repository"] + "/archive/" + source["commit"] + ".zip")
         self.assertEqual(source["commit"], lock["herdr"]["revision"])
         self.assertEqual(source["filename"], "herdr-" + source["commit"] + ".zip")
         self.assertEqual(source["prefix"], "herdr-" + lock["herdr"]["revision"] + "/")
-        self.assertEqual(source["sha256"], "01b42adaf84137a76427fde3c8989c02a4ce768702acfb25490013c013d93257")
-        self.assertEqual(source["size"], 16535969)
+        self.assertEqual(source["sha256"], "6b70cb6bad92101b8df9b761a1289183b22c9a3d80638b5091fa5544be35a0f6")
+        self.assertEqual(source["size"], 17394962)
         self.assertNotIn("git_repository", source)
         component = next(c for c in lock["components"] if c["id"] == "herdr")
         self.assertEqual(component["sources"], [source])
@@ -1289,7 +1290,7 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual(lock["herdr"]["rust"], "1.96.1")
         self.assertEqual(lock["herdr"]["zig"], "0.16.0")
 
-    def test_0_9_3_default_branch_head_rejects_previous_source_identities(self):
+    def test_0_9_5_default_branch_head_rejects_previous_source_identities(self):
         lock = release.load_lock(release.ROOT)
         build = release.read_json(self.fixture.manifests["windows-x64"])["herdr_build"]
         build["version"] = lock["herdr"]["version"]
@@ -1304,6 +1305,8 @@ class ReleaseTests(unittest.TestCase):
              "e76ca6304f9f5a5ed6dbd2749809b6c5f65121e1cf99e3dce6b20955bf1274ce"),
             ("d36f1455e656cd12b20967357d12a8ddaeefaa04",
              "96fb21b3a861b3a9f29cb0ba1706a0e19038d0f90aa5d66235bf8ac82c319ced"),
+            ("fe54d5ff3050f503815a99140384c1e18a95fbbb",
+             "01b42adaf84137a76427fde3c8989c02a4ce768702acfb25490013c013d93257"),
         ):
             build["source_sha256"] = previous_sha256
             for revision, error in (
