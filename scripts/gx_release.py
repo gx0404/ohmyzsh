@@ -19,7 +19,7 @@ import urllib.request
 
 ROOT = Path(__file__).resolve().parent.parent
 REPOSITORY = "gx0404/ohmyzsh"
-INTEGRATION_REPOSITORY = "gx0404/gx_shell"
+INTEGRATION_REPOSITORY = "gxmiaomiao/gx_shell"
 TARGETS = {"windows-x64": "x86_64-pc-windows-msvc", "ubuntu-amd64": "x86_64-unknown-linux-musl"}
 ARCHITECTURES = {"windows-x64": "x86_64", "ubuntu-amd64": "amd64"}
 ENVIRONMENTS = {"windows-x64": ("windows-clean",), "ubuntu-amd64": ("ubuntu-20.04", "ubuntu-24.04")}

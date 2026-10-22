@@ -64,7 +64,7 @@ Zsh 二进制；升级不覆盖旧指纹缓存，资源树不产生 `.zwc`。无
 的构建回执不可复用。`gx_build_herdr.py` 从锁生成 `BUILD.json` 与 receipt 的
 repository、branch_provenance、revision、source_sha256 及包身份；只有真实构建才能
 产生新回执，不在迁移中伪造。herdr 的 `HERDR_PACKAGE_MANAGER` 与 `HERDR_BUILD_COMMIT`
-仍关闭上游自更新。协调仓 `gx0404/gx_shell` 独立锁定三个组件 SHA，消费完整 stage；
+仍关闭上游自更新。协调仓 `gxmiaomiao/gx_shell` 独立锁定三个组件 SHA，消费完整 stage；
 根 SHA、Oh My Zsh SHA 与 herdr SHA 不能再混为同一身份。
 
 herdr 包构建（`scripts/gx_build_herdr.py`）默认只在一次性 GitHub-hosted runner 上运行，receipt 记
@@ -154,7 +154,7 @@ python3 scripts/gx_package.py verify --manifest /绝对路径/artifacts/<名称>
 
 ## 手动 GitHub Release
 
-本节只适用于独立的 gx0404/ohmyzsh 仓库。协调仓 gx0404/gx_shell 流程中本目录的 workflow 不执行：
+本节只适用于独立的 gx0404/ohmyzsh 仓库。协调仓 gxmiaomiao/gx_shell 流程中本目录的 workflow 不执行：
 GX Shell 合并安装包由协调仓根 `.github/workflows/release.yml` 构建，在一次性 Windows runner（能
 下载到 0.1.0 安装包时还验证从 GX Shell 0.1.0 升级）和 Ubuntu 20.04/24.04 容器里跑安装—使用—
 卸载冒烟，全部通过后才发布。

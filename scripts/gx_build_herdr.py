@@ -39,7 +39,7 @@ def ci_boundary(paths: list[Path], platform: str) -> str:
         release.require(os.environ.get("GITHUB_ACTIONS") == "true"
                         and os.environ.get("RUNNER_ENVIRONMENT") == "github-hosted"
                         and os.environ.get("GITHUB_REPOSITORY") in {release.REPOSITORY, release.INTEGRATION_REPOSITORY},
-                        "herdr CI builder requires a disposable GitHub-hosted gx0404/ohmyzsh or gx0404/gx_shell integration runner; "
+                        f"herdr CI builder requires a disposable GitHub-hosted {release.REPOSITORY} or {release.INTEGRATION_REPOSITORY} integration runner; "
                         "set GX_LOCAL_BUILD_ROOT for a non-publishable local build")
         root = Path(os.environ["RUNNER_TEMP"]).resolve()
     release.require((os.name == "nt") == (platform == "windows-x64"), "builder OS and target platform differ")

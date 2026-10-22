@@ -478,13 +478,15 @@ class ReleaseTests(unittest.TestCase):
 
     def test_builder_accepts_the_gx_shell_integration_runner(self):
         platform = "windows-x64" if os.name == "nt" else "ubuntu-amd64"
+        self.assertEqual(release.INTEGRATION_REPOSITORY, "gxmiaomiao/gx_shell")
         env = {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted",
-               "GITHUB_REPOSITORY": release.INTEGRATION_REPOSITORY, "RUNNER_TEMP": str(self.root)}
+               "GITHUB_REPOSITORY": "gxmiaomiao/gx_shell", "RUNNER_TEMP": str(self.root)}
         with patch.dict(os.environ, env, clear=True):
             self.assertEqual(builder.ci_boundary([self.root / "work"], platform), "github-actions")
-        with patch.dict(os.environ, {**env, "GITHUB_REPOSITORY": "attacker/gx_shell"}, clear=True):
-            with self.assertRaisesRegex(release.ReleaseError, "disposable"):
-                builder.ci_boundary([self.root / "work"], platform)
+        for repository in ("attacker/gx_shell", "gx0404/gx_shell"):
+            with self.subTest(repository=repository), patch.dict(os.environ, {**env, "GITHUB_REPOSITORY": repository}, clear=True):
+                with self.assertRaisesRegex(release.ReleaseError, "disposable"):
+                    builder.ci_boundary([self.root / "work"], platform)
 
     def test_builder_local_root_replaces_runner_temp_but_keeps_the_other_checks(self):
         platform = "windows-x64" if os.name == "nt" else "ubuntu-amd64"

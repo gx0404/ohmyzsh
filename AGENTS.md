@@ -49,7 +49,7 @@ resolver 需 Python 3.11+ 或已装 tomli；不为检查安装依赖。
 - 本 fork 在独立默认分支 `feature/gx_ohmyzsh` 维护；herdr 的来源为
   `gx0404/herdr` 默认分支 `feature/gx_herdr` 上的完整提交与校验过的 GitHub 源码归档。
   三仓 SHA 独立，禁止再解析 `monorepo_path` 或复用旧提交的构建回执。协调仓
-  `gx0404/gx_shell` 的 `release.yml` 消费 `gx_package.py stage` 生成合并安装包。
+  `gxmiaomiao/gx_shell` 的 `release.yml` 消费 `gx_package.py stage` 生成合并安装包。
   补充许可文本按 `.gitattributes` 保留原始字节，不能让 checkout 换行转换改变锁定摘要。
 - 架构细节见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)；命令见
   [docs/MAKE_COMMANDS.md](docs/MAKE_COMMANDS.md)。
