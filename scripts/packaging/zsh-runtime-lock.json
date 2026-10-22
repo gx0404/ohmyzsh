@@ -5,7 +5,7 @@
     "package_count": 147,
     "package_records_digest": "8ed7d11b956be35f1b8ce41a1bb241b8dd38f3b5fdac4a813e6ebdf389544efa",
     "kit": [
-      {"filename":"reproduce_focal.py","repository_path":"patches/zsh/focal/reproduce_focal.py","sha256":"3ff52bb372a74068f5fea75bccb2852671f58136b95fdd1edc7b34e0dec752d5"},
+      {"filename":"reproduce_focal.py","repository_path":"patches/zsh/focal/reproduce_focal.py","sha256":"391a79c544bc32532a0dc73861262c6179572ea8f9eacad32f449f26f18f17e6"},
       {"filename":"build_focal.sh","repository_path":"patches/zsh/focal/build_focal.sh","sha256":"6f8cc7be2965984c57a070983efe50450a200fb386e7fc7f0efa80de157b6e74"},
       {"filename":"populate_rootfs.sh","repository_path":"patches/zsh/focal/populate_rootfs.sh","sha256":"a0adabb4a7c5870c31340ead2098d75f20f2d2abe56a32cd2d06aa032645b2e8"},
       {"filename":"packages-lock.json","repository_path":"patches/zsh/focal/packages-lock.json","sha256":"442b05e8dbe6dbeb0b360e28a4cae18fd6682fd819fa32f92447196381f4264f"},

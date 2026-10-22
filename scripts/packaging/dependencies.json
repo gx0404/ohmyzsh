@@ -125,7 +125,7 @@
   },
   "zsh_runtime": {
     "file": "zsh-runtime-lock.json",
-    "canonical_sha256": "2f9d985bf3775a8152ed695d8a90b3b0fe9ec3d6ac36f32747e4359540ebf2d1"
+    "canonical_sha256": "d8d4ef89f55ffd1ed66c34120a666a89111396661b42cea308bdca7c23a0966d"
   },
   "required_payload": {
     "ubuntu-amd64": [
