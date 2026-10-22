@@ -69,7 +69,7 @@
   ],
   "redistribution": {
     "file": "redistribution-lock.json",
-    "canonical_sha256": "939f9804ab7f652a7b2edf19a0644de173e9c5942c313f1e71b12bc8f4ffbc92"
+    "canonical_sha256": "f6d070cf1db996322d389b07e36a6d6c0d6b5f961cd1fd944e76ad9f085096ce"
   },
   "herdr": {
     "branch_provenance": "feature/gx_herdr",
@@ -102,16 +102,16 @@
       }
     },
     "repository": "https://github.com/gx0404/herdr",
-    "revision": "446579916bedece60e44cc9b9b862b2ba1686c73",
+    "revision": "3669ca2dfc0a5a8bccc99b566957551e6f2ff8b5",
     "version": "0.9.5",
     "rust": "1.96.1",
     "source": {
-      "filename": "herdr-446579916bedece60e44cc9b9b862b2ba1686c73.zip",
-      "url": "https://github.com/gx0404/herdr/archive/446579916bedece60e44cc9b9b862b2ba1686c73.zip",
-      "commit": "446579916bedece60e44cc9b9b862b2ba1686c73",
-      "prefix": "herdr-446579916bedece60e44cc9b9b862b2ba1686c73/",
-      "sha256": "096120d61d43830881e0af3de93a7bfc7a11a9e214cfa08258799eb46fa5f00b",
-      "size": 17588331
+      "filename": "herdr-3669ca2dfc0a5a8bccc99b566957551e6f2ff8b5.zip",
+      "url": "https://github.com/gx0404/herdr/archive/3669ca2dfc0a5a8bccc99b566957551e6f2ff8b5.zip",
+      "commit": "3669ca2dfc0a5a8bccc99b566957551e6f2ff8b5",
+      "prefix": "herdr-3669ca2dfc0a5a8bccc99b566957551e6f2ff8b5/",
+      "sha256": "066c1900ff8a488cf49e51510a75aca059ff66810f31ec39ac559ac0fe1c471a",
+      "size": 17599768
     },
     "targets": {
       "ubuntu-amd64": "x86_64-unknown-linux-musl",
