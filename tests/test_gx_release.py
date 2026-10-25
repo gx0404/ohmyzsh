@@ -1275,14 +1275,14 @@ class ReleaseTests(unittest.TestCase):
         source = lock["herdr"]["source"]
         self.assertEqual(lock["herdr"]["repository"], "https://github.com/gx0404/herdr")
         self.assertEqual(lock["herdr"]["branch_provenance"], "feature/gx_herdr")
-        self.assertEqual(lock["herdr"]["revision"], "3669ca2dfc0a5a8bccc99b566957551e6f2ff8b5")
+        self.assertEqual(lock["herdr"]["revision"], "18c577aa316bd5d74f3d56f452fb52c037302b19")
         self.assertEqual(lock["herdr"]["version"], "0.9.5")
         self.assertEqual(source["url"], lock["herdr"]["repository"] + "/archive/" + source["commit"] + ".zip")
         self.assertEqual(source["commit"], lock["herdr"]["revision"])
         self.assertEqual(source["filename"], "herdr-" + source["commit"] + ".zip")
         self.assertEqual(source["prefix"], "herdr-" + lock["herdr"]["revision"] + "/")
-        self.assertEqual(source["sha256"], "066c1900ff8a488cf49e51510a75aca059ff66810f31ec39ac559ac0fe1c471a")
-        self.assertEqual(source["size"], 17599768)
+        self.assertEqual(source["sha256"], "eb55ca25c7662278615336392c145efe3781c1613c19cba8932804783a35b565")
+        self.assertEqual(source["size"], 17842142)
         self.assertNotIn("git_repository", source)
         component = next(c for c in lock["components"] if c["id"] == "herdr")
         self.assertEqual(component["sources"], [source])
@@ -1309,6 +1309,8 @@ class ReleaseTests(unittest.TestCase):
              "96fb21b3a861b3a9f29cb0ba1706a0e19038d0f90aa5d66235bf8ac82c319ced"),
             ("fe54d5ff3050f503815a99140384c1e18a95fbbb",
              "01b42adaf84137a76427fde3c8989c02a4ce768702acfb25490013c013d93257"),
+            ("3669ca2dfc0a5a8bccc99b566957551e6f2ff8b5",
+             "066c1900ff8a488cf49e51510a75aca059ff66810f31ec39ac559ac0fe1c471a"),
         ):
             build["source_sha256"] = previous_sha256
             for revision, error in (

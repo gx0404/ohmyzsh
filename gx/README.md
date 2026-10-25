@@ -2,8 +2,9 @@
 
 把一台机器的完整 zsh 工作环境（Oh My Zsh fork 分支 + p10k 主题 + 补全/高亮 +
 zoxide + Nerd 字体）固化进仓库，一条命令在全新 Linux 工控机上部署，实现跨机无缝
-迁移。终端本身不在本层：GX Shell 附带的终端是 Ghostty GX，其配置与快捷键在
-[gx0404/gx_ghostty](https://github.com/gx0404/gx_ghostty) 维护。领域规则见
+迁移。终端本身不在本层：GX Shell 0.7.0 起附带的终端是 Alacritty GX（取代此前的 Ghostty GX），
+其配置与快捷键在 [gx0404/gx_alacritty](https://github.com/gx0404/gx_alacritty)（`gx_alacritty` 分支）
+维护。领域规则见
 [docs/AGENT_RULES/gx-profile.md](../docs/AGENT_RULES/gx-profile.md)。
 
 ## 目录结构
@@ -14,7 +15,7 @@ gx/
 │   ├── zshrc          主配置（p10k、plugins、按键/历史/补全定制、第三方集成）
 │   ├── zshenv         skip_global_compinit + cargo 环境
 │   ├── package.zsh    原生包模式的 profile 隔离（只在 GX_PACKAGE_ROOT/GX_PROFILE_DIR 下生效）
-│   ├── terminal.zsh   Ghostty GX/herdr 的 OSC 7 工作目录上报与提示符光标复位
+│   ├── terminal.zsh   herdr 窗格（及独立 Ghostty）的 OSC 7 工作目录上报与提示符光标复位
 │   ├── windows.zsh    Windows（MSYS/Cygwin）交互层：PowerShell 桥接、缺失命令提示、shim
 │   ├── zshrc.local    机器差异层参照（CUDA/TensorRT、Photoneo、海康 MVS 等；
 │   │                  不入安装器部署对，换机不带走，目标机已有文件原样保留）
@@ -33,8 +34,8 @@ gx/
 正在增加 Windows x64 EXE（私有 MSYS2 Zsh，非 WSL）与 Ubuntu amd64 DEB。
 原生入口为 `gx-zsh` / `herdr`，herdr 独立位于 `gx0404/herdr`（来源分支
 `feature/gx_herdr`，构建取锁内固定 revision 的 GitHub 源码归档）。打包来源、
-工具版本、许可及对应源码见 `scripts/packaging/`；GX Shell 合并安装包（附带 Ghostty GX
-终端）由协调仓 `gx0404/gx_shell` 的发版流程生成。
+工具版本、许可及对应源码见 `scripts/packaging/`；GX Shell 合并安装包（附带 Alacritty GX
+终端）由协调仓 `gxmiaomiao/gx_shell` 的发版流程生成。
 
 **完整包尚未验收，不应把下述接口当作已发布下载。** 中文 HOME/独立 profile/缓存、
 安装升级卸载与 TUI 均需真实通过后才能发布，详见 [发布手册](../docs/RELEASE.md)。
@@ -162,16 +163,19 @@ make gx-install
 4. 目标机重跑安装器即获得新配置（本地模式 `sh ~/.oh-my-zsh/gx/install.sh`
    或在线模式）。
 
-## 终端：Ghostty GX
+## 终端：Alacritty GX
 
-GX Shell 附带的终端是 Ghostty GX，其快捷键、默认配置与界面语言在
-[gx0404/gx_ghostty](https://github.com/gx0404/gx_ghostty) 维护，本仓不再附带任何终端配置。
-GX Zsh 一侧只约定几处与终端键位相关的行为：
+GX Shell 0.7.0 起附带的终端是 Alacritty GX（取代 Ghostty GX），其快捷键、默认配置与默认 Shell 解析在
+[gx0404/gx_alacritty](https://github.com/gx0404/gx_alacritty) 维护，本仓不附带任何终端配置。
+Alacritty GX 按 `<exe 目录>\..\bin\gx-zsh.exe`（Windows）或 `/usr/lib/ohmyzsh-gx/bin/gx-zsh`、PATH 上的
+`gx-zsh`（Linux）找 GX Zsh。GX Zsh 一侧只约定几处与终端键位相关的行为：
 
-- Ghostty GX 默认解绑了上游用于切换标签的 `Alt+1..8`，`Alt+数字` 照常作为 readline 风格的
-  `digit-argument` 交给 zsh；`Alt+.`、`Alt+b`、`Alt+f` 等 readline 标准键同样留给 shell。
+- Alacritty 在 Linux/Windows 上的默认键位不占用 `Alt+数字`（标签切换 `SelectTab` 只在 macOS 绑
+  Command），`Alt+数字` 照常作为 readline 风格的 `digit-argument` 交给 zsh；`Alt+.`、`Alt+b`、
+  `Alt+f` 等 readline 标准键同样留给 shell。Windows 上 `Alt+Enter` 是 Alacritty 的切换全屏。
 - herdr 的 prefix 是 `Ctrl+B`：窗格内要发 `^B`（backward-char）时双击 prefix 透传，或用
-  `Alt+Ctrl+B` 单键直达（zsh、Ghostty GX 与 herdr 的默认键位都没有占用它）。
+  `Alt+Ctrl+B` 单键直达（zsh、Alacritty 与 herdr 的默认键位都没有占用它；Alacritty 的
+  `Ctrl+Shift+B` 是向后搜索，与它不冲突）。
 - 上下方向键在普通与应用光标模式下的两组序列都绑到前缀历史搜索，`Ctrl+P`/`Ctrl+N` 同理。
 
 ## vendored 组件清单
@@ -220,13 +224,22 @@ GX Zsh 一侧只约定几处与终端键位相关的行为：
   配色正确**；灰色建议则确实会消失。512 以内实测 <3 ms/击键，带长路径的
   rsync/ffmpeg 这类真实长命令仍正常高亮。
 
-## Herdr 与 Ghostty GX 联动
+## Herdr 与终端联动
 
 `gx/config/terminal.zsh` 只在交互 shell、fd 1 是 TTY 或 `$TTY` 非空（对 p10k instant prompt
 的 fd 重定向免疫）、不在 ssh / emacs 会话（`SSH_CONNECTION`/`SSH_CLIENT`/`SSH_TTY`/
 `INSIDE_EMACS`，与上游一致），且处在 Ghostty（`TERM_PROGRAM=ghostty`，Ghostty 导出的值恰为
 小写）或 herdr 窗格（`HERDR_ENV=1`）里时，接管 OSC 7 工作目录上报与提示符光标复位；其他终端
-（含 WezTerm）保持上游行为。Ghostty 自带的 zsh 集成已经加载时（它在 `.zshenv` 阶段定义
+（含 WezTerm 与 Alacritty）保持上游行为。
+
+Alacritty（含 Alacritty GX）不导出 `TERM_PROGRAM`（只设 `COLORTERM=truecolor` 与 Linux 上的
+`ALACRITTY_WINDOW_ID`），也不处理 OSC 7，所以直接开在 Alacritty GX 窗口里的 GX Zsh 不满足守卫：
+模块不安装，上游 `omz_termsupport_cwd` 照旧，zshrc 也不开 p10k 的 OSC 133，与普通终端一致，
+没有副作用。在 Alacritty GX 里运行 herdr 时，窗格里的 shell 带 `HERDR_ENV=1`，照常由本模块向 herdr
+上报工作目录，herdr 新开的窗格据此沿用当前目录。守卫保留 `TERM_PROGRAM=ghostty` 分支，给单独安装
+Ghostty 的用户使用；不为 Alacritty 另加判断。
+
+Ghostty 自带的 zsh 集成已经加载时（它在 `.zshenv` 阶段定义
 `_ghostty_state`），OSC 7/133 与光标形状都由它负责：模块只摘掉上游重复上报的
 `omz_termsupport_cwd` 就返回，zshrc 也不再开启 p10k 的 OSC 133，终端不会收到两套标记。herdr
 窗格里的 shell 不带 Ghostty 集成，仍由本模块上报，p10k 发 OSC 133，不叠加 PS1 包装。

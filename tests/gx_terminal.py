@@ -753,8 +753,20 @@ class DeployedInteractive(unittest.TestCase):
             self.assertEqual(captured(data, "TSI", 70), b"true", overrides)
             for mark in (b"\x1b]133;A", b"\x1b]133;B", b"\x1b]133;C;", b"\x1b]133;D;"):
                 self.assertIn(mark, data, (overrides, mark))
-        # 守卫外（未知终端）：C/D 不得发出（A/B 可能由 p10k 缓存带入，不作断言）。
-        data = self.session([marked("true; print -r -- RAN", 72)], TERM_PROGRAM=None, HERDR_ENV=None)
+        # 守卫外的真实 Alacritty 环境：TSI 保持未启用，C/D 不得发出。
+        # A/B 可能由 p10k 缓存带入，不作断言。
+        data = self.session(
+            [
+                marked("print -r -- TSI:${POWERLEVEL9K_TERM_SHELL_INTEGRATION:-unset}", 78),
+                marked("true; print -r -- RAN:ok", 72),
+            ],
+            TERM_PROGRAM=None,
+            HERDR_ENV=None,
+            ALACRITTY_WINDOW_ID="1",
+            COLORTERM="truecolor",
+        )
+        self.assertEqual(captured(data, "TSI", 78), b"unset")
+        self.assertEqual(captured(data, "RAN", 72), b"ok")
         self.assertNotIn(b"\x1b]133;C", data)
         self.assertNotIn(b"\x1b]133;D", data)
 
@@ -943,6 +955,27 @@ class TerminalIntegration(unittest.TestCase):
             hooks = data.split(b"PF:", 1)[1].split(b":END", 1)[0].split(b",")
             self.assertIn(b"omz_termsupport_cwd", hooks, value)
             self.assertNotIn(b"_gx_terminal_report_cwd", hooks, value)
+
+    def test_alacritty_without_herdr_keeps_gx_hooks_disabled(self):
+        data = self.run_shell(
+            UPSTREAM_HOOK + "source MODULE; cd DIRECTORY; "
+            "print -r -- INSTALLED:${GX_TERMINAL_CWD_INSTALLED:-no} "
+            "FN:${+functions[_gx_terminal_report_cwd]}${+functions[_gx_terminal_reset_cursor]} "
+            "PF:${(j:,:)precmd_functions}:END",
+            env_overrides={
+                "TERM_PROGRAM": None,
+                "HERDR_ENV": None,
+                "ALACRITTY_WINDOW_ID": "1",
+                "COLORTERM": "truecolor",
+            },
+        )
+        self.assertIn(b"INSTALLED:no FN:00", data)
+        hooks = data.split(b"PF:", 1)[1].split(b":END", 1)[0].split(b",")
+        self.assertIn(b"omz_termsupport_cwd", hooks)
+        self.assertNotIn(b"_gx_terminal_report_cwd", hooks)
+        self.assertNotIn(b"_gx_terminal_reset_cursor", hooks)
+        self.assertNotIn(b"\x1b]7;", data)
+        self.assertNotRegex(data, rb"\x1b\[[0-6] q")
 
     def test_remote_sessions_keep_upstream_behaviour(self):
         # ssh / emacs 里的 cwd 对本地终端没有意义：即使 TERM_PROGRAM/HERDR_ENV 被

@@ -1,4 +1,4 @@
-# Ghostty GX / herdr 工作目录上报与提示符光标复位；不改 PS1、鼠标模式或已有 ZLE widget。
+# Alacritty GX 内 herdr 窗格与 Ghostty GX 的工作目录上报、提示符光标复位；不改 PS1、鼠标模式或已有 ZLE widget。
 # 守卫对 p10k instant prompt 免疫：instant prompt 在 zshrc 早期把 fd 1 重定向到临时
 # 文件，此时 `-t 1` 恒假，故改以 $TTY（zsh 为有控制终端的 shell 记录的 tty 路径）
 # 判定；无 pty（agent 以 zsh -ic 调用）时 $TTY 为空，模块与旧行为一致不安装。
@@ -9,7 +9,8 @@
 # 环境下连函数都不定义（omz #11696），本模块同样不接管，避免 TERM_PROGRAM/HERDR_ENV
 # 被 SendEnv/AcceptEnv 带进 ssh 后把远端 cwd 以 file://localhost/... 报成本地目录。
 [[ -z ${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}${INSIDE_EMACS:-} ]] || return 0
-# Ghostty 导出的 TERM_PROGRAM 恰为小写 ghostty；herdr 窗格带 HERDR_ENV=1。
+# Alacritty 不导出 TERM_PROGRAM；仅 herdr 窗格凭 HERDR_ENV=1 安装。
+# Ghostty 导出小写 ghostty；直接 Alacritty 与其他终端保留上游行为。
 [[ $TERM_PROGRAM == ghostty || ${HERDR_ENV:-} == 1 ]] || return 0
 autoload -Uz add-zsh-hook
 # 上游 lib/termsupport.zsh 在 xterm* 终端下无条件挂 omz_termsupport_cwd（每提示符

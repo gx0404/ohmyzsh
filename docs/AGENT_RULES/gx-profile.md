@@ -21,16 +21,18 @@ shell 环境复制到另一台机器"的交付物，部署目标是用户真实 
   `${GITSTATUS_CACHE_DIR:-~/.cache}/gitstatus/`）与
   `gx/bin/zoxide-linux-x86_64`（0.9.9）；`gx/fonts/` 是 Nerd Fonts v3.4.0
   JetBrainsMono 四字重。升级任一组件须同步更新 gx/README.md 的来源/版本/复刻命令清单。
-- 终端配置不属本层：GX Shell 附带的 Ghostty GX 在 `gx0404/gx_ghostty` 维护，安装器不部署
+- 终端配置不属本层：GX Shell 附带的 Alacritty GX 在 `gx0404/gx_alacritty` 的
+  `gx_alacritty` 分支维护；Ghostty GX 仍在 `gx0404/gx_ghostty` 独立维护。安装器不部署
   任何终端配置（`gx/wezterm/` 镜像已移除，`--skip-wezterm` 保留一个版本作无操作参数）。旧版
   部署的 `~/.config/wezterm` 只在 `--uninstall` 且带 `.gx-managed` 标记时移除，无标记的属用户
   自有，安装与卸载都不碰。
 - 终端集成真源是 `gx/config/terminal.zsh` 与 zshrc 的 p10k 段：守卫为
-  `TERM_PROGRAM == ghostty || HERDR_ENV == 1`（Ghostty 导出恰为小写）；Ghostty 自带 zsh 集成
-  在位（`(( ${+_ghostty_state} ))`）时 OSC 7/133 与光标归它，模块只摘上游
-  `omz_termsupport_cwd` 后返回，zshrc 不开 `POWERLEVEL9K_TERM_SHELL_INTEGRATION`。OSC 7 固定
-  `file://localhost/<编码路径>`（Ghostty 拒收空主机），MSYS 盘符目录报 `/C:/…`，非盘符运行时
-  目录不报；TTY、ssh/emacs 守卫不得放宽。
+  `TERM_PROGRAM == ghostty || HERDR_ENV == 1`。Alacritty 不导出 `TERM_PROGRAM`，也不处理
+  OSC 7；直接窗口保留上游 `omz_termsupport_cwd`，只有 herdr 窗格凭 `HERDR_ENV=1` 安装。
+  Ghostty 自带 zsh 集成在位（`(( ${+_ghostty_state} ))`）时 OSC 7/133 与光标归它，模块只摘
+  上游 `omz_termsupport_cwd` 后返回，zshrc 不开 `POWERLEVEL9K_TERM_SHELL_INTEGRATION`。
+  OSC 7 固定 `file://localhost/<编码路径>`（Ghostty 拒收空主机），MSYS 盘符目录报 `/C:/…`，
+  非盘符运行时目录不报；TTY、ssh/emacs 守卫不得放宽。
 - 目录名用 `gx/omz-custom/` 而非 `gx/custom/`：上游 `.gitignore` 的 `custom/`
   模式会连带忽略嵌套同名目录，且目录级排除无法用取反恢复。
 - `gx/history/` 是本机 Zsh 历史的**可公开子集**生成物（`scripts/gx_history.py::summarize`

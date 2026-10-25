@@ -60,6 +60,8 @@ Zsh 二进制；升级不覆盖旧指纹缓存，资源树不产生 `.zwc`。无
 更新 herdr 时同时更新再分发锁里的源码记录、版本及 LICENSE 的完整提交 URL，核对
 实际许可摘要；重新审计 Cargo.lock 与补充许可后更新 `herdr-license-supplements.json`
 的审计基线。补充许可文本保留 Git 原始字节，不能以换行转换改变锁定摘要。
+更新时还要审计新增脚本和非 Cargo 资产；例如离线视图的第三方 bundle 必须核对自身
+许可与源树收集路径，完整许可已在源树内时不新增虚构的 Cargo supplement。
 `dependencies.json.redistribution.canonical_sha256` 必须同步，旧源码摘要、旧 revision
 的构建回执不可复用。`gx_build_herdr.py` 从锁生成 `BUILD.json` 与 receipt 的
 repository、branch_provenance、revision、source_sha256 及包身份；只有真实构建才能

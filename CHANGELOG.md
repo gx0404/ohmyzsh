@@ -6,6 +6,11 @@
 
 ## 0.2.0(TBD)
 
+- 更新 herdr 到 `18c577aa316bd5d74f3d56f452fb52c037302b19` / 0.9.5，锁定真实
+  GitHub ZIP 的 SHA-256 与大小；审计新增 graphify 离线视图，确认 three.js
+  0.186.1 的完整 MIT 文本由源树许可收集覆盖，不新增 Cargo supplement。
+- GX 终端说明迁移到 Alacritty：直接窗口保留上游行为，herdr 窗格继续使用
+  `HERDR_ENV=1`；保留 Ghostty 分支，并新增 Alacritty 负向 PTY 覆盖。
 - Linux Zsh SDK 下载在握手/读取超时、连接中断及有限的临时 HTTP 错误后最多尝试三次，
   日志记录输入文件、地址与次数。每次使用独立临时文件，校验通过后才写入最终路径；
   证书、永久 HTTP、磁盘及 SHA-256 错误仍立即失败，原 Ubuntu 签名和摘要链保持不变。
