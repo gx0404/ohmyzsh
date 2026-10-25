@@ -197,8 +197,13 @@ class DeployedZshrc(unittest.TestCase):
         try:
             local.write_text('zstyle ":bracketed-paste-magic" active-widgets "self-*"\n')
             out, err = self.run_login('PASTED=${(l:600::x:)}; zstyle -a :bracketed-paste-magic active-widgets reply; '
-                                      'print -r -- "${(j:,:)reply}"')
-            self.assertEqual(out, b"self-*\n")
+                                      'print -r -- "GX_PASTE_POLICY:${(j:,:)reply}"')
+            # Host compfix warnings are valid startup output, not the policy result.
+            # Keep compaudit enabled and require exactly one unmodified policy marker.
+            policy = [line for line in out.splitlines() if line.startswith(b"GX_PASTE_POLICY:")]
+            self.assertEqual(policy, [b"GX_PASTE_POLICY:self-*"], out.decode(errors="replace"))
+            if out != b"GX_PASTE_POLICY:self-*\n":
+                print("GX-PASTE-STARTUP-DIAGNOSTICS\n" + out.decode(errors="replace"))
             self.assertEqual(err, b"")
         finally:
             if previous is None:
