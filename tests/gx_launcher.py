@@ -268,6 +268,26 @@ class NativeLauncher(unittest.TestCase):
         else:
             self.assertEqual(values["_ZO_DATA_DIR"], "<unset>")
 
+    def test_nested_launch_preserves_user_toolchain_values_and_path(self):
+        fixture = self.fake_install("nested-user-toolchain")
+        user_bin = str(fixture["case"] / "用户 tools/node/bin")
+        inherited_path = user_bin + os.pathsep + fixture["env"]["PATH"]
+        toolchain = {
+            "NVM_DIR": str(fixture["case"] / "用户 NVM"),
+            "NVM_BIN": user_bin,
+            "PNPM_HOME": str(fixture["case"] / "用户 pnpm"),
+        }
+        for launcher in ("gx-zsh", "herdr"):
+            with self.subTest(launcher=launcher):
+                result = self.launch(fixture, launcher, GX_PACKAGE_ROOT=str(fixture["resources"]),
+                                     PATH=inherited_path, GX_TEST_PRINT="NVM_DIR,NVM_BIN,PNPM_HOME,PATH", **toolchain)
+                self.assertEqual(result.returncode, 17, result.stdout + result.stderr)
+                self.assertEqual(result.stderr, "")
+                values = dict(line.split("=", 1) for line in result.stdout.splitlines())
+                for name, value in toolchain.items():
+                    self.assertEqual(values[name], value)
+                self.assertTrue(values["PATH"].endswith(os.pathsep + inherited_path), values["PATH"])
+
     def test_default_shell_command_changes_only_gx_managed_herdr_config(self):
         fixture = self.fake_install("default-shell")
         config = fixture["profile"] / "herdr/config.toml"

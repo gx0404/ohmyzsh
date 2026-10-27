@@ -15,12 +15,11 @@ const HERDR_KEYS: [&str; 2] = ["default_shell", "shell_mode"];
 #[cfg(windows)]
 const LEGACY_SHELL_SUFFIX: &str = "\\runtime/msys64/usr/bin/zsh.exe";
 // 父 GX Zsh 导出的派生变量：MSYS2 交给原生进程时已转成 Windows 形式，由子 Zsh 的 package.zsh 重新计算。
-const GX_DERIVED_VARIABLES: [&str; 10] = [
+const GX_DERIVED_VARIABLES: [&str; 9] = [
     "ZSH",
     "ZSH_CACHE_DIR",
     "ZSH_COMPDUMP",
     "HISTFILE",
-    "NVM_DIR",
     "GITSTATUS_AUTO_INSTALL",
     "P9K_TTY",
     "_P9K_TTY",
@@ -1921,7 +1920,15 @@ mod tests {
         ] {
             assert_eq!(envs[name].as_deref(), Some(value.as_str()), "{name}");
         }
-        for name in ["TEMP", "TMP", "_ZO_DATA_DIR"] {
+        // User toolchains are inherited, never cleared as GX profile data.
+        for name in [
+            "TEMP",
+            "TMP",
+            "_ZO_DATA_DIR",
+            "NVM_DIR",
+            "NVM_BIN",
+            "PNPM_HOME",
+        ] {
             assert!(!envs.contains_key(name), "{name}");
         }
         assert_eq!(calls.len(), usize::from(cfg!(windows)));

@@ -170,7 +170,7 @@
   export ZSH=$root ZSH_CUSTOM=$custom
   export XDG_CACHE_HOME="$profile/.cache"
   export ZSH_CACHE_DIR="$profile/.cache/oh-my-zsh" ZSH_COMPDUMP=$dump
-  export HISTFILE="$profile/.zsh_history" NVM_DIR="$profile/.nvm"
+  export HISTFILE="$profile/.zsh_history"
   export GITSTATUS_AUTO_INSTALL=0
   [[ -z $installation ]] || typeset -g POWERLEVEL9K_INSTALLATION_DIR=$installation
   typeset -g POWERLEVEL9K_CONFIG_FILE="$profile/.p10k.zsh"

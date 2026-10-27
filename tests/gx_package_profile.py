@@ -11,7 +11,7 @@ import unittest
 
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-PLUGINS = ("git", "sudo", "extract", "colored-man-pages", "nvm", "herdr")
+PLUGINS = ("git", "sudo", "extract", "colored-man-pages", "herdr")
 
 
 def make_writable(root):
@@ -60,7 +60,7 @@ class PackageProfile(unittest.TestCase):
             shutil.copytree(REPO / "plugins" / name, cls.resources / "plugins" / name)
         (cls.resources / "custom").mkdir()
         (cls.resources / "gx/config").mkdir(parents=True)
-        for name in ("zshrc", "zshenv", "package.zsh", "p10k.zsh", "terminal.zsh", "windows.zsh"):
+        for name in ("zshrc", "zshenv", "package.zsh", "p10k.zsh", "terminal.zsh", "windows.zsh", "toolchain.zsh"):
             shutil.copy2(REPO / "gx/config" / name, cls.resources / "gx/config" / name)
         shutil.copy2(REPO / "gx/install.sh", cls.resources / "gx/install.sh")
         shutil.copytree(
@@ -707,6 +707,163 @@ class PackageProfile(unittest.TestCase):
         self.assertIn("GX_PACKAGE_HISTORY", (self.profile / ".zsh_history").read_text())
         self.assertEqual(list(self.home.iterdir()), [])
         self.assertEqual(list(inherited.iterdir()), [])
+
+    def toolchain_env(self, **extra):
+        tools = self.root / "no-node-bin"
+        tools.mkdir(exist_ok=True)
+        hidden = {"node", "nodejs", "npm", "npx", "pnpm", "pnpx", "yarn", "corepack"}
+        for binary in self.system_path.iterdir():
+            target = tools / binary.name
+            if binary.name not in hidden and not target.is_symlink():
+                target.symlink_to(binary)
+        return dict(self.env, PATH=f"{self.bin}:{tools}",
+                    GX_TEST_NVM_LOG=str(self.root / "nvm-called"), **extra)
+
+    def nvm_tree(self, directory, version="v20.17.0", *, installed=True):
+        (directory / "alias").mkdir(parents=True)
+        (directory / "alias/default").write_text(version + "\n")
+        (directory / "nvm.sh").write_text(r'''
+print -r -- "source:$*" >> "$GX_TEST_NVM_LOG"
+[[ "$*" == --no-use ]] || return 91
+function nvm {
+  print -r -- "$*" >> "$GX_TEST_NVM_LOG"
+  case $1 in
+    version) cat "$NVM_DIR/alias/default" ;;
+    which) print -r -- "$NVM_DIR/versions/node/$2/bin/node" ;;
+    use) path=("$NVM_DIR/versions/node/$3/bin" $path); export PATH ;;
+    current) command node --version ;;
+    *) return 92 ;;
+  esac
+}
+''')
+        if installed:
+            binary = directory / "versions/node" / version / "bin/node"
+            binary.parent.mkdir(parents=True)
+            binary.write_text(f"#!/bin/sh\nprintf '%s\\n' {version}\n")
+            binary.chmod(0o755)
+        return directory
+
+    def test_toolchain_ignores_incomplete_profile_and_missing_scripts(self):
+        (self.profile / ".nvm/versions/node/v99/bin").mkdir(parents=True)
+        (self.home / ".nvm").mkdir()
+        (self.home / ".bashrc").write_text('print forbidden-bashrc\n')
+        env = self.toolchain_env()
+        before = tree_snapshot(self.home)
+        out = self.run_zsh('print -r -- "${NVM_DIR-unset}|${+functions[nvm]}|${+functions[node]}"', env=env)
+        self.assertEqual(out, "unset|0|0\n")
+        self.assertEqual(tree_snapshot(self.home), before)
+        self.assertFalse((self.root / "nvm-called").exists())
+
+    def test_toolchain_resolves_installed_default_not_highest_node(self):
+        nvm = self.nvm_tree(self.home / ".nvm")
+        newer = nvm / "versions/node/v24.22.1/bin/node"
+        newer.parent.mkdir(parents=True)
+        newer.write_text("#!/bin/sh\nexit 99\n")
+        newer.chmod(0o755)
+        (self.profile / ".nvm").mkdir()
+        env = self.toolchain_env()
+        out = self.run_zsh('node --version; print -r -- "$NVM_DIR|${+functions[node]}|${+functions[pnpm]}"', env=env)
+        self.assertEqual(out, f"v20.17.0\n{nvm}|0|0\n")
+        self.assertEqual((self.root / "nvm-called").read_text().splitlines(),
+                         ["source:--no-use", "version default", "which v20.17.0", "use --silent v20.17.0"])
+
+    def test_toolchain_xdg_fallback_requires_complete_standard_install(self):
+        (self.home / ".nvm").mkdir()
+        xdg = self.root / "XDG 配置"
+        nvm = self.nvm_tree(xdg / "nvm", "v22.4.1")
+        env = self.toolchain_env(XDG_CONFIG_HOME=str(xdg))
+        out = self.run_zsh('node --version; print -r -- "$NVM_DIR"', env=env)
+        self.assertEqual(out, f"v22.4.1\n{nvm}\n")
+
+    def test_toolchain_explicit_nvm_is_authoritative_even_if_invalid(self):
+        self.nvm_tree(self.home / ".nvm")
+        selected = self.nvm_tree(self.root / "explicit NVM 中文", "v18.20.8")
+        env = self.toolchain_env(NVM_DIR=str(selected))
+        self.assertEqual(self.run_zsh('node --version; print -r -- "$NVM_DIR"', env=env),
+                         f"v18.20.8\n{selected}\n")
+        for value in ("", str(self.root / "missing nvm")):
+            with self.subTest(value=value):
+                env = self.toolchain_env(NVM_DIR=value)
+                out = self.run_zsh('print -r -- "$NVM_DIR|${+functions[nvm]}|${commands[node]-unset}"', env=env)
+                self.assertEqual(out, f"{value}|0|unset\n")
+
+    def test_toolchain_missing_default_binary_never_installs(self):
+        self.nvm_tree(self.home / ".nvm", installed=False)
+        env = self.toolchain_env()
+        self.assertEqual(self.run_zsh('print -r -- "${commands[node]-unset}|${+functions[nvm]}"', env=env),
+                         "unset|1\n")
+        self.assertEqual((self.root / "nvm-called").read_text().splitlines(),
+                         ["source:--no-use", "version default", "which v20.17.0"])
+
+    def test_toolchain_unresolved_default_does_not_run_use_or_install(self):
+        for index, version in enumerate(("system", "N/A", "none", "")):
+            with self.subTest(version=version):
+                directory = self.nvm_tree(self.root / f"nvm-default-{index}", version, installed=False)
+                env = self.toolchain_env(NVM_DIR=str(directory))
+                self.assertEqual(self.run_zsh('print -r -- "${commands[node]-unset}|${+functions[nvm]}"', env=env),
+                                 "unset|1\n")
+                self.assertEqual((self.root / "nvm-called").read_text().splitlines()[-2:],
+                                 ["source:--no-use", "version default"])
+
+    def test_toolchain_initialized_nvm_or_node_function_is_preserved(self):
+        self.nvm_tree(self.home / ".nvm")
+        (self.profile / ".zshenv").write_text("skip_global_compinit=1\nfunction node { print active-node; }\n"
+                                           "function nvm { print existing-nvm; }\n")
+        env = self.toolchain_env()
+        self.assertEqual(self.run_zsh('node; nvm current', env=env), "active-node\nexisting-nvm\n")
+        self.assertFalse((self.root / "nvm-called").exists())
+
+    def test_toolchain_inherited_manager_has_no_command_proxies_or_version_switch(self):
+        self.nvm_tree(self.home / ".nvm")
+        self.shim("node", "printf 'inherited-node\\n'")
+        self.shim("pnpm", "printf 'inherited-pnpm\\n'")
+        env = self.toolchain_env()
+        out = self.run_zsh('node --version; pnpm --version; '
+                           'print -r -- "${+functions[nvm]}|${+functions[node]}|${+functions[pnpm]}"', env=env)
+        self.assertEqual(out, "inherited-node\ninherited-pnpm\n1|0|0\n")
+        self.assertFalse((self.root / "nvm-called").exists())
+        out = self.run_zsh('nvm current; node --version', env=env)
+        self.assertEqual(out, "inherited-node\ninherited-node\n")
+        self.assertEqual((self.root / "nvm-called").read_text().splitlines(), ["source:--no-use", "current"])
+
+    def test_toolchain_pnpm_home_supports_both_layouts_without_wrapping(self):
+        for layout in ("bin", ""):
+            with self.subTest(layout=layout):
+                home = self.root / ("PNPM 中文 " + (layout or "old"))
+                binary = home / layout / "pnpm"
+                binary.parent.mkdir(parents=True)
+                binary.write_text("#!/bin/sh\nprintf '10.20.0\\n'\n")
+                binary.chmod(0o755)
+                env = self.toolchain_env(PNPM_HOME=str(home))
+                out = self.run_zsh('pnpm --version; print -r -- "$PNPM_HOME|${+functions[pnpm]}"', env=env)
+                self.assertEqual(out, f"10.20.0\n{home}|0\n")
+        self.shim("pnpm", "printf 'already-active\\n'")
+        self.assertEqual(self.run_zsh('pnpm --version', env=env), "already-active\n")
+
+    def test_toolchain_local_override_remains_last(self):
+        self.nvm_tree(self.home / ".nvm")
+        (self.profile / ".zshrc.local").write_text('export NVM_DIR=local-override\nnode() { print local-node; }\n')
+        env = self.toolchain_env()
+        self.assertEqual(self.run_zsh('node; print -r -- "$NVM_DIR"', env=env), "local-node\nlocal-override\n")
+
+    def test_toolchain_noninteractive_source_is_silent_and_does_not_switch(self):
+        self.nvm_tree(self.home / ".nvm")
+        env = self.toolchain_env(MODULE=str(self.resources / "gx/config/toolchain.zsh"))
+        self.assertEqual(self.run_zsh('source "$MODULE"; print -r -- "${NVM_DIR-unset}|${+functions[nvm]}"',
+                                      env=env, interactive=False), "unset|0\n")
+        self.assertFalse((self.root / "nvm-called").exists())
+
+    def test_toolchain_windows_guard_preserves_native_environment(self):
+        self.nvm_tree(self.home / ".nvm")
+        for ostype in ("msys", "cygwin"):
+            with self.subTest(ostype=ostype):
+                (self.profile / ".zshenv").write_text(f"skip_global_compinit=1\nOSTYPE={ostype}\n")
+                env = self.toolchain_env(NVM_DIR="C:/用户 空格/nvm", PNPM_HOME="C:/用户 空格/pnpm",
+                                         GX_PACKAGE_BIN=str(self.bin))
+                self.shim("node", "printf 'native-node\\n'")
+                out = self.run_zsh('node --version; print -r -- "$NVM_DIR|$PNPM_HOME|${+functions[nvm]}"', env=env)
+                self.assertEqual(out, "native-node\nC:/用户 空格/nvm|C:/用户 空格/pnpm|0\n")
+        self.assertFalse((self.root / "nvm-called").exists())
 
     def test_profile_config_precedence_and_no_host_machine_layer(self):
         for name in (".p10k.zsh", ".zshrc.local"):

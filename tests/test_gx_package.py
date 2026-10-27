@@ -108,7 +108,7 @@ class PackageTests(unittest.TestCase):
     def test_whitelist_excludes_machine_and_runtime_data(self):
         for path in ("gx/config/zshrc.local", "custom/example.zsh", "cache/file", "log/run", ".env", "gx/wezterm/wezterm.lua", "docs/kb/chunks.json", "tests/test.py"):
             self.assertFalse(package.resource_allowed(path), path)
-        for path in ("oh-my-zsh.sh", "plugins/herdr/herdr.plugin.zsh", "gx/config/package.zsh", "lib/git.zsh"):
+        for path in ("oh-my-zsh.sh", "plugins/herdr/herdr.plugin.zsh", "gx/config/package.zsh", "gx/config/toolchain.zsh", "lib/git.zsh"):
             self.assertTrue(package.resource_allowed(path), path)
 
     def test_public_notices_are_in_source_snapshot_not_runtime_resources(self):

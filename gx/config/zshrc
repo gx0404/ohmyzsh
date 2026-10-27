@@ -16,8 +16,6 @@ fi
 export ZSH="$HOME/.oh-my-zsh"
 if [[ -n ${GX_PACKAGE_ROOT:-} ]]; then
   export ZSH="$GX_PACKAGE_ROOT"
-else
-  export NVM_DIR="$HOME/.nvm"
 fi
 # 个人 Python 工具链默认使用 /usr/local 的 CPython 3.13（仅在本机存在时生效）；
 # VS Code/项目显式注入 UV_PYTHON 时保留项目解释器，包模式使用 launcher 的工具链。
@@ -47,6 +45,7 @@ else
   )
 fi
 export PATH
+source "$ZSH/gx/config/toolchain.zsh"
 
 # 外部程序生成的初始化脚本缓存在 $ZSH_CACHE_DIR：首行记录生成命令、二进制路径/mtime/大小与
 # GX 包身份，全部一致时直接 source 已 zcompile 的缓存，省掉每次启动的进程（Windows 上各约 50 ms）。
@@ -99,9 +98,7 @@ fi
 
 ZSH_THEME="powerlevel10k/powerlevel10k"
 zstyle ':omz:update' mode disabled
-zstyle ':omz:plugins:nvm' lazy yes
-zstyle ':omz:plugins:nvm' lazy-cmd eslint prettier pnpm yarn codex
-plugins=(git sudo extract colored-man-pages nvm herdr)
+plugins=(git sudo extract colored-man-pages herdr)
 # Windows 的 sudo 是系统 sudo.exe，提不了 MSYS 命令的权限；没有 man 时也不包装它。
 [[ $OSTYPE == (cygwin|msys)* ]] && plugins=(${plugins:#sudo})
 [[ -f ${commands[man]:-} ]] || plugins=(${plugins:#colored-man-pages})

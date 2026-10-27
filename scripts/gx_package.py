@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RESOURCE_FILES = {
     "oh-my-zsh.sh", "LICENSE.txt", "gx/config/zshrc", "gx/config/zshenv",
     "gx/config/package.zsh", "gx/config/p10k.zsh", "gx/config/terminal.zsh", "gx/config/windows.zsh",
+    "gx/config/toolchain.zsh",
 }
 BUILD_FILES = {
     "CHANGELOG.md", "scripts/gx-launcher/main.rs", "scripts/gx_package.py", "scripts/gx_p10k_metadata.py",
