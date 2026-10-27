@@ -192,9 +192,31 @@ Alacritty GX 按 `<exe 目录>\..\bin\gx-zsh.exe`（Windows）或 `/usr/lib/ohmy
 
 ## 范围外（有意不迁移）
 
-完整 `~/.zsh_history` 与 zoxide 数据库（隐私）、nvm/cargo/bun/go 等 SDK（PATH 守卫
-静默跳过）、`.gitconfig`、任何 token/密钥文件。atuin 在 zshrc 中留有守卫集成，
-未安装则自动跳过。
+完整 `~/.zsh_history` 与 zoxide 数据库（隐私）、nvm/cargo/bun/go 等 SDK 的安装文件、
+`.gitconfig`、任何 token/密钥文件均不迁移。已有用户工具链按下面的契约发现和继承；
+不会复制 Bash 配置或在启动时安装 SDK。atuin 未安装则自动跳过。
+
+### 用户 Node / NVM / pnpm
+
+包模式保持真实 `HOME` 与 GX 独立 `ZDOTDIR`，主题、历史、插件仍使用 GX profile；
+传统 HOME 部署也使用同一个交互初始化模块 `gx/config/toolchain.zsh`。
+
+- 显式 `NVM_DIR`（包括空值或无 `nvm.sh` 的目录）原样保留，不暗中换到其他安装。
+  未设置时，仅发现含可读 `nvm.sh` 的 `~/.nvm` 或 `${XDG_CONFIG_HOME:-$HOME/.config}/nvm`。
+- 已有非系统 Node、函数/别名及其他管理器优先；只在 Node 缺失或来自 `/usr/bin/node`、
+  `/bin/node` 时，让 NVM 解析 `default`，且只启用已安装版本。缺少 default、版本未安装或
+  显式选择 system 时不切换，不扫描“最高版本”，不自动下载。
+- 不再给 `node`、`npm`、`pnpm` 等套 NVM 惰性函数；保留其他管理器时，显式调用 `nvm`
+  才加载 `nvm.sh --no-use`。Windows/MSYS 不执行 POSIX NVM 初始化。
+- 现有 pnpm（含 Corepack shim）优先；命令不存在时，只补入 `PNPM_HOME/bin` 或旧式
+  `PNPM_HOME` 中确实存在的可执行文件。未安装 pnpm 不伪造成功，也不自动安装。
+- 初始化早于 `.zshrc.local`，用户最终覆盖保留；非交互 Zsh 不切换版本、不新增输出。
+  `gx-zsh` 启动器沿用 `-il` 语义，包括附带 `-c` 时；纯非交互程序应直接调用 Zsh。
+
+排障时在出错窗口执行 `print -r -- "$HOME" "$ZDOTDIR" "${NVM_DIR-<unset>}" "${PNPM_HOME-<unset>}"`、
+`whence -va node npm pnpm` 和 `node -p 'typeof require("node:util").parseEnv'`。
+若 `NVM_DIR` 指向没有 `nvm.sh` 的旧 profile 目录，先备份自己的显式配置，再修正该设置；
+GX 不删除旧目录或版本文件。其他终端能运行 Node 不代表当前 GX 窗口的 PATH 已正确。
 
 历史的通用命令精选、使用统计与操作习惯见 [history/README.md](history/README.md)。
 安装器不自动导入精选；可以在目标机的 Zsh 中手动加载，用于历史检索与建议。

@@ -4,6 +4,14 @@
 不替代上游 `omz changelog` 从 Conventional Commits 动态生成的体系。版本取
 `## X.Y.Z(日期|TBD)` 的最大数值 SemVer（scripts/version.py 维护）。
 
+## 0.2.1(TBD)
+
+- 包模式不再覆盖用户 `NVM_DIR`，原生启动器的嵌套环境清理也不再移除它。
+- GX 交互初始化改由独立工具链模块处理：完整 NVM 自动发现，已安装 default 的有限回退，
+  已激活/非系统 Node 优先；去掉 Node/npm/pnpm 等惰性包装，不改上游 nvm 插件。
+- 补充 `PNPM_HOME/bin` 和旧式根目录布局，保留已有 pnpm/Corepack 命令；Windows 跳过
+  POSIX NVM。非交互启动无新增初始化，用户 `.zshrc.local` 保留最终覆盖权。
+
 ## 0.2.0(TBD)
 
 - 更新 herdr 到 `18c577aa316bd5d74f3d56f452fb52c037302b19` / 0.9.5，锁定真实

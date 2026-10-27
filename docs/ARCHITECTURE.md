@@ -89,9 +89,9 @@ changelog.sh（从 Conventional Commits 生成变更日志）、require_tool.sh
   Windows 下 `_ZO_DATA_DIR` 未设置时导出 profile 内的原生路径。
 - 入参环境含 `GX_PACKAGE_ROOT` 或 `GX_PROFILE_DIR` 时视为 GX 父环境：不继承 `FPATH`；
   `ZSH_CUSTOM`、`POWERLEVEL9K_INSTALLATION_DIR` 转成 POSIX，等于包内默认值时移除；移除
-  `ZSH`、`ZSH_CACHE_DIR`、`ZSH_COMPDUMP`、`HISTFILE`、`NVM_DIR`、`GITSTATUS_AUTO_INSTALL`、
-  `P9K_TTY`、`_P9K_TTY`、`P9K_SSH`、`_P9K_SSH_TTY` 这 10 个变量，以及指向 profile 的
-  `XDG_CACHE_HOME`。其他父环境只保留 `FPATH` 里的绝对 POSIX 项。
+  `ZSH`、`ZSH_CACHE_DIR`、`ZSH_COMPDUMP`、`HISTFILE`、`GITSTATUS_AUTO_INSTALL`、
+  `P9K_TTY`、`_P9K_TTY`、`P9K_SSH`、`_P9K_SSH_TTY` 这 9 个变量，以及指向 profile 的
+  `XDG_CACHE_HOME`。`NVM_DIR` 属于用户工具链，嵌套启动也保留；其他父环境只保留 `FPATH` 里的绝对 POSIX 项。
 - herdr 变体给 server 的环境与 `gx-zsh` 相同（`ZDOTDIR`、`FPATH`、`GX_*`、`MSYSTEM`、
   `_ZO_DATA_DIR` 等），只有 `HOME` 是原生 Windows 路径（`gx-zsh` 给的是 POSIX 形式）。默认 Shell
   换成 pwsh、cmd 等时窗格仍继承这些变量；这是有意保留的，运行中的 server 切回 GX Zsh 后新窗格
